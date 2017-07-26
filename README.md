@@ -3,3 +3,5 @@
 
 # Capstone Project
 By Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu
+
+[Demo](https://capstone-settlers.herokuapp.com/)
