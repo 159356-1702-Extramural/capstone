@@ -1,0 +1,22 @@
+{
+  "name": "capstone",
+  "version": "0.0.1",
+  "description": "Extramural Capstone Project ",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.15.3",
+    "socket.io": "^2.0.3"
+  },
+  "devDependencies": {
+    "ava": "^0.21.0",
+    "coveralls": "^2.13.1",
+    "nyc": "^11.0.3",
+    "sinon": "^2.4.0"
+  }
+}
