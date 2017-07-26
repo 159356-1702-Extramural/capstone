@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "nyc ava",
+    "test:watch": "nyc ava --watch"
   },
   "author": "Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu",
   "license": "ISC",
