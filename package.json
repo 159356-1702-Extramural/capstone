@@ -12,6 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
+    "geckodriver": "^1.8.0",
+    "istanbul": "^0.4.5",
+    "saucelabs": "^1.4.0",
+    "selenium": "^2.20.0",
+    "selenium-webdriver": "^3.5.0",
     "socket.io": "^2.0.3",
     "winston": "^2.3.1"
   },
