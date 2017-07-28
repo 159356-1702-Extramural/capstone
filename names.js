@@ -6,6 +6,10 @@ module.exports = {
 
     timsName : function() {
         return 'Tim';
+    },
+
+    fredsName : function() {
+        return 'Fred';
     }
 
 };
