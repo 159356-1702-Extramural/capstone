@@ -10,6 +10,10 @@ module.exports = {
 
     fredsName : function() {
         return 'Fred';
+    },
+
+    alaynsName : function() {
+        return "Alayn";
     }
 
 };
