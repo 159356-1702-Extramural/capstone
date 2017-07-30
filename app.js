@@ -18,7 +18,11 @@ var io        = require('socket.io')(server);
 
 var PORT      = process.env.PORT || 3000;
 
-// Define static file directory
+// Load game lobby
+var Lobby     = require('./game/lobby.js');
+var lobby     = new Lobby();
+
+// Define static files directory
 app.use(express.static('public'));
 
 // Logging example
@@ -44,6 +48,16 @@ app.get('/', function(req, res) {
 // Handle new connection
 io.on('connection', function(socket) {
     console.log('A client has connected...');
+
+    socket.on('join_request', function(data) {
+        console.log('Join Request');
+        lobby.assign_player(socket, data);
+    });
+
+    socket.on('reset_game', function() {
+        lobby.reset_game();
+    });
+
 });
 
 server.listen(PORT, function() {
