@@ -3,6 +3,11 @@
   "version": "0.0.1",
   "description": "Extramural Capstone Project ",
   "main": "app.js",
+  "ava" : {
+    "files": [
+      "tests/*.js"
+    ]
+  },
   "scripts": {
     "start": "node app.js",
     "inspect": "node --inspect app.js",
