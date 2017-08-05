@@ -1,8 +1,20 @@
-function Game() {
-    this.max_players  = 4;
-    this.players      = [];
-    this.game_full    = false;
-    this.round_num    = 1;
+function Game(lobby) {
+    
+    // Reference to the game lobby
+    this.lobby          = lobby;
+    
+    this.max_players    = 2;
+    this.players        = [];
+
+    this.game_full      = false;
+    this.round_num      = 1;
+    
+    this.player_colours = ['#F44336', // Red
+                           '#2196F3', // Blue
+                           '#4CAF50', // Green
+                           '#FFEB3B']; // Yellow
+    
+                           this.development_cards = [];
 }
 
 // Adds a player to the game
@@ -11,39 +23,49 @@ Game.prototype.add_player = function(player) {
     var _self = this;
 
     console.log('adding player');
+ 
+    // Add player to the game
+    this.players.push(player);
 
-    // Check if the game is full
-    if (this.players.length == this.max_players) {
-        console.log('This game is full!');
-        return false;
-    }
+    // Store the player id
+    player.id = this.players.indexOf(player);
+
+    // Assign a color to this player
+    player.colour = this.player_colours[player.id];
     
-    if (this.players.length <= this.max_players) {
-        
-        this.players.push(player);
-        player.socket.emit('player_id', { id : this.players.indexOf(player) });    
+    player.socket.emit('player_id', { id : player.id });    
 
-        // Listen for game updates from this socket
-        player.socket.on('game_update', function(data) {
-            _self.game_update(data);
+    // Listen for game updates from this socket
+    player.socket.on('game_update', function(data) {
+        _self.game_update(data);
+    });
+
+    // Listen for a disconnect - if any player disconnects we'll need
+    // to terminate the game
+    player.socket.on('disconnect', function() {
+        _self.broadcast('game_error', {
+            message : player.name + ' has disconnected. Game Over.'
         });
 
-        // Start the game if we have all the players
-        if (this.players.length === this.max_players) {
+        _self.lobby.remove_game(this);
+    });
 
-            // Begin the game
-            this.broadcast('game_start', {});
-            this.broadcast_gamestate();
-        }
-            
-        // Notify the other players that a new player has joined
-        this.broadcast('player_joined', {
-            player_count    : this.players.length,
-            max_players     : this.max_players
-        });
-        
+    // Start the game if we have all the players
+    if (this.players.length === this.max_players) {
+
+        this.game_full = true;
+
+        // Begin the game
+        this.broadcast('game_start', {});
+        this.broadcast_gamestate();
     }
-
+        
+    // Notify the other players that a new player has joined
+    this.broadcast('player_joined', {
+        player_count    : this.players.length,
+        max_players     : this.max_players
+    });
+        
     console.log('Player number ' + (this.players.length) + ' has been added');
     return true;
 };
