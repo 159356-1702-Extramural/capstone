@@ -13,7 +13,7 @@ var this_player  = {
 var players = {};
 
 // General error handling for now...
-socket.on('game-error', function (data) {
+socket.on('game_error', function (data) {
     display_section('error');
     alert(data.message);
 });
