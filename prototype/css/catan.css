@@ -1,0 +1,773 @@
+﻿@import url(https://fonts.googleapis.com/css?family=Raleway:400,,800,900);
+body {
+  font-family: 'Raleway', sans-serif;
+}
+
+.start, .turn {
+    position:fixed;
+    top:0px;
+    left:0px;
+    width:100%;
+    height:100%;
+    background:rgba(0, 0, 0,0.6);
+    display:block;
+    z-index:9999;
+}
+.start_inner, .turn_inner {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    width:50%;
+    height:50%;
+    width:75%;
+    padding:15px;
+    max-width:600px;
+    transform: translate(-50%, 0%);
+    background-color:white;
+    border:thin solid black;
+    border-radius:25px;
+}
+
+.start .title {
+    position:relative;
+    height:90px;
+  font-weight: 800;
+  color: transparent;
+  font-size:80px;
+  background: url("../Images/catan_back.png") repeat;
+  background-position: 55% 50%;
+  -webkit-background-clip: text;
+  text-align:center;
+  line-height:90px;
+  letter-spacing: -8px;
+}
+.start .subtitle{
+  display: block;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom:20px;
+}
+.start .menu {
+
+}
+.start_button {
+    width:150px;
+    height:100px;
+    margin:3%;
+    padding-top:15px;
+}
+.start_text {
+    font-size:32px;
+}
+.start .players {
+    display:none;
+}
+.start .player_row {
+    clear:both;
+    width:90%;
+    height:30px;
+    margin:3px;
+}
+.player_title {
+    float:left;
+    width:150px;
+    font-size:18px;
+    font-weight:bold;
+    padding:3px 3px 3px 10px;
+}
+.player_input {
+    float:left;
+    width:calc(90% - 150px);
+}
+.player_button {
+    width:150px; margin-top:10px; text-align:center;
+}
+.player_text {
+    font-size:18px;
+    padding-left:5px;
+}
+.player_error {
+    color:red;
+    font-weight:bold;
+}
+
+.board {
+    position:absolute;
+    background-image:url(../Images/water.png);
+    height:812px;
+    width:888px;
+    z-index:100;
+    border: thick inset black;
+}
+.board .row {
+    clear:both;
+    position:relative;
+    height:124px;
+    z-index:102;
+}
+.board .top {
+    height:96px !important;
+}
+
+.score {
+    position:absolute;
+    display:inline-block;
+    top:30px;
+    left:935px;
+    height:812px;
+    width:232px;
+    z-index:100;
+    border: thick inset black;
+    background-color: silver;
+}
+.score0, .score1, .score2, .score3 {
+    z-index:8999;
+}
+.score.currentplayer {
+    z-index:9000 !important;
+}
+
+.score .row {
+    clear:both;
+    text-align:center;
+    padding:3px;
+    margin-bottom:10px;
+}
+.score .player {
+    float:left;
+    margin:0px 10px;
+}
+.score .playername {
+    float:left;
+    font-size: 32px;
+    overflow:hidden;
+    white-space:nowrap;
+    padding-top:10px;
+}
+.score .playerbutton {
+    clear:both;
+}
+
+
+
+.button {
+    margin:4px;
+    width:150px;
+}
+
+.hex, .hex_water, .hex_harbor {
+    position: relative;
+    float:left;
+    width:148px;
+    height:172px;
+    margin-top:-48px;
+}
+.half {
+    margin-left:-74px;
+}
+.hex_water {
+    background:none;
+}
+.hex_harbor {
+    background:none;
+}
+
+.token {
+    position:absolute;
+    top:48px;
+    left:43px;
+	border-radius: 999em;
+    width:70px;
+    height:70px;
+	margin: 0;
+}
+.number {
+    position:relative;
+    width:50px;
+    height:45px;
+    text-align:center;
+    background-color:white;
+    border-radius:30px;
+    font-size:24px;
+    font-weight:bold;
+    padding:5px;
+    padding-top:10px;
+    opacity:0.8;
+    border-style:solid;
+    border-color:#e3e3e3;
+}
+.dots {
+    position:relative;
+    clear:both;
+    font-size:18px;
+    padding:0;
+    margin:0;
+    top:-10px;
+}
+.board .title {
+    position:relative;
+    top:0px;
+    left:-3px;
+    width:60px;
+    text-align:center;
+    background-color:white;
+    padding:3px;
+    font-size:11px;
+    border-style:inset;
+    border-color:#eaeaea;
+}
+.water {
+   background:none;
+}
+.ore {
+    background-image:url(../Images/hex_ore.png);
+}
+.grain {
+    background-image:url(../Images/hex_grain.png);
+}
+.sheep {
+    background-image:url(../Images/hex_sheep.png);
+}
+.lumber {
+    background-image:url(../Images/hex_lumber.png);
+}
+.brick {
+    background-image:url(../Images/hex_brick.png);
+}
+.desert {
+    background-image:url(../Images/hex_desert.png);
+}
+.robber {
+    position:relative;
+    background-image:url(../Images/robber.png);
+    height:70px;
+    width:30px;
+    top:50px;
+    left:60px;
+}
+
+.bottom_left {
+    background-image:url(../Images/harbor_left_bottom.png);
+}
+.bottom_right {
+    background-image:url(../Images/harbor_right_bottom.png);
+}
+.left {
+    background-image:url(../Images/harbor_left.png);
+}
+.right {
+    background-image:url(../Images/harbor_right.png);
+}
+.top_right {
+    background-image:url(../Images/harbor_right_top.png);
+}
+.top_left {
+    background-image:url(../Images/harbor_left_top.png);
+}
+.bottom_right .ship, .bottom_left .ship {
+    position:relative;
+    left:30px;
+    top:20px;
+}
+.left .ship {
+    position:relative;
+    left:20px;
+    top:10px;
+}
+.right .ship {
+    position:relative;
+    left:50px;
+    top:10px;
+}
+.top_left .ship {
+    position:relative;
+    left:20px;
+    top:20px;
+}
+.top_right .ship {
+    position:relative;
+    left:20px;
+    top:20px;
+}
+
+.node {
+    display:none;
+    position:absolute;
+    opacity:0.8;
+}
+.node .house {
+    opacity: 1 !important;
+    background-image:none !important;
+}
+
+.node0, .node2, .node4, .node6, .node8, .node10 {
+    background-image:url(../Images/house_ghost_small.png);
+    height:42px;
+    width:50px;
+    z-index:99999;
+}
+.node1, .node7 {
+    background-image:url(../Images/road_ghost_topdown.png);
+    height:52px !important;
+    width:65px !important;
+    z-index:99998 !important;
+}
+.node3, .node9 {
+    background-image:url(../Images/road_ghost_vertical.png);
+    height:60px !important;
+    width:25px !important;
+    z-index:99998 !important;
+}
+.node5, .node11 {
+    background-image:url(../Images/road_ghost_bottomup.png);
+    height:52px !important;
+    width:65px !important;
+    z-index:99998 !important;
+}
+
+.node0, .node6 {
+    left:50px;
+}
+.node0 {
+    top:-22px;
+}
+.node6 {
+    top:140px;
+}
+
+.node1, .node11 {
+    top:0px;
+}
+.node1, .node5 {
+    left:80px;
+}
+.node7, .node11 {
+    left:5px;
+}
+.node5, .node7 {
+    top:125px;
+}
+
+.node3, .node9 {
+    top:50px;
+}
+.node3 {
+    left:135px;
+}
+.node9 {
+    left:-12px;
+}
+
+.node2, .node10 {
+    top:18px;
+}
+.node2, .node4 {
+    left:123px;
+}
+.node4, .node8 {
+    top:105px;
+}
+.node8, .node10 {
+    left:-25px;
+}
+
+.board .road {
+    position:absolute;
+    z-index:105;
+}
+.score .road {
+    float:left;
+    position:relative;
+    background-repeat:no-repeat;
+}
+
+.road, .road_locked {
+    left:45px;
+    width:65px;
+    height:60px;
+}
+.house, .house_locked {
+    width:50px;
+    height:42px;
+}
+.city, .city_locked {
+    width:50px;
+    height:50px;
+}
+.house.purple {
+    background-image: url(../Images/house_purple_small.png);
+}
+.house.red {
+    background-image: url(../Images/house_red_small.png);
+}
+.house.green {
+    background-image: url(../Images/house_green_small.png);
+}
+.house.blue {
+    background-image: url(../Images/house_blue_small.png);
+}
+
+
+.city.purple {
+    background-image: url(../Images/city_purple_small.png);
+}
+.city.red {
+    background-image: url(../Images/city_red_small.png);
+}
+.city.green {
+    background-image: url(../Images/city_green_small.png);
+}
+.city.blue {
+    background-image: url(../Images/city_blue_small.png);
+}
+
+
+.road.purple.angle30 {
+    background-image: url(../Images/road_purple_topdown.png);
+}
+.road.purple.angle90 {
+    background-image: url(../Images/road_purple_vertical.png);
+}
+.road.purple.angle330 {
+    background-image: url(../Images/road_purple_bottomup.png);
+}
+.road.red.angle30 {
+    background-image: url(../Images/road_red_topdown.png);
+}
+.road.red.angle90 {
+    background-image: url(../Images/road_red_vertical.png);
+}
+.road.red.angle330 {
+    background-image: url(../Images/road_red_bottomup.png);
+}
+.road.green.angle30 {
+    background-image: url(../Images/road_green_topdown.png);
+}
+.road.green.angle90 {
+    background-image: url(../Images/road_green_vertical.png);
+}
+.road.green.angle330 {
+    background-image: url(../Images/road_green_bottomup.png);
+}
+.road.blue.angle30 {
+    background-image: url(../Images/road_blue_topdown.png);
+}
+.road.blue.angle90 {
+    background-image: url(../Images/road_blue_vertical.png);
+}
+.road.blue.angle330 {
+    background-image: url(../Images/road_blue_bottomup.png);
+}
+
+.vertical {
+	width: 12px;
+	height: 55px;
+}
+.topdown {
+	width: 12px;
+	height: 35px;
+    transform: rotate(-60deg);
+}
+.bottomup {
+	width: 12px;
+	height: 35px;
+    transform: rotate(60deg);
+}
+
+.score .cards {
+    clear:both;
+    height:162px;
+    margin: 10px 15px;
+}
+.score .cardlist {
+    height:100px;
+    overflow:hidden;
+}
+.score .cards .buy {
+    padding:5px;
+}
+.card1, .card2, .card3, .card4 {
+    position:absolute;
+    height:100px;
+}
+.card1 {
+    left:10px;
+}
+.card2 {
+    left:40px;
+}
+.card3 {
+    left:70px;
+}
+.card4 {
+    left:100px;
+}
+
+.score .resources {
+    height:205px !important;
+}
+.score .resources, .score .bonuses {
+    clear:both;
+    margin: 10px 15px 0px 15px;
+    height:auto;
+}
+.resources .lumber {
+    background-image:url(../Images/score_lumber.png);
+    background-repeat:no-repeat;
+}
+.resources .ore {
+    background-image:url(../Images/score_ore.png);
+    background-repeat:no-repeat;
+}
+.resources .grain {
+    background-image:url(../Images/score_grain.png);
+    background-repeat:no-repeat;
+}
+.resources .brick {
+    background-image:url(../Images/score_brick.png);
+    background-repeat:no-repeat;
+}
+.resources .sheep {
+    background-image:url(../Images/score_sheep.png);
+    background-repeat:no-repeat;
+}
+.resources .trade {
+    position:relative;
+    top:-21px;
+    background: white;
+    text-align:center;
+}
+
+.bonuses .bigarmy {
+    background-image:url(../Images/score_army.png);
+    background-repeat:no-repeat;
+}
+.bonuses .longroad {
+    background-image:url(../Images/score_longroad.png);
+    background-repeat:no-repeat;
+}
+.bonuses .victory {
+    background-image:url(../Images/score_victory.png);
+    background-repeat:no-repeat;
+}
+
+
+.box {
+    display:inline-block;
+    width:45%;
+    height:42px;
+    border:thin solid black;
+    padding:15px 5px 0px 0px;
+    background:white;
+}
+.brickcount, .sheepcount, .lumbercount, .orecount, .graincount, .armycount, .longroadcount, .victorycount {
+    float:right;
+    width:35%;
+    text-align:right;
+    font-size:32px;
+    font-weight:bold;
+}
+
+.buildings {
+    clear:both;
+    margin: 10px 15px 0px 15px;
+    height:auto;
+}
+.housebox, .citybox, .roadbox {
+    display:inline-block;
+    width:42%;
+    height:42px;
+    border:thin solid black;
+    padding:5px;
+    background-color:white;
+}
+.housebox_disable, .citybox_disable, .roadbox_disable {
+    position:absolute;
+    width:102px;
+    height:58px;
+    opacity:0.7;
+    background:silver;
+    z-index:9999;
+    display:none;
+}
+.housebox_disable {
+    top:360px;
+    left:15px;
+}
+.citybox_disable {
+    top:360px;
+    left:110px;
+}
+.roadbox_disable {
+    top:415px;
+    left:15px;
+}
+
+.buildings .house, .buildings .road {
+    position:absolute;
+    left:23%;
+}
+.buildings .city {
+    position:absolute;
+    left:65%;
+}
+
+.dropped {
+    z-index: 0;
+    display:none;
+}
+
+.housecount, .roadcount {
+    position:absolute;
+    left:25px;
+    text-align:left;
+    font-size:32px;
+    font-weight:bold;
+}
+.citycount {
+    position:absolute;
+    left:125px;
+    text-align:left;
+    font-size:32px;
+    font-weight:bold;
+}
+
+/*  Turn box    */
+.turn {
+    position:fixed;
+    top:0px;
+    left:0px;
+    width:100%;
+    height:100%;
+    background:rgba(0, 0, 0,0.6);
+    display:block;
+    z-index:9999;
+}
+.turn_inner {
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    width:50%;
+    height:650px;
+    width:75%;
+    padding:15px;
+    max-width:600px;
+    transform: translate(-50%, 0%);
+    background-color:white;
+    border:thin solid black;
+    border-radius:25px;
+}
+
+.turn .title {
+    text-align:center;
+    font-size:32px;
+    padding:10px;
+}
+.turn .resources {
+    clear:both;
+    width:95%;
+    height:auto;
+    overflow:hidden;
+}
+.turn .row {
+    clear:both;
+    height:100px;
+    overflow:hidden;
+    margin:10px;
+}
+.resources .avatar {
+    float:left;
+    width:20%;
+}
+.resources .cards {
+    float:left;
+    width:90%;
+}
+.cards .card {
+    float:left;
+    margin-left:-30px;
+}
+
+.turn_button {
+    clear:both;
+    margin:10px;
+    text-align:center;
+}
+
+/*  Dice    */
+.die.die1 .dot { 
+	box-shadow: 0 .2em 0 #FFF 
+}
+.die.die2 .dot { 
+	background: transparent;
+	box-shadow: -2.3em -2.3em 0 #345, 
+		     2.3em  2.3em 0 #345, 
+		    -2.3em -2.3em 0 #FFF, 
+		     2.3em  2.4em 0 #FFF 
+}
+.die.die3 .dot { 
+	box-shadow: -2.3em -2.3em 0 #345, 
+		     2.3em  2.3em 0 #345, 
+		    -2.3em -2.3em 0 #FFF, 
+		     2.3em  2.4em 0 #FFF, 
+		         0   .2em 0 #FFF 
+}
+.die.die4 .dot { 
+	background: transparent;
+        box-shadow: -2.3em -2.3em 0 #345, 
+        	     2.3em  2.3em 0 #345, 
+        	    -2.3em  2.3em 0 #345, 
+        	     2.3em -2.3em 0 #345, 
+        	    -2.3em -2.3em 0 #FFF, 
+        	     2.3em  2.4em 0 #FFF, 
+        	    -2.3em  2.4em 0 #FFF, 
+        	     2.3em -2.3em 0 #FFF 
+}
+.die.die5 .dot { 
+	box-shadow: -2.3em -2.3em 0 #345, 
+		     2.3em  2.3em 0 #345, 
+		    -2.3em  2.3em 0 #345, 
+		     2.3em -2.3em 0 #345, 
+		    -2.3em -2.2em 0 #FFF, 
+		     2.3em -2.2em 0 #FFF, 
+		     2.3em  2.4em 0 #FFF, 
+		    -2.3em  2.4em 0 #FFF,
+		         0   .2em 0 #FFF 
+}
+.die.die6 .dot {
+	background: transparent;
+	box-shadow: -2.3em -2.3em 0 #345,
+		    -2.3em      0 0 #345,
+		    -2.3em  2.3em 0 #345,
+		     2.3em -2.3em 0 #345,
+		     2.3em      0 0 #345,
+		     2.3em  2.3em 0 #345,
+		    -2.3em -2.1em 0 #FFF,
+		    -2.3em   .2em 0 #FFF,
+		    -2.3em  2.4em 0 #FFF,
+		     2.3em  2.4em 0 #FFF,
+		     2.3em   .2em 0 #FFF,
+		     2.3em -2.1em 0 #FFF
+}
+.die {
+	border-top: 1px solid #f1f1f1;
+	width: 50px; height: 50px;
+	border-radius: 10px;
+	position: relative;
+	margin: 10px;
+	font-size: 6px;
+	display: inline-block;
+	box-shadow: 0px 5px 0 #CCC, 0 6px 3px #444, 0 10px 5px #999;
+	background-image: linear-gradient(top, #fefefe, #f1f1f1 80%)
+}
+.dot {
+	width: 20%; 
+	height: 20%; 
+	left: 50%; 
+	top: 50%;
+	margin: -10%;
+	background: #345;
+	border-radius: 50%;
+	display: block;
+	position: absolute;
+}
