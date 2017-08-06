@@ -9,8 +9,8 @@
     ]
   },
   "scripts": {
-    "start": "node app.js",
-    "inspect": "node --inspect app.js",
+    "start": "node app/app.js",
+    "inspect": "node --inspect app/app.js",
     "test": "nyc ava",
     "test:watch": "nyc ava --watch"
   },

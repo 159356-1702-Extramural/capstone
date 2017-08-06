@@ -34,7 +34,7 @@ body {
   font-weight: 800;
   color: transparent;
   font-size:80px;
-  background: url("../Images/catan_back.png") repeat;
+  background: url("../images/catan_back.png") repeat;
   background-position: 55% 50%;
   -webkit-background-clip: text;
   text-align:center;
@@ -93,7 +93,7 @@ body {
 
 .board {
     position:absolute;
-    background-image:url(../Images/water.png);
+    background-image:url(../images/water.png);
     height:812px;
     width:888px;
     z-index:100;
@@ -220,26 +220,26 @@ body {
    background:none;
 }
 .ore {
-    background-image:url(../Images/hex_ore.png);
+    background-image:url(../images/hex_ore.png);
 }
 .grain {
-    background-image:url(../Images/hex_grain.png);
+    background-image:url(../images/hex_grain.png);
 }
 .sheep {
-    background-image:url(../Images/hex_sheep.png);
+    background-image:url(../images/hex_sheep.png);
 }
 .lumber {
-    background-image:url(../Images/hex_lumber.png);
+    background-image:url(../images/hex_lumber.png);
 }
 .brick {
-    background-image:url(../Images/hex_brick.png);
+    background-image:url(../images/hex_brick.png);
 }
 .desert {
-    background-image:url(../Images/hex_desert.png);
+    background-image:url(../images/hex_desert.png);
 }
 .robber {
     position:relative;
-    background-image:url(../Images/robber.png);
+    background-image:url(../images/robber.png);
     height:70px;
     width:30px;
     top:50px;
@@ -247,22 +247,22 @@ body {
 }
 
 .bottom_left {
-    background-image:url(../Images/harbor_left_bottom.png);
+    background-image:url(../images/harbor_left_bottom.png);
 }
 .bottom_right {
-    background-image:url(../Images/harbor_right_bottom.png);
+    background-image:url(../images/harbor_right_bottom.png);
 }
 .left {
-    background-image:url(../Images/harbor_left.png);
+    background-image:url(../images/harbor_left.png);
 }
 .right {
-    background-image:url(../Images/harbor_right.png);
+    background-image:url(../images/harbor_right.png);
 }
 .top_right {
-    background-image:url(../Images/harbor_right_top.png);
+    background-image:url(../images/harbor_right_top.png);
 }
 .top_left {
-    background-image:url(../Images/harbor_left_top.png);
+    background-image:url(../images/harbor_left_top.png);
 }
 .bottom_right .ship, .bottom_left .ship {
     position:relative;
@@ -301,25 +301,25 @@ body {
 }
 
 .node0, .node2, .node4, .node6, .node8, .node10 {
-    background-image:url(../Images/house_ghost_small.png);
+    background-image:url(../images/house_ghost_small.png);
     height:42px;
     width:50px;
     z-index:99999;
 }
 .node1, .node7 {
-    background-image:url(../Images/road_ghost_topdown.png);
+    background-image:url(../images/road_ghost_topdown.png);
     height:52px !important;
     width:65px !important;
     z-index:99998 !important;
 }
 .node3, .node9 {
-    background-image:url(../Images/road_ghost_vertical.png);
+    background-image:url(../images/road_ghost_vertical.png);
     height:60px !important;
     width:25px !important;
     z-index:99998 !important;
 }
 .node5, .node11 {
-    background-image:url(../Images/road_ghost_bottomup.png);
+    background-image:url(../images/road_ghost_bottomup.png);
     height:52px !important;
     width:65px !important;
     z-index:99998 !important;
@@ -395,68 +395,68 @@ body {
     height:50px;
 }
 .house.purple {
-    background-image: url(../Images/house_purple_small.png);
+    background-image: url(../images/house_purple_small.png);
 }
 .house.red {
-    background-image: url(../Images/house_red_small.png);
+    background-image: url(../images/house_red_small.png);
 }
 .house.green {
-    background-image: url(../Images/house_green_small.png);
+    background-image: url(../images/house_green_small.png);
 }
 .house.blue {
-    background-image: url(../Images/house_blue_small.png);
+    background-image: url(../images/house_blue_small.png);
 }
 
 
 .city.purple {
-    background-image: url(../Images/city_purple_small.png);
+    background-image: url(../images/city_purple_small.png);
 }
 .city.red {
-    background-image: url(../Images/city_red_small.png);
+    background-image: url(../images/city_red_small.png);
 }
 .city.green {
-    background-image: url(../Images/city_green_small.png);
+    background-image: url(../images/city_green_small.png);
 }
 .city.blue {
-    background-image: url(../Images/city_blue_small.png);
+    background-image: url(../images/city_blue_small.png);
 }
 
 
 .road.purple.angle30 {
-    background-image: url(../Images/road_purple_topdown.png);
+    background-image: url(../images/road_purple_topdown.png);
 }
 .road.purple.angle90 {
-    background-image: url(../Images/road_purple_vertical.png);
+    background-image: url(../images/road_purple_vertical.png);
 }
 .road.purple.angle330 {
-    background-image: url(../Images/road_purple_bottomup.png);
+    background-image: url(../images/road_purple_bottomup.png);
 }
 .road.red.angle30 {
-    background-image: url(../Images/road_red_topdown.png);
+    background-image: url(../images/road_red_topdown.png);
 }
 .road.red.angle90 {
-    background-image: url(../Images/road_red_vertical.png);
+    background-image: url(../images/road_red_vertical.png);
 }
 .road.red.angle330 {
-    background-image: url(../Images/road_red_bottomup.png);
+    background-image: url(../images/road_red_bottomup.png);
 }
 .road.green.angle30 {
-    background-image: url(../Images/road_green_topdown.png);
+    background-image: url(../images/road_green_topdown.png);
 }
 .road.green.angle90 {
-    background-image: url(../Images/road_green_vertical.png);
+    background-image: url(../images/road_green_vertical.png);
 }
 .road.green.angle330 {
-    background-image: url(../Images/road_green_bottomup.png);
+    background-image: url(../images/road_green_bottomup.png);
 }
 .road.blue.angle30 {
-    background-image: url(../Images/road_blue_topdown.png);
+    background-image: url(../images/road_blue_topdown.png);
 }
 .road.blue.angle90 {
-    background-image: url(../Images/road_blue_vertical.png);
+    background-image: url(../images/road_blue_vertical.png);
 }
 .road.blue.angle330 {
-    background-image: url(../Images/road_blue_bottomup.png);
+    background-image: url(../images/road_blue_bottomup.png);
 }
 
 .vertical {
@@ -512,23 +512,23 @@ body {
     height:auto;
 }
 .resources .lumber {
-    background-image:url(../Images/score_lumber.png);
+    background-image:url(../images/score_lumber.png);
     background-repeat:no-repeat;
 }
 .resources .ore {
-    background-image:url(../Images/score_ore.png);
+    background-image:url(../images/score_ore.png);
     background-repeat:no-repeat;
 }
 .resources .grain {
-    background-image:url(../Images/score_grain.png);
+    background-image:url(../images/score_grain.png);
     background-repeat:no-repeat;
 }
 .resources .brick {
-    background-image:url(../Images/score_brick.png);
+    background-image:url(../images/score_brick.png);
     background-repeat:no-repeat;
 }
 .resources .sheep {
-    background-image:url(../Images/score_sheep.png);
+    background-image:url(../images/score_sheep.png);
     background-repeat:no-repeat;
 }
 .resources .trade {
@@ -539,15 +539,15 @@ body {
 }
 
 .bonuses .bigarmy {
-    background-image:url(../Images/score_army.png);
+    background-image:url(../images/score_army.png);
     background-repeat:no-repeat;
 }
 .bonuses .longroad {
-    background-image:url(../Images/score_longroad.png);
+    background-image:url(../images/score_longroad.png);
     background-repeat:no-repeat;
 }
 .bonuses .victory {
-    background-image:url(../Images/score_victory.png);
+    background-image:url(../images/score_victory.png);
     background-repeat:no-repeat;
 }
 
