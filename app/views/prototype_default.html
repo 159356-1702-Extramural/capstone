@@ -1,0 +1,1093 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Settlers of Massey</title>
+    <link href="css/catan.css" rel="stylesheet" />
+    <link href="css/3rdparty.css" rel="stylesheet" />
+    <link href="css/jquery-ui.css" rel="stylesheet" />
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
+
+    <script src="js/client.js"></script>
+    <script src="js/server.js"></script>
+    <script src="js/dragdrop.js"></script>
+	<meta charset="utf-8" />
+</head>
+<body>
+
+    <div class="start">
+        <div class="start_inner">
+            <div class="title">Settlers of Catan</div>
+            <div class="subtitle"> 159.356 Capstone Project</div>
+
+            <div class="menu">
+                <div class="btn btn-info start_button" style="width:540px; padding-top:20px;" onclick="showPlayers();"><i class="fa fa-gamepad fa-2x"></i><br /><span class="start_text">Play</span></div>
+                <div class="btn btn-info start_button" style="width:235px; padding-top:20px;"><i class="fa fa-paper-plane fa-2x"></i><br /><span class="start_text">Tutorial</span></div>
+                <div class="btn btn-info start_button" style="width:235px; padding-top:20px;"><i class="fa fa-cogs fa-2x"></i><br /><span class="start_text">Settings</span></div>
+            </div>
+            <div class="players">
+                <h1>Enter the name of each player:</h1>
+                <div class="player_row">
+                    <div class="player_title">Player 1</div>
+                    <div class="player_input"><input type="text" id="txt_player1" value='Alayn' /></div>
+                </div>
+                <div class="player_row">
+                    <div class="player_title">Player 2</div>
+                    <div class="player_input"><input type="text" id="txt_player2" value='Sara' /></div>
+                </div>
+                <div class="player_row">
+                    <div class="player_title">Player 3</div>
+                    <div class="player_input"><input type="text" id="txt_player3" /></div>
+                </div>
+                <div class="player_row">
+                    <div class="player_title">Player 4</div>
+                    <div class="player_input"><input type="text" id="txt_player4" /></div>
+                </div>
+                <div class="player_error"></div>
+                <div class="player_row">
+                    <div class="btn btn-info player_button" onclick="startGame();"><i class="fa fa-gamepad fa-2x"></i>&nbsp;<span class="player_text">Start Game</span></div>
+                </div>
+            </div>
+            <div class="intro">
+
+            </div>
+            <div class="settings">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="turn" style="display:none;">
+        <div class="turn_inner">
+            <div class="title"></div>
+
+            <div class="dice"></div>
+
+            <div class="resources"></div>
+
+            <div class="turn_button">
+                <div class="btn btn-info startturn_button" onclick="startTurn();"><i class="fa fa-sign-in fa-2x"></i>&nbsp;<span class="player_text">Start Turn</span></div>
+                <div class="btn btn-info rolldice_button" onclick="rollDice();"><i class="fa fa-thumbs-up fa-2x"></i>&nbsp;<span class="player_text">Roll Dice</span></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="board" style="top:30px; left:30px;"></div>
+
+    <div class="score score0 currentplayer"></div>
+    <div class="score score1"></div>
+    <div class="score score2"></div>
+    <div class="score score3"></div>
+    
+    <script language="javascript" type="text/javascript">
+        //  Initial variables and structure
+
+        //  The index of the number list below to be used (randomly chosen on game start)
+        var numberToUse = -1;
+
+        //  The index of the next number tile to be set
+        var numberPosition = 0;
+
+        //  The six valid sequences which we can randomly pick from
+        var numberTiles = [
+            [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9],
+            [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9],
+            [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9],
+            [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9],
+            [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9],
+            [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9]
+        ];
+
+        //  Counts of each type of hex
+        var tileStart = [
+            ['brick', 'brick', 'brick'],
+            ['lumber', 'lumber', 'lumber', 'lumber'],
+            ['grain', 'grain', 'grain', 'grain'],
+            ['sheep', 'sheep', 'sheep', 'sheep'],
+            ['ore', 'ore', 'ore'],
+            ['desert']
+        ];
+        var tileStartCount = 19;
+
+        var harborPosition = 0;
+        var harborStart = [
+            ['3to1', '3to1', '3to1', '3to1'],
+            ['brick'],
+            ['lumber'],
+            ['ore'],
+            ['grain'],
+            ['sheep']
+        ];
+        var harborAlign = ['bottom_right', 'bottom_left', 'bottom_right', 'left', 'right', 'left', 'top_right', 'top_right', 'top_left'];
+        var harborStartCount = 9;
+
+        //  Board will be a 7x7 grid
+        //  W = water tile, H = harbor tile, X = hex tile
+        var boardLayout = [
+              ['W', 'W', 'H', 'W', 'H', 'W', 'W'],
+            ['W', 'H', 'X', 'X', 'X', 'W', 'W'],
+              ['W', 'X', 'X', 'X', 'X', 'H', 'W'],
+            ['H', 'X', 'X', 'X', 'X', 'X', 'W'],
+              ['W', 'X', 'X', 'X', 'X', 'H', 'W'],
+            ['W', 'H', 'X', 'X', 'X', 'W', 'W'],
+              ['W', 'W', 'H', 'W', 'H', 'W', 'W']
+        ];
+
+        //  In case we just want to use the beginner layout
+        var tileBeginner = ['lumber', 'sheep', 'grain', 'brick', 'ore', 'brick', 'sheep', 'desert', 'lumber', 'grain', 'lumber', 'grain', 'brick', 'sheep', 'sheep', 'ore', 'ore', 'grain', 'lumber'];
+
+        //  Position of each hex type
+        var tilePosition = 0;
+        var tileList = [];
+
+        var gameColours = ['purple', 'red', 'blue', 'green'];
+    </script>
+
+    <script type="text/javascript" language="javscript">
+        //  Direct Interface Methods (generally from button clicks)
+        var theGame = {};
+
+        //  Show screen for prompting user to enter player names
+        function showPlayers() {
+            $(".players").show();
+            $(".menu").hide();
+        }
+
+        //  Validate the players and start the game
+        function startGame() {
+            var playerNames = [];
+            $("input[id*='txt_player']").each(function () {
+                if ($(this).val().length > 0) {
+                    playerNames.push($(this).val());
+                }
+            });
+
+            if (playerNames.length < 2) {
+                $(".player_error").html("Please enter at least 2 player names");
+                $(".player_error").show();
+            } else {
+                theGame = new game(playerNames);
+                theGame.startGame();
+
+                $(".player").html("<img src='Images/" + theGame.players[0].avatar + "' />");
+                $(".playername").html(playerNames[0]);
+                $(".start").hide();
+
+                //  Turn control over to player
+                buildTurn();
+            }
+        }
+
+        function buildTurn() {
+            var message = "";
+            if (theGame.round < 2) {
+                message = theGame.currentPlayer.name + ", it is your turn to place your " + (theGame.round == 0 ? "1st" : "2nd") + " settlement and road.";
+                $("div[class*='startturn_button']").show();
+                $("div[class*='rolldice_button']").hide();
+            } else {
+                message = theGame.currentPlayer + ", it is your turn.";
+                $("div[class*='startturn_button']").hide();
+                $("div[class*='rolldice_button']").show();
+            }
+            $('.turn_inner > .title').html(message);
+            $('.turn_inner > .dice').hide();
+            $(".turn").show();
+
+            //  Setup the player score area
+            setupPlayer();
+
+            //  Setup Drag/Drop
+            setupDragDrop();
+
+        }
+
+        function setupPlayer() {
+            //  Clear the currentplayer class so all score boards are the same z-index
+            $("div[class*='score']").removeClass("currentplayer");
+
+            var check = $("div[class*='score" + theGame.currentPlayer.id + "']").html();
+            if (check.length == 0) {
+                //  For the first time here, create the structure
+                var html = "";
+                html += "        <div class='row'>";
+                html += "            <div class='player'><img src='Images/" + theGame.currentPlayer.avatar + "' /></div>";
+                html += "            <div class='playername'>" + theGame.currentPlayer.name;
+                html += "               <div class='playerbutton'>";
+                html += "                   <div class='btn btn-info finishturnbutton' onclick='finishTurn();'>Finish Turn</div>";
+                html += "               </div>";
+                html += "            </div>";
+                html += "        </div>";
+                html += "        <div class='resources'>";
+                html += "            Resources:<br />";
+                html += "            <div class='box brick'><span class='brickcount'>" + theGame.currentPlayer.brick + "</span></div>";
+                html += "            <div class='box lumber'><span class='lumbercount'>" + theGame.currentPlayer.lumber + "</span></div>";
+                html += "            <div class='box sheep'><span class='sheepcount'>" + theGame.currentPlayer.sheep + "</span></div>";
+                html += "            <div class='box ore'><span class='orecount'>" + theGame.currentPlayer.ore + "</span></div>";
+                html += "            <div class='box grain'><span class='graincount'>" + theGame.currentPlayer.grain + "</span></div>";
+                html += "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade();'>Trade</div></div>";
+                html += "        </div>";
+                html += "        <div class='buildings'>";
+                html += "            Buildings:<br />";
+                html += "            <div class='housebox_disable'></div>";
+                html += "            <div class='housebox'>";
+                html += "                <span class='housecount'>5</span>";
+                for (var i = 0; i < 5; i++) {
+                    html += "                <div id='house_" + theGame.currentPlayer.colour + "_" + i + "' class='house " + theGame.currentPlayer.colour + "' ></div>";
+                }
+                html += "            </div>";
+                html += "            <div class='citybox_disable'></div>";
+                html += "            <div class='citybox'>";
+                html += "                <span class='citycount'>4</span>";
+                for (var i = 0; i < 4; i++) {
+                    html += "                <div id='city_" + theGame.currentPlayer.colour + "_" + i + "' class='city " + theGame.currentPlayer.colour + "' ></div>";
+                }
+                html += "            </div>";
+                html += "            <div class='roadbox_disable'></div>";
+                html += "            <div class='roadbox'>";
+                html += "                <span class='roadcount'>15</span>";
+                for (var i = 0; i < 15; i++) {
+                    html += "                <div id='road_" + theGame.currentPlayer.colour + "_" + i + "' class='road " + theGame.currentPlayer.colour + " angle30' ></div>";
+                }
+                html += "            </div>";
+                html += "        </div>";
+                html += "            <div class='cards'>";
+                html += "                Cards:<br />";
+                html += "                <div class='cardlist'><img src='../Images/nocards.png' /></div>";
+                html += "                <div class='buy'><div class='btn btn-info buybutton'>Buy Development Card</div></div>";
+                html += "            </div>";
+                html += "           <div class='bonuses'>";
+                html += "               Bonuses:<br />";
+                html += "               <div class='box bigarmy'><span class='armycount'>" + theGame.currentPlayer.army.length + "</span></div>";
+                html += "               <div class='box longroad'><span class='longroadcount'>" + theGame.currentPlayer.longestRoad + "</span></div>";
+                html += "               <div class='box victory'><span class='victorycount'>" + theGame.currentPlayer.victoryPoints.length + "</span></div>";
+                html += "            </div>";
+
+                $(".score" + theGame.currentPlayer.id).html(html);
+                $(".score" + theGame.currentPlayer.id).addClass("currentplayer");
+            }
+        }
+
+        function startTurn() {
+            //  Enable/Disable buildings
+            if (!theGame.currentPlayer.canBuy('house')) {
+                $('.housebox_disable').show();
+                //$(".house").draggable('disable');
+            }
+            if (!theGame.currentPlayer.canBuy('city')) {
+                $('.citybox_disable').show();
+                //$(".city").draggable('disable');
+            }
+            if (!theGame.currentPlayer.canBuy('road')) {
+                $('.roadbox_disable').show();
+                //$(".road").draggable('disable');
+            }
+
+            //  Enable/Disable buy card
+            if (theGame.currentPlayer.canBuy('dev')) {
+                $("div[class*='buybutton']").removeClass("disabled");
+            } else {
+                $("div[class*='buybutton']").addClass("disabled");
+            }
+
+            //  Enable/Disable trade
+            if (theGame.round > 2) {
+                if (theGame.currentPlayer.canTrade()) {
+                    $("div[class*='tradebutton']").removeClass("disabled");
+                } else {
+                    $("div[class*='tradebutton']").addClass("disabled");
+                }
+            } else {
+                $("div[class*='tradebutton']").addClass("disabled");
+            }
+
+            //  Hide Finish turn if setup phase
+            if (theGame.round < 3) {
+                $("div[class*='finishturnbutton']").addClass("disabled");
+            }
+
+            $(".turn").hide();
+        }
+
+        function rollDice() {
+            var done = false;
+            do {
+                var d1 = Math.floor(Math.random() * 6) + 1;
+                var d2 = Math.floor(Math.random() * 6) + 1;
+
+                if ((d1 + d2 == 7 && !theGame.robberIsActive) || d1 + d2 != 7) {
+                    done = true;
+                }
+            } while (!done);
+
+            $(".turn").show();
+
+            var dice = "<div class='die die" + d1 + "'>  <span class='dot'></span></div>";
+            dice += "<div class='die die" + d2 + "'>  <span class='dot'></span></div>";
+            $(".dice").html(dice);
+
+            //  Now get the resources won for each player
+            var resourceSummary = "";
+            theGame.players.forEach(function (player) {
+                var newCards = [];
+                player.getNewResources(newCards, d1);
+                player.getNewResources(newCards, d2);
+
+                //  Build html for screen
+                resourceSummary += "<div class='row'>";
+                resourceSummary += "<div class='avatar'><img src='Images/" + player.avatar + "' /></div>";
+                resourceSummary += "<div class='cards'>";
+                newCards.forEach(function (card) {
+                    resourceSummary += "<div class='card'><img src='Images/card_" + card + "_small.png' /></div>";
+                });
+                resourceSummary += "</div>";
+                resourceSummary += "</div>";
+
+                //  Update players resources
+                newCards.forEach(function (card) {
+                    if (card == "grain") { player.grain++; }
+                    if (card == "lumber") { player.lumber++; }
+                    if (card == "brick") { player.brick++; }
+                    if (card == "ore") { player.ore++; }
+                    if (card == "sheep") { player.sheep++; }
+                });
+            });
+            $(".turn > .resources").html(resourceSummary);
+
+            //  If robber was activated
+            if (d1 + d2 == 7) {
+                theGame.players.forEach(function (player) {
+                    if (player.totalCards > 7) {
+                        //  Player to choose which cards to lose
+                    }
+                });
+
+                //  If robber was activated, highlight robber and allow movement
+            }
+
+
+
+        }
+
+
+
+
+
+
+        function finishTurn() {
+            //  Get the next player
+            theGame.getNextPlayer();
+
+            //  Lock down the board pieces that moved
+            lockBoard();
+
+            //  Setup and show the next turn
+            buildTurn();
+        }
+
+        function lockBoard() {
+            //  Make recently moved pieces permanent on the board
+
+        }
+
+
+
+    </script>
+
+
+    <script type="text/javascript" language="javscript">
+        //  Methods to draw the board and elements
+        function drawBoard() {
+            tilePosition = 0;
+            numberPosition = 0;
+
+            var row = 0;
+            var col = 0;
+            var newBoard = "";
+            console.info(theGame.board);
+            theGame.board.forEach(function (theRow) {
+                newBoard += "<div class='row" + (newBoard.length == 0 ? " top" : "") + "'>";
+                theRow.forEach(function (theTile) {
+                    newBoard += buildTile(theTile, row, col);
+                    col++;
+                });
+                newBoard += "</div>";
+                col = 0;
+                row++;
+            });
+
+            $(".board").html(newBoard);
+
+            //  Once the board is drawn, enable Drag and Drop
+            setupDragDrop();
+        }
+        function buildTile(theTile, row, col) {
+            if ((row % 2) == 0 && col == 6) {
+                return "";
+            } else {
+                var newTile = "<div class='hex";
+
+                if (theTile.type == "water" || theTile.type == "harbor") {
+                    newTile += "_" + theTile.type;
+                    if (theTile.type == "harbor") {
+                        newTile += " " + theTile.harborAlign;
+                    }
+                } else {
+                    newTile += " " + theTile.type;
+                }
+
+                newTile += ((row % 2) != 0 && (col == 0 || col == 6) ? " half" : "") + "'>";
+                if (theTile.type == "desert") {
+                    newTile += "<div class='robber'></div>";
+                }
+                if (theTile.type == "harbor") {
+                    newTile += "<img src='Images/ship_" + theTile.harbor + ".png' class='ship' />";
+                }
+
+                //  Set node placeholders
+                if (theTile.type != "water" && theTile.type != "harbor") {
+                    //  We loop through all nodes on this tile
+                    theTile.nodes.forEach(function (theNode) {
+                        //  We only want nodes tied to this tile
+                        if (theNode.tileID == theTile.id) {
+                            newTile += "<div id='" + theNode.tileID + "." + theNode.id + "' class='node node" + theNode.id + " " + theNode.type + "'></div>";
+                        }
+                    });
+                }
+
+                //  Set the number token if this tile has one
+                if (theTile.type != "water" && theTile.type != "harbor" && theTile.type != "desert") {
+                    newTile += "<div class='token'><div class='number'>" + numberTiles[numberToUse][numberPosition] + "<div class='dots'>" + getDots(numberTiles[numberToUse][numberPosition]) + "</div></div></div>";
+                    numberPosition++;
+                }
+
+                newTile += "</div>";
+
+                return newTile;
+            }
+        }
+        function getDots(d) {
+            if (d == 2 || d == 12) {
+                return ".";
+            }
+            if (d == 3 || d == 11) {
+                return "..";
+            }
+            if (d == 4 || d == 10) {
+                return "...";
+            }
+            if (d == 5 || d == 9) {
+                return "....";
+            }
+            if (d == 6 || d == 8) {
+                return ".....";
+            }
+        }
+        function buildTileList() {
+            var done = false;
+            do {
+                var r = Math.floor(Math.random() * 7)
+                if (tileStart[r]) {
+                    if (tileStart[r].length > 0) {
+                        var h = tileStart[r].pop();
+                        tileList.push(h);
+                        tileStartCount--;
+                    }
+                }
+                
+                done = (tileStartCount <= 0);
+            }
+            while (!done);
+        }
+    </script>
+
+    <script type="text/javascript" language="javscript">
+        //  Classes
+        function game(playerNames) {
+            this.board = [[], [], [], [], [], [], []];
+            this.players = [];
+            this.round = 0;
+
+            //  Are we in the initial setup?
+            this.setupPhase = false;
+
+            //  The player who is active this round
+            this.currentPlayer = {};
+
+            //  Take the array and create the players
+            this.addPlayers = function (names) {
+                for (var i = 0; i < names.length; i++) {
+                    this.players.push(new player(names[i], i, gameColours[i]));
+                }
+            };
+            this.addPlayers(playerNames);
+
+            this.getNextPlayer = function () {
+                var nextPlayer = -1;
+                for (var i = 0; i < this.players.length; i++) {
+                    if (this.players[i] == this.currentPlayer) {
+                        nextPlayer = i + 1;
+                        break;
+                    }
+                }
+                
+                if (nextPlayer > 0) {
+                    if (this.players.length > nextPlayer) {
+                        this.currentPlayer = this.players[nextPlayer];
+                    } else {
+                        this.currentPlayer = this.players[0];
+                    }
+                }
+                
+            };
+
+            //  Robber is inactive until someone builds
+            this.robberIsActive = false;
+
+            //  Method to being the game play
+            this.startGame = function () {
+                //  Using the boardLayout, create all the tiles
+                createBoard();
+                drawBoard();
+
+                //  Begin setup round
+                this.setupPhase = true;
+
+                //  Set current player
+                this.currentPlayer = this.players[0];
+
+            }
+
+        }
+        function player(name, index, colour) {
+            //  Basic player details
+            this.id = index;
+            this.name = name;
+            this.avatar = "player" + index + ".png";
+            this.colour = colour;
+
+            //  Counts for remaining buildings/roads
+            this.buildings = [
+                ['house', 5],
+                ['city', 4],
+                ['road', 15]
+            ];
+
+            //  For the setup round(s).  1 is given each round to start
+            this.freeHouse = 1;
+            this.freeRoad = 1;
+
+            //  Nodes with buildings/roads
+            this.builds = [];
+
+            //  Resources
+            this.grain = 0;
+            this.lumber = 0;
+            this.ore = 0;
+            this.sheep = 0;
+            this.brick = 0;
+
+            //  Harbor nodes with buildings/roads
+            this.harbors = [];
+
+            //  Dev cards - unused
+            this.cards = [];
+
+            //  Knight cards - used
+            this.army = [];
+
+            //  Victory points - used
+            this.victoryPoints = [];
+
+            //  Longest Road award
+            this.longestRoad = 0;
+
+            //  Method to determine if you can buy each item
+            this.canBuy = function(building) {
+                if (building == 'house') {
+                    if (this.lumber > 0 && this.brick > 0 && this.grain > 0 && this.sheep > 0) { return true; }
+                    if (theGame.setupPhase && this.freeHouse > 0) { return true; }
+                }
+                if (building == 'city') {
+                    if (this.ore > 2 && this.grain > 1) { return true; }
+                }
+                if (building == 'road') {
+                    if (this.lumber > 0 && this.brick > 0) { return true; }
+                    if (theGame.setupPhase && this.freeRoad > 0) { return true; }
+                }
+                if (building == 'card') {
+                    if (this.ore > 0 && this.grain > 0 && this.sheep > 0) { return true; }
+                }
+                return false;
+            }
+
+            this.canTrade = function () {
+                //  Are any resources over 3
+                if (this.grain > 3 || this.sheep > 3 || this.lumber > 3 || this.ore > 3 || this.brick > 3) {
+                    return true;
+                }
+
+                //  Check each harbor
+                for (var i = 0; i < this.harbors.length; i++) {
+                    if (this.harbors[i].name == "grain" && this.grain > 1) { return true; }
+                    if (this.harbors[i].name == "lumber" && this.lumber > 1) { return true; }
+                    if (this.harbors[i].name == "ore" && this.ore > 1) { return true; }
+                    if (this.harbors[i].name == "brick" && this.brick > 1) { return true; }
+                    if (this.harbors[i].name == "sheep" && this.sheep > 1) { return true; }
+                    if (this.harbors[i].name == "3to1" && (this.grain > 2 || this.sheep > 2 || this.lumber > 2 || this.ore > 2 || this.brick > 2)) { return true; }
+                }
+                return false;
+            }
+
+            //  Look at all buildings on nodes and determine resources won for this roll
+            this.getNewResources = function (newCards, roll) {
+                builds.forEach(function (node) {
+                    if (node.id == roll && node.owner == this) {
+                        newCards.push(node.type);
+                        if (node.structure == 'city') {
+                            newCards.push(node.type);
+                        }
+                    }
+                });
+            }
+        }
+        function tile(index, tileType, row, col) {
+            //  Tiles with resources are given an id from 0 to the #of resource tiles
+            this.id = index;
+
+            //  We keep the row and col for neighbor lookups
+            this.row = row;
+            this.col = col;
+
+            //  Lumber, Grain, Sheep, Brick, Ore, Desert, Water
+            this.type = tileType;
+            this.harbor = "";
+            this.harborAlign = "";
+
+            //  The die number for this tile
+            this.token = -1;
+
+            //  The node objects surrounding this tile
+            this.nodes = [];
+        }
+        function node(tileID, index) {
+            //  Position around tile (0-11)
+            this.id = index;
+
+            //  If we are given a tile ID, this is used for drawing the node positions on the board (front end only)
+            this.tileID = tileID;
+
+            //  What kind of spot is this?
+            this.type = ((index % 2) == 0 ? 'buildspot' : 'roadspot');
+
+            //  Are we holding someone's settlement/city/road
+            this.structure = "";
+            this.owner = {};
+
+            //  Surrounding nodes
+            this.neighbors = [];
+
+            //  A general method to see if any buildings are within 1 node
+            this.canBuild = function (ignoreNode) {
+                var valid = true;
+                if (this.structure.length == 0) {
+                    this.neighbors.forEach(function (neighbor) {
+                        if (neighbor != null) {
+                            if (neighbor != ignoreNode) {
+                                if (neighbor.structure.length > 0 && neighbor.type == 'buildspot') {
+                                    valid = false;
+                                }
+
+                            }
+                        }
+                    });
+                } else {
+                    valid = false;
+                }
+                return valid;
+            }
+
+            //  A method to determine if a colour can reach this node to build
+            this.canBuildRoad = function (ignoreNode) {
+                var valid = false;
+                if (this.structure.length == 0) {
+                    this.neighbors.forEach(function (neighbor) {
+                        if (neighbor != null) {
+                            if (neighbor != ignoreNode) {
+                                if (neighbor.structure.length > 0 && neighbor.type == 'roadspot') {
+                                    if (neighbor.structure.indexOf(theGame.currentPlayer.colour) > -1) {
+                                        valid = true;
+                                    }
+                                }
+                                if (neighbor.structure.length > 0 && neighbor.type == 'buildspot') {
+                                    if (neighbor.structure.indexOf(theGame.currentPlayer.colour) > -1) {
+                                        valid = true;
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                return valid;
+            }
+        }
+        function resource(type) {
+            this.type = type;
+        }
+
+        function createBoard() {
+            //  Use a random setup of resources
+            buildTileList();
+
+            //  Pick a number sequence to use
+            numberToUse = Math.floor(Math.random() * 6);
+
+            //  Create all the tiles
+            for (var i = 0; i < 7; i++) {
+                for (var j = 0; j < 7; j++) {
+                    var tileIndex = -1;
+                    var tileType = boardLayout[i][j]
+                    if (tileType == "X") {
+                        tileType = tileList[tilePosition];
+                        tileIndex = tilePosition;
+                        tilePosition++;
+                    } else if (tileType == "H") {
+                        tileType = "harbor";
+                    } else if (tileType == "W") {
+                        tileType = "water";
+                    }
+
+                    var newTile = new tile(tileIndex, tileType, i, j);
+
+                    //  Set harbor as needed
+                    if (tileType == "harbor") {
+                        newTile.harbor = getHarbor();
+                        newTile.harborAlign = harborAlign[harborPosition];
+                        harborPosition++;
+                    }
+
+                    //  Set tile as we reach each spot
+                    if (tileType != "desert" && tileType != "water" && tileType != "harbor") {
+                        newTile.token = numberTiles[numberToUse][numberPosition];
+                        numberPosition++;
+                    }
+
+                    theGame.board[i].push(newTile);
+                }
+            }
+
+            //  Create the nodes around each tile
+            buildNodes();
+
+        }
+
+        function getHarbor() {
+            var done = false;
+            do {
+                var r = Math.floor(Math.random() * 7)
+                if (harborStart[r]) {
+                    if (harborStart[r].length > 0) {
+                        var h = harborStart[r].pop();
+                        harborStartCount--;
+                        return h;
+                    }
+                }
+
+                done = (harborStartCount <= 0);
+            }
+            while (!done);
+        }
+
+        function buildNodes() {
+            //  Each tile has 11 nodes surrounding it
+            //  Create as needed, otherwise connect up nodes for each tile
+
+            //  Due to some css limitations with layers, we need to create nodes
+            //  from bottom to top
+
+            for (var i = 5; i > 0; i--) {
+                for (var j = 5; j > 0; j--) {
+                    var nextTile = theGame.board[i][j];
+                    //  We only need resource tiles
+                    if (nextTile.id >= 0) {
+                        for (var x = 0; x < 12; x++) {
+                            var currentNode = findNode(x, nextTile, i, j);
+                            if (currentNode != null) {
+                                nextTile.nodes.push(currentNode);
+                            } else {
+                                var newNode = new node(nextTile.id, x);
+                                nextTile.nodes.push(newNode);
+                            }
+                        }
+                    }
+                }
+            }
+
+            //  For easier management later, get each neighboring node
+            for (var i = 5; i > 0; i--) {
+                for (var j = 5; j > 0; j--) {
+                    var nextTile = theGame.board[i][j];
+                    //  We only need resource tiles
+                    if (nextTile.id >= 0) {
+                        getNodeNeighbors(nextTile);
+                    }
+                }
+            }
+
+
+        }
+
+        function findNodeByStructureClass(className) {
+            if (className.length > 0) {
+                var classes = className.split(' ');
+
+                for (var i = 0; i < classes.length; i++) {
+                    if (classes[i].indexOf("currentnode") > -1) {
+                        var theNode = findNodeById(classes[i].replace("currentnode", "").replace("_", "."));
+                        return theNode;
+                    }
+                }
+            }
+            return null;
+        }
+
+        //  This method helps to find a specific node based on the id in the div tag
+        function findNodeById(id) {
+            //  First index is the tile
+            //  Second index is the node
+            var coords = id.split('.');
+            for (var i = 5; i > 0; i--) {
+                for (var j = 5; j > 0; j--) {
+                    var nextTile = theGame.board[i][j];
+                    if (nextTile.id >= 0) {
+                        if (nextTile.id == coords[0]) {
+                            for (var x = 0; x < 12; x++) {
+                                return nextTile.nodes[coords[1]];
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        //  I used this method to make sure that each intersection only exists once, even 
+        //  If it is associated with multiple tiles.  This makes management of settlements, 
+        //  roads and cities easier later on
+        function findNode(nodeIndex, theTile, row, col) {
+            var isEven = ((row % 2) == 0);
+            var theNode = {};
+
+            var newRow = -1;
+            var newCol = -1;
+            var newNode = -1;
+
+            //  Nodes 0-1, 11
+            if (row > 0 && (nodeIndex < 2 || nodeIndex == 11)) {
+                newRow = row - 1;
+                newCol = (nodeIndex == 11 ? (isEven ? col : col - 1) : (isEven ? col + 1 : col));
+                newNode = (nodeIndex == 0 ? 8 : (nodeIndex == 1 ? 7 : 5));
+            }
+
+            //  Nodes 2-4
+            if (col < 6 && (nodeIndex > 1 && nodeIndex < 5)) {
+                newRow = row;
+                newCol = col + 1;
+                newNode = (nodeIndex == 2 ? 10 : (nodeIndex == 3 ? 9 : 8));
+            }
+
+            //  Node 5-8
+            if (row < 6 && (nodeIndex > 4 && nodeIndex < 9)) {
+                newRow = row + 1;
+                newCol = (nodeIndex == 5 ? (isEven ? (col < 6 ? col + 1 : -1) : col) : (isEven ? col : (col > 0 ? col - 1 : -1)));
+                newNode = (nodeIndex == 5 ? 11 : (nodeIndex == 6 ? 2 : (nodeIndex == 7 ? 1 : 0)));
+            }
+
+            //  Node 9-10
+            if (col > 0 && (nodeIndex == 9 || nodeIndex == 10)) {
+                newRow = row;
+                newCol = col - 1;
+                newNode = (nodeIndex == 9 ? 3 : 2);
+            }
+
+            if (newRow >= 0 && newCol >= 0 && newNode >= 0) {
+                theNode = theGame.board[newRow][newCol].nodes[newNode];
+            }
+
+            if (theNode != null) {
+                if (theNode.type != "water" && theNode.type != "harbor") {
+                    return theNode;
+                }
+            }
+            return null;
+        }
+
+        function getTileNeighbors(tile) {
+            var isEven = ((tile.row % 2) == 0);
+            var neighbors = [];
+            var node = [{}, {}, {}, {}, {}, {}];
+
+            //  Up left
+            node = (isEven ? theGame.board[tile.row - 1][tile.col] : theGame.board[tile.row - 1][tile.col - 1]);
+            neighbors[0] = node;
+
+            //  Up Right
+            node = (isEven ? theGame.board[tile.row - 1][tile.col + 1] : theGame.board[tile.row - 1][tile.col]);
+            neighbors[1] = node;
+
+            //  left
+            node = theGame.board[tile.row][tile.col - 1];
+            neighbors[2] = node;
+
+            //  right
+            node = theGame.board[tile.row][tile.col + 1];
+            neighbors[3] = node;
+
+            //  bottom left
+            node = (isEven ? theGame.board[tile.row + 1][tile.col] : theGame.board[tile.row + 1][tile.col - 1]);
+            neighbors[4] = node;
+
+            //  bottom right
+            node = (isEven ? theGame.board[tile.row + 1][tile.col + 1] : theGame.board[tile.row + 1][tile.col]);
+            neighbors[5] = node;
+
+            return neighbors;
+        }
+
+        function getNodeNeighbors(tile) {
+            var neighbors = getTileNeighbors(tile);
+
+            //!!    Add code to remove nodes where a different colour house blocks
+
+            //  Build spot neighbors are just the adjacent build spots
+
+            //  Node 0 neighbors
+                //  Node 2 and 10 on this tile
+                tile.nodes[0].neighbors.push(tile.nodes[2]);
+                tile.nodes[0].neighbors.push(tile.nodes[10]);
+                //  Node 2 Up-left and Node 10 up-right
+                tile.nodes[0].neighbors.push(neighbors[0].nodes[2] ? neighbors[0].nodes[2] : null);
+                tile.nodes[0].neighbors.push(neighbors[1].nodes[10] ? neighbors[1].nodes[10] : null);
+
+            //  Node 2 neighbors
+                //  Node 0 and 4 on this tile
+                tile.nodes[2].neighbors.push(tile.nodes[0]);
+                tile.nodes[2].neighbors.push(tile.nodes[4]);
+                //  right tile 0 or top right 4
+                tile.nodes[2].neighbors.push(neighbors[3].nodes[0] ? neighbors[3].nodes[0] : null);
+                tile.nodes[2].neighbors.push(neighbors[2].nodes[4] ? neighbors[2].nodes[4] : null);
+
+            //  Node 4 neighbors
+                //  Node 2 and 6 on this tile
+                tile.nodes[4].neighbors.push(tile.nodes[2]);
+                tile.nodes[4].neighbors.push(tile.nodes[6]);
+                //  right tile 6 or bottom right 2
+                tile.nodes[4].neighbors.push(neighbors[3].nodes[6] ? neighbors[3].nodes[6] : null);
+                tile.nodes[4].neighbors.push(neighbors[5].nodes[2] ? neighbors[5].nodes[2] : null);
+
+            //  Node 6 neighbors
+                //  Node 8 and 4 on this tile
+                tile.nodes[6].neighbors.push(tile.nodes[4]);
+                tile.nodes[6].neighbors.push(tile.nodes[8]);
+                //  bottom left  4 or bottom right 8
+                tile.nodes[6].neighbors.push(neighbors[4].nodes[4] ? neighbors[4].nodes[4] : null);
+                tile.nodes[6].neighbors.push(neighbors[5].nodes[8] ? neighbors[5].nodes[8] : null);
+
+            //  Node 8 neighbors
+                //  Node 10 and 6 on this tile
+                tile.nodes[8].neighbors.push(tile.nodes[6]);
+                tile.nodes[8].neighbors.push(tile.nodes[10]);
+                //  left 4 or bottom left 0
+                tile.nodes[8].neighbors.push(neighbors[2].nodes[4] ? neighbors[2].nodes[4] : null);
+                tile.nodes[8].neighbors.push(neighbors[4].nodes[0] ? neighbors[4].nodes[0] : null);
+
+            //  Node 10 neighbors
+                //  Node 0 and 8 on this tile
+                tile.nodes[10].neighbors.push(tile.nodes[0]);
+                tile.nodes[10].neighbors.push(tile.nodes[8]);
+                //  left 2 or upper left 6
+                tile.nodes[10].neighbors.push(neighbors[2].nodes[2] ? neighbors[2].nodes[2] : null);
+                tile.nodes[10].neighbors.push(neighbors[0].nodes[6] ? neighbors[0].nodes[6] : null);
+
+
+            //  Road spot neighbors include adjacent build and road spots
+
+                //  For all roads, neighbors on the same tile are the 2 before and 2 after
+                for (var j = 1; j < 12; j = j + 2) {
+                    if (j == 1) {
+                        tile.nodes[j].neighbors.push(tile.nodes[11]);
+                    } else {
+                        tile.nodes[j].neighbors.push(tile.nodes[j - 2]);
+                    }
+                    tile.nodes[j].neighbors.push(tile.nodes[j-1]);
+                    if (j == 11) {
+                        tile.nodes[j].neighbors.push(tile.nodes[0]);
+                        tile.nodes[j].neighbors.push(tile.nodes[1]);
+                    } else {
+                        tile.nodes[j].neighbors.push(tile.nodes[j + 1]);
+                        tile.nodes[j].neighbors.push(tile.nodes[j + 2]);
+                    }
+                }
+
+            //  The rest are on adjacent tiles
+
+            //  Node 1 neighbors
+                //  Node 3 Up-left and Node 9 up-right
+                tile.nodes[0].neighbors.push(neighbors[0].nodes[3] ? neighbors[0].nodes[3] : null);
+                tile.nodes[0].neighbors.push(neighbors[1].nodes[9] ? neighbors[1].nodes[9] : null);
+
+            //  Node 3 neighbors
+                //  Node 11 right, Node 7 right, Node 5 up-right, Node 1 down-right
+                tile.nodes[0].neighbors.push(neighbors[3].nodes[11] ? neighbors[3].nodes[11] : null);
+                tile.nodes[0].neighbors.push(neighbors[3].nodes[7] ? neighbors[3].nodes[7] : null);
+                tile.nodes[0].neighbors.push(neighbors[1].nodes[5] ? neighbors[1].nodes[5] : null);
+                tile.nodes[0].neighbors.push(neighbors[5].nodes[1] ? neighbors[5].nodes[1] : null);
+
+            //  Node 5 neighbors
+                //  Node 7 right, Node 1 down-right, Node 9 down-right, Node 3 down-left
+                tile.nodes[0].neighbors.push(neighbors[3].nodes[7] ? neighbors[3].nodes[7] : null);
+                tile.nodes[0].neighbors.push(neighbors[5].nodes[1] ? neighbors[5].nodes[1] : null);
+                tile.nodes[0].neighbors.push(neighbors[5].nodes[9] ? neighbors[5].nodes[9] : null);
+                tile.nodes[0].neighbors.push(neighbors[4].nodes[3] ? neighbors[4].nodes[3] : null);
+
+            //  Node 7 neighbors
+                //  Node 9 down-right, Node 3 down-left, Node 11 down-left, Node 5 left
+                tile.nodes[0].neighbors.push(neighbors[5].nodes[9] ? neighbors[5].nodes[9] : null);
+                tile.nodes[0].neighbors.push(neighbors[4].nodes[3] ? neighbors[4].nodes[3] : null);
+                tile.nodes[0].neighbors.push(neighbors[4].nodes[11] ? neighbors[4].nodes[11] : null);
+                tile.nodes[0].neighbors.push(neighbors[2].nodes[5] ? neighbors[2].nodes[5] : null);
+
+            //  Node 9 neighbors
+                //  Node 1 left, Node 7 up-left, Node 5 left, Node 11 down-left
+                tile.nodes[0].neighbors.push(neighbors[2].nodes[1] ? neighbors[2].nodes[1] : null);
+                tile.nodes[0].neighbors.push(neighbors[0].nodes[7] ? neighbors[0].nodes[7] : null);
+                tile.nodes[0].neighbors.push(neighbors[2].nodes[5] ? neighbors[2].nodes[5] : null);
+                tile.nodes[0].neighbors.push(neighbors[4].nodes[11] ? neighbors[4].nodes[11] : null);
+
+            //  Node 11 neighbors
+                //  Node 3 up-left, Node 9 up-right, Node 7 up-left, Node 1 left
+                tile.nodes[0].neighbors.push(neighbors[0].nodes[3] ? neighbors[0].nodes[3] : null);
+                tile.nodes[0].neighbors.push(neighbors[1].nodes[9] ? neighbors[1].nodes[9] : null);
+                tile.nodes[0].neighbors.push(neighbors[0].nodes[7] ? neighbors[0].nodes[7] : null);
+                tile.nodes[0].neighbors.push(neighbors[2].nodes[1] ? neighbors[2].nodes[1] : null);
+
+
+        }
+
+        function validateNode(neighbors, index, nodeindex) {
+            if (neighbors[index] != null) {
+                if (neighbors[index].nodes != null) {
+                    if (neighbors[index].nodes.length > nodeindex) {
+                        return neighbors[index].nodes[nodeindex];
+                    }
+                }
+            }
+            return null;
+        }
+
+    </script>
+
+
+</body>
+</html>

@@ -3,7 +3,7 @@
  */
 var test = require('ava');
 
-var Lobby = require('../game/lobby.js');
+var Lobby = require('../app/game/lobby.js');
 
 test("When lobby is first created there is no game", function(t) {
     var lobby = new Lobby();
