@@ -9,8 +9,6 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/jquery-ui.js"></script>
 
-    <script src="js/client.js"></script>
-    <script src="js/server.js"></script>
     <script src="js/dragdrop.js"></script>
 	<meta charset="utf-8" />
 </head>
@@ -171,7 +169,7 @@
                 theGame = new game(playerNames);
                 theGame.startGame();
 
-                $(".player").html("<img src='Images/" + theGame.players[0].avatar + "' />");
+                $(".player").html("<img src='images/" + theGame.players[0].avatar + "' />");
                 $(".playername").html(playerNames[0]);
                 $(".start").hide();
 
@@ -212,7 +210,7 @@
                 //  For the first time here, create the structure
                 var html = "";
                 html += "        <div class='row'>";
-                html += "            <div class='player'><img src='Images/" + theGame.currentPlayer.avatar + "' /></div>";
+                html += "            <div class='player'><img src='images/" + theGame.currentPlayer.avatar + "' /></div>";
                 html += "            <div class='playername'>" + theGame.currentPlayer.name;
                 html += "               <div class='playerbutton'>";
                 html += "                   <div class='btn btn-info finishturnbutton' onclick='finishTurn();'>Finish Turn</div>";
@@ -254,7 +252,7 @@
                 html += "        </div>";
                 html += "            <div class='cards'>";
                 html += "                Cards:<br />";
-                html += "                <div class='cardlist'><img src='../Images/nocards.png' /></div>";
+                html += "                <div class='cardlist'><img src='../images/nocards.png' /></div>";
                 html += "                <div class='buy'><div class='btn btn-info buybutton'>Buy Development Card</div></div>";
                 html += "            </div>";
                 html += "           <div class='bonuses'>";
@@ -336,10 +334,10 @@
 
                 //  Build html for screen
                 resourceSummary += "<div class='row'>";
-                resourceSummary += "<div class='avatar'><img src='Images/" + player.avatar + "' /></div>";
+                resourceSummary += "<div class='avatar'><img src='images/" + player.avatar + "' /></div>";
                 resourceSummary += "<div class='cards'>";
                 newCards.forEach(function (card) {
-                    resourceSummary += "<div class='card'><img src='Images/card_" + card + "_small.png' /></div>";
+                    resourceSummary += "<div class='card'><img src='images/card_" + card + "_small.png' /></div>";
                 });
                 resourceSummary += "</div>";
                 resourceSummary += "</div>";
