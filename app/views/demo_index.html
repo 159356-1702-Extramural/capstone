@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Settlers of Massey</title>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/css/demo_styles.css">
+</head>
+<body>
+    <button class="reset_game">Debug: reset game</button>
+    <h1>Hello World.</h1>
+    <p>Bob was here</p>
+    <p>Tim was here!</p>
+    <p>Craig is here (but not next week)</p>
+
+    <div class="display_section" data-section-name="join_game">
+        <form action="" id="join_game_form" >
+            <label for="join_name">Join Game
+                <input type="text" name="name" id="join_name" required>
+            </label>
+            <button type="submit">Join Game</button>
+        </form>
+    </div>
+    <div class="display_section hide" data-section-name="waiting_for_game">
+        <p>You have joined the game. Waiting for more players: <span class="count"></span> of <span class="total"></span></p>
+    </div>
+    <div class="display_section hide" data-section-name="gameplay">
+        <h1>Let the game begin!</h1>
+        <h2>Round: <span id="round_num">1</span></h2>
+        <div id="game_elements"></div>
+    </div>
+    <div class="display_section hide" data-section-name="error">
+        <p style="color: red; font-weight: bold;">Something went wrong</p>
+    </div>
+
+    <script src="/js/demo_script.js" defer></script>
+</body>
+</html>

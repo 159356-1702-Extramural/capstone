@@ -3,9 +3,14 @@
   "version": "0.0.1",
   "description": "Extramural Capstone Project ",
   "main": "app.js",
+  "ava" : {
+    "files": [
+      "tests/*.js"
+    ]
+  },
   "scripts": {
-    "start": "node app.js",
-    "inspect": "node --inspect app.js",
+    "start": "node app/app.js",
+    "inspect": "node --inspect app/app.js",
     "test": "nyc ava",
     "test:watch": "nyc ava --watch"
   },
