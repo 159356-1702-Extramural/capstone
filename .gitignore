@@ -3,3 +3,5 @@ coverage
 node_modules
 /capstone/.vs
 /capstone/capstone.sln
+.idea/capstone.iml
+.idea/

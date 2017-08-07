@@ -137,4 +137,13 @@ Game.prototype.broadcast = function(event_name, data) {
     });
 };
 
+/*
+ * Rolling two dices, and return the sum of the two dices number.
+ */
+Game.prototype.rollingDice=function () {
+    var dice1=Math.ceil(Math.random() * 6 );
+    var dice2=Math.ceil(Math.random() * 6 );
+    return dice1+dice2;
+}
+
 module.exports = Game;
