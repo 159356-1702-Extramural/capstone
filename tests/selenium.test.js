@@ -186,7 +186,7 @@ var drivers = driversQuickTest;
  */
 
 function frontPageLoads(browserDriver){
-  test('Front game page exists', async t => {
+  test('Front game page exists ('+browserDriver.browserName+" / "+browserDriver.platform+")", async t => {
     let driver = browserDriver;
     await driver.get('http://capstone-settlers.herokuapp.com/');
     t.is(await driver.getTitle(), "Settlers of Massey");
