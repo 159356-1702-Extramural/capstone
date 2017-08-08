@@ -3,10 +3,11 @@
   "version": "0.0.1",
   "description": "Extramural Capstone Project ",
   "main": "app.js",
-  "ava" : {
+  "ava": {
     "files": [
       "tests/*.js"
-    ]
+    ],
+    "concurrency": 5
   },
   "scripts": {
     "start": "node app/app.js",
@@ -14,7 +15,7 @@
     "test": "nyc ava",
     "test:watch": "nyc ava --watch"
   },
-  "author": "Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu",
+  "author": "Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu, Luke",
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
