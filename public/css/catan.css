@@ -3,6 +3,10 @@ body {
   font-family: 'Raleway', sans-serif;
 }
 
+.hide {
+    display: none;
+}
+
 .start, .turn {
     position:fixed;
     top:0px;
@@ -59,9 +63,7 @@ body {
 .start_text {
     font-size:32px;
 }
-.start .players {
-    display:none;
-}
+
 .start .player_row {
     clear:both;
     width:90%;
