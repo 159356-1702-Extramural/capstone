@@ -5,9 +5,6 @@ $(document).ready(function() {
 
   var $doc = $(document);
 
-  var boardObject = {};
-  var nodesObject = {};
-  
     // Start menu section links
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
@@ -18,7 +15,7 @@ $(document).ready(function() {
     //hide wait for settlement placement window
     $doc.on('click', '#placeSettlement', function(){
         $('.start').fadeOut(400, function() {
-            
+
         });
     } )
 
@@ -34,7 +31,7 @@ $(document).ready(function() {
         socket.emit('join_request', {
             name: name
         });
-        
+
         display_start_modal('waiting');
 
     });
@@ -62,19 +59,35 @@ $(document).ready(function() {
 
     // Detect the game starting
     socket.on('build_board', function (data) {
-        var temp = JSON.parse(data);
+        var boardObject = JSON.parse(data);
 
-        boardObject = temp.board;
-        nodesObject = temp.nodes;
+        //  Build tiles
+        var _html = "";
+        for (var i=0; i< boardObject.tiles.length; i++) {
+            var row = boardObject.tiles[i];
+            for (var j=0; j<row.length; j++) {
+                _html += buildTile(row[j], i, j);
+            }
+        }
+        $(".board").html(_html);
 
-        drawBoard(boardObject, nodesObject);
-        setupPlayer();
-        setupDragDrop(boardObject, nodesObject);
+        //  Add ghost images (nodes)
+        for (var i=0; i< boardObject.tiles.length; i++) {
+            var row = boardObject.tiles[i];
+            for (var j=0; j<row.length; j++) {
+                //  For each tile, find all nodes
+
+                if (theNode.tileID == theTile.id) {
+                    newTile += "<div id='" + theNode.tileID + "." + theNode.id + "' class='node node" + theNode.id + " " + theNode.type + "'></div>";
+                }
+            }
+        }
+
     });
 
     /**
      * Displays a subsection of the start modal
-     * 
+     *
      * @param {string} active_class : subsection class that you want to display in the start modal
      */
     function display_start_modal(active_class) {
@@ -96,12 +109,11 @@ $(document).ready(function() {
 
         if(data[1]){
             $('.place_button').removeClass('hide');
-        } 
-        
+        }
+
     }
 
 });
-
 
 function drawBoard(board, nodes) {
     tilePosition = 0;
@@ -126,8 +138,10 @@ function drawBoard(board, nodes) {
 
     $(".board").html(newBoard);
 }
-function buildTile(nodes, theTile, row, col) {
-    if ((row % 2) == 0 && col == 6) {
+
+function buildTile(theTile, row, col) {
+    //  We don't need the 1st water on even rows
+    if ((row % 2) == 0 && col == 0) {
         return "";
     } else {
         var newTile = "<div class='hex";
@@ -135,7 +149,7 @@ function buildTile(nodes, theTile, row, col) {
         if (theTile.type == "water" || theTile.type == "harbor") {
             newTile += "_" + theTile.type;
             if (theTile.type == "harbor") {
-                newTile += " " + theTile.harborAlign;
+                //newTile += " " + theTile.harborAlign;
             }
         } else {
             newTile += " " + theTile.type;
@@ -146,18 +160,12 @@ function buildTile(nodes, theTile, row, col) {
             newTile += "<div class='robber'></div>";
         }
         if (theTile.type == "harbor") {
-            newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
+            //newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
         }
 
         //  Set node placeholders
         if (theTile.type != "water" && theTile.type != "harbor") {
-            for (var i=0; i<nodes.length; i++) {
-                //  We only want nodes tied to this tile
-                var theNode = nodes[i];
-                if (theNode.tileID == theTile.id) {
-                    newTile += "<div id='" + theNode.tileID + "." + theNode.id + "' class='node node" + theNode.id + " " + theNode.type + "'></div>";
-                }
-            }
+            //  We loop through all nodes on this tile
         }
 
         //  Set the number token if this tile has one
@@ -169,6 +177,9 @@ function buildTile(nodes, theTile, row, col) {
 
         return newTile;
     }
+}
+function buildNodes() {
+
 }
 function getDots(d) {
     if (d == 2 || d == 12) {
@@ -187,7 +198,6 @@ function getDots(d) {
         return ".....";
     }
 }
-
 
 function validateNode(neighbors, index, nodeindex) {
     if (neighbors[index] != null) {

@@ -1,459 +1,354 @@
-
 /*
     This is based on the original prototype seutp
 */
+
+// TODO: [EASY] Harbours
+// TODO: [HARD] Exclude nodes that don't border a resource tile
+
 function Board() {
-    //  The index of the number list below to be used (randomly chosen on game start)
-    this.numberToUse = -1;
-
-    //  The index of the next number tile to be set
-    this.numberPosition = 0;
-
-    //  The six valid sequences which we can randomly pick from
-    this.numberTiles = [
-        [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9],
-        [8, 4, 11, 10, 11, 3, 12, 5, 9, 6, 9, 2, 4, 5, 10, 6, 3, 8],
-        [11, 12, 9, 4, 3, 6, 10, 8, 11, 5, 8, 10, 9, 4, 3, 5, 2, 6],
-        [9, 10, 8, 12, 6, 5, 3, 11, 3, 4, 6, 4, 11, 9, 2, 8, 10, 5],
-        [8, 3, 6, 10, 5, 4, 2, 9, 6, 9, 5, 12, 3, 11, 10, 11, 4, 8],
-        [5, 10, 8, 2, 9, 3, 4, 6, 11, 6, 11, 3, 4, 5, 12, 8, 10, 9]
-    ];
-
-    //  Counts of each type of hex
-    this.tileStart = [
-        ['brick', 'brick', 'brick'],
-        ['lumber', 'lumber', 'lumber', 'lumber'],
-        ['grain', 'grain', 'grain', 'grain'],
-        ['sheep', 'sheep', 'sheep', 'sheep'],
-        ['ore', 'ore', 'ore'],
-        ['desert']
-    ];
-    this.tileStartCount = 19;
-
-    this.harborPosition = 0;
-    this.harborStart = [
-        ['3to1', '3to1', '3to1', '3to1'],
-        ['brick'],
-        ['lumber'],
-        ['ore'],
-        ['grain'],
-        ['sheep']
-    ];
-    this.harborAlign = ['bottom_right', 'bottom_left', 'bottom_right', 'left', 'right', 'left', 'top_right', 'top_right', 'top_left'];
-    this.harborStartCount = 9;
-
-    //  Board will be a 7x7 grid
-    //  W = water tile, H = harbor tile, X = hex tile
-    this.boardLayout = [
-            ['W', 'W', 'H', 'W', 'H', 'W', 'W'],
-        ['W', 'H', 'X', 'X', 'X', 'W', 'W'],
-            ['W', 'X', 'X', 'X', 'X', 'H', 'W'],
-        ['H', 'X', 'X', 'X', 'X', 'X', 'W'],
-            ['W', 'X', 'X', 'X', 'X', 'H', 'W'],
-        ['W', 'H', 'X', 'X', 'X', 'W', 'W'],
-            ['W', 'W', 'H', 'W', 'H', 'W', 'W']
-    ];
-
-    //  Position of each hex type
-    this.tilePosition = 0;
-    this.tileList = [];
-
-    //  Object that holds the board array
-    this.board = [[], [], [], [], [], [], []];
     this.nodes = [];
-}
-
-Board.prototype.getGameData = function() {
-    var gameData = new GameData(this.board, this.nodes);
-    return gameData;
+    this.roads = [];
+    this.tiles = [];
+    this.node_tree;
 }
 
 /*
-    Primary method to create the board layout
+*  Takes a 2D array
+*
+* Numbers in grid determine the tile type
 */
-Board.prototype.createBoard = function() {
-    //  Use a random setup of resources
-    this.buildTileList();
+Board.prototype.build_nodes = function(_board) {
+  if (!_board) {
+    // Standard layout (as seen in the manual)
+    // even # row is moved over by tile_width/2
+    _board = [
+        ["z0",  "z0",  "z0",  "z0",  "z0",  "z0",  "z0"],
+        ["z0",  "z0",  "e11", "b12", "d9",  "z0",  "z0"],
+        ["z0",  "z0",  "a4",  "c6",  "a5",  "b10", "z0"],
+        ["z0",  "f0",  "e3",  "d11", "e4",  "d8",  "z0"],
+        ["z0",  "z0",  "a8",  "b10", "b9",  "c3",  "z0"],
+        ["z0",  "z0",  "c5",  "d2",  "e6",  "z0",  "z0"],
+        ["z0",  "z0",  "z0",  "z0",  "z0",  "z0",  "z0"]
+    ];
+  }
+  // iterate over the input board_array
+  for (var y=0; y<_board.length; y++) {
+    this.tiles.push([]);
+    for (var x=0; x<_board[y].length; x++) {
+      // insert tile_node from info
+      var tile_info = _board[y][x].match(/([A-Za-z]+)([0-9]+)/);
+      var tile_type = this.setup_tile_resource(tile_info[1]);
 
-    //  Pick a number sequence to use
-    this.numberToUse = Math.floor(Math.random() * 6);
+      var tile = new TileNode(tile_type, (tile_type === "desert"), parseInt(tile_info[2]), []);
 
-    //  Create all the tiles
-    for (var i = 0; i < 7; i++) {
-        for (var j = 0; j < 7; j++) {
-            var tileIndex = -1;
-            var tileType = this.boardLayout[i][j]
-            if (tileType == "X") {
-                tileType = this.tileList[this.tilePosition];
-                tileIndex = this.tilePosition;
-                this.tilePosition++;
-            } else if (tileType == "H") {
-                tileType = "harbor";
-            } else if (tileType == "W") {
-                tileType = "water";
+      var add_node = true;
+      var water = 0;
+      // nodes from center of tile are in order;
+      // bottom right/middle/left, top left/middle/right. From 30 degrees onwards
+      var tile_nodes = this.setup_nodes(new Point(x,y));
+      for (var i=0; i<tile_nodes.length; i++) {
+        // Check if node has neighbours out of _board bounds, or completely surrounded by water
+        for (var w=0; w<tile_nodes[i].n_tiles.length; w++) {
+          // if x,y is out of array bounds we can't index the _board with it to check type
+          if ((tile_nodes[i].n_tiles[w].x >= 0 && tile_nodes[i].n_tiles[w].x < _board[0].length) &&
+              (tile_nodes[i].n_tiles[w].y >= 0 && tile_nodes[i].n_tiles[w].y < _board.length)) {
+            if (_board[tile_nodes[i].n_tiles[w].y][tile_nodes[i].n_tiles[w].x] == "z0") {
+              water += 1;
             }
-
-            var newTile = new tile(tileIndex, tileType, i, j);
-
-            //  Set harbor as needed
-            if (tileType == "harbor") {
-                newTile.harbor = this.getHarbor();
-                newTile.harborAlign = this.harborAlign[this.harborPosition];
-                this.harborPosition++;
-            }
-
-            //  Set tile as we reach each spot
-            if (tileType != "desert" && tileType != "water" && tileType != "harbor") {
-                newTile.token = this.numberTiles[this.numberToUse][this.numberPosition];
-                this.numberPosition++;
-            }
-
-            this.board[i].push(newTile);
+          } else {
+            water += 1;
+          }
         }
-    }
-
-    //  Create the nodes around each tile
-    this.buildNodes();
-}
-
-/*
-    This method creates a random list of tiles for the board
-*/
-Board.prototype.buildTileList = function() {
-    var done = false;
-    do {
-        var r = Math.floor(Math.random() * 7)
-        if (this.tileStart[r]) {
-            if (this.tileStart[r].length > 0) {
-                var h = this.tileStart[r].pop();
-                this.tileList.push(h);
-                this.tileStartCount--;
+        // intersecting more than two water tiles means it isn't on a resource tile, don't add
+        if (water > 2) {
+          add_node = false;
+          break;
+        } else {
+          for (var n=0; n<this.nodes.length; n++) {
+            // check if the node is already indexed, and grab the index if so
+            var nodes_in_common = this.compare_point_array(this.nodes[n].n_tiles, tile_nodes[i].n_tiles);
+            if (nodes_in_common > 2) {
+              add_node = false;
+              tile.associated_nodes.push(n); // add association
+              break;
             }
-        }
-        
-        done = (this.tileStartCount <= 0);
-    }
-    while (!done);
-}
-
-/*
-    Create a random order for the harbors
-*/
-Board.prototype.getHarbor = function() {
-    var done = false;
-    do {
-        var r = Math.floor(Math.random() * 7)
-        if (this.harborStart[r]) {
-            if (this.harborStart[r].length > 0) {
-                var h = this.harborStart[r].pop();
-                this.harborStartCount--;
-                return h;
-            }
+          }
         }
 
-        done = (this.harborStartCount <= 0);
+        if (add_node) {
+          this.nodes.push(tile_nodes[i]);
+          tile.associated_nodes.push(this.nodes.length-1);
+        }
+        add_node = true;
+        water = 0;
+      }
+      this.tiles[y].push(tile);
     }
-    while (!done);
-}
+  }
+  // iterate over node_map for each node in the map and find neighbours
+  for (var j=0; j<this.nodes.length; j++) {
+    this.fill_node_details(this.nodes[j], j);
+  }
+  // TODO: final iteration of nodes to strip out water only nodes
+  //       - issue: water tiles will need node refs removed too
+};
+
+/// Count how many Points are the same in each array
+Board.prototype.compare_point_array = function(a1, a2) {
+    var count = 0;
+    for (var i=0; i<a1.length; i++) {
+        for (var j=0; j<a2.length; j++) {
+            if (a1[i].x === a2[j].x && a1[i].y === a2[j].y) {
+                count += 1;
+            }
+        }
+    }
+    return count;
+};
+
+Board.prototype.array_contains_point = function(point, array) {
+    for (var i=0; i<array.length; i++) {
+      if (point.x === array[i].x && point.y === array[i].y) {
+          return true;
+      }
+    }
+    return false;
+};
+
+Board.prototype.setup_tile_resource = function (t) {
+    if (t === 'a') {
+        return "brick";
+    } else if (t === 'b') {
+        return "sheep";
+    } else if (t === 'c') {
+        return "ore";
+    } else if (t === 'd') {
+        return "grain";
+    } else if (t === 'e') {
+        return "lumber";
+    } else if (t === 'f') {
+        return "desert";
+    } else if (t === 'z') {
+        return "water";
+    }
+};
 
 /*
-    Creation of nodes around each resource tile
+*  Takes a tuple (x,y) representing the tile coords
+*
+*  Pushes new nodes and their hash in to hashmap
 */
-Board.prototype.buildNodes = function() {
-    //  To avoid circular references, this has been changed to a single array
-    //  Each node has a unique ID, which the tile keeps in a simple lookup array
+Board.prototype.setup_nodes = function(coords) {
+  var x = coords.x;
+  var y = coords.y;
+  var odd_x = x;
+  var eve_x = x;
 
-    //  Each tile has 11 nodes surrounding it
-    //  Create as needed, otherwise connect up nodes for each tile
+  if (coords.y % 2 !== 0) {
+      odd_x = x+1;
+      eve_x = x;
+  } else {
+      odd_x = x;
+      eve_x = x-1;
+  }
 
-    //  Due to some css limitations with layers, we need to create nodes
-    //  from bottom to top
+  var bot_right = [new Point(x,y), new Point(x+1,y),     new Point(odd_x,y+1)]; // 0
+  var bot_mid   = [new Point(x,y), new Point(odd_x,y+1), new Point(eve_x,y+1)]; // 1
+  var bot_left  = [new Point(x,y), new Point(eve_x,y+1), new Point(x-1,y)]; // 2
 
-    for (var i = 5; i > 0; i--) {
-        for (var j = 5; j > 0; j--) {
-            var nextTile = this.board[i][j];
-            //  We only need resource tiles
-            if (nextTile.id >= 0) {
-                for (var x = 0; x < 12; x++) {
-                    var currentNode = this.findNode(x, nextTile, i, j);
-                    if (currentNode != null) {
-                        nextTile.nodes.push(currentNode.arrayIndex);
-                    } else {
-                        var newNode = new node(nextTile.id, x, this.nodes.length);
-                        nextTile.nodes.push(this.nodes.length);
-                        this.nodes.push(newNode);
-                    }
+  var top_left  = [new Point(x,y), new Point(x-1,y),     new Point(eve_x,y-1)]; // 3
+  var top_mid   = [new Point(x,y), new Point(eve_x,y-1), new Point(odd_x,y-1)]; // 4
+  var top_right = [new Point(x,y), new Point(odd_x,y-1), new Point(x+1,y)]; // 5
+
+  return [new BuildNode(bot_right), new BuildNode(bot_mid), new BuildNode(bot_left),
+          new BuildNode(top_left),  new BuildNode(top_mid), new BuildNode(top_right)];
+};
+
+/*
+*  Takes a node Object and the objects index in the node_map
+*
+*  The function iterates over the node_map to find neighbouring nodes
+*  and adds road nodes between them
+*  Note: use only when all nodes have been added to the hashmap
+*/
+Board.prototype.fill_node_details = function (node, node_index) {
+    for (var n=0; n<this.nodes.length; n++) {
+      // if n_node.n_tiles contains any combo of two or more of
+      // this nodes neighbouring tiles then it is a neighbour node
+        if (this.compare_point_array(this.nodes[n].n_tiles, node.n_tiles) >= 2 && n !== node_index) {
+            node.n_nodes.push(n);
+
+            // now check for connections between this node and others
+            var add_road = true;
+            for (var road of this.roads) {
+                // if the road exists connecting these node indexes, don't add
+                // should be safe in JS since the comparison is between integers
+                if (road.connects.indexOf(n) !== -1 &&
+                    road.connects.indexOf(node_index) !== -1) {
+                    add_road = false;
+                    break;
                 }
             }
+            if (add_road)
+                this.roads.push(new RoadNode([n, node_index]));
+        }
+        if (node.n_nodes.length === 3) {
+            break;
         }
     }
+};
 
-    //  For easier management later, get each neighboring node
-    for (var i = 5; i > 0; i--) {
-        for (var j = 5; j > 0; j--) {
-            var nextTile = this.board[i][j];
-            //  We only need resource tiles
-            if (nextTile.id >= 0) {
-                this.getNodeNeighbors(nextTile);
-            }
-        }
-    }
-
+/********************************************
+*  Basic getters for board elements
+*********************************************/
+/// returns road object
+Board.prototype.get_road = function (index) {
+  return this.roads[index];
 }
+
+/// returns node object
+Board.prototype.get_node = function (index) {
+  return this.nodes[index];
+}
+
+/// returns tile object
+Board.prototype.get_tile = function (point) {
+  return this.tiles[point.y][point.x];
+};
+
+/// returns resource type string
+Board.prototype.get_tile_resource_type = function (point) {
+  return this.tiles[point.y][point.x].type;
+};
+
+/********************************************
+*  More advanced getters for board elements
+*********************************************/
+/// returns the index numbers for nodes
+Board.prototype.get_node_indexes_from_road = function (index) {
+  return [this.nodes[this.roads[index].connects[0]],
+          this.nodes[this.roads[index].connects[1]]];
+}
+
+/// returns an array of tile objects
+Board.prototype.get_tiles_with_resource = function (resource) {
+  var array = [];
+  for (var y=0; y< this.tiles.length; y++) {
+    for (var x=0; x< this.tiles.length; x++) {
+      var tile = this.tiles[y][x];
+      if (tile.type === resource)
+        array.push(tile);
+    }
+  }
+  return array;
+};
+
+/// returns an array of player names
+Board.prototype.get_players_with_resource = function (resource) {
+  var players = [];
+  var tiles = this.get_tiles_of_resource(resource);
+  for (var t=0; t<this.tiles.length; t++) {
+    if (this.tiles[t].owner)
+      players.push(this.tiles[t].owner);
+  }
+  return players;
+};
+
+/// returns an array of indexes for Board.nodes
+Board.prototype.get_shore_node_indexes = function() {
+  var nodes = [];
+  for (var n=0; n<this.nodes.length; n++) {
+    var count = 0;
+    for (var t=0; t<this.nodes[n].tiles.length; t++) {
+      var tile = this.nodes[n].tiles[t];
+      if (tile.type === 'water') {
+        count +=1;
+      }
+    }
+    if ((count === 1 || count === 2) && count !== 3) {
+      nodes.push(n);
+    }
+  }
+  return nodes;
+}
+
+/// returns an array of indexes for Board.nodes
+Board.prototype.get_shore_road_indexes = function() {
+  var roads = [];
+  var nodes = this.get_shore_node_indexes();
+  for (var r=0; r<this.roads.length; r++) {
+    if (nodes.indexOf(this.roads[r].connects[0]) && nodes.indexOf(this.roads[r].connects[0]))
+    roads.push(r);
+  }
+  return roads;
+}
+
+// TODO: should build a binary tree at some point for this.
+// Board.prototype.is_path_to_owned_by(start_node, end_node, owner)
+
+/********************************************
+*  Misc
+*********************************************/
 
 /*
-    Methods to redesign and make more dynamic
+*  A Points object for storing coordinates - forces integer
 */
+function Point(x,y) {
+    this.x = parseInt(x);
+    this.y = parseInt(y);
+};
 
-//  I used this method to make sure that each intersection only exists once, even 
-//  If it is associated with multiple tiles.  This makes management of settlements, 
-//  roads and cities easier later on
-Board.prototype.findNode = function(nodeIndex, theTile, row, col) {
-    var isEven = ((row % 2) == 0);
-    var theNode = {};
+function RoadNode(connects) {
+    this.connects = connects; // nodes that are neighbours of this node
+    this.owner = "";
+};
 
-    var newRow = -1;
-    var newCol = -1;
-    var newNode = -1;
+function BuildNode(n_tiles) {
+    this.n_tiles = n_tiles; // tiles this node intersects
+    this.n_nodes = []; // nodes that are neighbours of this node
+    this.building = "";//
+    this.owner = "";
+};
 
-    //  Nodes 0-1, 11
-    if (row > 0 && (nodeIndex < 2 || nodeIndex == 11)) {
-        newRow = row - 1;
-        newCol = (nodeIndex == 11 ? (isEven ? col : col - 1) : (isEven ? col + 1 : col));
-        newNode = (nodeIndex == 0 ? 8 : (nodeIndex == 1 ? 7 : 5));
-    }
+function TileNode(type, robber, token, asso) {
+    this.type = type;
+    this.robber = robber;
+    this.token = token;
+    this.associated_nodes = asso;
+};
 
-    //  Nodes 2-4
-    if (col < 6 && (nodeIndex > 1 && nodeIndex < 5)) {
-        newRow = row;
-        newCol = col + 1;
-        newNode = (nodeIndex == 2 ? 10 : (nodeIndex == 3 ? 9 : 8));
-    }
+TileNode.prototype.get_node_by_corner_num = function(corner_number) {
+  return this.associated_nodes[corner_number];
+};
 
-    //  Node 5-8
-    if (row < 6 && (nodeIndex > 4 && nodeIndex < 9)) {
-        newRow = row + 1;
-        newCol = (nodeIndex == 5 ? (isEven ? (col < 6 ? col + 1 : -1) : col) : (isEven ? col : (col > 0 ? col - 1 : -1)));
-        newNode = (nodeIndex == 5 ? 11 : (nodeIndex == 6 ? 2 : (nodeIndex == 7 ? 1 : 0)));
-    }
+TileNode.prototype.get_node_by_dir = function(direction) {
+  if (direction === "bottom_right") {
+    return this.associated_nodes[0];
+  } else if (direction === "bottom_mid") {
+    return this.associated_nodes[1];
+  } else if (direction === "bottom_left") {
+    return this.associated_nodes[2];
+  } else if (direction === "top_left") {
+    return this.associated_nodes[3];
+  } else if (direction === "top_mid") {
+    return this.associated_nodes[4];
+  } else if (direction === "top_right") {
+    return this.associated_nodes[5];
+  }
+};
 
-    //  Node 9-10
-    if (col > 0 && (nodeIndex == 9 || nodeIndex == 10)) {
-        newRow = row;
-        newCol = col - 1;
-        newNode = (nodeIndex == 9 ? 3 : 2);
-    }
+// function is_connected_to?
 
-    if (newRow >= 0 && newCol >= 0 && newNode >= 0) {
-        theNode = this.nodes[this.board[newRow][newCol].nodes[newNode]];
-        //theNode = this.board[newRow][newCol].nodes[newNode];
-    }
+/*
+*  Takes the center point of tile, the tile height, and corner number to find (0..5)
+* Corner #0 is top-right corner, rotating through clockwise
+*
+*  Returns a pixel coordinate which is the corner, and center of node hotspot
 
-    if (theNode != null) {
-        if (theNode.type != "water" && theNode.type != "harbor") {
-            return theNode;
-        }
-    }
-    return null;
-}
-
-Board.prototype.getTileNeighbors = function(tile) {
-    var isEven = ((tile.row % 2) == 0);
-    var neighbors = [];
-    var node = [{}, {}, {}, {}, {}, {}];
-
-    //  Up left
-    node = (isEven ? this.board[tile.row - 1][tile.col] : this.board[tile.row - 1][tile.col - 1]);
-    neighbors[0] = node;
-
-    //  Up Right
-    node = (isEven ? this.board[tile.row - 1][tile.col + 1] : this.board[tile.row - 1][tile.col]);
-    neighbors[1] = node;
-
-    //  left
-    node = this.board[tile.row][tile.col - 1];
-    neighbors[2] = node;
-
-    //  right
-    node = this.board[tile.row][tile.col + 1];
-    neighbors[3] = node;
-
-    //  bottom left
-    node = (isEven ? this.board[tile.row + 1][tile.col] : this.board[tile.row + 1][tile.col - 1]);
-    neighbors[4] = node;
-
-    //  bottom right
-    node = (isEven ? this.board[tile.row + 1][tile.col + 1] : this.board[tile.row + 1][tile.col]);
-    neighbors[5] = node;
-
-    return neighbors;
-}
-
-Board.prototype.getNodeNeighbors = function(tile) {
-    var neighbors = this.getTileNeighbors(tile);
-
-    //!!    Add code to remove nodes where a different colour house blocks
-
-    //  Build spot neighbors are just the adjacent build spots
-
-    //  Node 0 neighbors
-        //  Node 2 and 10 on this tile
-        this.nodes[tile.nodes[0]].neighbors.push(tile.nodes[2]);
-        this.nodes[tile.nodes[0]].neighbors.push(tile.nodes[10]);
-        
-        //  Node 2 Up-left and Node 10 up-right
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[0].nodes[2] ? neighbors[0].nodes[2] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[1].nodes[10] ? neighbors[1].nodes[10] : null);
-
-    //  Node 2 neighbors
-        //  Node 0 and 4 on this tile
-        this.nodes[tile.nodes[2]].neighbors.push(tile.nodes[0]);
-        this.nodes[tile.nodes[2]].neighbors.push(tile.nodes[4]);
-
-        //  right tile 0 or top right 4
-        this.nodes[tile.nodes[2]].neighbors.push(neighbors[3].nodes[0] ? neighbors[3].nodes[0] : null);
-        this.nodes[tile.nodes[2]].neighbors.push(neighbors[2].nodes[4] ? neighbors[2].nodes[4] : null);
-
-    //  Node 4 neighbors
-        //  Node 2 and 6 on this tile
-        this.nodes[tile.nodes[4]].neighbors.push(tile.nodes[2]);
-        this.nodes[tile.nodes[4]].neighbors.push(tile.nodes[6]);
-        //  right tile 6 or bottom right 2
-        this.nodes[tile.nodes[4]].neighbors.push(neighbors[3].nodes[6] ? neighbors[3].nodes[6] : null);
-        this.nodes[tile.nodes[4]].neighbors.push(neighbors[5].nodes[2] ? neighbors[5].nodes[2] : null);
-
-    //  Node 6 neighbors
-        //  Node 8 and 4 on this tile
-        this.nodes[tile.nodes[6]].neighbors.push(tile.nodes[4]);
-        this.nodes[tile.nodes[6]].neighbors.push(tile.nodes[8]);
-        //  bottom left  4 or bottom right 8
-        this.nodes[tile.nodes[6]].neighbors.push(neighbors[4].nodes[4] ? neighbors[4].nodes[4] : null);
-        this.nodes[tile.nodes[6]].neighbors.push(neighbors[5].nodes[8] ? neighbors[5].nodes[8] : null);
-
-    //  Node 8 neighbors
-        //  Node 10 and 6 on this tile
-        this.nodes[tile.nodes[8]].neighbors.push(tile.nodes[6]);
-        this.nodes[tile.nodes[8]].neighbors.push(tile.nodes[10]);
-        //  left 4 or bottom left 0
-        this.nodes[tile.nodes[8]].neighbors.push(neighbors[2].nodes[4] ? neighbors[2].nodes[4] : null);
-        this.nodes[tile.nodes[8]].neighbors.push(neighbors[4].nodes[0] ? neighbors[4].nodes[0] : null);
-
-    //  Node 10 neighbors
-        //  Node 0 and 8 on this tile
-        this.nodes[tile.nodes[10]].neighbors.push(tile.nodes[0]);
-        this.nodes[tile.nodes[10]].neighbors.push(tile.nodes[8]);
-        //  left 2 or upper left 6
-        this.nodes[tile.nodes[10]].neighbors.push(neighbors[2].nodes[2] ? neighbors[2].nodes[2] : null);
-        this.nodes[tile.nodes[10]].neighbors.push(neighbors[0].nodes[6] ? neighbors[0].nodes[6] : null);
-
-    //  Road spot neighbors include adjacent build and road spots
-
-        //  For all roads, neighbors on the same tile are the 2 before and 2 after
-        for (var j = 1; j < 12; j = j + 2) {
-            if (j == 1) {
-                this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[11]);
-            } else {
-                this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[j - 2]);
-            }
-            this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[j - 1]);
-            if (j == 11) {
-                this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[0]);
-                this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[1]);
-            } else {
-                this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[j + 1]);
-                this.nodes[tile.nodes[j]].neighbors.push(tile.nodes[j + 2]);
-            }
-        }
-
-    //  The rest are on adjacent tiles
-
-    //  Node 1 neighbors
-        //  Node 3 Up-left and Node 9 up-right
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[0].nodes[3] ? neighbors[0].nodes[3] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[1].nodes[9] ? neighbors[1].nodes[9] : null);
-
-    //  Node 3 neighbors
-        //  Node 11 right, Node 7 right, Node 5 up-right, Node 1 down-right
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[3].nodes[11] ? neighbors[3].nodes[11] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[3].nodes[7] ? neighbors[3].nodes[7] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[1].nodes[5] ? neighbors[1].nodes[5] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[5].nodes[1] ? neighbors[5].nodes[1] : null);
-
-    //  Node 5 neighbors
-        //  Node 7 right, Node 1 down-right, Node 9 down-right, Node 3 down-left
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[3].nodes[7] ? neighbors[3].nodes[7] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[5].nodes[1] ? neighbors[5].nodes[1] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[5].nodes[9] ? neighbors[5].nodes[9] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[4].nodes[3] ? neighbors[4].nodes[3] : null);
-
-    //  Node 7 neighbors
-        //  Node 9 down-right, Node 3 down-left, Node 11 down-left, Node 5 left
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[5].nodes[9] ? neighbors[5].nodes[9] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[4].nodes[3] ? neighbors[4].nodes[3] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[4].nodes[11] ? neighbors[4].nodes[11] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[2].nodes[5] ? neighbors[2].nodes[5] : null);
-
-    //  Node 9 neighbors
-        //  Node 1 left, Node 7 up-left, Node 5 left, Node 11 down-left
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[2].nodes[1] ? neighbors[2].nodes[1] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[0].nodes[7] ? neighbors[0].nodes[7] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[2].nodes[5] ? neighbors[2].nodes[5] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[4].nodes[11] ? neighbors[4].nodes[11] : null);
-
-    //  Node 11 neighbors
-        //  Node 3 up-left, Node 9 up-right, Node 7 up-left, Node 1 left
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[0].nodes[3] ? neighbors[0].nodes[3] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[1].nodes[9] ? neighbors[1].nodes[9] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[0].nodes[7] ? neighbors[0].nodes[7] : null);
-        this.nodes[tile.nodes[0]].neighbors.push(neighbors[2].nodes[1] ? neighbors[2].nodes[1] : null);
-}
-
-function tile(index, tileType, row, col) {
-    //  Tiles with resources are given an id from 0 to the #of resource tiles
-    this.id = index;
-
-    //  We keep the row and col for neighbor lookups
-    this.row = row;
-    this.col = col;
-
-    //  Lumber, Grain, Sheep, Brick, Ore, Desert, Water
-    this.type = tileType;
-    this.harbor = "";
-    this.harborAlign = "";
-
-    //  The die number for this tile
-    this.token = -1;
-
-    //  The node objects surrounding this tile
-    //  This is just an int pointing to the main node array
-    this.nodes = [];
-}
-function node(tileID, index, arrayIndex) {
-    //  Position around tile (0-11)
-    this.id = index;
-
-    //  The id in the main array
-    this.arrayIndex = arrayIndex;
-
-    //  If we are given a tile ID, this is used for drawing the node positions on the board (front end only)
-    this.tileID = tileID;
-
-    //  What kind of spot is this?
-    this.type = ((index % 2) == 0 ? 'buildspot' : 'roadspot');
-
-    //  Are we holding someone's settlement/city/road
-    this.structure = "";
-    this.owner = {};
-
-    //  Surrounding nodes
-    //  This is just an int pointing to the main node array
-    this.neighbors = [];
-}
-
-function GameData(board, nodes) {
-    this.board = board;
-    this.nodes = nodes;
-}
-
-
-module.exports = Board;
+function hex_corner(center, tile_height, i) {
+  var angle_deg = 60 * i   + 30;
+  var angle_rad = PI / 180 * angle_deg;
+  return Point(center.x + tile_height * cos(angle_rad), center.y + tile_height * sin(angle_rad));
+};
+*/
+module.exports = { Board, Point, TileNode, RoadNode, BuildNode };
