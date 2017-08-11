@@ -1,3 +1,5 @@
+var logger = require('winston');
+
 /**
  * Instance of a player
  * 

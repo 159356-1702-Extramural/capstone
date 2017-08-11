@@ -1,3 +1,5 @@
+var logger = require('winston');
+
 function Game(lobby) {
     
     // Reference to the game lobby
