@@ -5,7 +5,7 @@
  */
 
 // Logging Framework
-var logger   = require('winston');
+var logger   = require('./log.js');
 
 // TODO: can we set this from enviroment config?
 logger.level = 'debug';
