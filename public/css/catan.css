@@ -54,6 +54,10 @@ body {
 .start .menu {
 
 }
+.start .waiting {
+  text-align: center;
+}
+
 .start_button {
     width:150px;
     height:100px;
