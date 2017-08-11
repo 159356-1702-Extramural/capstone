@@ -8,3 +8,8 @@ node_modules
 .idea/capstone.iml
 >>>>>>> RollingDice
 .idea/
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+.vs/capstone/v15/.suo
+.vs/config/applicationhost.config
+.vscode/launch.json

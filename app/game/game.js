@@ -1,7 +1,13 @@
+var Board_Idea2    = require('./board_idea2.js');
+var Board_Original    = require('./board_original.js');
+
 function Game(lobby) {
     
     // Reference to the game lobby
     this.lobby          = lobby;
+
+    this.board1          = new Board_Idea2();
+    this.board2          = new Board_Original();
     
     this.max_players    = 2;
     this.players        = [];
@@ -14,7 +20,7 @@ function Game(lobby) {
                            '#4CAF50', // Green
                            '#FFEB3B']; // Yellow
     
-                           this.development_cards = [];
+    this.development_cards = [];
 }
 
 // Adds a player to the game
@@ -57,6 +63,10 @@ Game.prototype.add_player = function(player) {
 
         // Begin the game
         this.broadcast('game_start', {});
+        this.broadcast_gamestate();
+
+        //  Create the board and send it to the clients
+        this.broadcast('build_board', this.buildBoard());
         this.broadcast_gamestate();
     }
         
@@ -136,6 +146,23 @@ Game.prototype.broadcast = function(event_name, data) {
         player.socket.emit(event_name, data);
     });
 };
+
+/**
+ * Creates the initial board data and sends it to each client
+ */
+Game.prototype.buildBoard = function () {
+    //  Code for Idea2
+    this.board1.build_nodes();
+    var gameData = this.board1.getGameData();
+    var jsonData = JSON.stringify(gameData);
+
+    //  Code for Original (Comment out to get Idea 2)
+    this.board2.createBoard();
+    gameData = this.board2.getGameData();
+    jsonData = JSON.stringify(gameData);
+
+    return jsonData;
+}
 
 /*
  * Rolling two dices, and return the sum of the two dices number.

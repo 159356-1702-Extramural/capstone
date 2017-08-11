@@ -28,9 +28,14 @@ var lobby     = new Lobby();
 // Define static files directory
 app.use(express.static('public'));
 
-// Serve static page
+// Serve original idea from prototype
 app.get('/', function(req, res) {    
-    res.sendFile(__dirname + '/views/demo_index.html');
+    res.sendFile(__dirname + '/views/default_original.html');
+});
+
+// Serve static page
+app.get('/idea2', function(req, res) {    
+    res.sendFile(__dirname + '/views/default_idea2.html');
 });
 
 // Serve prototype

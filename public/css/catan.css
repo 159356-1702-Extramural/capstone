@@ -3,6 +3,10 @@ body {
   font-family: 'Raleway', sans-serif;
 }
 
+.hide {
+    display: none;
+}
+
 .start, .turn {
     position:fixed;
     top:0px;
@@ -58,9 +62,6 @@ body {
 }
 .start_text {
     font-size:32px;
-}
-.start .players {
-    display:none;
 }
 .start .player_row {
     clear:both;
@@ -139,7 +140,7 @@ body {
 }
 .score .playername {
     float:left;
-    font-size: 32px;
+    font-size: 18px;
     overflow:hidden;
     white-space:nowrap;
     padding-top:10px;
