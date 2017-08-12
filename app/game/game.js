@@ -20,6 +20,10 @@ function Game(lobby) {
                            '#4CAF50', // Green
                            '#FFEB3B']; // Yellow
     
+    this.setupComplete  = false;
+    this.setupSequence = [0,1,2,3,3,2,1,0];
+    this.setupPointer = 0;
+
     this.development_cards = [];
 }
 
@@ -68,6 +72,8 @@ Game.prototype.add_player = function(player) {
         //  Create the board and send it to the clients
         this.broadcast('build_board', this.buildBoard());
         this.broadcast_gamestate();
+
+        this.startSequence()
     }
         
     // Notify the other players that a new player has joined
@@ -92,12 +98,43 @@ Game.prototype.game_update = function(data) {
         return player.turn_complete === true;
     });
     
-    if (round_complete) {
-        this.process_round();
+    // setupComplete flag false so that one player can place a settlement per turn in setup phase
+    if (round_complete || !setupComplete) {
+        this.process_round();        
     }
 
     this.broadcast_gamestate();
+    
+    if(!setupComplete){
+        logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
+
+        //call start sequence again from here - startSequence will find the next player to have a turn
+        this.startSequence();
+    }
 };
+
+/**
+ * Start Sequence
+ */
+Game.prototype.startSequence = function(){
+    logger.log('debug', 'startSequence function called.');
+
+    if(setupPointer < setupSequence.length){
+        var updateTurn = {
+            updateType  : 'playerSetup',
+            gameData    : false 
+        };
+        this.broadcast('playersWait', updateTurn);
+
+        playerSetup.gameData = true;
+        //tell player it is his / her turn
+        this.players[setupSequence[setupPointer]].socket.emit('playerSetup',updateTurn); //TODO: change emit to standard
+        setupPointer++;
+    }else{
+        setupComplete = true;
+    }
+}
+ 
 
 /**
  * Game logic

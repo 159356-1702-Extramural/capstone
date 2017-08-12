@@ -42,7 +42,13 @@ socket.on('game_start', function (data) {
 
 // Game update
 socket.on('update_game', function(data) {
-    display_game(data);
+    if(data === "playersWait"){
+        //show the players wait dialogue
+    }else if(data === "playerSetup"){
+        //inform player they can place a settlement and road 
+    }else{
+        display_game(data);
+    }
 });
 
 //

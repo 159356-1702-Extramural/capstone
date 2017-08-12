@@ -7,7 +7,7 @@
     "files": [
       "tests/*.test.js"
     ],
-  "concurrency": 4
+    "concurrency": 4
   },
   "scripts": {
     "start": "node app/app.js",

@@ -59,6 +59,13 @@ $(document).ready(function() {
         setupDragDrop(boardObject, nodesObject);
     });
 
+    // Update game state
+    socket.on('updateGameState', function (data) {
+        if(data.updateType === 'playerSetup'){
+           playerSetup(data);
+        }
+    })
+
     /**
      * Displays a subsection of the start modal
      * 
@@ -72,6 +79,15 @@ $(document).ready(function() {
     }
 
 });
+var playerSetup = function (data){
+    //data.gameData is true if player takes turn to place settlement
+    if(data.gameData){
+         //TODO show "Close" button and "Place your settlement now" dialogue
+         //Disable all clickables except road and settlement 
+    }else{
+           //TODO show modal window : "Another player is placing a settlement, please wait"
+    }
+}
 
 function drawBoard(board, nodes) {
     tilePosition = 0;
