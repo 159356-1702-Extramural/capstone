@@ -1,3 +1,5 @@
+var logger = require('winston');
+
 var Game    = require('./game.js');
 var Player  = require('./player.js');
 

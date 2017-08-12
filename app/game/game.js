@@ -1,5 +1,6 @@
 var Board_Idea2    = require('./board_idea2.js');
 var Board_Original    = require('./board_original.js');
+var logger = require('winston');
 
 function Game(lobby) {
     
