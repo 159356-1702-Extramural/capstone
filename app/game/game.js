@@ -21,7 +21,7 @@ function Game(lobby) {
                            '#FFEB3B']; // Yellow
     
     this.setupComplete  = false;
-    this.setupSequence = [0,1,2,3,3,2,1,0];
+    this.setupSequence = [0,1,1,0];
     this.setupPointer = 0;
 
     this.development_cards = [];
@@ -73,6 +73,7 @@ Game.prototype.add_player = function(player) {
         this.broadcast('build_board', this.buildBoard());
         this.broadcast_gamestate();
 
+        logger.log('debug', 'start the placement sequence.');
         this.startSequence()
     }
         

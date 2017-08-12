@@ -15,6 +15,13 @@ $(document).ready(function() {
         display_start_modal(active_class);
     });
 
+    //hide wait for settlement placement window
+    $doc.on('click', '#placeSettlement', function(){
+        $('.start').fadeOut(400, function() {
+            
+        });
+    } )
+
     // Request to join a game
     $doc.on('click', '.js-start-game', function() {
         var name = $('#txt_player1').val();
@@ -81,12 +88,17 @@ $(document).ready(function() {
 });
 var playerSetup = function (data){
     //data.gameData is true if player takes turn to place settlement
-    if(data.gameData){
-         //TODO show "Close" button and "Place your settlement now" dialogue
-         //Disable all clickables except road and settlement 
-    }else{
-           //TODO show modal window : "Another player is placing a settlement, please wait"
+    
+    $('start_subsection').addClass('hide');
+    $('waiting_for_turn').removeClass('hide');
+    $('.placeButton').addClass('hide');
+    if( $('.start:hidden').length){
+        $('.start').fadeIn(400, function(){});
     }
+    if(data.gameData){
+        $('.placeButton').removeClass('hide');
+    } 
+    
 }
 
 function drawBoard(board, nodes) {
