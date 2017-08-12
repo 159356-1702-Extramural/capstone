@@ -5,7 +5,7 @@
   "main": "app.js",
   "ava": {
     "files": [
-      "tests/*.js"
+      "tests/*.test.js"
     ],
   "concurrency": 4
   },

@@ -204,11 +204,11 @@ function quickPlatforms(){
 
 function frontPageLoads(browserDriver){
   test('Front game page exists (todo:add browser/os here)', async t => {
-    let driver = browserDriver;
-    await driver.get('http://capstone-settlers.herokuapp.com/');
-    t.is(await driver.getTitle(), "Settlers Of Massey");
-    await driver.quit();
-});
+      let driver = browserDriver;
+      await driver.get('http://capstone-settlers.herokuapp.com/');
+      t.is(await driver.getTitle(), "Settlers Of Massey");
+      await driver.quit();
+  });
 }
 
 /**
