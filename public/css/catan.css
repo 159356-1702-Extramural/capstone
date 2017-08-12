@@ -34,16 +34,8 @@ body {
 
 .start .title {
     position:relative;
+    margin-left:20px;
     height:90px;
-  font-weight: 800;
-  color: transparent;
-  font-size:80px;
-  background: url("../images/catan_back.png") repeat;
-  background-position: 55% 50%;
-  -webkit-background-clip: text;
-  text-align:center;
-  line-height:90px;
-  letter-spacing: -8px;
 }
 .start .subtitle{
   display: block;
@@ -145,7 +137,7 @@ body {
 }
 .score .playername {
     float:left;
-    font-size: 32px;
+    font-size: 18px;
     overflow:hidden;
     white-space:nowrap;
     padding-top:10px;

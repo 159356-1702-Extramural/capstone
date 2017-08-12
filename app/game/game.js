@@ -1,9 +1,13 @@
 var logger = require('winston');
 
+var Board    = require('./board.js');
+
 function Game(lobby) {
     
     // Reference to the game lobby
     this.lobby          = lobby;
+
+    this.board          = new Board();
     
     this.max_players    = 2;
     this.players        = [];
@@ -16,7 +20,7 @@ function Game(lobby) {
                            '#4CAF50', // Green
                            '#FFEB3B']; // Yellow
     
-                           this.development_cards = [];
+    this.development_cards = [];
 }
 
 // Adds a player to the game
@@ -59,6 +63,10 @@ Game.prototype.add_player = function(player) {
 
         // Begin the game
         this.broadcast('game_start', {});
+        this.broadcast_gamestate();
+
+        //  Create the board and send it to the clients
+        this.broadcast('build_board', this.buildBoard());
         this.broadcast_gamestate();
     }
         
@@ -138,6 +146,18 @@ Game.prototype.broadcast = function(event_name, data) {
         player.socket.emit(event_name, data);
     });
 };
+
+/**
+ * Creates the initial board data and sends it to each client
+ */
+Game.prototype.buildBoard = function () {
+    //  Create the play area
+    this.board.createBoard();
+    gameData = this.board.getGameData();
+    jsonData = JSON.stringify(gameData);
+
+    return jsonData;
+}
 
 /*
  * Rolling two dices, and return the sum of the two dices number.

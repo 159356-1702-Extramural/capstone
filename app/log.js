@@ -9,10 +9,10 @@ var logger = new Winston.Logger({
     new Winston.transports.Console({
       timestamp: true
     }),
-    new Winston.transports.File({
-      filename: 'logs/logfile.log',
-      timestamp: true
-    })
+    // new Winston.transports.File({
+    //   filename: 'logs/logfile.log',
+    //   timestamp: true
+    // })
   ]
 });
 

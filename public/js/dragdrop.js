@@ -1,4 +1,4 @@
-﻿function setupDragDrop() {
+﻿function setupDragDrop(board, nodes) {
 
     //  Allow the house to be put back
     $(".housebox").droppable({
@@ -16,7 +16,7 @@
             checkCounts();
 
             //  Update nodes
-            clearNode(event, ui);
+            clearNode(nodes, event, ui);
         }
     });
 
@@ -36,7 +36,7 @@
             checkCounts();
 
             //  Update nodes
-            clearNode(event, ui);
+            clearNode(nodes, event, ui);
         }
     });
 
@@ -60,7 +60,7 @@
             checkCounts();
 
             //  Update nodes
-            clearNode(event, ui);
+            clearNode(nodes, event, ui);
         }
     });
 
@@ -70,7 +70,7 @@
 
         start: function (event, ui) {
             checkCounts();
-            showOpen("house", event.target.className);
+            showOpen(nodes, "house", event.target.className);
         },
         drag: function () {
         },
@@ -88,13 +88,13 @@
         },
         drop: function (event, ui) {
             //  Clear previous node if needed
-            clearNode(event, ui);
+            clearNode(nodes, event, ui);
 
             //  Update counts
             checkCounts();
 
             //  Update nodes
-            setNode(event, ui);
+            setNode(nodes, event, ui);
         }
     });
 
@@ -104,7 +104,7 @@
 
         start: function (event, ui) {
             checkCounts();
-            showOpen("city", event.target.className);
+            showOpen(nodes, "city", event.target.className);
         },
         drag: function () {
         },
@@ -120,7 +120,7 @@
 
         start: function (event, ui) {
             checkCounts();
-            showOpen("road", event.target.className);
+            showOpen(nodes, "road", event.target.className);
         },
         drag: function () {
         },
@@ -132,30 +132,30 @@
 
 }
 
-function showOpen(type, ignoreClass) {
+function showOpen(nodes, type, ignoreClass) {
     //  The ignoreClass is the class of the object that was picked back up
     //  We need to find the node it is sitting on, and pretend it does not 
     //  exist for the ghost images to be rendered accurately
-    var ignoreNode = findNodeByStructureClass(ignoreClass);
+    var ignoreNode = findNodeByStructureClass(nodes, ignoreClass);
 
+    var setupPhase = true;
     if (type == "house") {
-        if (theGame.setupPhase) {
+        if (setupPhase) {
             //  If in setup mode, show all build spots at least 2 intersections away
             //  from another house
             $("div[class*='buildspot']").hide();
             $("div[class*='buildspot']").each(function () {
-                var node = findNodeById($(this).attr('id'))
-                if (node.canBuild(ignoreNode)) {
+                var theNode = findNodeById(nodes, $(this).attr('id'));
+                if (canBuild(nodes, theNode, ignoreNode)) {
                     $(this).show();
                 }
             });
-
         } else {
             //  In turn mode, show all with an adjacent road at least 2 intersections
             //  away from another house
             $("div[class*='buildspot']").each(function () {
-                var node = findNodeById($(this).attr('id'))
-                if (node.canBuild(ignoreNode) || node.canBuildRoad(ignoreNode)) {
+                var theNode = findNodeById(nodes, $(this).attr('id'));
+                if (canBuild(nodes, theNode, ignoreNode) || canBuildRoad(nodes, theNode, ignoreNode)) {
                     $(this).show();
                 }
             });
@@ -165,8 +165,8 @@ function showOpen(type, ignoreClass) {
         //  In both setup and turn mode, the road simply needs an adjacent road
         //  or building of the same colour
         $("div[class*='roadspot']").each(function () {
-            var node = findNodeById($(this).attr('id'))
-            if (node.canBuildRoad(ignoreNode)) {
+            var theNode = findNodeById(nodes, $(this).attr('id'));
+            if (canBuildRoad(nodes, theNode, ignoreNode)) {
                 $(this).show();
             }
         });
@@ -177,15 +177,15 @@ function hideOpen(type) {
 }
 
 //  When a building it dropped on the board
-function setNode(event, ui) {
+function setNode(nodes, event, ui) {
     //  Add to this node
-    var theNode = findNodeById(event.target.id);
+    var theNode = findNodeById(nodes, event.target.id);
     if (theNode) {
         //  Update the node with the id of the object
         theNode.structure = event.toElement.id;
 
         //  Now we check the object to see where it came from
-        clearNode(event);
+        clearNode(nodes, event);
 
         //  Now set the object class so we know where it is
         event.toElement.className += " currentnode" + theNode.tileID + "_" + theNode.id;
@@ -195,38 +195,16 @@ function setNode(event, ui) {
             rotateRoad(event);
         }
 
-        //  During the setup rounds, special rules apply for when a round is done
-        if (theGame.round < 2) {
-            checkSetupEnd(theNode);
-        }
-    }
-}
-
-function checkSetupEnd(theNode) {
-    if (theNode.structure.length > 0) {
-        if (theNode.structure.indexOf("house") > -1) {
-            $(".housebox_disable").show();
-            theGame.currentPlayer.freeHouse = 0;
-        }
-        if (theNode.structure.indexOf("road") > -1) {
-            $(".roadbox_disable").show();
-            theGame.currentPlayer.freeRoad = 0;
-        }
-    }
-
-    if ($(".roadbox_disable").css('display') == "block" && $(".housebox_disable").css('display') == "block") {
-        //  If player is done, enable the Finish Turn button
-        $(".finishturnbutton").removeClass("disabled");
     }
 }
 
 //  When a building is returned to the pile
-function clearNode(event) {
+function clearNode(nodes, event) {
     var newClass = "";
     var classes = event.toElement.className.split(' ');
     classes.forEach(function (theClass) {
         if (theClass.indexOf("currentnode") > -1) {
-            var oldNode = findNodeById(theClass.replace("currentnode", "").replace("_", "."));
+            var oldNode = findNodeById(nodes, theClass.replace("currentnode", "").replace("_", "."));
             if (oldNode != null) {
                 oldNode.structure = "";
             }
@@ -275,3 +253,85 @@ function rotateRoad(event) {
 
     //  Add new class
 }
+
+/*
+    Helper method to find a node based on the class
+*/
+function findNodeByStructureClass(nodes, className) {
+    if (className.length > 0) {
+        var classes = className.split(' ');
+
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].indexOf("currentnode") > -1) {
+                var theNode = findNodeById(nodes, classes[i].replace("currentnode", "").replace("_", "."));
+                return theNode;
+            }
+        }
+    }
+    return null;
+}
+
+//  This method helps to find a specific node based on the id in the div tag
+function findNodeById(nodes, id) {
+    //  First index is the tile
+    //  Second index is the node
+    var coords = id.split('.');
+    for (var i=0; i< nodes.length; i++) {
+        var theNode = nodes[i];
+        if (theNode.tileID == coords[0] && theNode.id == coords[1]) {
+            return theNode;
+        }
+    }
+    return null;
+}
+
+function canBuild (nodes, theNode, ignoreNode) {
+    var valid = true;
+    if (theNode.structure.length == 0) {
+        for (var i=0; i<theNode.neighbors.length; i++) {
+            var neighbor = nodes[theNode.neighbors[i]];
+            if (neighbor != null) {
+                if (neighbor != ignoreNode) {
+                    if (neighbor.structure.length > 0 && neighbor.type == 'buildspot') {
+                        valid = false;
+                    }
+
+                }
+            }
+        }
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+
+//  A method to determine if a colour can reach this node to build
+function canBuildRoad (nodes, theNode, ignoreNode) {
+    var valid = false;
+    if (theNode.structure.length == 0) {
+        for (var i=0; i<theNode.neighbors.length; i++) {
+            var neighbor = nodes[theNode.neighbors[i]];
+            if (neighbor != null) {
+                if (neighbor != ignoreNode) {
+                    valid = true;
+                    if (neighbor.structure.length > 0 && neighbor.type == 'roadspot') {
+                        valid = true;
+
+                        /*
+                        if (neighbor.structure.indexOf(theGame.currentPlayer.colour) > -1) {
+                            valid = true;
+                        }
+                    }
+                    if (neighbor.structure.length > 0 && neighbor.type == 'buildspot') {
+                        if (neighbor.structure.indexOf(theGame.currentPlayer.colour) > -1) {
+                            valid = true;
+                        }
+                        */
+                    }
+                }
+            }
+        }
+    }
+    return valid;
+}
+

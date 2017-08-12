@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Settlers Of Massey</title>
+    <title>Settlers of Massey</title>
 
     <link href="css/catan.css" rel="stylesheet" />
     <link href="css/3rdparty.css" rel="stylesheet" />
@@ -12,17 +12,21 @@
 
     <script src="js/jquery.min.js"></script>
     <script src="js/jquery-ui.js"></script>
-
     <script src="js/dragdrop.js"></script>
-
     <script src="/socket.io/socket.io.js"></script>
-
 </head>
+
 <body>
-    
+
+    <div class="test"></div>
+        
+    <div class="popup">
+        <div class="popup_inner"></div>
+    </div>
+
     <div class="start">
         <div class="start_inner">
-            <div class="title">Settlers of Catan</div>
+            <div class="title"><img src="Images/catan_logo.png" /></div>
             <div class="subtitle"> 159.356 Capstone Project</div>
 
             <div class="menu start_subsection">
@@ -62,31 +66,17 @@
         </div>
     </div>
 
-    <div class="turn" style="display:none;">
-        <div class="turn_inner">
-            <div class="title"></div>
-
-            <div class="dice"></div>
-
-            <div class="resources"></div>
-
-            <div class="turn_button">
-                <div class="btn btn-info startturn_button" onclick="startTurn();"><i class="fa fa-sign-in fa-2x"></i>&nbsp;<span class="player_text">Start Turn</span></div>
-                <div class="btn btn-info rolldice_button" onclick="rollDice();"><i class="fa fa-thumbs-up fa-2x"></i>&nbsp;<span class="player_text">Roll Dice</span></div>
-            </div>
-        </div>
-    </div>
-
     <div class="board" style="top:30px; left:30px;"></div>
 
-    <div class="score score0 currentplayer"></div>
-    <div class="score score1"></div>
-    <div class="score score2"></div>
-    <div class="score score3"></div>
+    <div class="score">
 
+
+    </div>
+
+    <script src="js/game/setup.js"></script>
     <script src="js/game/game.js"></script>
     <script src="js/game/player.js"></script>
-    <script src="js/game/setup.js"></script>
-
+    <script src="js/game/client.js"></script>
+    
 </body>
 </html>
