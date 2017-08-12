@@ -119,19 +119,19 @@ Game.prototype.game_update = function(data) {
 Game.prototype.startSequence = function(){
     logger.log('debug', 'startSequence function called.');
 
-    if(setupPointer < setupSequence.length){
+    if(this.setupPointer < this.setupSequence.length){
         var updateTurn = {
             updateType  : 'playerSetup',
             gameData    : false 
         };
         this.broadcast('playersWait', updateTurn);
 
-        playerSetup.gameData = true;
+        updateTurn.gameData = true;
         //tell player it is his / her turn
-        this.players[setupSequence[setupPointer]].socket.emit('playerSetup',updateTurn); //TODO: change emit to standard
-        setupPointer++;
+        this.players[this.setupSequence[this.setupPointer]].socket.emit('playerSetup',updateTurn); //TODO: change emit to standard
+        this.setupPointer++;
     }else{
-        setupComplete = true;
+        this.setupComplete = true;
     }
 }
  

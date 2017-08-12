@@ -88,7 +88,9 @@ body {
     color:red;
     font-weight:bold;
 }
-
+.place_settlement{
+    width: 200px;
+}
 .board {
     position:absolute;
     background-image:url(../images/water.png);
