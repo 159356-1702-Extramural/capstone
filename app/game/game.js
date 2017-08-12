@@ -88,6 +88,13 @@ Game.prototype.add_player = function(player) {
 };
 
 /**
+ * 
+ */
+Game.prototype.updateTurn = function() {
+    this.updateType = 'playerSetup';
+    this.gameData   =false;
+};
+/**
  * Handles an update event from the game
  */
 Game.prototype.game_update = function(data) {
@@ -106,7 +113,7 @@ Game.prototype.game_update = function(data) {
 
     this.broadcast_gamestate();
     
-    if(!setupComplete){
+    if(!this.setupComplete){
         logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
 
         //call start sequence again from here - startSequence will find the next player to have a turn
@@ -119,17 +126,14 @@ Game.prototype.game_update = function(data) {
  */
 Game.prototype.startSequence = function(){
     logger.log('debug', 'startSequence function called.');
-
+    var updater = new updateTurn();
     if(this.setupPointer < this.setupSequence.length){
-        var updateTurn = {
-            updateType  : 'playerSetup',
-            gameData    : false 
-        };
-        this.broadcast('playersWait', updateTurn);
+        
+        this.broadcast('updateSetupPhase', updater);
 
         updateTurn.gameData = true;
         //tell player it is his / her turn
-        this.players[this.setupSequence[this.setupPointer]].socket.emit('playerSetup',updateTurn); //TODO: change emit to standard
+        this.players[this.setupSequence[this.setupPointer]].socket.emit('updateSetupPhase',updater); //TODO: change emit to standard
         this.setupPointer++;
     }else{
         this.setupComplete = true;

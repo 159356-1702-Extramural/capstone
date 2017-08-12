@@ -50,8 +50,15 @@ $(document).ready(function() {
     // Detect the game starting
     socket.on('game_start', function (data) {
         $('.start').fadeOut(400, function() {
-
+            playerSetup(data);
         });
+    });
+
+    socket.on('updateSetupPhase', function (data) {
+        alert("test");
+        if(data.updateType === 'playerSetup'){
+            playerSetup(data);
+        }
     });
 
     // Detect the game starting
@@ -66,13 +73,6 @@ $(document).ready(function() {
         setupDragDrop(boardObject, nodesObject);
     });
 
-    // Update game state
-    socket.on('updateGameState', function (data) {
-        if(data.updateType === 'playerSetup'){
-           playerSetup(data);
-        }
-    })
-
     /**
      * Displays a subsection of the start modal
      * 
@@ -84,22 +84,24 @@ $(document).ready(function() {
             $section.toggleClass('hide', !$section.hasClass(active_class));
         });
     }
+    var playerSetup = function (data){
+        //data.gameData is true if player takes turn to place settlement
+        // $('.start_subsection').addClass('hide');
+        // $('.waiting_for_turn').removeClass('hide');
+        // $('.placeButton').addClass('hide');
+        // if( $('.start').css('display') != 'block' ){
+            //$('.start').css('display') = 'block'
+        // }
+        display_start_modal('.waiting_for_turn');
+        //$('.start').fadeIn('fast');
+        if(data.gameData){
+            $('.placeButton').removeClass('hide');
+        } 
+        
+    }
 
 });
-var playerSetup = function (data){
-    //data.gameData is true if player takes turn to place settlement
-    
-    $('start_subsection').addClass('hide');
-    $('waiting_for_turn').removeClass('hide');
-    $('.placeButton').addClass('hide');
-    if( $('.start:hidden').length){
-        $('.start').fadeIn(400, function(){});
-    }
-    if(data.gameData){
-        $('.placeButton').removeClass('hide');
-    } 
-    
-}
+
 
 function drawBoard(board, nodes) {
     tilePosition = 0;
@@ -202,7 +204,7 @@ function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
     html += "        <div class='row'>";
-    html += "            <div class='player'><img src='images/Player1.png' /></div>";
+    html += "            <div class='player'><img src='images/player1.png' /></div>";
     html += "            <div class='playername'>Player Name";
     html += "               <div class='playerbutton'>";
     html += "                   <div class='btn btn-info finishturnbutton' onclick='finishTurn();'>Finish Turn</div>";
