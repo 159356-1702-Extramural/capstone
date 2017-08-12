@@ -95,7 +95,7 @@ Game.prototype.add_player = function(player) {
 /**
  * Handles an update event from the game
  */
-Game.prototype.game_update = function(data) {
+Game.prototype.turn_update = function(data) {
     this.players[data.player_id].turn_complete = true;
     
     // Determine if the round is complete, ie. all players have 
@@ -108,7 +108,7 @@ Game.prototype.game_update = function(data) {
     if (round_complete || !setupComplete) {
         this.process_round();        
     }
-
+    
     this.broadcast_gamestate();
     
     if(!this.setupComplete){
@@ -128,10 +128,10 @@ Game.prototype.startSequence = function(){
     //create data_package
 
     if(this.setupPointer < this.setupSequence.length){
-        
-        this.broadcast('game_turn', [false,false]);
+        console.log("broadcast to all to hide wait");
 
          //tell player it is his / her turn
+
         this.players[this.setupSequence[this.setupPointer]].socket.emit('game_turn',[true,true]); //TODO: change emit to standard
         this.setupPointer++;
     }else{

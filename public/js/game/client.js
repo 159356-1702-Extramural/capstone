@@ -55,7 +55,6 @@ $(document).ready(function() {
     });
 
     socket.on('game_turn', function (data) {
-        alert("test");
         if(data[0]){
             playerSetup(data);
         }
@@ -86,16 +85,17 @@ $(document).ready(function() {
     }
     var playerSetup = function (data){
         //data.gameData is true if player takes turn to place settlement
-        // $('.start_subsection').addClass('hide');
-        // $('.waiting_for_turn').removeClass('hide');
-        // $('.placeButton').addClass('hide');
+        $('.start_subsection').addClass('hide');
+        $('.waiting_for_turn').removeClass('hide');
+        $('.placeButton').addClass('hide');
         // if( $('.start').css('display') != 'block' ){
             //$('.start').css('display') = 'block'
         // }
-        display_start_modal('.waiting_for_turn');
-        //$('.start').fadeIn('fast');
+        //display_start_modal('waiting_for_turn');
+        $('.start').fadeIn('fast');
+
         if(data[1]){
-            $('.placeButton').removeClass('hide');
+            $('.place_button').removeClass('hide');
         } 
         
     }
