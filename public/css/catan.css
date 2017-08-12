@@ -46,6 +46,10 @@ body {
 .start .menu {
 
 }
+.start .waiting {
+  text-align: center;
+}
+
 .start_button {
     width:150px;
     height:100px;
@@ -55,6 +59,7 @@ body {
 .start_text {
     font-size:32px;
 }
+
 .start .player_row {
     clear:both;
     width:90%;

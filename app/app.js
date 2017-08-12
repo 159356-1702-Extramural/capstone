@@ -5,7 +5,7 @@
  */
 
 // Logging Framework
-var logger   = require('winston');
+var logger   = require('./log.js');
 
 // TODO: can we set this from enviroment config?
 logger.level = 'debug';
@@ -28,9 +28,14 @@ var lobby     = new Lobby();
 // Define static files directory
 app.use(express.static('public'));
 
-// Serve original idea from prototype
+// Serve static page
 app.get('/', function(req, res) {    
-    res.sendFile(__dirname + '/views/default.html');
+    res.sendFile(__dirname + '/views/game_view.html');
+});
+
+// Serve prototype
+app.get('/prototype', function(req, res) {
+    res.sendFile(__dirname + '/views/prototype_default.html');
 });
 
 // Handle new socket connection

@@ -1,3 +1,5 @@
+var logger = require('winston');
+
 var Board    = require('./board.js');
 
 function Game(lobby) {
