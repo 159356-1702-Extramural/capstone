@@ -1,6 +1,7 @@
 var logger = require('winston');
 
 var Board    = require('./board.js');
+var Data_package= require('./board.js');
 
 function Game(lobby) {
     
@@ -90,10 +91,7 @@ Game.prototype.add_player = function(player) {
 /**
  * 
  */
-Game.prototype.updateTurn = function() {
-    this.updateType = 'playerSetup';
-    this.gameData   =false;
-};
+
 /**
  * Handles an update event from the game
  */
@@ -126,14 +124,15 @@ Game.prototype.game_update = function(data) {
  */
 Game.prototype.startSequence = function(){
     logger.log('debug', 'startSequence function called.');
-    var updater = new updateTurn();
+
+    //create data_package
+
     if(this.setupPointer < this.setupSequence.length){
         
-        this.broadcast('updateSetupPhase', updater);
+        this.broadcast('game_turn', [false,false]);
 
-        updateTurn.gameData = true;
-        //tell player it is his / her turn
-        this.players[this.setupSequence[this.setupPointer]].socket.emit('updateSetupPhase',updater); //TODO: change emit to standard
+         //tell player it is his / her turn
+        this.players[this.setupSequence[this.setupPointer]].socket.emit('game_turn',[true,true]); //TODO: change emit to standard
         this.setupPointer++;
     }else{
         this.setupComplete = true;

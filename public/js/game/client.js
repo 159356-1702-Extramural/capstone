@@ -54,9 +54,9 @@ $(document).ready(function() {
         });
     });
 
-    socket.on('updateSetupPhase', function (data) {
+    socket.on('game_turn', function (data) {
         alert("test");
-        if(data.updateType === 'playerSetup'){
+        if(data[0]){
             playerSetup(data);
         }
     });
@@ -94,7 +94,7 @@ $(document).ready(function() {
         // }
         display_start_modal('.waiting_for_turn');
         //$('.start').fadeIn('fast');
-        if(data.gameData){
+        if(data[1]){
             $('.placeButton').removeClass('hide');
         } 
         
