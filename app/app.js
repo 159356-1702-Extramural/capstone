@@ -30,7 +30,7 @@ app.use(express.static('public'));
 
 // Serve static page
 app.get('/', function(req, res) {    
-    res.sendFile(__dirname + '/views/game_view.html');
+    res.sendFile(__dirname + '/views/default.html');
 });
 
 // Serve prototype
