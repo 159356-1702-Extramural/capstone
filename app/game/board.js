@@ -2,7 +2,7 @@
 /*
     This is based on the original prototype seutp
 */
-function Board_Original() {
+function Board() {
     //  The index of the number list below to be used (randomly chosen on game start)
     this.numberToUse = -1;
 
@@ -63,7 +63,7 @@ function Board_Original() {
     this.nodes = [];
 }
 
-Board_Original.prototype.getGameData = function() {
+Board.prototype.getGameData = function() {
     var gameData = new GameData(this.board, this.nodes);
     return gameData;
 }
@@ -71,7 +71,7 @@ Board_Original.prototype.getGameData = function() {
 /*
     Primary method to create the board layout
 */
-Board_Original.prototype.createBoard = function() {
+Board.prototype.createBoard = function() {
     //  Use a random setup of resources
     this.buildTileList();
 
@@ -119,7 +119,7 @@ Board_Original.prototype.createBoard = function() {
 /*
     This method creates a random list of tiles for the board
 */
-Board_Original.prototype.buildTileList = function() {
+Board.prototype.buildTileList = function() {
     var done = false;
     do {
         var r = Math.floor(Math.random() * 7)
@@ -139,7 +139,7 @@ Board_Original.prototype.buildTileList = function() {
 /*
     Create a random order for the harbors
 */
-Board_Original.prototype.getHarbor = function() {
+Board.prototype.getHarbor = function() {
     var done = false;
     do {
         var r = Math.floor(Math.random() * 7)
@@ -159,7 +159,7 @@ Board_Original.prototype.getHarbor = function() {
 /*
     Creation of nodes around each resource tile
 */
-Board_Original.prototype.buildNodes = function() {
+Board.prototype.buildNodes = function() {
     //  To avoid circular references, this has been changed to a single array
     //  Each node has a unique ID, which the tile keeps in a simple lookup array
 
@@ -208,7 +208,7 @@ Board_Original.prototype.buildNodes = function() {
 //  I used this method to make sure that each intersection only exists once, even 
 //  If it is associated with multiple tiles.  This makes management of settlements, 
 //  roads and cities easier later on
-Board_Original.prototype.findNode = function(nodeIndex, theTile, row, col) {
+Board.prototype.findNode = function(nodeIndex, theTile, row, col) {
     var isEven = ((row % 2) == 0);
     var theNode = {};
 
@@ -257,7 +257,7 @@ Board_Original.prototype.findNode = function(nodeIndex, theTile, row, col) {
     return null;
 }
 
-Board_Original.prototype.getTileNeighbors = function(tile) {
+Board.prototype.getTileNeighbors = function(tile) {
     var isEven = ((tile.row % 2) == 0);
     var neighbors = [];
     var node = [{}, {}, {}, {}, {}, {}];
@@ -289,7 +289,7 @@ Board_Original.prototype.getTileNeighbors = function(tile) {
     return neighbors;
 }
 
-Board_Original.prototype.getNodeNeighbors = function(tile) {
+Board.prototype.getNodeNeighbors = function(tile) {
     var neighbors = this.getTileNeighbors(tile);
 
     //!!    Add code to remove nodes where a different colour house blocks
@@ -456,4 +456,4 @@ function GameData(board, nodes) {
 }
 
 
-module.exports = Board_Original;
+module.exports = Board;

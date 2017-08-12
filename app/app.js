@@ -30,17 +30,7 @@ app.use(express.static('public'));
 
 // Serve original idea from prototype
 app.get('/', function(req, res) {    
-    res.sendFile(__dirname + '/views/default_original.html');
-});
-
-// Serve static page
-app.get('/idea2', function(req, res) {    
-    res.sendFile(__dirname + '/views/default_idea2.html');
-});
-
-// Serve prototype
-app.get('/prototype', function(req, res) {
-    res.sendFile(__dirname + '/views/prototype_default.html');
+    res.sendFile(__dirname + '/views/default.html');
 });
 
 // Handle new socket connection

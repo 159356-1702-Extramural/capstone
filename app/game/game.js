@@ -1,13 +1,11 @@
-var Board_Idea2    = require('./board_idea2.js');
-var Board_Original    = require('./board_original.js');
+var Board    = require('./board.js');
 
 function Game(lobby) {
     
     // Reference to the game lobby
     this.lobby          = lobby;
 
-    this.board1          = new Board_Idea2();
-    this.board2          = new Board_Original();
+    this.board          = new Board();
     
     this.max_players    = 2;
     this.players        = [];
@@ -151,14 +149,9 @@ Game.prototype.broadcast = function(event_name, data) {
  * Creates the initial board data and sends it to each client
  */
 Game.prototype.buildBoard = function () {
-    //  Code for Idea2
-    this.board1.build_nodes();
-    var gameData = this.board1.getGameData();
-    var jsonData = JSON.stringify(gameData);
-
-    //  Code for Original (Comment out to get Idea 2)
-    this.board2.createBoard();
-    gameData = this.board2.getGameData();
+    //  Create the play area
+    this.board.createBoard();
+    gameData = this.board.getGameData();
     jsonData = JSON.stringify(gameData);
 
     return jsonData;
