@@ -1,6 +1,7 @@
 var logger = require('winston');
 
 var Board    = require('./board.js');
+var Data_package= require('./board.js');
 
 function Game(lobby) {
     
@@ -20,6 +21,10 @@ function Game(lobby) {
                            '#4CAF50', // Green
                            '#FFEB3B']; // Yellow
     
+    this.setupComplete  = false;
+    this.setupSequence = [0,1,1,0];
+    this.setupPointer = 0;
+
     this.development_cards = [];
 }
 
@@ -68,6 +73,9 @@ Game.prototype.add_player = function(player) {
         //  Create the board and send it to the clients
         this.broadcast('build_board', this.buildBoard());
         this.broadcast_gamestate();
+
+        logger.log('debug', 'start the placement sequence.');
+        this.startSequence()
     }
         
     // Notify the other players that a new player has joined
@@ -81,9 +89,13 @@ Game.prototype.add_player = function(player) {
 };
 
 /**
+ * 
+ */
+
+/**
  * Handles an update event from the game
  */
-Game.prototype.game_update = function(data) {
+Game.prototype.turn_update = function(data) {
     this.players[data.player_id].turn_complete = true;
     
     // Determine if the round is complete, ie. all players have 
@@ -92,12 +104,41 @@ Game.prototype.game_update = function(data) {
         return player.turn_complete === true;
     });
     
-    if (round_complete) {
-        this.process_round();
+    // setupComplete flag false so that one player can place a settlement per turn in setup phase
+    if (round_complete || !setupComplete) {
+        this.process_round();        
     }
-
+    
     this.broadcast_gamestate();
+    
+    if(!this.setupComplete){
+        logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
+
+        //call start sequence again from here - startSequence will find the next player to have a turn
+        this.startSequence();
+    }
 };
+
+/**
+ * Start Sequence
+ */
+Game.prototype.startSequence = function(){
+    logger.log('debug', 'startSequence function called.');
+
+    //create data_package
+
+    if(this.setupPointer < this.setupSequence.length){
+        console.log("broadcast to all to hide wait");
+
+         //tell player it is his / her turn
+
+        this.players[this.setupSequence[this.setupPointer]].socket.emit('game_turn',[true,true]); //TODO: change emit to standard
+        this.setupPointer++;
+    }else{
+        this.setupComplete = true;
+    }
+}
+ 
 
 /**
  * Game logic

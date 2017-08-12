@@ -26,7 +26,7 @@
 
     <div class="start">
         <div class="start_inner">
-            <div class="title"><img src="Images/catan_logo.png" /></div>
+            <div class="title"><img src="images/catan_logo.png" /></div>
             <div class="subtitle"> 159.356 Capstone Project</div>
 
             <div class="menu start_subsection">
@@ -59,6 +59,24 @@
                 <h1>Tutorial!</h1>
                 <a href="" class="js-start-toggle" data-target="menu">Back</a>
             </div>
+
+            <div class="players waiting_for_turn waiting hide">
+                <h1>Please wait...</h1>
+                <i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i>
+                <p class="waiting_text">Other players are placing their settlements.</p>
+        
+            </div>
+
+            <div class="players settlement_placement waiting hide">
+                <h1>Place your settlement.</h1>
+                
+                <p class="waiting_text">You can now place a settlement.</p>
+                <p class="waiting_text">Settlements must NOT be on an adjacent node.</p>
+                <div class="player_row place_button">
+                    <div id="placeSettlement" class="btn btn-info player_button place_settlement"><span class="player_text">Place your Settlement</span></div>
+                </div>
+            </div>
+
             <div class="settings start_subsection hide">
                 <h1>Settings!</h1>
                 <a href="" class="js-start-toggle" data-target="menu">Back</a>
