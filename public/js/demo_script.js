@@ -42,7 +42,7 @@ socket.on('game_start', function (data) {
 
 // Game update
 socket.on('update_game', function(data) {
-    display_game(data);
+   display_game(data);
 });
 
 //

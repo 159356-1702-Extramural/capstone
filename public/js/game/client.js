@@ -15,6 +15,13 @@ $(document).ready(function() {
         display_start_modal(active_class);
     });
 
+    //hide wait for settlement placement window
+    $doc.on('click', '#placeSettlement', function(){
+        $('.start').fadeOut(400, function() {
+            
+        });
+    } )
+
     // Request to join a game
     $doc.on('click', '.js-start-game', function() {
         var name = $('#txt_player1').val();
@@ -43,8 +50,14 @@ $(document).ready(function() {
     // Detect the game starting
     socket.on('game_start', function (data) {
         $('.start').fadeOut(400, function() {
-
+            playerSetup(data);
         });
+    });
+
+    socket.on('game_turn', function (data) {
+        if(data[0]){
+            playerSetup(data);
+        }
     });
 
     // Detect the game starting
@@ -70,8 +83,25 @@ $(document).ready(function() {
             $section.toggleClass('hide', !$section.hasClass(active_class));
         });
     }
+    var playerSetup = function (data){
+        //data.gameData is true if player takes turn to place settlement
+        $('.start_subsection').addClass('hide');
+        $('.waiting_for_turn').removeClass('hide');
+        $('.placeButton').addClass('hide');
+        // if( $('.start').css('display') != 'block' ){
+            //$('.start').css('display') = 'block'
+        // }
+        //display_start_modal('waiting_for_turn');
+        $('.start').fadeIn('fast');
+
+        if(data[1]){
+            $('.place_button').removeClass('hide');
+        } 
+        
+    }
 
 });
+
 
 function drawBoard(board, nodes) {
     tilePosition = 0;
@@ -174,7 +204,7 @@ function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
     html += "        <div class='row'>";
-    html += "            <div class='player'><img src='images/Player1.png' /></div>";
+    html += "            <div class='player'><img src='images/player1.png' /></div>";
     html += "            <div class='playername'>Player Name";
     html += "               <div class='playerbutton'>";
     html += "                   <div class='btn btn-info finishturnbutton' onclick='finishTurn();'>Finish Turn</div>";
