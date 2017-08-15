@@ -1,26 +1,27 @@
 var logger = require('winston');
+var board    = require('./board.js');
 
 var Board    = require('./board.js');
 var Data_package= require('../communal/data_package.js');
 
 function Game(lobby) {
-    
+
     // Reference to the game lobby
     this.lobby          = lobby;
 
-    this.board          = new Board();
-    
+    this.board          = new board.Board();
+
     this.max_players    = 2;
     this.players        = [];
 
     this.game_full      = false;
     this.round_num      = 1;
-    
+
     this.player_colours = ['#F44336', // Red
                            '#2196F3', // Blue
                            '#4CAF50', // Green
                            '#FFEB3B']; // Yellow
-    
+
     this.setupComplete  = false;
     this.setupSequence = [0,1,1,0];
     this.setupPointer = 0;
@@ -30,11 +31,11 @@ function Game(lobby) {
 
 // Adds a player to the game
 Game.prototype.add_player = function(player) {
-    
+
     var _self = this;
 
     console.log('adding player');
- 
+
     // Add player to the game
     this.players.push(player);
 
@@ -43,8 +44,8 @@ Game.prototype.add_player = function(player) {
 
     // Assign a color to this player
     player.colour = this.player_colours[player.id];
-    
-    player.socket.emit('player_id', { id : player.id });    
+
+    player.socket.emit('player_id', { id : player.id });
 
     // Listen for game updates from this socket
     player.socket.on('game_update', function(data) {
@@ -77,19 +78,19 @@ Game.prototype.add_player = function(player) {
         logger.log('debug', 'start the placement sequence.');
         this.startSequence()
     }
-        
+
     // Notify the other players that a new player has joined
     this.broadcast('player_joined', {
         player_count    : this.players.length,
         max_players     : this.max_players
     });
-        
+
     console.log('Player number ' + (this.players.length) + ' has been added');
     return true;
 };
 
 /**
- * 
+ *
  */
 
 /**
@@ -97,20 +98,20 @@ Game.prototype.add_player = function(player) {
  */
 Game.prototype.turn_update = function(data) {
     this.players[data.player_id].turn_complete = true;
-    
-    // Determine if the round is complete, ie. all players have 
+
+    // Determine if the round is complete, ie. all players have
     // indicated their round is complete
     var round_complete = this.players.every(function(player) {
         return player.turn_complete === true;
     });
-    
+
     // setupComplete flag false so that one player can place a settlement per turn in setup phase
     if (round_complete || !setupComplete) {
-        this.process_round();        
+        this.process_round();
     }
-    
+
     this.broadcast_gamestate();
-    
+
     if(!this.setupComplete){
         logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
 
@@ -138,7 +139,7 @@ Game.prototype.startSequence = function(){
         this.setupComplete = true;
     }
 }
- 
+
 
 /**
  * Game logic
@@ -183,7 +184,7 @@ Game.prototype.broadcast_gamestate = function() {
 Game.prototype.broadcast = function(event_name, data) {
 
     console.log('Broadcasting event: ' + event_name);
-    this.players.forEach(function(player) {                
+    this.players.forEach(function(player) {
         player.socket.emit(event_name, data);
     });
 };
@@ -193,9 +194,14 @@ Game.prototype.broadcast = function(event_name, data) {
  */
 Game.prototype.buildBoard = function () {
     //  Create the play area
-    this.board.createBoard();
-    gameData = this.board.getGameData();
-    jsonData = JSON.stringify(gameData);
+    this.board.build_nodes();
+    //console.log("Tiles\n--------------------\n", gameData.tiles);
+    console.log("Total Nodes =", this.board.nodes.length,"\n--------------------\n");
+    for (var node of this.board.nodes) {
+        console.log(node);
+    }
+    //console.log("Roads\n--------------------\n", gameData.roads);
+    jsonData = JSON.stringify(this.board);
 
     return jsonData;
 }
