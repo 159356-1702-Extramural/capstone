@@ -107,14 +107,7 @@ Game.prototype.process_round = function()
  * Creates the initial board data and sends it to each client
  */
 Game.prototype.buildBoard = function () {
-    //console.log("Tiles\n--------------------\n", gameData.tiles);
-    console.log("Total Nodes =", this.board.nodes.length,"\n--------------------\n");
-    for (var node of this.board.nodes) {
-        console.log(node);
-    }
-    //console.log("Roads\n--------------------\n", gameData.roads);
     jsonData = JSON.stringify(this.board);
-
     return jsonData;
 }
 

@@ -197,4 +197,4 @@ function rollingDice() {
     return dice1+dice2;
 }
 
-module.exports = Games;
+module.exports = { Games, rollingDice };
