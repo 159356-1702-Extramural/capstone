@@ -89,16 +89,21 @@ $(document).ready(function() {
     //  During the setup phase, each player waits until their 
     //  turn, while the active player places a settlement and road
     var playerSetup = function (data){
-        if (data.player !== 0) {
-            if(data.player === 1){
-                //TODO: Place First Settlement
-                buildPopup("setup_phase_your_turn", false);
-            }else{
-                //TODO: Place Second Settlement
-                buildPopup("setup_phase_your_turn", false);
+        if (data.data_type === "setup_complete" ){
+            alert("setup complete");
+            hidePopup();
+        }else if(data.data_type === 'setup_phase'){
+            if (data.player !== 0) {
+                if(data.player === 1){
+                    //TODO: Place First Settlement
+                    buildPopup("setup_phase_your_turn", false);
+                }else{
+                    //TODO: Place Second Settlement
+                    buildPopup("setup_phase_your_turn", false);
+                }
+            } else {
+                buildPopup("waiting_for_turn", false);
             }
-        } else {
-            buildPopup("waiting_for_turn", false);
         }
     }
     $doc.on('click', '.finishturnbutton', function(e) {

@@ -180,7 +180,7 @@ Game.prototype.startSequence = function(setup_data){
         this.setupComplete = true;
         console.log("Setup complete");
         logger.log('debug', 'Setup phase completed');
-        setup_data.turn_type = 'setup_complete';
+        setup_data.data_type = 'setup_complete';
         this.broadcast('game_turn', setup_data);
     }
     this.setupPointer++;
