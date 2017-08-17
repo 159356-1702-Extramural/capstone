@@ -1,6 +1,6 @@
 //  Our websocket
 var socket = io();
-
+var actions = [];
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -40,7 +40,7 @@ $(document).ready(function() {
         buildPopup("waiting_for_players", false);
     });
 
-    // Uodate the waiting display as new players join the game
+    // Update the waiting display as new players join the game
     socket.on('player_joined', function (data) {
         var popupData = [
             ["player_count", data.player_count], 
@@ -89,13 +89,28 @@ $(document).ready(function() {
     //  During the setup phase, each player waits until their 
     //  turn, while the active player places a settlement and road
     var playerSetup = function (data){
-        if (data[1]) {
-            buildPopup("setup_phase_your_turn", false);
+        if (data.player !== 0) {
+            if(data.player === 1){
+                //TODO: Place First Settlement
+                buildPopup("setup_phase_your_turn", false);
+            }else{
+                //TODO: Place Second Settlement
+                buildPopup("setup_phase_your_turn", false);
+            }
         } else {
             buildPopup("waiting_for_turn", false);
         }
     }
+    $doc.on('click', '.finishturnbutton', function(e) {
+        e.preventDefault();
+        //TODO: Add real data
+        var data_package = new Data_package();
+        data_package.data_type = "setup_phase";
+        data_package.player_id = current_player.id;
+        data_package.actions = actions; 
+        update_server("game_update", data_package);
 
+    });
 
 
     /*
@@ -189,6 +204,12 @@ $(document).ready(function() {
     
     
 });
+
+var update_server = function(data_type, data){
+    
+    //data_type is a string, usually "game_update" , data is a data_package object
+    socket.emit(data_type, data);
+}
 
 //  Generic method to build a popup from a template
 //   popupClass: name of the html file without the extention
@@ -298,7 +319,7 @@ function setupPlayer() {
     html += "            <div class='player'><img src='images/player" + current_player.id + ".png' /></div>";
     html += "            <div class='playername'>" + current_player.name;
     html += "               <div class='playerbutton'>";
-    html += "                   <div class='btn btn-info finishturnbutton' onclick='finishTurn();'>Finish Turn</div>";
+    html += "                   <div class='btn btn-info finishturnbutton'>Finish Turn</div>";
     html += "               </div>";
     html += "            </div>";
     html += "        </div>";
