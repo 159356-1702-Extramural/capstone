@@ -1,15 +1,14 @@
 var logger = require('winston');
-var board    = require('./board.js');
-
-var Board    = require('./board.js');
+//var board = require('./board.js');
 var Data_package= require('../communal/data_package.js');
+var board_builder = require('./board_builder.js');
 
 function Game(lobby) {
 
     // Reference to the game lobby
     this.lobby          = lobby;
 
-    this.board          = new board.Board();
+    this.board          = board_builder.generate();
 
     this.max_players    = 2;
     this.players        = [];
@@ -213,8 +212,6 @@ Game.prototype.broadcast = function(event_name, data) {
  * Creates the initial board data and sends it to each client
  */
 Game.prototype.buildBoard = function () {
-    //  Create the play area
-    this.board.build_nodes();
     //console.log("Tiles\n--------------------\n", gameData.tiles);
     console.log("Total Nodes =", this.board.nodes.length,"\n--------------------\n");
     for (var node of this.board.nodes) {
