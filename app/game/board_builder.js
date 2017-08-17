@@ -1,4 +1,4 @@
-var Board    = require('../communal/board.js');
+var Board    = require('../data_api/board.js');
 // TODO: [EASY] Harbours
 
 /*

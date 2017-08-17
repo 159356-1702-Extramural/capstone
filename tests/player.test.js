@@ -4,7 +4,7 @@
 
 var test = require('ava');
 
-var Player = require('../app/game/player.js');
+var Player = require('../app/data_api/player.js');
 
 test("Should create a new player called Tim", function(t) {
     var socket = {};

@@ -6,9 +6,9 @@
 
 var test = require('ava');
 
-var Data_package = require('../app/communal/data_package.js');
-var Action = require('../app/communal/action.js');
-var Cards = require('../app/communal/cards.js');
+var Data_package = require('../app/data_api/data_package.js');
+var Action = require('../app/data_api/action.js');
+var Cards = require('../app/data_api/cards.js');
 
 var cards; 
 var boost_cards;
@@ -25,13 +25,13 @@ test.beforeEach(t => {
     cards = new Cards();
     boost_cards = new Cards();
 
-    cards.addCard("wood");
-    cards.addCard("ore");
-    cards.removeCard("brick");
+    cards.add_card("wood");
+    cards.add_card("ore");
+    cards.remove_card("brick");
 
-    boost_cards.addCard("sheep");
-    boost_cards.addCard("brick");
-    boost_cards.addCard("wheat");
+    boost_cards.add_card("sheep");
+    boost_cards.add_card("brick");
+    boost_cards.add_card("wheat");
 
     //for a road and a settlement
     startNode = 3;
@@ -95,24 +95,9 @@ test.todo('add board data from Luke');
 test("access actions in data.actions", function (t){
      t.is(data.actions[0].action_type, "build_settlement");
 });
- 
-test("change data in data.actions", function (t){
-    data.actions[0].set_action("build_city"); 
-    t.is(data.actions[0].action_type, "build_city");
-});
-
-test("add action to data", function (t){
-    data.add_actions(action);
-    t.is(data.actions.length, 3);
-});
-
-test("add board data to data", function (t){
-    data.add_board_data(null);
-    t.is(data.board_data, null);
-});
 
 test('Access cards from the data object' , function (t){
-    t.is(data.actions[0].boost_cards.countCards(), 3);
+    t.is(data.actions[0].boost_cards.count_cards(), 3);
 });
 /**
  * Action object testing
@@ -132,7 +117,7 @@ test("Add boost_card to action object" , function (t) {
 });
 
 test("action_type data held correctly" , function (t) {
-    action.set_action('Year of Plenty')
+    action.set_action_type('Year of Plenty')
     t.is(action.action_type, 'Year of Plenty');
 });
 
@@ -149,13 +134,8 @@ test("action_data data held correctly - accessing second array value" , function
     t.is(action2.action_data[1], endNode);
 });
 
-test("action_message data held correctly" , function (t) {
-    action.set_action_message('Settlement build failed');
-    t.is(action.action_message, 'Settlement build failed');
-});
-
 test("action cards accessable" , function (t) {
-    t.is(action.cards.countCards(), 2)
+    t.is(action.cards.count_cards(), 2)
 });
 
 
@@ -164,18 +144,18 @@ test("action cards accessable" , function (t) {
  */
 
 test("Correct number of cards in action", function(t) {
-    t.is(cards.countCards(), 2);
+    t.is(cards.count_cards(), 2);
 });
 
 //test that all card types can be added 
 test("Cards recorded properly" , function (t) {
-    cards.addCard("sheep");
-    cards.addCard("brick");
-    cards.addCard("wheat");
+    cards.add_card("sheep");
+    cards.add_card("brick");
+    cards.add_card("wheat");
     var result = true;
     var i = 0;
-    while(i < cards.toPlay.length){
-        if(cards.toPlay[i] !== 1){
+    while(i < cards.resource_cards.length){
+        if(cards.resource_cards[i] !== 1){
             result = false;
         }
     }
@@ -184,19 +164,19 @@ test("Cards recorded properly" , function (t) {
 
 //test that all card types can be removed 
 test("Cards removed properly" , function (t) {
-    cards.addCard("sheep");
-    cards.addCard("brick");
-    cards.addCard("wheat");
-    cards.removeCard("sheep");
-    cards.removeCard("brick");
-    cards.removeCard("wheat");
-    cards.removeCard("wood");
-    cards.removeCard("ore");
+    cards.add_card("sheep");
+    cards.add_card("brick");
+    cards.add_card("wheat");
+    cards.remove_card("sheep");
+    cards.remove_card("brick");
+    cards.remove_card("wheat");
+    cards.remove_card("wood");
+    cards.remove_card("ore");
 
     var result = true;
     var i = 0;
-    while(i < cards.toPlay.length){
-        if(cards.toPlay[i] !== 0){
+    while(i < cards.resource_cards.length){
+        if(cards.resource_cards[i] !== 0){
             result = false;
         }
     }
@@ -205,20 +185,20 @@ test("Cards removed properly" , function (t) {
 
 test("Check cards can't be a negative value" , function (t) {
     //take all cards to zero
-    cards.removeCard("wood");
-    cards.removeCard("ore");
+    cards.remove_card("wood");
+    cards.remove_card("ore");
 
     //now try to go to negative numbers
-    cards.removeCard("sheep");
-    cards.removeCard("brick");
-    cards.removeCard("wheat");
-    cards.removeCard("wood");
-    cards.removeCard("ore");
+    cards.remove_card("sheep");
+    cards.remove_card("brick");
+    cards.remove_card("wheat");
+    cards.remove_card("wood");
+    cards.remove_card("ore");
 
     var result = true;
     var i = 0;
-    while(i < cards.toPlay.length){
-        if(cards.toPlay[i] < 0){
+    while(i < cards.resource_cards.length){
+        if(cards.resource_cards[i] < 0){
             result = false;
         }
     }
