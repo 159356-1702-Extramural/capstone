@@ -7,7 +7,7 @@ body {
     display: none;
 }
 
-.start, .turn {
+.start, .turn, .popup {
     position:fixed;
     top:0px;
     left:0px;
@@ -17,12 +17,11 @@ body {
     display:block;
     z-index:9999;
 }
-.start_inner, .turn_inner {
+.start_inner, .turn_inner, .popup_inner {
     position: absolute;
     top: 100px;
     left: 50%;
-    width:50%;
-    height:50%;
+    height:auto;
     width:75%;
     padding:15px;
     max-width:600px;
@@ -30,6 +29,13 @@ body {
     background-color:white;
     border:thin solid black;
     border-radius:25px;
+    min-height:400px;
+}
+.popup_inner_large {
+    top: 30px !important;
+    left: 50% !important;
+    width:85% !important;
+    max-width:1000px !important;
 }
 
 .start .title {
@@ -91,6 +97,36 @@ body {
 .place_settlement{
     width: 200px;
 }
+
+.other_players {
+    position:absolute;
+    top:10px;
+    left:10px;
+    height:100px;
+    width:300px;
+    z-index:9600;
+    display:none;
+}
+.other_players .player_red, .other_players .player_blue, .other_players .player_green, .other_players .player_purple {
+    float:left;
+    width: 90px;
+    height: 90px;
+    padding:5px;
+}
+.other_players .player_red {
+    background-image: url(../Images/other_player_red.png);
+}
+.other_players .player_blue {
+    background-image: url(../Images/other_player_blue.png);
+}
+.other_players .player_green {
+    background-image: url(../Images/other_player_green.png);
+}
+.other_players .player_purple {
+    background-image: url(../Images/other_player_purple.png);
+    display:none;
+}
+
 .board {
     position:absolute;
     background-image:url(../images/water.png);
@@ -770,4 +806,205 @@ body {
 	border-radius: 50%;
 	display: block;
 	position: absolute;
+}
+
+
+.popup_title {
+    text-align: center;
+    font-size:24px;
+    font-weight: bold;
+}
+.popup_subtitle {
+    text-align: center;
+    font-size:18px;
+}
+
+.end_row {
+    clear: both;
+    margin:10px;
+}
+.end_row .player_row {
+    clear: both;
+    margin:5px;
+    height:80px;
+}
+.end_row .player_icon {
+    float: left;
+    width: 75px;
+    height: 75px;
+    overflow: hidden;
+}
+.end_row .player_name {
+    float: left;
+    padding-top:10px;
+    font-weight:bold;
+    font-size:18px;
+    width: 200px;
+    overflow:hidden;
+}
+.end_row .player_score {
+    font-size:14px;
+    color:blue;
+}
+
+.player_score_details {
+    float:left;
+}
+.player_score_detail {
+    float:left;
+    padding:5px 10px;
+}
+.player_detail .player_row {
+    clear: both;
+    width:95%;
+}
+.player_score_token {
+    float:left;
+}
+.player_score_token.disabled, .player_score_detail.disabled {
+    opacity: 0.4;
+}
+
+
+.trade_title {
+    clear:both;
+    margin-top:10px;
+    font-size:24px;
+    font-weight:bold;
+    border-bottom:thin solid green;
+}
+.trade_row, .trade_review_row {
+    clear:both;
+    margin:5px 10px;
+    height:120px;
+}
+.trade_review_row, .year_review_row, .monopoly_review_row, .devcard_review_row {
+    width:460px;
+    height:140px;
+    padding:10px;
+    overflow: hidden;
+    white-space: nowrap;
+    border-top: thin solid green;
+    border-bottom: thin solid green;
+}
+.trade_row .card_give, .trade_row .card_receive, .year_receive, .monopoly_receive, .devcard_receive, .trade_card_give, .trade_card_want {
+    text-align: center;
+    float:left;
+}
+.card_give .unavailable, .card_receive .unavailable, .devcard_card .unavailable, .trade_card_give .unavailable, .trade_card_want .unavailable {
+    opacity: 0.4;
+}
+
+.trade_picked {
+    width: 100px;
+}
+
+.trade_give_box, .trade_receive_box, .year_box_card, .monopoly_card, .devcard_card {
+    float:left;
+    margin:10px;
+    height:115px;
+    width:80px;
+}
+.trade_give_box, .trade_receive_box, .year_box_card, .monopoly_card, .devcard_card {
+    border: thin solid black;
+}
+.trade_merge {
+    float:left;
+    width:80px;
+    padding-top:25px;
+}
+.trade_arrow, .year_plus {
+    float:left;
+    width:50px;
+    padding-top:45px;
+}
+.trade_accept, .year_accept {
+    float:left;
+    width:50px;
+    padding-top:50px;
+    padding-left:10px;
+}
+.monopoly_accept, .devcard_accept {
+    float:left;
+    padding-top:25px;
+}
+
+.dice_row {
+    clear: both;
+    height:110px;
+}
+.dice_window {
+    float: left;
+    padding:10px;
+    width: 84px;
+    height: 84px;
+    overflow: hidden;
+}
+
+.monopoly_button, .devcard_button {
+    width:150px;
+    margin:10px;
+}
+
+.trading_grid {
+    clear:both;
+    width:100%;
+    height:200px;
+}
+
+.trading_offer_box {
+    float:left;
+    width:180px;
+    margin-left:20px;
+}
+.trader_box {
+    float:left;
+    width:30%;
+    margin:1%;
+    border-right: thin solid green;
+}
+.trader_icon {
+    float:left;
+}
+.trade_count {
+    position: relative;
+    top: -70px;
+    background-color: white;
+    width:30px;
+    height: 30px;
+    margin-left:auto;
+    margin-right:auto;
+    border-radius: 15px;
+    padding-top:5px;
+}
+.tradining_togive, .tradining_toget {
+    float:left;
+    width:45%;
+    height:100px;
+    margin:1%;
+}
+.trade_want, .trade_give, .trade_other_want, .trade_other_give {
+    position:relative;
+    height:65px;
+    width:160px;
+    border: thin solid green;
+}
+.trader_box_right {
+    float:right;
+    text-align: right;
+}
+.trading_card {
+    position: absolute;
+}
+.trading_card_1 {
+    left:15px;
+    z-index:1;
+}
+.trading_card_2 {
+    left:30px;
+    z-index:2;
+}
+.trading_card_3 {
+    left:45px;
+    z-index:3;
 }

@@ -44,7 +44,8 @@ Game.prototype.add_player = function(player) {
     // Assign a color to this player
     player.colour = this.player_colours[player.id];
 
-    player.socket.emit('player_id', { id : player.id });
+    //  Send the player details
+    player.socket.emit('player_id', { name : player.name, id : player.id, colour : player.colour });
 
     // Listen for game updates from this socket
     player.socket.on('game_update', function(data) {
@@ -68,22 +69,30 @@ Game.prototype.add_player = function(player) {
 
         // Begin the game
         this.broadcast('game_start', {});
-        this.broadcast_gamestate();
+        //this.broadcast_gamestate();
 
         //  Create the board and send it to the clients
         this.broadcast('build_board', this.buildBoard());
-        this.broadcast_gamestate();
+        //this.broadcast_gamestate();
 
         logger.log('debug', 'start the placement sequence.');
         this.startSequence()
     }
 
     // Notify the other players that a new player has joined
+    /*
     this.broadcast('player_joined', {
         player_count    : this.players.length,
         max_players     : this.max_players
     });
+*/
 
+    // Temporary events to mimic game flow
+    player.socket.on('place_settlement', function() {
+        this.turn_update();
+    });
+
+    
     console.log('Player number ' + (this.players.length) + ' has been added');
     return true;
 };
@@ -96,7 +105,8 @@ Game.prototype.add_player = function(player) {
  * Handles an update event from the game
  */
 Game.prototype.turn_update = function(data) {
-    this.players[data.player_id].turn_complete = true;
+    this.players[this.setupSequence[this.setupPointer]].turn_complete = true;
+    this.players[this.setupSequence[this.setupPointer]].points ++;
 
     // Determine if the round is complete, ie. all players have
     // indicated their round is complete
@@ -130,10 +140,19 @@ Game.prototype.startSequence = function(){
     if(this.setupPointer < this.setupSequence.length){
         console.log("broadcast to all to hide wait");
 
-         //tell player it is his / her turn
+         // Notify current player that it is their turn
+         // All others are asked to wait
+        for (var i=0; i<this.players.length; i++) {
+            var player = this.players[i];
+            if (player.id == this.setupSequence[this.setupPointer]) {
+                player.socket.emit('game_turn',[true,true]);
+            } else {
+                player.socket.emit('game_turn',[false,false]);
+            }
+        }
 
-        this.players[this.setupSequence[this.setupPointer]].socket.emit('game_turn',[true,true]); //TODO: change emit to standard
-        this.setupPointer++;
+        //this.players[this.setupSequence[this.setupPointer]].socket.emit('game_turn',[true,true]); //TODO: change emit to standard
+        //this.setupPointer++;
     }else{
         this.setupComplete = true;
     }
@@ -165,7 +184,8 @@ Game.prototype.broadcast_gamestate = function() {
         return {
             id              : idx,
             name            : player.name,
-            turn_complete   : player.turn_complete
+            turn_complete   : player.turn_complete,
+            points          : 0
         };
     });
 

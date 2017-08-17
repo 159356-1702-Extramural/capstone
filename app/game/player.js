@@ -14,6 +14,8 @@ function Player(socket, data) {
 
     // Players colour
     this.colour         = null;
+
+    this.points         = 0;
 }
 
 module.exports = Player;
