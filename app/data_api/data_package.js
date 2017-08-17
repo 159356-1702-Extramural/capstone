@@ -1,4 +1,3 @@
-
 /**
  * Data Api to transmit game data back and forward
  */
@@ -17,16 +16,15 @@ Data_package.prototype.set_turn_type = function (turnType){
     this.turn_type = turnType;
 }
 
-Data_package.prototype.add_player = function (player){
-    this.actions.push(player);
+Data_package.prototype.set_player = function (player){
+    this.player = player;
 }
 
-Data_package.prototype.add_game_state = function (gameState){
+Data_package.prototype.set_game_state = function (gameState){
     this.game_state = gameState;
 }
 
-Data_package.prototype.clear_data = function (gameState){
-    this.game_state = gameState;
+Data_package.prototype.clear_data = function (){
     this.turn_type  = '';
     this.player     = null;
     this.game_state = null;

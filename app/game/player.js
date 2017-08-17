@@ -20,6 +20,18 @@ function Player(socket, data) {
 
     // Players colour
     this.colour         = null;
+
+    // action information that needs to be returned to the client
+    this.actions        = []
+;}
+
+
+Player.prototype.add_action = function (action) {
+    this.actions.push(action);
+}
+
+Player.prototype.clear_actions = function () {
+    this.actions = [];
 }
 
 module.exports = Player;

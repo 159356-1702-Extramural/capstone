@@ -2,7 +2,7 @@ var logger = require('winston');
 var board    = require('./board.js');
 
 var Board    = require('./board.js');
-var Data_package= require('../communal/data_package.js');
+var Data_package= require('../data_api/data_package.js');
 
 function Game(lobby) {
 

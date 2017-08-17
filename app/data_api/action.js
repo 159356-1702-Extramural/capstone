@@ -28,7 +28,7 @@ function Action(){
     this.boost_cards    = null;
 }
 
-Action.prototype.set_action = function(returned_action_type){
+Action.prototype.set_action_type = function(returned_action_type){
     this.action_type = returned_action_type;
 }
 
@@ -38,6 +38,10 @@ Action.prototype.set_action_result = function (result){
 
 Action.prototype.set_boost_cards = function (cards){
     this.boost_cards = cards;
+}
+
+Action.prototype.set_action_data = function (action_data){
+    this.action_data = action_data;
 }
 
 Action.prototype.clear_data = function () {

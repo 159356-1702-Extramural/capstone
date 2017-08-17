@@ -12,24 +12,24 @@ function Data_package(){
 
     //fill actions with action objects
     this.actions = [];
-}
+};
 
 Data_package.prototype.set_data_type = function (turnType){
-    this.turn_type = turnType;
-}
+    this.data_type = turnType;
+};
 
-Data_package.prototype.add_player_id = function (playerId){
+Data_package.prototype.set_player_id = function (playerId){
     this.player_id = playerId;
-}
+};
 
 Data_package.prototype.add_action = function (action){
     this.actions.push(action);
-}
+};
 
 Data_package.prototype.clear_data = function (){
     this.data_type  = '';
     this.actions    = [];
-}
+};
 
 module.exports = Data_package;
 
