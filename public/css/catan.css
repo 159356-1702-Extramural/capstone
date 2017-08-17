@@ -21,7 +21,6 @@ body {
     position: absolute;
     top: 100px;
     left: 50%;
-    width:50%;
     height:auto;
     width:75%;
     padding:15px;
@@ -31,6 +30,12 @@ body {
     border:thin solid black;
     border-radius:25px;
     min-height:400px;
+}
+.popup_inner_large {
+    top: 30px !important;
+    left: 50% !important;
+    width:85% !important;
+    max-width:1000px !important;
 }
 
 .start .title {
@@ -92,6 +97,36 @@ body {
 .place_settlement{
     width: 200px;
 }
+
+.other_players {
+    position:absolute;
+    top:10px;
+    left:10px;
+    height:100px;
+    width:300px;
+    z-index:9600;
+    display:none;
+}
+.other_players .player_red, .other_players .player_blue, .other_players .player_green, .other_players .player_purple {
+    float:left;
+    width: 90px;
+    height: 90px;
+    padding:5px;
+}
+.other_players .player_red {
+    background-image: url(../Images/other_player_red.png);
+}
+.other_players .player_blue {
+    background-image: url(../Images/other_player_blue.png);
+}
+.other_players .player_green {
+    background-image: url(../Images/other_player_green.png);
+}
+.other_players .player_purple {
+    background-image: url(../Images/other_player_purple.png);
+    display:none;
+}
+
 .board {
     position:absolute;
     background-image:url(../images/water.png);
@@ -815,16 +850,28 @@ body {
 .player_score_details {
     float:left;
 }
-
 .player_score_detail {
     float:left;
     padding:5px 10px;
 }
+.player_detail .player_row {
+    clear: both;
+    width:95%;
+}
+.player_score_token {
+    float:left;
+}
+.player_score_token.disabled, .player_score_detail.disabled {
+    opacity: 0.4;
+}
+
 
 .trade_title {
+    clear:both;
     margin-top:10px;
     font-size:24px;
     font-weight:bold;
+    border-bottom:thin solid green;
 }
 .trade_row, .trade_review_row {
     clear:both;
@@ -840,11 +887,11 @@ body {
     border-top: thin solid green;
     border-bottom: thin solid green;
 }
-.trade_row .card_give, .trade_row .card_receive, .year_receive, .monopoly_receive, .devcard_receive {
+.trade_row .card_give, .trade_row .card_receive, .year_receive, .monopoly_receive, .devcard_receive, .trade_card_give, .trade_card_want {
     text-align: center;
     float:left;
 }
-.card_give .unavailable, .card_receive .unavailable, .devcard_card .unavailable {
+.card_give .unavailable, .card_receive .unavailable, .devcard_card .unavailable, .trade_card_give .unavailable, .trade_card_want .unavailable {
     opacity: 0.4;
 }
 
@@ -899,24 +946,65 @@ body {
     margin:10px;
 }
 
-.trading_grid, .trader_row {
+.trading_grid {
+    clear:both;
     width:100%;
+    height:200px;
 }
 
-.trader_box {
-    width:45%;
-    
-}
-.trader_box_top, .trader_box_bottom {
-    clear: both;
-    margin-left:auto;
-    margin-right:0;
-}
-
-.trader_box_left {
+.trading_offer_box {
     float:left;
+    width:180px;
+    margin-left:20px;
+}
+.trader_box {
+    float:left;
+    width:30%;
+    margin:1%;
+    border-right: thin solid green;
+}
+.trader_icon {
+    float:left;
+}
+.trade_count {
+    position: relative;
+    top: -70px;
+    background-color: white;
+    width:30px;
+    height: 30px;
+    margin-left:auto;
+    margin-right:auto;
+    border-radius: 15px;
+    padding-top:5px;
+}
+.tradining_togive, .tradining_toget {
+    float:left;
+    width:45%;
+    height:100px;
+    margin:1%;
+}
+.trade_want, .trade_give, .trade_other_want, .trade_other_give {
+    position:relative;
+    height:65px;
+    width:160px;
+    border: thin solid green;
 }
 .trader_box_right {
     float:right;
     text-align: right;
+}
+.trading_card {
+    position: absolute;
+}
+.trading_card_1 {
+    left:15px;
+    z-index:1;
+}
+.trading_card_2 {
+    left:30px;
+    z-index:2;
+}
+.trading_card_3 {
+    left:45px;
+    z-index:3;
 }

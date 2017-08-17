@@ -6,13 +6,13 @@ $(document).ready(function() {
     var $doc = $(document);
 
     //    Show the initial menu
-    buildPopup("start_menu");    
+    buildPopup("start_menu", false);    
   
     // Events for main start menu buttons
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
         var active_class = $(this).attr('data-target');
-        buildPopup("start_" + active_class);
+        buildPopup("start_" + active_class, false);
     });
 
     // Request to join a game
@@ -37,7 +37,7 @@ $(document).ready(function() {
     socket.on('player_id', function (data) {
         current_player = new currentPlayer(data.name, data.id, data.colour);
         setupPlayer();
-        buildPopup("waiting_for_players");
+        buildPopup("waiting_for_players", false);
     });
 
     // Uodate the waiting display as new players join the game
@@ -46,12 +46,12 @@ $(document).ready(function() {
             ["player_count", data.player_count], 
             ["players_needed", data.max_players], 
         ];
-        buildPopup("waiting_for_players", popupData);
+        buildPopup("waiting_for_players", false, popupData);
     });
 
     // Detect the game starting
     socket.on('game_start', function (data) {
-        buildPopup("waiting_for_turn");
+        buildPopup("waiting_for_turn", false);
     });
 
     socket.on('game_turn', function (data) {
@@ -90,9 +90,9 @@ $(document).ready(function() {
     //  turn, while the active player places a settlement and road
     var playerSetup = function (data){
         if (data[1]) {
-            buildPopup("setup_phase_your_turn");
+            buildPopup("setup_phase_your_turn", false);
         } else {
-            buildPopup("waiting_for_turn");
+            buildPopup("waiting_for_turn", false);
         }
     }
 
@@ -168,13 +168,41 @@ $(document).ready(function() {
         $('.devcard_card').html(image);
     });
     
+    //  Player Trading - Add Give Card 
+    $doc.on('click', '.trade_card_give', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".trade_card_want[data-resource='" + resource + "']").html();
+        $('.trade_give').html(image.replace("_small", "_tiny"));
+    });
+    
+    //  Player Trading - Add Want Card 
+    $doc.on('click', '.trade_card_want', function(e) {
+        e.preventDefault();
+
+        var resource = $(this).attr('data-resource');
+        var image = $(".trade_card_want[data-resource='" + resource + "']").html();
+        $('.trade_want').html(image.replace("_small", "_tiny"));
+    });
+    
+    
 });
 
 //  Generic method to build a popup from a template
 //   popupClass: name of the html file without the extention
 //   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
-function buildPopup(popupClass, customData) {
+function buildPopup(popupClass, useLarge, customData) {
     $.get("templates/" + popupClass + ".html", function(data) {
+        
+        //  In a few cases, we need a larger popup
+        $(".popup_inner").removeClass("popup_inner_large");
+        if (useLarge) {
+            $(".popup_inner").addClass("popup_inner_large");
+        }
+
+        //  Now load and update the template
         var html = data;
         if (customData) {
             customData.forEach(function(data) {
@@ -183,6 +211,7 @@ function buildPopup(popupClass, customData) {
         }
         $(".popup_inner").html(html);
         $(".popup").show();
+
     });
 }
 function hidePopup() {
