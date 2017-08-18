@@ -115,7 +115,7 @@
     });
 
     //  Setup road drag/drop
-    $(".road").draggable({
+    $(".road:not(.ghost)").draggable({
         revert: 'invalid',
 
         start: function (event, ui) {

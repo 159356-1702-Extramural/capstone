@@ -1,6 +1,11 @@
 //  Our websocket
 var socket = io();
 var actions = [];
+
+var game_data = {};
+
+var building_dimension = 50;
+
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -29,10 +34,6 @@ $(document).ready(function() {
         });
     });
 
-    socket.on('update_game', function (data) {
-        
-    });
-        
     //  Create local player after join
     socket.on('player_id', function (data) {
         current_player = new currentPlayer(data.name, data.id, data.colour);
@@ -60,30 +61,42 @@ $(document).ready(function() {
 
     // Detect the game starting
     socket.on('build_board', function (data) {
-        var boardObject = JSON.parse(data);
+        board = JSON.parse(data);
 
         //  Build tiles
         var _html = "";
-        for (var i=0; i< boardObject.tiles.length; i++) {
-            var row = boardObject.tiles[i];
+        for (var i=0; i< board.tiles.length; i++) {
+            var row = board.tiles[i];
             for (var j=0; j<row.length; j++) {
                 _html += buildTile(row[j], i, j);
             }
         }
         $(".board").html(_html);
+    });
 
-        //  Add ghost images (nodes)
-        for (var i=0; i< boardObject.tiles.length; i++) {
-            var row = boardObject.tiles[i];
+    socket.on('update_game', function (data) {
+        //  This method should receive a game_data object
+        //      players     : map of players
+        //      board       : the main board object
+        //      round_num   : the current round #
+        game_data = data;
+
+        //  verify that each node is on the interface in the
+        //  right place/configuration
+        for (var i=0; i< game_data.board.tiles.length; i++) {
+            var row = game_data.board.tiles[i];
             for (var j=0; j<row.length; j++) {
-                //  For each tile, find all nodes
-
-                if (theNode.tileID == theTile.id) {
-                    newTile += "<div id='" + theNode.tileID + "." + theNode.id + "' class='node node" + theNode.id + " " + theNode.type + "'></div>";
+               if (row[j].type != "water") {
+                    buildNodes(row[j], j, i);
                 }
             }
         }
 
+        //  Insert holders for all roads
+        buildRoads();
+        
+        //  Update drag and drop
+        setupDragDrop();
     });
 
     //  During the setup phase, each player waits until their 
@@ -285,9 +298,216 @@ function buildTile(theTile, row, col) {
         return newTile;
     }
 }
-function buildNodes() {
 
+function getObjectPosition(x, y, nodeIndex) {
+    var board_top_offset = 30 + 5 + 26;     //  Offset of board + board border + height of top row not shown
+    var board_left_offset = 30 + 5 + 4;     //  Offset of board + board border + width of first column not shown
+    var row_variance = 48;                  //  Each row moves 48px up more than the previous row (cummulative)
+
+    var tile_width = 148;
+    var tile_height = 172;
+
+    //  Use the current width/height of each tile to find the starting x/y for the tile
+    //  Even rows by bumping x by 1/2 of a tile_width
+    //  All rows after the first 2 need to be bumped by the variance between the rows
+    var new_x = (x * tile_width) - board_left_offset - ((y % 2) == 0 ? (tile_width/2) : 0);
+    var new_y = (y * tile_height) - board_top_offset - (y > 1 ? ((y - 1) * row_variance) : 0);
+    
+    //  Nodes at 0, 1, 4 and 5 adjust to the center/right of the tile
+    if (nodeIndex == 0 || nodeIndex == 5) { new_x += tile_width; }
+    if (nodeIndex == 1 || nodeIndex == 4) { new_x += (tile_width / 2); }
+    
+    //  Nodes at 0, 1, 2, 3 and 5 adjust to the center/right of the tile
+    if (nodeIndex == 0 || nodeIndex == 2) { new_y += (tile_height * 0.74); }
+    if (nodeIndex == 3 || nodeIndex == 5) { new_y += (tile_height * 0.26); }
+    if (nodeIndex == 1) { new_y += tile_height; }
+
+    return [new_x, new_y];
 }
+
+function buildNodes(theTile, x, y) {
+    //  Settlements are slightly shorter
+    var settlement_height = 42;
+
+    //  Now get the nodes and determine positions
+    var node_positions = theTile.associated_nodes;
+    var nodeHTML = "";
+    
+    if (node_positions.length > 0) {
+        for (var j=0; j<node_positions.length; j++) {
+            //  j is the position around the tile
+            //  0 = bottom_right clockwise to 5 = top_right
+
+            var node = game_data.board.nodes[node_positions[j]];
+            var node_on_canvas = $("#node_" + node_positions[j]);
+            var node_class = getNodeCSS(node);
+
+            if (node_on_canvas.length == 0) {
+                //  First we get the top x,y point of the Tile
+                var point = getObjectPosition(x, y, j, false);
+
+                //  Now subtract half the width/height object
+                point[0] -= (building_dimension / 2);
+                point[1] -= (node.building == "city" ? (building_dimension / 2) : (settlement_height / 2));
+
+                //  temp
+                if (x == 2 && y == 1 && j == 0) {
+                    node.owner = 0;
+                    node.building = "house";
+                    node_class = getNodeCSS(node);
+                }
+
+                //  Finally create the html based on the node properties
+                $("body").append("<div id='node_" + node_positions[j] + "' class='node " + node_class + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
+            } else {
+                //  The node exists on the board, update css in case it changed
+                node_on_canvas.attr("class", "node " + node_class);
+            }
+        }
+    }
+}
+function getNodeCSS(node) {
+    var node_class = "disabled";
+    if (canBuild(node)) {
+        node_class = "buildspot";
+    } else if (node.owner > -1) {
+        node_class = node.building + " " + game_data.players[node.owner].colour;
+    }
+    return node_class;
+}
+function canBuild(node) {
+    //  Is something already built here?
+    if (node.owner > -1) { return false; }
+
+    //  Next, we check to see if any adjacent node has a building
+    for (var i=0; i<node.n_nodes.length; i++) {
+        if (game_data.board.nodes[node.n_nodes[i]].owner > -1) {
+            return false;
+        }
+    }
+
+    //  If this is the setup round, we can build here
+    if (game_data.round_num < 3) { return true; }
+
+    //  Finally, if it is a normal round, are we connected by a road?
+    for (var i=0; i<game_data.board.roads.length; i++) {
+        for (var j=0; j<game_data.board.roads[i].connects.length; j++) {
+            if (game_data.board.roads[i].connects[j].owner == current_player.id) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function buildRoads() {
+    for (var i=0; i<game_data.board.roads.length; i++) {
+        var road = game_data.board.roads[i];
+        var road_on_canvas = $("#road_" + i);
+        var road_class = getRoadCSS(road, i);
+
+        if (road_on_canvas.length == 0) {
+            //  First we get the top x,y point of the Tile
+            var point = getRoadPosition(road);
+
+            //  We need to know the angle (30, 90, 330)
+            var angle = getRoadAngle(road);
+        
+            //  Finally create the html based on the road properties
+            $("body").append("<div id='road_" + i + "' class='road " + road_class + " angle" + angle + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
+        } else {
+            //  The road exists on the board, update css in case it changed
+            road_on_canvas.attr("class", "road " + road_class);
+        }
+    }
+}
+
+//  Method to determine whether road on canvas can be
+//  built on, is already built or is not available
+function getRoadCSS(road, index) {
+    var road_class = "disabled";
+    if (canBuildRoad(road, index)) {
+        road_class = "ghost";
+    } else if (road.owner > -1) {
+        road_class = game_data.players[road.owner].colour;
+    }
+    return road_class;
+}
+
+//  Check nodes connected to this road to determine the
+//  angle of this road
+function getRoadAngle(road) {
+    var node1_left = $("#node_" + road.connects[0]).css("left").replace("px", "");
+    var node2_left = $("#node_" + road.connects[1]).css("left").replace("px", "");
+
+    if (node1_left == node2_left) {
+        return 90;
+    } else {
+        if (parseInt(node1_left) > parseInt(node2_left)) {
+            return 30;
+        } else {
+            return 330;
+        }
+    }
+}
+
+function getRoadPosition(road) {
+    var node1_left = parseInt($("#node_" + road.connects[0]).css("left").replace("px", ""));
+    var node1_top = parseInt($("#node_" + road.connects[0]).css("top").replace("px", ""));
+    var node2_left = parseInt($("#node_" + road.connects[1]).css("left").replace("px", ""));
+    var node2_top = parseInt($("#node_" + road.connects[1]).css("top").replace("px", ""));
+
+    //  Angled road
+    var road_width = 65;
+    var road_height = 52;
+    if (node1_left == node2_left) {
+        //  Vertical road
+        road_width = 25;
+        road_height = 60;
+    }
+
+    //  Find the difference based on the size of the road
+    var left_diff = (0.5 * Math.abs((node1_left - node2_left)) - (0.5 * road_width));
+    var top_diff = (0.5 * Math.abs((node1_top - node2_top)) - (0.5 * road_height));
+    
+    //  Assume a 330 degree angle first
+    var new_x = node1_left + (0.5 * building_dimension);
+    if (node1_left == node2_left) {
+        //  Vertical road (90 degrees)
+        new_x = node2_left + (0.5 * building_dimension) - (0.5 * road_width);
+    } else if (node1_left > node2_left) {
+        //  30 degrees
+        new_x = node2_left + left_diff + (0.5 * building_dimension);
+    }
+
+    //  Assume a 330 degree angle first
+    var new_y = node1_top - top_diff - (0.5 * building_dimension);
+    if (node1_left == node2_left) {
+        //  Vertical road (90 degrees)
+        new_y = (node2_top > node1_top ? node1_top : node2_top) + (0.5 * top_diff) + (0.5 * building_dimension);
+    } else if (node1_top > node2_top) {
+        //  30 degrees
+        new_y = node2_top + top_diff + (0.5 * building_dimension);
+    }
+
+    return [new_x, new_y];
+}
+
+//  Some simple logic to see if a road can be built
+function canBuildRoad(road, index) {
+    //  Is something already built here?
+    if (road.owner > -1) {
+        return false;
+    }
+
+    //  Do we have an adjacent building or road?
+    var tempBoard = new Board();
+    tempBoard.roads = game_data.board.roads;
+    tempBoard.nodes = game_data.board.nodes;
+    return tempBoard.is_road_valid_build(current_player.id, index);
+}
+
+
 function getDots(d) {
     if (d == 2 || d == 12) {
         return ".";
@@ -374,4 +594,8 @@ function setupPlayer() {
     html += "            </div>";
 
     $(".score").html(html);
+}
+
+function doLog(m) {
+    $(".log").append(m + "<br />");
 }

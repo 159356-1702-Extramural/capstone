@@ -7,6 +7,14 @@ body {
     display: none;
 }
 
+.log {
+    position: fixed;
+    right: 0;
+    top:0;
+    z-index: 10000;
+    background-color: #eaeaea;
+}
+
 .start, .turn, .popup {
     position:fixed;
     top:0px;
@@ -327,101 +335,29 @@ body {
 }
 
 .node {
-    display:none;
+    display:block;
     position:absolute;
     opacity:0.8;
+    z-index:9998;
 }
-.node .house {
+.node.house, node.city {
     opacity: 1 !important;
-    background-image:none !important;
 }
-
-.node0, .node2, .node4, .node6, .node8, .node10 {
-    background-image:url(../images/house_ghost_small.png);
+.node.house, .node.buildspot {
     height:42px;
     width:50px;
-    z-index:99999;
 }
-.node1, .node7 {
-    background-image:url(../images/road_ghost_topdown.png);
-    height:52px !important;
-    width:65px !important;
-    z-index:99998 !important;
+.node.city {
+    height:50px;
+    width:50px;
 }
-.node3, .node9 {
-    background-image:url(../images/road_ghost_vertical.png);
-    height:60px !important;
-    width:25px !important;
-    z-index:99998 !important;
+.node.disabled {
+    display:none;
 }
-.node5, .node11 {
-    background-image:url(../images/road_ghost_bottomup.png);
-    height:52px !important;
-    width:65px !important;
-    z-index:99998 !important;
+.node.buildspot {
+    background-image:url(../images/house_ghost_small.png);
 }
 
-.node0, .node6 {
-    left:50px;
-}
-.node0 {
-    top:-22px;
-}
-.node6 {
-    top:140px;
-}
-
-.node1, .node11 {
-    top:0px;
-}
-.node1, .node5 {
-    left:80px;
-}
-.node7, .node11 {
-    left:5px;
-}
-.node5, .node7 {
-    top:125px;
-}
-
-.node3, .node9 {
-    top:50px;
-}
-.node3 {
-    left:135px;
-}
-.node9 {
-    left:-12px;
-}
-
-.node2, .node10 {
-    top:18px;
-}
-.node2, .node4 {
-    left:123px;
-}
-.node4, .node8 {
-    top:105px;
-}
-.node8, .node10 {
-    left:-25px;
-}
-
-.board .road {
-    position:absolute;
-    z-index:105;
-}
-.score .road {
-    float:left;
-    position:relative;
-    background-repeat:no-repeat;
-}
-
-.road, .road_locked {
-    left:45px;
-    width:65px;
-    height:60px;
-}
 .house, .house_locked {
     width:50px;
     height:42px;
@@ -430,19 +366,18 @@ body {
     width:50px;
     height:50px;
 }
-.house.purple {
+.node.house.purple, .house.purple {
     background-image: url(../images/house_purple_small.png);
 }
-.house.red {
+.node.house.red, .house.red {
     background-image: url(../images/house_red_small.png);
 }
-.house.green {
+.node.house.green, .house.green {
     background-image: url(../images/house_green_small.png);
 }
-.house.blue {
+.node.house.blue, .house.blue {
     background-image: url(../images/house_blue_small.png);
 }
-
 
 .city.purple {
     background-image: url(../images/city_purple_small.png);
@@ -457,6 +392,42 @@ body {
     background-image: url(../images/city_blue_small.png);
 }
 
+.road {
+    display:block;
+    position:absolute;
+    opacity:0.8;
+    z-index:9997;
+}
+.score .road {
+    float:left;
+    position:relative;
+    background-repeat:no-repeat;
+}
+
+.score .road, .score .road_locked {
+    left:45px;
+    width:65px;
+    height:60px;
+}
+
+.angle30, .angle330 {
+    width:65px;
+    height:52px;
+}
+.angle90 {
+    width:25px;
+    height:60px;
+}
+
+.road.ghost.angle30 {
+    background-image: url(../images/road_ghost_topdown.png);
+}
+.road.ghost.angle90 {
+    background-image: url(../images/road_ghost_vertical.png);
+}
+.road.ghost.angle330 {
+    background-image: url(../images/road_ghost_bottomup.png);
+}
 
 .road.purple.angle30 {
     background-image: url(../images/road_purple_topdown.png);
