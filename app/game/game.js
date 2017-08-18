@@ -6,6 +6,7 @@ var Player          = require('../data_api/player.js');
 var Action          = require('../data_api/action.js');
 var Cards           = require('../data_api/cards.js');
 var board_builder   = require('./board_builder.js');
+var board = require('../../public/data_api/board.js');
 
 function Game(lobby) {
 
@@ -255,6 +256,8 @@ Game.prototype.broadcast = function(event_name, data) {
  */
 Game.prototype.buildBoard = function () {
     jsonData = JSON.stringify(this.board);
+    var test = new board.Board(JSON.parse(jsonData));
+    console.log(test);
     return jsonData;
 }
 
