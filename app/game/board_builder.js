@@ -67,6 +67,7 @@ generate = function(_board) {
 
         if (add_node) {
           board.nodes.push(tile_nodes[i]);
+          board.nodes[board.nodes.length-1].id = board.nodes.length-1;
           tile.associated_nodes.push(board.nodes.length-1);
         }
         add_node = true;
@@ -182,6 +183,7 @@ fill_node_details = function (board, node, node_index) {
             }
             if (add_road) {
                 board.roads.push(new Board.RoadNode([n, node_index]));
+                board.roads[board.roads.length-1].id = board.roads.length-1;
                 node.n_roads.push(board.roads.length-1);
             }
         }

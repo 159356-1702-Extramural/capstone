@@ -6,6 +6,7 @@ var Player          = require('../data_api/player.js');
 var Action          = require('../data_api/action.js');
 var Cards           = require('../data_api/cards.js');
 var board_builder   = require('./board_builder.js');
+var board = require('../../public/data_api/board.js');
 
 function Game(state_machine) {
     this.state_machine  = state_machine;
@@ -64,8 +65,6 @@ Game.prototype.turn_update = function(data) {
     if (round_complete || !this.setupComplete) {
         this.process_round();
     }
-
-    //this.broadcast_gamestate();
 
     if(!this.setupComplete){
         logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');

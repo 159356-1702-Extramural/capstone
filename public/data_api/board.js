@@ -1,11 +1,14 @@
 /********************************************
 *  Basic getters for board elements
 *********************************************/
-function Board() {
+function Board(obj) {
     this.nodes = [];
     this.roads = [];
     this.tiles = [];
     this.node_tree;
+    if (obj) {
+      for (var prop in obj) this[prop] = obj[prop];
+    };
 }
 
 /********************************************
@@ -36,8 +39,17 @@ Board.prototype.get_tile_resource_type = function (point) {
 *********************************************/
 /// returns an array of the index numbers for nodes
 Board.prototype.get_node_indexes_from_road = function (index) {
-    return [this.nodes[this.roads[index].connects[0]],
-          this.nodes[this.roads[index].connects[1]]];
+    return [this.roads[index].connects[0],
+            this.roads[index].connects[1]];
+}
+
+// returns an array of the index numbers for roads
+Board.prototype.get_road_indexes_from_node = function (index) {
+    var array = [];
+    for (var i=0; i<this.nodes[index].n_roads.length; i++) {
+        array.push(this.nodes[index].n_roads[i]);
+    }
+    return array;
 }
 
 // returns an array of the index numbers for roads
@@ -65,10 +77,14 @@ Board.prototype.get_tiles_with_resource = function (resource) {
 /// returns an array of player names
 Board.prototype.get_players_with_resource = function (resource) {
   var players = [];
-  var tiles = this.get_tiles_of_resource(resource);
-  for (var t=0; t<this.tiles.length; t++) {
-    if (this.tiles[t].owner)
-      players.push(this.tiles[t].owner);
+  var tiles = this.get_tiles_with_resource(resource);
+  for (var t=0; t<tiles.length; t++) {
+    for (var n=0; n<tiles[t].associated_nodes.length; n++) {
+        var index = tiles[t].associated_nodes[n];
+        var owner = this.nodes[index].owner;
+        if (owner !== -1 && players.indexOf(owner) == -1)
+            players.push(this.nodes[index].owner);
+        }
   }
   return players;
 };
@@ -113,21 +129,20 @@ Board.prototype.is_node_valid_build = function(player, index) {
     if (node.owner !== -1)
         return false;
     var count = 0;
-    node.n_nodes.forEach(function(nx1) {
-        if (nx1 !== -1)
+
+    for (var n1=0; n1<node.n_nodes.length; n1++) {
+        var neighbour = this.nodes[node.n_nodes[n1]];
+        if (neighbour.owner !== -1)
             count += 1;
-        nx1.n_node.forEach(function(nx2) {
-            if (nx2 !== -1)
-                count += 1;
-        });
-    })
+    }
     return (count === 0);
 }
 
-Board.prototype.node_has_road_to = function(player, index) {
-    return (this.nodes[index].n_roads.forEach(function(road) {
-        return (road.owner === player);
-        }));
+Board.prototype.has_node_player_road_to = function(player, index) {
+// TODO: stop using forEach on integers, numbnuts
+//    return (this.nodes[index].n_roads.forEach(function(road) {
+//        return (road.owner === player);
+//        }));
 }
 
 /// returns bool from road index
@@ -135,9 +150,9 @@ Board.prototype.is_road_valid_build = function(player, index) {
     var road = this.roads[index];
     if (road.owner !== -1)
         return false;
-    if ((this.nodes[road.connects[0]] !== player && this.nodes[road.connects[1]] !== -1) ||
-        (this.nodes[road.connects[1]] !== player && this.nodes[road.connects[0]] !== -1) ||
-        (this.nodes[road.connects[1]] !== -1 && this.nodes[road.connects[0]] !== -1))
+    if ((this.nodes[road.connects[0]].owner !== player && this.nodes[road.connects[1]].owner !== -1) ||
+        (this.nodes[road.connects[1]].owner !== player && this.nodes[road.connects[0]].owner !== -1) ||
+        (this.nodes[road.connects[1]].owner !== -1 && this.nodes[road.connects[0]].owner !== -1))
         return false;
     return true;
 }
@@ -158,11 +173,13 @@ function Point(x,y) {
 };
 
 function RoadNode(connects) {
+    this.id = -1;
     this.connects = connects; // nodes that are neighbours of this node
     this.owner = -1;
 };
 
 function BuildNode(n_tiles) {
+    this.id = -1;
     this.n_tiles = n_tiles; // tiles this node intersects
     this.n_nodes = []; // nodes that are neighbours of this node
     this.n_roads = [];
