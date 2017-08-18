@@ -1,11 +1,14 @@
 /********************************************
 *  Basic getters for board elements
 *********************************************/
-function Board() {
+function Board(obj) {
     this.nodes = [];
     this.roads = [];
     this.tiles = [];
     this.node_tree;
+    if (obj) {
+      for (var prop in obj) this[prop] = obj[prop];
+    };
 }
 
 /********************************************
@@ -114,10 +117,10 @@ Board.prototype.is_node_valid_build = function(player, index) {
         return false;
     var count = 0;
     node.n_nodes.forEach(function(nx1) {
-        if (nx1 !== -1)
+        if (nx1.owner !== -1)
             count += 1;
         nx1.n_node.forEach(function(nx2) {
-            if (nx2 !== -1)
+            if (nx2.owner !== -1 || nx2.owner !== player)
                 count += 1;
         });
     })
@@ -135,9 +138,9 @@ Board.prototype.is_road_valid_build = function(player, index) {
     var road = this.roads[index];
     if (road.owner !== -1)
         return false;
-    if ((this.nodes[road.connects[0]] !== player && this.nodes[road.connects[1]] !== -1) ||
-        (this.nodes[road.connects[1]] !== player && this.nodes[road.connects[0]] !== -1) ||
-        (this.nodes[road.connects[1]] !== -1 && this.nodes[road.connects[0]] !== -1))
+    if ((this.nodes[road.connects[0]].owner !== player && this.nodes[road.connects[1]].owner !== -1) ||
+        (this.nodes[road.connects[1]].owner !== player && this.nodes[road.connects[0]].owner !== -1) ||
+        (this.nodes[road.connects[1]].owner !== -1 && this.nodes[road.connects[0]].owner !== -1))
         return false;
     return true;
 }
@@ -158,11 +161,13 @@ function Point(x,y) {
 };
 
 function RoadNode(connects) {
+    this.id = -1;
     this.connects = connects; // nodes that are neighbours of this node
     this.owner = -1;
 };
 
 function BuildNode(n_tiles) {
+    this.id = -1;
     this.n_tiles = n_tiles; // tiles this node intersects
     this.n_nodes = []; // nodes that are neighbours of this node
     this.n_roads = [];
