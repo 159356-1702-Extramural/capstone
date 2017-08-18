@@ -1,11 +1,14 @@
 /********************************************
 *  Basic getters for board elements
 *********************************************/
-function Board() {
+function Board(obj) {
     this.nodes = [];
     this.roads = [];
     this.tiles = [];
     this.node_tree;
+    if (obj) {
+      for (var prop in obj) this[prop] = obj[prop];
+    };
 }
 
 /********************************************
@@ -34,10 +37,19 @@ Board.prototype.get_tile_resource_type = function (point) {
 /********************************************
 *  More advanced getters for board elements
 *********************************************/
-/// returns the index numbers for nodes
+/// returns an array of the index numbers for nodes
 Board.prototype.get_node_indexes_from_road = function (index) {
-  return [this.nodes[this.roads[index].connects[0]],
-          this.nodes[this.roads[index].connects[1]]];
+    return [this.roads[index].connects[0],
+            this.roads[index].connects[1]];
+}
+
+// returns an array of the index numbers for roads
+Board.prototype.get_road_indexes_from_node = function (index) {
+    var array = [];
+    for (var i=0; i<this.nodes[index].n_roads.length; i++) {
+        array.push(this.nodes[index].n_roads[i]);
+    }
+    return array;
 }
 
 /// returns an array of tile objects
@@ -56,10 +68,14 @@ Board.prototype.get_tiles_with_resource = function (resource) {
 /// returns an array of player names
 Board.prototype.get_players_with_resource = function (resource) {
   var players = [];
-  var tiles = this.get_tiles_of_resource(resource);
-  for (var t=0; t<this.tiles.length; t++) {
-    if (this.tiles[t].owner)
-      players.push(this.tiles[t].owner);
+  var tiles = this.get_tiles_with_resource(resource);
+  for (var t=0; t<tiles.length; t++) {
+    for (var n=0; n<tiles[t].associated_nodes.length; n++) {
+        var index = tiles[t].associated_nodes[n];
+        var owner = this.nodes[index].owner;
+        if (owner !== -1 && players.indexOf(owner) == -1)
+            players.push(this.nodes[index].owner);
+        }
   }
   return players;
 };
@@ -93,6 +109,45 @@ Board.prototype.get_shore_road_indexes = function() {
   return roads;
 }
 
+/// returns bool from node index where a player wants to build
+///
+/// Checks if the the node is unowned, and if the nodes around it
+/// have had their nodes taken already. (checks radius 2 of nodes)
+// TODO: recursive memoization would be best here
+// TODO: check roads
+Board.prototype.is_node_valid_build = function(player, index) {
+    var node = this.nodes[index];
+    if (node.owner !== -1)
+        return false;
+    var count = 0;
+
+    for (var n1=0; n1<node.n_nodes.length; n1++) {
+        var neighbour = this.nodes[node.n_nodes[n1]];
+        if (neighbour.owner !== -1)
+            count += 1;
+    }
+    return (count === 0);
+}
+
+Board.prototype.has_node_player_road_to = function(player, index) {
+// TODO: stop using forEach on integers, numbnuts
+//    return (this.nodes[index].n_roads.forEach(function(road) {
+//        return (road.owner === player);
+//        }));
+}
+
+/// returns bool from road index
+Board.prototype.is_road_valid_build = function(player, index) {
+    var road = this.roads[index];
+    if (road.owner !== -1)
+        return false;
+    if ((this.nodes[road.connects[0]].owner !== player && this.nodes[road.connects[1]].owner !== -1) ||
+        (this.nodes[road.connects[1]].owner !== player && this.nodes[road.connects[0]].owner !== -1) ||
+        (this.nodes[road.connects[1]].owner !== -1 && this.nodes[road.connects[0]].owner !== -1))
+        return false;
+    return true;
+}
+
 // TODO: should build a binary tree at some point for this.
 // Board.prototype.is_path_to_owned_by(start_node, end_node, owner)
 
@@ -109,15 +164,18 @@ function Point(x,y) {
 };
 
 function RoadNode(connects) {
+    this.id = -1;
     this.connects = connects; // nodes that are neighbours of this node
-    this.owner = "";
+    this.owner = -1;
 };
 
 function BuildNode(n_tiles) {
+    this.id = -1;
     this.n_tiles = n_tiles; // tiles this node intersects
     this.n_nodes = []; // nodes that are neighbours of this node
+    this.n_roads = [];
     this.building = "";//
-    this.owner = "";
+    this.owner = -1;
 };
 
 function TileNode(type, robber, token, asso) {
