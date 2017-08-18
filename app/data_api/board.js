@@ -34,10 +34,19 @@ Board.prototype.get_tile_resource_type = function (point) {
 /********************************************
 *  More advanced getters for board elements
 *********************************************/
-/// returns the index numbers for nodes
+/// returns an array of the index numbers for nodes
 Board.prototype.get_node_indexes_from_road = function (index) {
-  return [this.nodes[this.roads[index].connects[0]],
+    return [this.nodes[this.roads[index].connects[0]],
           this.nodes[this.roads[index].connects[1]]];
+}
+
+// returns an array of the index numbers for roads
+Board.prototype.get_road_indexes_from_node = function (index) {
+    var array = [];
+    for (var i=0; i<this.nodes[index].n_roads.length; i++) {
+        array.push(this.nodes[index].n_roads[i]);
+    }
+    return array;
 }
 
 /// returns an array of tile objects
@@ -93,6 +102,46 @@ Board.prototype.get_shore_road_indexes = function() {
   return roads;
 }
 
+/// returns bool from node index where a player wants to build
+///
+/// Checks if the the node is unowned, and if the nodes around it
+/// have had their nodes taken already. (checks radius 2 of nodes)
+// TODO: recursive memoization would be best here
+// TODO: check roads
+Board.prototype.is_node_valid_build = function(player, index) {
+    var node = this.nodes[index];
+    if (node.owner !== -1)
+        return false;
+    var count = 0;
+    node.n_nodes.forEach(function(nx1) {
+        if (nx1 !== -1)
+            count += 1;
+        nx1.n_node.forEach(function(nx2) {
+            if (nx2 !== -1)
+                count += 1;
+        });
+    })
+    return (count === 0);
+}
+
+Board.prototype.node_has_road_to = function(player, index) {
+    return (this.nodes[index].n_roads.forEach(function(road) {
+        return (road.owner === player);
+        }));
+}
+
+/// returns bool from road index
+Board.prototype.is_road_valid_build = function(player, index) {
+    var road = this.roads[index];
+    if (road.owner !== -1)
+        return false;
+    if ((this.nodes[road.connects[0]] !== player && this.nodes[road.connects[1]] !== -1) ||
+        (this.nodes[road.connects[1]] !== player && this.nodes[road.connects[0]] !== -1) ||
+        (this.nodes[road.connects[1]] !== -1 && this.nodes[road.connects[0]] !== -1))
+        return false;
+    return true;
+}
+
 // TODO: should build a binary tree at some point for this.
 // Board.prototype.is_path_to_owned_by(start_node, end_node, owner)
 
@@ -110,14 +159,15 @@ function Point(x,y) {
 
 function RoadNode(connects) {
     this.connects = connects; // nodes that are neighbours of this node
-    this.owner = "";
+    this.owner = -1;
 };
 
 function BuildNode(n_tiles) {
     this.n_tiles = n_tiles; // tiles this node intersects
     this.n_nodes = []; // nodes that are neighbours of this node
+    this.n_roads = [];
     this.building = "";//
-    this.owner = "";
+    this.owner = -1;
 };
 
 function TileNode(type, robber, token, asso) {

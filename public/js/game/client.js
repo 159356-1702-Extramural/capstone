@@ -1,23 +1,19 @@
 //  Our websocket
 var socket = io();
-
+var actions = [];
 $(document).ready(function() {
 
-  var $doc = $(document);
+    var $doc = $(document);
 
-    // Start menu section links
+    //    Show the initial menu
+    buildPopup("start_menu", false);    
+  
+    // Events for main start menu buttons
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
         var active_class = $(this).attr('data-target');
-        display_start_modal(active_class);
+        buildPopup("start_" + active_class, false);
     });
-
-    //hide wait for settlement placement window
-    $doc.on('click', '#placeSettlement', function(){
-        $('.start').fadeOut(400, function() {
-
-        });
-    } )
 
     // Request to join a game
     $doc.on('click', '.js-start-game', function() {
@@ -31,30 +27,35 @@ $(document).ready(function() {
         socket.emit('join_request', {
             name: name
         });
-
-        display_start_modal('waiting');
-
     });
 
-    // Uodate the waiting display as new players join the game
+    socket.on('update_game', function (data) {
+        
+    });
+        
+    //  Create local player after join
+    socket.on('player_id', function (data) {
+        current_player = new currentPlayer(data.name, data.id, data.colour);
+        setupPlayer();
+        buildPopup("waiting_for_players", false);
+    });
+
+    // Update the waiting display as new players join the game
     socket.on('player_joined', function (data) {
-        $('.start .waiting_text')
-            .find('.count').text(data.player_count)
-            .end()
-            .find('.total').text(data.max_players);
+        var popupData = [
+            ["player_count", data.player_count], 
+            ["players_needed", data.max_players], 
+        ];
+        buildPopup("waiting_for_players", false, popupData);
     });
 
     // Detect the game starting
     socket.on('game_start', function (data) {
-        $('.start').fadeOut(400, function() {
-            playerSetup(data);
-        });
+        buildPopup("waiting_for_turn", false);
     });
 
     socket.on('game_turn', function (data) {
-        if(data[0]){
-            playerSetup(data);
-        }
+        playerSetup(data);
     });
 
     // Detect the game starting
@@ -85,58 +86,164 @@ $(document).ready(function() {
 
     });
 
-    /**
-     * Displays a subsection of the start modal
-     *
-     * @param {string} active_class : subsection class that you want to display in the start modal
-     */
-    function display_start_modal(active_class) {
-        $('.start .start_subsection').each(function () {
-            var $section = $(this);
-            $section.toggleClass('hide', !$section.hasClass(active_class));
-        });
-    }
+    //  During the setup phase, each player waits until their 
+    //  turn, while the active player places a settlement and road
     var playerSetup = function (data){
-        //data.gameData is true if player takes turn to place settlement
-        $('.start_subsection').addClass('hide');
-        $('.waiting_for_turn').removeClass('hide');
-        $('.placeButton').addClass('hide');
-        // if( $('.start').css('display') != 'block' ){
-            //$('.start').css('display') = 'block'
-        // }
-        //display_start_modal('waiting_for_turn');
-        $('.start').fadeIn('fast');
-
-        if(data[1]){
-            $('.place_button').removeClass('hide');
+        if (data.data_type === "setup_complete" ){
+            alert("setup complete");
+            hidePopup();
+        }else if(data.data_type === 'setup_phase'){
+            if (data.player !== 0) {
+                if(data.player === 1){
+                    //TODO: Place First Settlement
+                    buildPopup("setup_phase_your_turn", false);
+                }else{
+                    //TODO: Place Second Settlement
+                    buildPopup("setup_phase_your_turn", false);
+                }
+            } else {
+                buildPopup("waiting_for_turn", false);
+            }
         }
-
     }
+    $doc.on('click', '.finishturnbutton', function(e) {
+        e.preventDefault();
+        //TODO: Add real data
+        var data_package = new Data_package();
+        data_package.data_type = "setup_phase";
+        data_package.player_id = current_player.id;
+        data_package.actions = actions; 
+        update_server("game_update", data_package);
 
+    });
+
+
+    /*
+    
+    New events for upcoming html templates
+
+    */
+
+    //  Trade - click on resource to give
+    $doc.on('click', '.card_give', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".card_receive[data-resource='" + resource + "']").html();
+        $('.trade_give_box').html(image);
+
+    });
+
+    //  Trade - click on resource to receive
+    $doc.on('click', '.card_receive', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".card_receive[data-resource='" + resource + "']").html();
+        $('.trade_receive_box').html(image);
+    });
+    
+    //  Year of Plenty - click on resource to receive
+    $doc.on('click', '.year_receive', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".year_receive[data-resource='" + resource + "']").html();
+
+        var card1 = $(".year_box_card1").html();
+        var card2 = $(".year_box_card2").html();
+        if (card1.length == 0) {
+            $('.year_box_card1').html(image);
+        } else if (card2.length == 0) {
+            $('.year_box_card2').html(image);
+        }
+    });
+
+    //  Year of Plenty - clear selected resource
+    $doc.on('click', '.year_box_card', function(e) {
+        e.preventDefault();
+        $(this).html("");
+    });
+    
+    //  Monopoly - 
+    $doc.on('click', '.monopoly_receive', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".monopoly_receive[data-resource='" + resource + "']").html();
+        $('.monopoly_card').html(image);
+    });
+    
+    //  Development Card - 
+    $doc.on('click', '.devcard_receive', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".devcard_receive[data-resource='" + resource + "']").html();
+        $('.devcard_card').html(image);
+    });
+    
+    //  Player Trading - Add Give Card 
+    $doc.on('click', '.trade_card_give', function(e) {
+        e.preventDefault();
+
+        //  TODO: validate # of given resource
+        var resource = $(this).attr('data-resource');
+        var image = $(".trade_card_want[data-resource='" + resource + "']").html();
+        $('.trade_give').html(image.replace("_small", "_tiny"));
+    });
+    
+    //  Player Trading - Add Want Card 
+    $doc.on('click', '.trade_card_want', function(e) {
+        e.preventDefault();
+
+        var resource = $(this).attr('data-resource');
+        var image = $(".trade_card_want[data-resource='" + resource + "']").html();
+        $('.trade_want').html(image.replace("_small", "_tiny"));
+    });
+    
+    
 });
 
-function drawBoard(board, nodes) {
-    tilePosition = 0;
-    numberPosition = 0;
+var update_server = function(data_type, data){
+    
+    //data_type is a string, usually "game_update" , data is a data_package object
+    socket.emit(data_type, data);
+}
 
-    var row = 0;
-    var col = 0;
-    var newBoard = "";
-
-    for (var i=0; i<7; i++) {
-        var theRow = board[i];
-        newBoard += "<div class='row" + (newBoard.length == 0 ? " top" : "") + "'>";
-        for (var j=0; j<theRow.length; j++) {
-            var theTile = theRow[j];
-            newBoard += buildTile(nodes, theTile, row, col);
-            col++;
+//  Generic method to build a popup from a template
+//   popupClass: name of the html file without the extention
+//   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
+function buildPopup(popupClass, useLarge, customData) {
+    $.get("templates/" + popupClass + ".html", function(data) {
+        
+        //  In a few cases, we need a larger popup
+        $(".popup_inner").removeClass("popup_inner_large");
+        if (useLarge) {
+            $(".popup_inner").addClass("popup_inner_large");
         }
-        newBoard += "</div>";
-        col = 0;
-        row++;
-    }
 
-    $(".board").html(newBoard);
+        //  Now load and update the template
+        var html = data;
+        if (customData) {
+            customData.forEach(function(data) {
+                html = html.replace("{" + data[0] + "}", data[1]);
+            });
+        }
+        $(".popup_inner").html(html);
+        $(".popup").show();
+
+    });
+}
+function hidePopup() {
+    $('.popup').fadeOut(400, function() {
+
+    });
 }
 
 function buildTile(theTile, row, col) {
@@ -214,10 +321,10 @@ function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
     html += "        <div class='row'>";
-    html += "            <div class='player'><img src='images/player1.png' /></div>";
-    html += "            <div class='playername'>Player Name";
+    html += "            <div class='player'><img src='images/player" + current_player.id + ".png' /></div>";
+    html += "            <div class='playername'>" + current_player.name;
     html += "               <div class='playerbutton'>";
-    html += "                   <div class='btn btn-info finishturnbutton' onclick='finishTurn();'>Finish Turn</div>";
+    html += "                   <div class='btn btn-info finishturnbutton'>Finish Turn</div>";
     html += "               </div>";
     html += "            </div>";
     html += "        </div>";

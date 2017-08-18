@@ -2,7 +2,7 @@
 
 var logger = require('winston');
 var Game    = require('./game.js');
-var Player  = require('./player.js');
+var Player  = require('../data_api/player.js');
 /*
 *  The core of the server side
 *

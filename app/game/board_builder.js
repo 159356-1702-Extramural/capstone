@@ -1,4 +1,4 @@
-var Board    = require('../communal/board.js');
+var Board    = require('../data_api/board.js');
 // TODO: [EASY] Harbours
 
 /*
@@ -169,17 +169,21 @@ fill_node_details = function (board, node, node_index) {
 
             // now check for connections between this node and others
             var add_road = true;
-            for (var road of board.roads) {
+            for (var r=0; r<board.roads.length; r++) {
+                var road = board.roads[r];
                 // if the road exists connecting these node indexes, don't add
                 // should be safe in JS since the comparison is between integers
                 if (road.connects.indexOf(n) !== -1 &&
                     road.connects.indexOf(node_index) !== -1) {
-                    add_road = false;
-                    break;
+                        node.n_roads.push(r);
+                        add_road = false;
+                        break;
                 }
             }
-            if (add_road)
+            if (add_road) {
                 board.roads.push(new Board.RoadNode([n, node_index]));
+                node.n_roads.push(board.roads.length-1);
+            }
         }
         if (node.n_nodes.length === 3) {
             break;
