@@ -115,7 +115,7 @@ Games.prototype.assign_player = function(socket, data) {
     var player = new Player(socket, data);
 
     // Create a new game instance if we dont have available to put this player into
-    if (this.games.length === 0 || this.games[this.games.length - 1].game_full()) {
+    if (this.games.length === 0 || this.games[this.games.length - 1].game.game_full()) {
         console.log('Creating an new game');
         this.games.push(new StateMachine());
     }

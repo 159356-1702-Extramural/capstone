@@ -23,7 +23,7 @@ var PORT      = process.env.PORT || 3000;
 
 // Load game lobby
 var Games     = require('./game/state_machine.js');
-var games     = new Games();
+var games     = new Games.Games();
 
 // Define static files directory
 app.use(express.static('public'));
