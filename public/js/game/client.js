@@ -227,12 +227,13 @@ function check_legitimate_turn(data_package){
             //only two actions allowed (build road and build house)
             if(turn_actions.length === 2){
 
-                console.log(turn_actions[0]);
+                console.log(turn_actions[1]);
                 //if one is a house and the other is a road
                 if((turn_actions[0].action_type == 'house' || turn_actions[1].action_type == 'house') && (turn_actions[0].action_type == 'road' || turn_actions[1].action_type == 'road')){
                     
                     //update_server("game_update", data_package);
                     update_server("game_update", data_package);
+                    turn_actions = [];
                     
                     //reset server data to avoid unexpected quirks
                     server_data = [];
@@ -487,7 +488,7 @@ function buildRoads() {
             $("body").append("<div id='road_" + i + "' class='road " + road_class + " angle" + angle + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
         } else {
             //  The road exists on the board, update css in case it changed
-            road_on_canvas.attr("class", "road " + road_class);
+            //road_on_canvas.attr("class", "road " + road_class);
         }
     }
 }
