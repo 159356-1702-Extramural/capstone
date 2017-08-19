@@ -6,7 +6,7 @@ var Player          = require('../data_api/player.js');
 var Action          = require('../data_api/action.js');
 var Cards           = require('../data_api/cards.js');
 var board_builder   = require('./board_builder.js');
-var board = require('../../public/data_api/board.js');
+var board           = require('../../public/data_api/board.js');
 
 function Game(lobby) {
 
@@ -21,10 +21,7 @@ function Game(lobby) {
     this.game_full      = false;
     this.round_num      = 1;
 
-    this.player_colours = ['#F44336', // Red
-                           '#2196F3', // Blue
-                           '#4CAF50', // Green
-                           '#FFEB3B']; // Yellow
+    this.player_colours = ['purple', 'red', 'blue', 'green'];
 
     this.setupComplete  = false;
     this.setupSequence = [0,1,1,0];
@@ -79,7 +76,7 @@ Game.prototype.add_player = function(player) {
 
         //  Create the board and send it to the clients
         this.broadcast('build_board', this.buildBoard());
-        //this.broadcast_gamestate();
+        this.broadcast_gamestate();
 
         logger.log('debug', 'start the placement sequence.');
         this.startSequence()
@@ -227,14 +224,16 @@ Game.prototype.broadcast_gamestate = function() {
         return {
             id              : idx,
             name            : player.name,
+            colour          : player.colour,
             turn_complete   : player.turn_complete,
             points          : 0
         };
     });
 
     var game_data = {
-        players   : players,
-        round_num : this.round_num
+        players     : players,
+        board       : this.board,
+        round_num   : this.round_num
     };
 
     this.broadcast('update_game', game_data);
@@ -256,8 +255,6 @@ Game.prototype.broadcast = function(event_name, data) {
  */
 Game.prototype.buildBoard = function () {
     jsonData = JSON.stringify(this.board);
-    var test = new board.Board(JSON.parse(jsonData));
-    console.log(test);
     return jsonData;
 }
 

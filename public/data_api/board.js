@@ -2,13 +2,13 @@
 *  Basic getters for board elements
 *********************************************/
 function Board(obj) {
-    this.nodes = [];
-    this.roads = [];
-    this.tiles = [];
-    this.node_tree;
-    if (obj) {
-      for (var prop in obj) this[prop] = obj[prop];
-    };
+  this.nodes = [];
+  this.roads = [];
+  this.tiles = [];
+  this.node_tree;
+  if (obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  };
 }
 
 /********************************************
@@ -39,17 +39,17 @@ Board.prototype.get_tile_resource_type = function (point) {
 *********************************************/
 /// returns an array of the index numbers for nodes
 Board.prototype.get_node_indexes_from_road = function (index) {
-    return [this.roads[index].connects[0],
-            this.roads[index].connects[1]];
+  return [this.roads[index].connects[0],
+          this.roads[index].connects[1]];
 }
 
 // returns an array of the index numbers for roads
 Board.prototype.get_road_indexes_from_node = function (index) {
-    var array = [];
-    for (var i=0; i<this.nodes[index].n_roads.length; i++) {
-        array.push(this.nodes[index].n_roads[i]);
-    }
-    return array;
+  var array = [];
+  for (var i=0; i<this.nodes[index].n_roads.length; i++) {
+      array.push(this.nodes[index].n_roads[i]);
+  }
+  return array;
 }
 
 /// returns an array of tile objects
@@ -116,17 +116,17 @@ Board.prototype.get_shore_road_indexes = function() {
 // TODO: recursive memoization would be best here
 // TODO: check roads
 Board.prototype.is_node_valid_build = function(player, index) {
-    var node = this.nodes[index];
-    if (node.owner !== -1)
-        return false;
-    var count = 0;
+  var node = this.nodes[index];
+  if (node.owner !== -1)
+      return false;
+  var count = 0;
 
-    for (var n1=0; n1<node.n_nodes.length; n1++) {
-        var neighbour = this.nodes[node.n_nodes[n1]];
-        if (neighbour.owner !== -1)
-            count += 1;
-    }
-    return (count === 0);
+  for (var n1=0; n1<node.n_nodes.length; n1++) {
+      var neighbour = this.nodes[node.n_nodes[n1]];
+      if (neighbour.owner !== -1)
+          count += 1;
+  }
+  return (count === 0);
 }
 
 Board.prototype.has_node_player_road_to = function(player, index) {
@@ -138,14 +138,14 @@ Board.prototype.has_node_player_road_to = function(player, index) {
 
 /// returns bool from road index
 Board.prototype.is_road_valid_build = function(player, index) {
-    var road = this.roads[index];
-    if (road.owner !== -1)
-        return false;
-    if ((this.nodes[road.connects[0]].owner !== player && this.nodes[road.connects[1]].owner !== -1) ||
-        (this.nodes[road.connects[1]].owner !== player && this.nodes[road.connects[0]].owner !== -1) ||
-        (this.nodes[road.connects[1]].owner !== -1 && this.nodes[road.connects[0]].owner !== -1))
-        return false;
-    return true;
+  var road = this.roads[index];
+  if (road.owner !== -1)
+      return false;
+  if ((this.nodes[road.connects[0]].owner !== player && this.nodes[road.connects[1]].owner !== -1) ||
+      (this.nodes[road.connects[1]].owner !== player && this.nodes[road.connects[0]].owner !== -1) ||
+      (this.nodes[road.connects[1]].owner !== -1 && this.nodes[road.connects[0]].owner !== -1))
+      return false;
+  return true;
 }
 
 // TODO: should build a binary tree at some point for this.
@@ -159,30 +159,32 @@ Board.prototype.is_road_valid_build = function(player, index) {
 *  A Points object for storing coordinates - forces integer
 */
 function Point(x,y) {
-    this.x = parseInt(x);
-    this.y = parseInt(y);
+  this.x = parseInt(x);
+  this.y = parseInt(y);
 };
 
 function RoadNode(connects) {
-    this.id = -1;
-    this.connects = connects; // nodes that are neighbours of this node
-    this.owner = -1;
+  this.id = -1;
+  this.connects = connects; // nodes that are neighbours of this node
+  this.owner = -1;
+  this.status = "";         //  Client state while player is interacting with board
 };
 
 function BuildNode(n_tiles) {
-    this.id = -1;
-    this.n_tiles = n_tiles; // tiles this node intersects
-    this.n_nodes = []; // nodes that are neighbours of this node
-    this.n_roads = [];
-    this.building = "";//
-    this.owner = -1;
+  this.id = -1;
+  this.n_tiles = n_tiles;   // tiles this node intersects
+  this.n_nodes = [];        // nodes that are neighbours of this node
+  this.n_roads = [];
+  this.building = "";       //
+  this.owner = -1;
+  this.status = "";         //  Client state while player is interacting with board
 };
 
 function TileNode(type, robber, token, asso) {
-    this.type = type;
-    this.robber = robber;
-    this.token = token;
-    this.associated_nodes = asso;
+  this.type = type;
+  this.robber = robber;
+  this.token = token;
+  this.associated_nodes = asso;
 };
 
 TileNode.prototype.get_node_by_corner_num = function(corner_number) {
