@@ -10,7 +10,18 @@ function Board(obj) {
     for (var prop in obj) this[prop] = obj[prop];
   };
 }
-
+/********************************************
+*  Basic setters for board elements
+*********************************************/
+/// modifies the owner of road or house array (used in setup) - modify for general use
+Board.prototype.set_item = function(item, index, player_id){
+   if(item === 'road'){
+    this.roads[index].owner = player_id;
+   }else if(item === 'house'){
+    this.nodes[index].building = item;
+    this.nodes[index].owner = player_id;
+   }
+}
 /********************************************
 *  Basic getters for board elements
 *********************************************/

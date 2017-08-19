@@ -112,6 +112,7 @@ $(document).ready(function() {
     }
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
+        console.log(game_data)
         //TODO: Add real data
         var data_package = new Data_package();
         data_package.data_type = "setup_phase";
@@ -222,11 +223,11 @@ $(document).ready(function() {
 });
 
 function check_legitimate_turn(data_package){
-    console.log("turn_actions.length =" + turn_actions.length);
+    console.log(turn_actions);
             //only two actions allowed (build road and build house)
             if(turn_actions.length === 2){
 
-                console.log(turn_actions[0].data_type + turn_actions[1].data_type);
+                console.log(turn_actions[0]);
                 //if one is a house and the other is a road
                 if((turn_actions[0].action_type == 'house' || turn_actions[1].action_type == 'house') && (turn_actions[0].action_type == 'road' || turn_actions[1].action_type == 'road')){
                     
