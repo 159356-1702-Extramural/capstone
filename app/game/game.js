@@ -1,5 +1,4 @@
 var logger          = require('winston');
-
 var board_builder   = require('./board_builder.js');
 
 function Game(state_machine) {
@@ -11,10 +10,7 @@ function Game(state_machine) {
 
     this.round_num      = 1;
 
-    this.player_colours = ['#F44336', // Red
-                           '#2196F3', // Blue
-                           '#4CAF50', // Green
-                           '#FFEB3B']; // Yellow
+    this.player_colours = ['purple', 'red', 'blue', 'green'];
 
     this.development_cards = [];
 }
@@ -27,12 +23,14 @@ Game.prototype.game_full = function() {
 /// Adds a player to the game
 Game.prototype.add_player = function(player) {
     console.log('adding player');
-    // Add player to the game
-    this.players.push(player);
     // Store the player id
-    player.id = this.players.indexOf(player);
+    player.id = this.players.length;
     // Assign a color to this player
     player.colour = this.player_colours[player.id];
+    //  Send the player details
+    player.socket.emit('player_id', { name : player.name, id : player.id, colour : player.colour });
+    // Add player to the game
+    this.players.push(player);
     console.log('Player number ' + (this.players.length) + ' has been added');
     return true;
 };

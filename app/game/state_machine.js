@@ -82,11 +82,15 @@ StateMachine.prototype.tick = function(data) {
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
     if (this.state === "setup") {
+        this.game.players[data.player_id].turn_complete = true;
+        this.game.players[data.player_id].turn_data = data;
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
         if(this.setupPointer > this.setupSequence / 2){
             //this.second_round_resources(data);
         }
+
+        this.broadcast_gamestate();
         //call start sequence again from here - startSequence will find the next player to have a turn
         this.game_start_sequence();
 
@@ -157,12 +161,15 @@ StateMachine.prototype.broadcast_gamestate = function() {
         return {
             id              : idx,
             name            : player.name,
-            turn_complete   : player.turn_complete
+            colour          : player.colour,
+            turn_complete   : player.turn_complete,
+            points          : 0
         };
     });
 
     var game_data = {
         players   : players,
+        board     : this.game.board,
         round_num : this.game.round_num
     };
 
@@ -181,7 +188,7 @@ StateMachine.prototype.broadcast = function(event_name, data) {
 * Start Sequence
 ***************************************************************/
 StateMachine.prototype.game_start_sequence = function(setup_data){
-    console.log('game_start_sequence Called');
+    console.log('game_start_sequence called');
     logger.log('debug', 'game_start_sequence function called.');
 
     //Create data package for setup phase
@@ -210,6 +217,7 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
                 }
 
                 this.game.players[i].socket.emit('game_turn', setup_data);
+                console.log(setup_data);
 
             }
         }
