@@ -233,6 +233,8 @@ function set_object_on_canvas(event, ui) {
 function create_player_action(object_type, node, boost_cards){
     var action = new Action();
     action.action_type = object_type;
+    console.log(object_type);
+    console.log(node);
     action.action_data = node;
     action.boost_cards = boost_cards;
     turn_actions.push(action);
