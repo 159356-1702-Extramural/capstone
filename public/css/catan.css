@@ -112,7 +112,7 @@ body {
     left:10px;
     height:100px;
     width:300px;
-    z-index:9600;
+    z-index:9998;
     display:none;
 }
 .other_players .player_red, .other_players .player_blue, .other_players .player_green, .other_players .player_purple {
@@ -163,12 +163,6 @@ body {
     z-index:100;
     border: thick inset black;
     background-color: silver;
-}
-.score0, .score1, .score2, .score3 {
-    z-index:8999;
-}
-.score.currentplayer {
-    z-index:9000 !important;
 }
 
 .score .row {
@@ -335,10 +329,10 @@ body {
 }
 
 .node {
-    display:block;
+    display:none;
     position:absolute;
     opacity:0.8;
-    z-index:9998;
+    z-index:9997;
 }
 .node.house, node.city {
     opacity: 1 !important;
@@ -356,8 +350,16 @@ body {
 }
 .node.buildspot {
     background-image:url(../images/house_ghost_small.png);
+    z-index: 9996 !important;
+}
+.node.expand {
+    background-image:url(../images/city_ghost_small.png) !important;
+    
 }
 
+.node.house.locked {
+    display:block !important;
+}
 .house, .house_locked {
     width:50px;
     height:42px;
@@ -393,15 +395,21 @@ body {
 }
 
 .road {
-    display:block;
     position:absolute;
     opacity:0.8;
     z-index:9997;
+}
+.road.roadspot {
+    display:none;
+}
+.road.locked {
+    display:block !important;
 }
 .score .road {
     float:left;
     position:relative;
     background-repeat:no-repeat;
+    display:block !important;
 }
 
 .score .road, .score .road_locked {
@@ -419,14 +427,17 @@ body {
     height:60px;
 }
 
-.road.ghost.angle30 {
+.road.roadspot.angle30 {
     background-image: url(../images/road_ghost_topdown.png);
+    z-index: 9996 !important;
 }
-.road.ghost.angle90 {
+.road.roadspot.angle90 {
     background-image: url(../images/road_ghost_vertical.png);
+    z-index: 9996 !important;
 }
-.road.ghost.angle330 {
+.road.roadspot.angle330 {
     background-image: url(../images/road_ghost_bottomup.png);
+    z-index: 9996 !important;
 }
 
 .road.purple.angle30 {
@@ -594,7 +605,7 @@ body {
     height:58px;
     opacity:0.7;
     background:silver;
-    z-index:9999;
+    z-index:9998;
     display:none;
 }
 .housebox_disable {
@@ -610,9 +621,10 @@ body {
     left:15px;
 }
 
-.buildings .house, .buildings .road {
+.house, .buildings .road {
     position:absolute;
     left:23%;
+    z-index:9997;
 }
 .buildings .city {
     position:absolute;
@@ -648,7 +660,7 @@ body {
     height:100%;
     background:rgba(0, 0, 0,0.6);
     display:block;
-    z-index:9999;
+    z-index:9998;
 }
 .turn_inner {
     position: absolute;

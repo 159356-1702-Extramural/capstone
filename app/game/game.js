@@ -236,8 +236,6 @@ Game.prototype.broadcast_gamestate = function() {
         round_num   : this.round_num
     };
 
-    var jsonData = JSON.stringify(game_data);
-
     this.broadcast('update_game', game_data);
 };
 

@@ -167,15 +167,17 @@ function RoadNode(connects) {
   this.id = -1;
   this.connects = connects; // nodes that are neighbours of this node
   this.owner = -1;
+  this.status = "";         //  Client state while player is interacting with board
 };
 
 function BuildNode(n_tiles) {
   this.id = -1;
-  this.n_tiles = n_tiles; // tiles this node intersects
-  this.n_nodes = []; // nodes that are neighbours of this node
+  this.n_tiles = n_tiles;   // tiles this node intersects
+  this.n_nodes = [];        // nodes that are neighbours of this node
   this.n_roads = [];
-  this.building = "";//
+  this.building = "";       //
   this.owner = -1;
+  this.status = "";         //  Client state while player is interacting with board
 };
 
 function TileNode(type, robber, token, asso) {
