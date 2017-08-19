@@ -230,4 +230,7 @@ function hex_corner(center, tile_height, i) {
   return Point(center.x + tile_height * cos(angle_rad), center.y + tile_height * sin(angle_rad));
 };
 */
-module.exports = { Board, Point, TileNode, RoadNode, BuildNode };
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { Board: Board, Point: Point, TileNode: TileNode, RoadNode: RoadNode, BuildNode: BuildNode };
+}
+

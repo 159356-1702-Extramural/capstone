@@ -44,4 +44,6 @@ Action.prototype.clear_data = function(){
 };
 
 // TODO: Move action object inside data_package, 'action function' only required when Data_package is created
-module.exports = Action;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Action;
+}
