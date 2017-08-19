@@ -51,21 +51,21 @@ StateMachine.prototype.create = function() {
 /// finish (game_end) state
 StateMachine.prototype.next_state = function() {
     // TODO: checks on game conditions to determine state
-    if (state === "setup") {
+    if (this.state === "setup") {
         // if (conditions to switch state)
         if(this.setupComplete)
             this.state = "trade";
 
-    } else if (state === "trade") {
+    } else if (this.state === "trade") {
         // if (conditions to switch state)
         // eg: if (this.trade_complete) this.state = "play"
 
-    } else if (state === "play") {
+    } else if (this.state === "play") {
         // if (conditions to switch state)
         // eg: if (this.game.is_won()) this.state = "end_game"
         //     else if (this.round_finished) this.state = "trade"
 
-    } else if (state === "end_game") {
+    } else if (this.state === "end_game") {
         // if (conditions to switch state)
     }
 }
@@ -82,6 +82,10 @@ StateMachine.prototype.tick = function(data) {
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
     if (this.state === "setup") {
+        //call start sequence again from here - startSequence will find the next player to have a turn
+        this.game_start_sequence();
+        this.broadcast_gamestate();
+
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
@@ -90,9 +94,6 @@ StateMachine.prototype.tick = function(data) {
             //this.second_round_resources(data);
         }
 
-        this.broadcast_gamestate();
-        //call start sequence again from here - startSequence will find the next player to have a turn
-        this.game_start_sequence();
 
         // For now: increment round number and reset the player turn
         // completion status
@@ -104,6 +105,7 @@ StateMachine.prototype.tick = function(data) {
             // In normal play, all players should return true, in setup phase only one will
             if(this.game.players[i].turn_complete){
                 //add player data to player object
+                this.next_state();
             }
         }
 
@@ -115,6 +117,7 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
+        this.next_state();
         return true;
     }
 
@@ -138,6 +141,7 @@ StateMachine.prototype.tick = function(data) {
                 //add player data to player object
             }
         }
+        this.next_state();
         return true;
     }
 
@@ -147,7 +151,6 @@ StateMachine.prototype.tick = function(data) {
     else if (this.state === "end_game") {
         return true;
     }
-    this.next_state();
     return false;
 }
 
