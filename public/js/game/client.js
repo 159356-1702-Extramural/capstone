@@ -1,7 +1,8 @@
 //  Our websocket
 var socket = io();
-var actions = [];
 
+//server data is the round data from the server 
+var server_data = [];
 var game_data = {};
 
 var building_dimension = 50;
@@ -56,6 +57,7 @@ $(document).ready(function() {
     });
 
     socket.on('game_turn', function (data) {
+        server_data = data;
         playerSetup(data);
     });
 
@@ -114,9 +116,16 @@ $(document).ready(function() {
         var data_package = new Data_package();
         data_package.data_type = "setup_phase";
         data_package.player_id = current_player.id;
-        data_package.actions = actions; 
-        update_server("game_update", data_package);
+        data_package.actions = turn_actions;
 
+        //check correct deployment in setup (one house, one road)
+        if(server_data.data_type === 'setup_phase'){
+
+            check_legitimate_turn(data_package);
+            
+        }else{
+            update_server("game_update", data_package);
+        }
     });
 
 
@@ -212,6 +221,30 @@ $(document).ready(function() {
     
 });
 
+function check_legitimate_turn(data_package){
+    console.log("turn_actions.length =" + turn_actions.length);
+            //only two actions allowed (build road and build house)
+            if(turn_actions.length === 2){
+
+                console.log(turn_actions[0].data_type + turn_actions[1].data_type);
+                //if one is a house and the other is a road
+                if((turn_actions[0].action_type == 'house' || turn_actions[1].action_type == 'house') && (turn_actions[0].action_type == 'road' || turn_actions[1].action_type == 'road')){
+                    
+                    //update_server("game_update", data_package);
+                    update_server("game_update", data_package);
+                    
+                    //reset server data to avoid unexpected quirks
+                    server_data = [];
+                }else{
+                    // TODO: wrong actions taken, clear actions and action object from turn_actions
+                    alert('Please place a road and a settlement');
+
+                }
+            }else{
+                //TODO dialogue - Wrong number of actions, clear actions and action object from turn_actions
+                alert('You must build exactly one settlement and one connecting road.');
+            }
+}
 var update_server = function(data_type, data){
     
     //data_type is a string, usually "game_update" , data is a data_package object

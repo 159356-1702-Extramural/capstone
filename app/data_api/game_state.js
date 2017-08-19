@@ -16,6 +16,8 @@ function Game_state(){
     //node data to render cities for all players on the board
     this.city_nodes    = [];
 
+    this.round_num      = 1;
+
 }
 
 module.exports = Game_state;

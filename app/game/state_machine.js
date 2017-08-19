@@ -5,7 +5,7 @@ var Game    = require('./game.js');
 var Data_package    = require('../data_api/data_package.js');
 var Game_state      = require('../data_api/game_state.js');
 var Player          = require('../data_api/player.js');
-var Action          = require('../data_api/action.js');
+var Action          = require('../../public/data_api/action.js');
 var Cards           = require('../data_api/cards.js');
 /*
 *  The core of the server side
@@ -84,7 +84,7 @@ StateMachine.prototype.tick = function(data) {
     if (this.state === "setup") {
         //call start sequence again from here - startSequence will find the next player to have a turn
         this.game_start_sequence();
-        this.broadcast_gamestate();
+        //this.broadcast_gamestate();
 
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -110,6 +110,7 @@ StateMachine.prototype.tick = function(data) {
         }
 
         this.game.round_num = this.round_num + 1;
+        
         return true;
     }
 
