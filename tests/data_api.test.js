@@ -7,7 +7,7 @@
 var test = require('ava');
 
 var Data_package = require('../app/data_api/data_package.js');
-var Action = require('../app/data_api/action.js');
+var Action = require('../public/data_api/action.js');
 var Cards = require('../app/data_api/cards.js');
 
 var cards; 

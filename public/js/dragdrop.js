@@ -1,4 +1,7 @@
-﻿function setupDragDrop() {
+﻿//set turn actions here so they are available in client.js
+var turn_actions = [];
+
+function setupDragDrop() {
     //  Allow the house to be put back
     $(".housebox").droppable({
         hoverClass: "hover",
@@ -216,9 +219,25 @@ function set_object_on_canvas(event, ui) {
         }
     }
 
+    // TODO if in the setup phase, no boost cards required
+    if(true){
+        create_player_action(object_type, node, null);
+    }else{
+        // get boost cards from the boost dialogue and add them to boost_cards array
+        // create_player_action(object_type, node, boost_cards);
+    }
+    
     update_object_counts();
 }
 
+function create_player_action(object_type, node, boost_cards){
+    var action = new Action();
+    action.action_type = object_type;
+    action.action_data = node;
+    action.boost_cards = boost_cards;
+    turn_actions.push(action);
+    console.log("action added to actions array");
+}
 //  If returning an object to the pile, reset position and class
 function return_object(type, event, ui) {
     var object_dragged_id = ui.draggable[0].id;
