@@ -82,9 +82,28 @@ StateMachine.prototype.tick = function(data) {
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
     if (this.state === "setup") {
+        //check data and add to player
+        //TODO change below if statement to check whether setup placement valid
+        if(true){
+            for(var i = 0; i < data.actions.length; i++){
+                var player_id   = data.player_id;
+                var item        = data.actions[i].action_type; //house or road
+                var index;
+                if ( item === 'road' ){
+                    index       = data.actions[i].action_data.id;
+                }else if (item === 'house' ){
+                    index       = data.actions[i].action_data.id;
+                }
+                console.log(data);
+                this.game.board.set_item(item, index, player_id);
+            }
+        }else{
+            //TODO send error message to retake turn
+        }
+        
         //call start sequence again from here - startSequence will find the next player to have a turn
         this.game_start_sequence();
-        //this.broadcast_gamestate();
+        this.broadcast_gamestate();
 
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -216,13 +235,9 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
                 if(this.setupPointer < this.setupSequence.length / 2){
                     setup_data.player = 1;
                 } else {
-                    console.log("Set to 2");
                     setup_data.player = 2;
                 }
-
                 this.game.players[i].socket.emit('game_turn', setup_data);
-                console.log(setup_data);
-
             }
         }
     } else {
