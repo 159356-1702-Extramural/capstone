@@ -1,8 +1,12 @@
 // TODO: Move elements of game.js in to state_machine
 
-var logger = require('winston');
+var logger  = require('winston');
 var Game    = require('./game.js');
-var Player  = require('../data_api/player.js');
+var Data_package    = require('../data_api/data_package.js');
+var Game_state      = require('../data_api/game_state.js');
+var Player          = require('../data_api/player.js');
+var Action          = require('../data_api/action.js');
+var Cards           = require('../data_api/cards.js');
 /*
 *  The core of the server side
 *
@@ -31,6 +35,9 @@ function StateMachine(id) {
     this.id = id;
     this.game = new Game(this);
     this.state = "setup"; // starting state, states are ref by string for readability
+    this.setupComplete = false;
+    this.setupSequence = [0,1,1,0];
+    this.setupPointer = 0;
 }
 
 /// Only called to create a new game
@@ -46,36 +53,105 @@ StateMachine.prototype.next_state = function() {
     // TODO: checks on game conditions to determine state
     if (state === "setup") {
         // if (conditions to switch state)
+        if(this.setupComplete)
+            this.state = "trade";
+
     } else if (state === "trade") {
         // if (conditions to switch state)
-    } else if (state === "round") {
+        // eg: if (this.trade_complete) this.state = "play"
+
+    } else if (state === "play") {
         // if (conditions to switch state)
-    } else if (state === "end") {
+        // eg: if (this.game.is_won()) this.state = "end_game"
+        //     else if (this.round_finished) this.state = "trade"
+
+    } else if (state === "end_game") {
         // if (conditions to switch state)
     }
 }
 
-/// This the main function that all server requests should
-/// eventually come through
-///
-/// This is where the actual state logic lives
-StateMachine.prototype.do_gameplay = function(data) {
-    if (state === "setup") {
+/***************************************************************
+* This is where the actual state logic lives
+*
+* NOTE: For each incoming player request, this ticks over
+*       which means that tracking how many player requests have
+*       come in is of use per state
+****************************************************************/
+StateMachine.prototype.tick = function(data) {
+    /************************************************************
+    * If in Setup state - game setup logic operates on this.game
+    ************************************************************/
+    if (this.state === "setup") {
+        //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
+        //distribute resources from the second round settlement placement
+        if(this.setupPointer > this.setupSequence / 2){
+            //this.second_round_resources(data);
+        }
+        //call start sequence again from here - startSequence will find the next player to have a turn
+        this.game_start_sequence();
 
-    } else if (state === "trade") {
+        // For now: increment round number and reset the player turn
+        // completion status
+        this.game.players.forEach(function(player) {
+            player.turn_complete = false;
+        });
 
-    } else if (state === "round") {
+        for(var i = 0;  i < this.game.players.length; i++){
+            // In normal play, all players should return true, in setup phase only one will
+            if(this.game.players[i].turn_complete){
+                //add player data to player object
+            }
+        }
 
-    } else if (state === "end") {
-
+        this.game.round_num = this.round_num + 1;
+        return true;
     }
+
+    /************************************************************
+    * If in Trade state - trade logic operates on this.game
+    ************************************************************/
+    else if (this.state === "trade") {
+        return true;
+    }
+
+    /************************************************************
+    * If in Play state - gameplay logic opperates on this.game
+    ************************************************************/
+    else if (this.state === "play") {
+        // Handle standard gameplay rounds
+        this.game.players[data.player_id].turn_complete = true;
+        this.game.players[data.player_id].turn_data = data;
+
+        // Determine if the round is complete, ie. all players have
+        // indicated their round is complete
+        var round_complete = this.game.players.every(function(player) {
+            return player.turn_complete === true;
+        });
+
+        for(var i = 0;  i < this.game.players.length; i++){
+            // In normal play, all players should return true, in setup phase only one will
+            if(this.players[i].turn_complete){
+                //add player data to player object
+            }
+        }
+        return true;
+    }
+
+    /************************************************************
+    * If in end_game state - gameplay logic opperates on this.game
+    ************************************************************/
+    else if (this.state === "end_game") {
+        return true;
+    }
+    this.next_state();
+    return false;
 }
 
-/**
- * Gathers up the state of the game and sends the current gamestate
- * to all the players contains all data to render the current state
- * of the game in the browser
- */
+/*****************************************************************
+ Gathers up the state of the game and sends the current gamestate
+ to all the players contains all data to render the current state
+ of the game in the browser
+******************************************************************/
 StateMachine.prototype.broadcast_gamestate = function() {
     var players = this.game.players.map(function(player, idx) {
         return {
@@ -90,111 +166,61 @@ StateMachine.prototype.broadcast_gamestate = function() {
         round_num : this.game.round_num
     };
 
-    broadcast(this, 'update_game', game_data);
+    this.broadcast('update_game', game_data);
 };
-
-/********************************************************/
-/* Games is technically Lobby - TODO: maybe rename back */
-/********************************************************/
-
-function Games() {
-    this.games = [] // array of StateMachine objects, each corrosponds to one started game
-}
-
-/**
- * Finds a game adds a user to it, create new game instances
- * as needed
- *
- * This is where the bulk of player setup will be, eg: sockets + game
- *
- * @param {obj} socket
- * @param {obj} data
- */
-Games.prototype.assign_player = function(socket, data) {
-    var self = this; // assign this object to a var so we can use it...
-    var player = new Player(socket, data);
-
-    // Create a new game instance if we dont have available to put this player into
-    if (this.games.length === 0 || this.games[this.games.length - 1].game.game_full()) {
-        console.log('Creating an new game');
-        this.games.push(new StateMachine());
-    }
-    var state_machine = this.games[this.games.length-1];
-
-    player.socket.emit('player_id', { id : player.id });
-    // Notify the other players that a new player has joined
-    broadcast(state_machine, 'player_joined', {
-        player_count    : state_machine.game.players.length,
-        max_players     : state_machine.game.max_players
-    });
-    /**************************************************/
-    /*    Create listeners on sockets for messages    */
-    /**************************************************/
-    /// Game update will parse the data and find the players action.
-    /// From there the state_machine will parse the unpacked data
-    // TODO: an alternative to "action" in the API, is to have the
-    //       action be the message here
-    player.socket.on('game_update', function(data) {
-        // state_machine function to be called
-        state_machine.do_gameplay(data);
-    });
-
-    player.socket.on('disconnect', function() {
-        broadcast(state_machine, 'player_quit', {
-            message : player.name + ' has disconnected. Game Over.'
-        });
-
-        self.remove_game(state_machine);
-    });
-    /**************************************************/
-    /*           Listener creation ends               */
-    /**************************************************/
-
-    console.log('Number of games = ' + this.games.length);
-    this.games[this.games.length - 1].game.add_player(player);
-
-    // Start the game if we have all the players
-    if (state_machine.game.game_full()) {
-        broadcast(state_machine, 'game_start', {});
-        //  Create the board and send it to the clients
-        broadcast(state_machine, 'build_board', state_machine.game.buildBoard());
-        //this.broadcast_gamestate();
-        state_machine.game.startSequence();
-    }
-};
-
-
-/// Removes a game instance from the active games
-Games.prototype.remove_game = function(state_machine) {
-    var idx = this.games.indexOf(state_machine);
-    this.games.splice(idx, 1);
-};
-
-/// Resets all the games - use for debugging
-Games.prototype.reset_game = function() {
-    this.games = [];
-    console.log('Games have been reset.');
-};
-
-/********************************************************/
-/* General purpose functions for Games and StateMachine */
-/********************************************************/
 
 /// Messages all players in a game
-function broadcast(state_machine, event_name, data) {
+StateMachine.prototype.broadcast = function(event_name, data) {
     console.log('Broadcasting event: ' + event_name);
-    state_machine.game.players.forEach(function(player) {
+    this.game.players.forEach(function(player) {
         player.socket.emit(event_name, data);
     });
 };
 
-/*
- * Rolling two dices, and return the sum of the two dices number.
- */
-function rollingDice() {
-    var dice1=Math.ceil(Math.random() * 6 );
-    var dice2=Math.ceil(Math.random() * 6 );
-    return dice1+dice2;
+/***************************************************************
+* Start Sequence
+***************************************************************/
+StateMachine.prototype.game_start_sequence = function(setup_data){
+    console.log('game_start_sequence Called');
+    logger.log('debug', 'game_start_sequence function called.');
+
+    //Create data package for setup phase
+    var setup_data = new Data_package();
+    setup_data.data_type = 'setup_phase';
+
+    if(this.setupPointer < this.setupSequence.length){
+
+        // send all players except one a wait command
+        for (var i = 0; i < this.game.players.length; i++){
+
+            if(i !== this.setupSequence[this.setupPointer]){
+
+                //not this player's turn to place a settlement and road
+                setup_data.player = 0;
+                logger.log('debug', 'Send data for player to wait');
+                this.game.players[i].socket.emit('game_turn', setup_data);
+            } else {
+
+                //this player's turn to place a settlement and road (1=first place, 2 = 2nd placement)
+                if(this.setupPointer < this.setupSequence.length / 2){
+                    setup_data.player = 1;
+                } else {
+                    console.log("Set to 2");
+                    setup_data.player = 2;
+                }
+
+                this.game.players[i].socket.emit('game_turn', setup_data);
+
+            }
+        }
+    } else {
+        this.setupComplete = true;
+        console.log("Setup complete");
+        logger.log('debug', 'Setup phase completed');
+        setup_data.data_type = 'setup_complete';
+        this.broadcast('game_turn', setup_data);
+    }
+    this.setupPointer++;
 }
 
-module.exports = { Games, rollingDice };
+module.exports = { StateMachine };

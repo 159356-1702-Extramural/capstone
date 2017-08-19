@@ -22,8 +22,8 @@ var io        = require('socket.io')(server);
 var PORT      = process.env.PORT || 3000;
 
 // Load game lobby
-var Games     = require('./game/state_machine.js');
-var games     = new Games.Games();
+var gm     = require('./game/games.js');
+var games     = new gm.Games();
 
 // Define static files directory
 app.use(express.static('public'));
