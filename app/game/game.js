@@ -95,7 +95,7 @@ Game.prototype.add_player = function(player) {
         this.turn_update();
     });
 
-    
+
     console.log('Player number ' + (this.players.length) + ' has been added');
     return true;
 };
@@ -111,19 +111,19 @@ Game.prototype.turn_update = function(data) {
     this.players[data.player_id].turn_complete = true;
     this.players[data.player_id].turn_data = data;
 
-    // Determine if the round is complete, ie. all players have 
+    // Determine if the round is complete, ie. all players have
     // indicated their round is complete
     var round_complete = this.players.every(function(player) {
         return player.turn_complete === true;
     });
-    
+
     // setupComplete flag false so that one player can place a settlement per turn in setup phase
     if (round_complete || !this.setupComplete) {
-        this.process_round();        
+        this.process_round();
     }
 
     this.broadcast_gamestate();
-    
+
     if(!this.setupComplete){
         logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
 
@@ -131,7 +131,7 @@ Game.prototype.turn_update = function(data) {
         if(this.setupPointer > this.setupSequence / 2){
             this.second_round_resources(data);
         }
-        
+
 
         //call start sequence again from here - startSequence will find the next player to have a turn
         this.startSequence();
@@ -155,9 +155,9 @@ Game.prototype.startSequence = function(setup_data){
         for (var i = 0; i < this.players.length; i++){
 
             if(i !== this.setupSequence[this.setupPointer]){
-                
+
                 //not this player's turn to place a settlement and road
-                setup_data.player = 0; 
+                setup_data.player = 0;
                 logger.log('debug', 'Send data for player to wait');
                 this.players[i].socket.emit('game_turn', setup_data);
             }else{
@@ -169,9 +169,9 @@ Game.prototype.startSequence = function(setup_data){
                     console.log("Set to 2");
                     setup_data.player = 2;
                 }
-                
+
                 this.players[i].socket.emit('game_turn', setup_data);
-                
+
             }
         }
     } else {
@@ -183,7 +183,7 @@ Game.prototype.startSequence = function(setup_data){
     }
     this.setupPointer++;
 }
- 
+
 Game.prototype.second_round_resources = function (data) {
 
     //distribute cards from second round settlement placement
@@ -203,7 +203,7 @@ Game.prototype.process_round = function()
             //add player data to player object
         }
     }
-    
+
     this.players.forEach(function(player) {
         player.turn_complete = false;
     });
