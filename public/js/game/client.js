@@ -95,6 +95,7 @@ $(document).ready(function() {
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             alert("setup complete");
+            setup_phase = false;
             hidePopup();
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
