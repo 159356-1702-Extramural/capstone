@@ -41,6 +41,30 @@ Game.prototype.add_player = function(player) {
 Game.prototype.buildBoard = function () {
     jsonData = JSON.stringify(this.board);
     return jsonData;
-}
+};
+
+/**
+ *  Alocate starting resources based on the second settlement placement
+ *  @param player : player object
+ *  @param data   : Data package item
+ */
+Game.prototype.secondRoundResources = function(player, data) {
+  var tiles;
+  var i;
+  var res_type;
+  
+  // find the settlement action
+  for (i = 0; i < data.actions.length; i++) {
+    if (data.actions[i].action_type === 'build_settlement') {
+      tiles = data.actions[i].action_data;
+    }
+  }
+
+  // Loop over each point and give the player one resource of each type
+  for (i = 0; i < tiles.length; i++) {
+    res_type = this.board.get_tile_resource_type(tiles[i]);
+    player.cards.add_card(res_type);
+  }
+};
 
 module.exports = Game;

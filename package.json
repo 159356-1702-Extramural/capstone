@@ -13,7 +13,7 @@
     "start": "node app/app.js",
     "inspect": "node --inspect app/app.js",
     "test": "nyc ava",
-    "test:watch": "nyc ava --watch",
+    "test:watch": "nyc ava --watch --verbose",
     "report":"nyc report --reporter=html"
   },
   "author": "Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu, Luke Jones",

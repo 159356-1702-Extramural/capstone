@@ -1,5 +1,7 @@
 var logger = require('winston');
 
+var Cards = require('../data_api/cards.js');
+
 /**
  * Instance of a player
  * 
@@ -17,9 +19,10 @@ function Player(socket, data) {
     // Players colour
     this.colour         = null;
 
-    this.score         = [];
-    this.actions    = null;
-    this.cards      = null;
+    this.score          = [];
+    this.actions        = null;
+    this.cards          = new Cards();
+
 }
 
 module.exports = Player;

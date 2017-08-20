@@ -54,13 +54,13 @@ test("RoadNode creation", function(t) {
 
 test("Get a road from the board", function(t) {
     var road = _board.get_road(0);
-    console.log(road);
+    // console.log(road);
     t.truthy(road);
 });
 
 test("Get a node from the board", function(t) {
     var node = _board.get_node(0);
-    console.log(node);
+    // console.log(node);
     t.truthy(node);
 });
 
@@ -90,7 +90,7 @@ test("Get a roads from node", function(t) {
 
 test("Get all tiles with lumber (and count)", function(t) {
     var tiles = _board.get_tiles_with_resource("lumber");
-    console.log(tiles);
+    // console.log(tiles);
     t.is(tiles.length, 4);
 });
 
