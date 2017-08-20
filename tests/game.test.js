@@ -19,23 +19,23 @@ test("End of start sequence resources can be allocated", function(t) {
   var mock_data;
   var game = new Game();
   game.players[0] = new Player({}, { name: 'Tim'});
+  game.players[0].id = 1;
 
   // Fake settlement placement
   mock_data = {
     actions: [
       {
         type: 'build_settlement',
-        data: [new Point(1,1), new Point(2,1), new Point(1,2)]
+        action_data: [new Point(2,2), new Point(3,2), new Point(2,3)]
       }
     ]
   };
 
   game.secondRoundResources(game.players[0], mock_data);
+  
+  var numCards = game.players[0].cards.count_cards();
 
-  console.log(JSON.stringify(game.players, null, 4));
-
-
-  t.truthy(true);
+  t.truthy(numCards > 0);
 
 });
 

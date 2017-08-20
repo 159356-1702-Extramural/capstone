@@ -1,3 +1,6 @@
+// TODO: replate is with import as we have names exports on board js
+// ie. import { Board, Point, TileNode, RoadNode, BuildNode } from '../../public/data_api/board.js';
+// then we can avoud the statements like Board.Board()
 var Board    = require('../../public/data_api/board.js');
 // TODO: [EASY] Harbours
 

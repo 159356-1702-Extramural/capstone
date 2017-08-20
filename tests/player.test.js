@@ -29,7 +29,7 @@ test("Cards can be added to the player", function (t) {
   player.cards.add_card('brick');
   player.cards.add_card('wheat');
   player.cards.add_card('sheep');
-  player.cards.add_card('wood');
+  player.cards.add_card('lumber');
   player.cards.add_card('ore');
   t.is(player.cards.count_cards(), 5);
 });
@@ -38,13 +38,13 @@ test("Cards can be removed from the player", function (t) {
   player.cards.add_card('brick');
   player.cards.add_card('wheat');
   player.cards.add_card('sheep');
-  player.cards.add_card('wood');
+  player.cards.add_card('lumber');
   player.cards.add_card('ore');
   t.is(player.cards.count_cards(), 5);
   player.cards.remove_card('brick');
   player.cards.remove_card('wheat');
   player.cards.remove_card('sheep');
-  player.cards.remove_card('wood');
+  player.cards.remove_card('lumber');
   player.cards.remove_card('ore');
   t.is(player.cards.count_cards(), 0);
 });

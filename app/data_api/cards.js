@@ -6,7 +6,7 @@ function Cards(){
         brick : 0,
         wheat : 0,
         sheep : 0,
-        wood  : 0,
+        lumber: 0,
         ore   : 0
     };
     
@@ -28,7 +28,7 @@ function Cards(){
 
 //Return number of cards in Cards Object
 Cards.prototype.count_cards = function(){
-    return this.resource_cards.brick + this.resource_cards.wheat + this.resource_cards.sheep + this.resource_cards.wood + this.resource_cards.ore;
+    return this.resource_cards.brick + this.resource_cards.wheat + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
 }
 
 //Add card to cards
@@ -43,8 +43,8 @@ Cards.prototype.add_card = function(card){
         case "sheep":
             this.resource_cards.sheep++;
             break;
-        case "wood":
-            this.resource_cards.wood++;
+        case "lumber":
+            this.resource_cards.lumber++;
             break;
         case "ore":
             this.resource_cards.ore++;
@@ -63,8 +63,8 @@ Cards.prototype.remove_card = function(card){
     }else if(card == "brick" && this.resource_cards.brick > 0){
         this.resource_cards.brick--;
         return true;
-    }else if(card == "wood" && this.resource_cards.wood > 0){
-        this.resource_cards.wood--;
+    }else if(card == "lumber" && this.resource_cards.lumber > 0){
+        this.resource_cards.lumber--;
         return true;
     }else if(card == "ore" && this.resource_cards.ore > 0){
         this.resource_cards.ore--;
@@ -77,10 +77,10 @@ Cards.prototype.remove_card = function(card){
 Cards.prototype.remove_cards = function(purchase){
     //returns true if cards loaded successfully
     if ( purchase == 'road' ) {
-        return this.remove_card('brick') && this.remove_card('wood');
+        return this.remove_card('brick') && this.remove_card('lumber');
     }else if ( purchase == 'settlement' ) {
         return this.remove_card('brick') &&
-            this.remove_card('wood') &&
+            this.remove_card('lumber') &&
             this.remove_card('wheat') &&
             this.remove_card('sheep');
     }else if ( purchase == 'city' ) {

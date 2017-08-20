@@ -51,18 +51,19 @@ Game.prototype.buildBoard = function () {
 Game.prototype.secondRoundResources = function(player, data) {
   var tiles;
   var i;
+  var res_type;
   
   // find the settlement action
   for (i = 0; i < data.actions.length; i++) {
     if (data.actions[i].type === 'build_settlement') {
-      tiles = data.actions[i].data;
+      tiles = data.actions[i].action_data;
     }
   }
 
-  // Assuming each part of data is a point.
   // Loop over each point and give the player one resource of each type
-  for (i = 0; tiles.length; i++) {
-    player.cards.add_card(this.board.get_tile_resource_type(tiles[i]));
+  for (i = 0; i < tiles.length; i++) {
+    res_type = this.board.get_tile_resource_type(tiles[i]);
+    player.cards.add_card(res_type);
   }
 };
 
