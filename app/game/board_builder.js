@@ -80,6 +80,9 @@ generate = function(_board) {
   for (var j=0; j<board.nodes.length; j++) {
     fill_node_details(board, board.nodes[j], j);
   }
+
+  // console.log(board);
+
   return board;
 };
 

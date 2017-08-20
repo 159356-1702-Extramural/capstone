@@ -10,7 +10,7 @@ var sm = require("./state_machine.js");
 ********************************************************/
 
 function Games() {
-    this.games = [] // array of StateMachine objects, each corrosponds to one started game
+    this.games = []; // array of StateMachine objects, each corrosponds to one started game
 }
 
 /**
