@@ -58,16 +58,7 @@ $(document).ready(function() {
 
     socket.on('game_turn', function (data) {
         server_data = data;
-        // redirect all incoming communication
-        if ( data.data_type === 'invalid_move'){
-            invalidMove(data);
-        }
-
-        // wipe current turn data
-        if ( data.data_type === 'successfull_turn'){
-            setupTurnFinished();
-        }
-        playerSetup(data);
+        resolve_game_turn(data);
     });
 
     // Detect the game starting
@@ -101,7 +92,7 @@ $(document).ready(function() {
 
     //  During the setup phase, each player waits until their 
     //  turn, while the active player places a settlement and road
-    var playerSetup = function (data){
+    var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             alert("setup complete");
             hidePopup();
@@ -117,6 +108,13 @@ $(document).ready(function() {
             } else {
                 buildPopup("waiting_for_turn", false);
             }
+        }else if ( data.data_type === 'invalid_move'){
+            invalidMove(data);
+        }
+
+        // wipe current turn data
+        if ( data.data_type === 'successfull_turn'){
+            setupTurnFinished();
         }
     }
     $doc.on('click', '.finishturnbutton', function(e) {
