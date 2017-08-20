@@ -55,7 +55,7 @@ Game.prototype.secondRoundResources = function(player, data) {
   
   // find the settlement action
   for (i = 0; i < data.actions.length; i++) {
-    if (data.actions[i].type === 'build_settlement') {
+    if (data.actions[i].action_type === 'build_settlement') {
       tiles = data.actions[i].action_data;
     }
   }

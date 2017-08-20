@@ -25,7 +25,7 @@ test("End of start sequence resources can be allocated", function(t) {
   mock_data = {
     actions: [
       {
-        type: 'build_settlement',
+        action_type: 'build_settlement',
         action_data: [new Point(2,2), new Point(3,2), new Point(2,3)]
       }
     ]
