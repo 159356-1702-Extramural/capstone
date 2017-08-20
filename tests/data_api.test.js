@@ -25,7 +25,7 @@ test.beforeEach(t => {
     cards = new Cards();
     boost_cards = new Cards();
 
-    cards.add_card("wood");
+    cards.add_card("lumber");
     cards.add_card("ore");
     cards.remove_card("brick");
 
@@ -170,7 +170,7 @@ test("Cards removed properly" , function (t) {
     cards.remove_card("sheep");
     cards.remove_card("brick");
     cards.remove_card("wheat");
-    cards.remove_card("wood");
+    cards.remove_card("lumber");
     cards.remove_card("ore");
 
     var result = true;
@@ -185,14 +185,14 @@ test("Cards removed properly" , function (t) {
 
 test("Check cards can't be a negative value" , function (t) {
     //take all cards to zero
-    cards.remove_card("wood");
+    cards.remove_card("lumber");
     cards.remove_card("ore");
 
     //now try to go to negative numbers
     cards.remove_card("sheep");
     cards.remove_card("brick");
     cards.remove_card("wheat");
-    cards.remove_card("wood");
+    cards.remove_card("lumber");
     cards.remove_card("ore");
 
     var result = true;

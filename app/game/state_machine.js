@@ -91,7 +91,7 @@ StateMachine.prototype.tick = function(data) {
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
         if(this.setupPointer > this.setupSequence / 2){
-            //this.second_round_resources(data);
+            this.game.secondRoundResources(this.game.players[data.player_id], data);
         }
 
 
