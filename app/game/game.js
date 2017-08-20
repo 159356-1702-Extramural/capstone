@@ -41,6 +41,13 @@ Game.prototype.add_player = function(player) {
 Game.prototype.buildBoard = function () {
     jsonData = JSON.stringify(this.board);
     return jsonData;
-}
+};
+
+/**
+ * 
+ */
+Game.prototype.secondRoundResources = function(player, data) {
+
+};
 
 module.exports = Game;
