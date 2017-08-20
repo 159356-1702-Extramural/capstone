@@ -242,7 +242,11 @@ function create_player_action(object_type, node, boost_cards){
 function return_object(type, event, ui) {
     var object_dragged_id = ui.draggable[0].id;
     var object_dragged = $("#" + object_dragged_id);
-    
+    console.log(ui.draggable[0].id);
+    console.log(event);
+    console.log(ui);
+    console.log('-----------------------------');
+    console.log(turn_actions);
     //  First check to see if this is coming from something already on the canvas
     if (object_dragged_id.indexOf("_pending_") > -1) {
         //  From the canvas, get the node and object being dragged
