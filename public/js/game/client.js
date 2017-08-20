@@ -58,6 +58,15 @@ $(document).ready(function() {
 
     socket.on('game_turn', function (data) {
         server_data = data;
+        // redirect all incoming communication
+        if ( data.data_type === 'invalid_move'){
+            invalidMove(data);
+        }
+
+        // wipe current turn data
+        if ( data.data_type === 'successfull_turn'){
+            setupTurnFinished();
+        }
         playerSetup(data);
     });
 
@@ -122,7 +131,7 @@ $(document).ready(function() {
         //check correct deployment in setup (one house, one road)
         if(server_data.data_type === 'setup_phase'){
 
-            check_legitimate_turn(data_package);
+            checkLegitimateTurn(data_package);
             
         }else{
             update_server("game_update", data_package);
@@ -221,8 +230,38 @@ $(document).ready(function() {
     
     
 });
+function setupTurnFinished(){
+    // wipe all current turn info (action arrays)
+}
 
-function check_legitimate_turn(data_package){
+function invalidMove (data){
+
+    failed_actions.forEach( function (action) {
+        
+        //  populate new array with the successful actions (and copy them into turn_actions)
+        var successful_actions = [];
+
+        if(action.action_result){
+            successful_actions.push(action);
+        }else{
+            alert("need to remove failed item artifact");
+            //inform of failed actions
+            //remove relevant artifact from board
+            if(action.action_type === 'road'){
+                //TODO: action failed dialog with 'road'
+            }else if(action.action_type === 'house'){
+                //TODO: action failed dialog with 'road'
+            }else if(action.action_type === 'city'){
+                //TODO: action failed dialog with 'road'
+            }else{
+            
+            }
+        }
+        turn_actions = successful_actions;        
+    });
+}
+
+function checkLegitimateTurn(data_package){
     console.log(turn_actions);
             //only two actions allowed (build road and build house)
             if(turn_actions.length === 2){
@@ -231,7 +270,6 @@ function check_legitimate_turn(data_package){
                 //if one is a house and the other is a road
                 if((turn_actions[0].action_type == 'house' || turn_actions[1].action_type == 'house') && (turn_actions[0].action_type == 'road' || turn_actions[1].action_type == 'road')){
                     
-                    //update_server("game_update", data_package);
                     update_server("game_update", data_package);
                     turn_actions = [];
                     
@@ -474,6 +512,7 @@ function can_build(node, node_to_ignore) {
 function buildRoads() {
     for (var i=0; i<game_data.board.roads.length; i++) {
         var road = game_data.board.roads[i];
+
         var road_on_canvas = $("#road_" + i);
         var road_class = getRoadCSS(road);
 

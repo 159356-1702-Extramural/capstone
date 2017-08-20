@@ -17,6 +17,7 @@ function Board(obj) {
 Board.prototype.set_item = function(item, index, player_id){
    if(item === 'road'){
     this.roads[index].owner = player_id;
+    this.roads[index].status = '';
    }else if(item === 'house'){
     this.nodes[index].building = item;
     this.nodes[index].owner = player_id;

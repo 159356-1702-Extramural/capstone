@@ -233,8 +233,6 @@ function set_object_on_canvas(event, ui) {
 function create_player_action(object_type, node, boost_cards){
     var action = new Action();
     action.action_type = object_type;
-    console.log(object_type);
-    console.log(node);
     action.action_data = node;
     action.boost_cards = boost_cards;
     turn_actions.push(action);
@@ -259,6 +257,14 @@ function return_object(type, event, ui) {
             nodes = game_data.board.roads;
         }
 
+        //  Find corresponding Action in actions array to modify or remove
+        for ( var i = 0; i < turn_actions.length; i++ ) {
+
+            // TODO Need node id to remove or modify turn_action
+            // if ( turn_actions[i].action_data.id === ??? ){
+
+            // }
+        } 
         //  Clear the node it was dropped on
         var last_node_id = parseInt(object_dragged_id.replace(object_type + "_" + current_player.colour + "_pending_", ""));
         var last_node = nodes[last_node_id];
