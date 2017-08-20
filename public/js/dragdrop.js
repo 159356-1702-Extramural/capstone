@@ -1,5 +1,6 @@
 ﻿//set turn actions here so they are available in client.js
-var turn_actions = [];
+var turn_actions    = [];
+var setup_phase     = true;
 
 function setupDragDrop() {
     //  Allow the house to be put back
@@ -219,11 +220,11 @@ function set_object_on_canvas(event, ui) {
         }
     }
 
-    // TODO if in the setup phase, no boost cards required
-    if(true){
+    // if in the setup phase, no boost cards required
+    if(setup_phase){
         create_player_action(object_type, node, null);
     }else{
-        // get boost cards from the boost dialogue and add them to boost_cards array
+        // TODO get boost cards from the boost dialogue and add them to boost_cards array
         // create_player_action(object_type, node, boost_cards);
     }
     
@@ -242,11 +243,7 @@ function create_player_action(object_type, node, boost_cards){
 function return_object(type, event, ui) {
     var object_dragged_id = ui.draggable[0].id;
     var object_dragged = $("#" + object_dragged_id);
-    console.log(ui.draggable[0].id);
-    console.log(event);
-    console.log(ui);
-    console.log('-----------------------------');
-    console.log(turn_actions);
+
     //  First check to see if this is coming from something already on the canvas
     if (object_dragged_id.indexOf("_pending_") > -1) {
         //  From the canvas, get the node and object being dragged
@@ -261,14 +258,14 @@ function return_object(type, event, ui) {
             nodes = game_data.board.roads;
         }
 
+
+        // TODO Need node id to remove or modify turn_action currently splitting div name
+        var split_div_name = ui.draggable[0].id.split('_');
+        var node_id = parseInt(split_div_name[split_div_name.length - 1]);
+
         //  Find corresponding Action in actions array to modify or remove
-        for ( var i = 0; i < turn_actions.length; i++ ) {
+        remove_action_from_list(object_type, node_id);
 
-            // TODO Need node id to remove or modify turn_action
-            // if ( turn_actions[i].action_data.id === ??? ){
-
-            // }
-        } 
         //  Clear the node it was dropped on
         var last_node_id = parseInt(object_dragged_id.replace(object_type + "_" + current_player.colour + "_pending_", ""));
         var last_node = nodes[last_node_id];
@@ -342,4 +339,14 @@ function find_next_object_id(class_name) {
         if (next.length == 0) { break; }
     }
     return next_id;
+}
+
+function remove_action_from_list(object_type, node_id){
+    for ( var i = 0; i < turn_actions.length; i++ ) {            
+        if ( ( turn_actions[i].action_data.id === node_id ) && ( object_type === turn_actions[i].action_type ) ) {
+            //  remove the action from the list
+            turn_actions.splice(i,1);
+            break;
+        }
+    }
 }
