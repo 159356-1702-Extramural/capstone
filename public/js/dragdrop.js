@@ -237,8 +237,8 @@ function create_player_action(object_type, node, boost_cards){
     action.action_data = node;
     action.boost_cards = boost_cards;
     turn_actions.push(action);
-    console.log("action added to actions array");
 }
+
 //  If returning an object to the pile, reset position and class
 function return_object(type, event, ui) {
     var object_dragged_id = ui.draggable[0].id;
