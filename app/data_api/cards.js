@@ -77,8 +77,13 @@ Cards.prototype.remove_card = function(card){
 Cards.prototype.remove_cards = function(purchase){
     //returns true if cards loaded successfully
     if ( purchase == 'road' ) {
+<<<<<<< HEAD
         return this.remove_card('brick') && this.remove_card('lumber');
     }else if ( purchase == 'settlement' ) {
+=======
+        return this.remove_card('brick') && this.remove_card('wood');
+    }else if ( purchase === 'settlement' ) {
+>>>>>>> d6eae7983a1a8aca5373f18212f1328b7eb98f79
         return this.remove_card('brick') &&
             this.remove_card('lumber') &&
             this.remove_card('wheat') &&
