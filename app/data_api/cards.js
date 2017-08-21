@@ -78,18 +78,18 @@ Cards.prototype.remove_cards = function(purchase){
     //returns true if cards loaded successfully
     if ( purchase == 'road' ) {
         return this.remove_card('brick') && this.remove_card('wood');
-    }else if ( purchase == 'settlement' ) {
+    }else if ( purchase === 'settlement' ) {
         return this.remove_card('brick') &&
             this.remove_card('wood') &&
             this.remove_card('wheat') &&
             this.remove_card('sheep');
-    }else if ( purchase == 'city' ) {
+    }else if ( purchase === 'city' ) {
         return this.remove_card('ore') &&
             this.remove_card('ore') &&
             this.remove_card('ore') &&
             this.remove_card('wheat') &&
             this.remove_card('wheat');
-    }else if ( card == 'dev_card' ) {
+    }else if ( purchase === 'dev_card' ) {
         return this.remove_card('ore') &&
             this.remove_card('wheat') &&
             this.remove_card('sheep');
