@@ -10,7 +10,6 @@ var Data_package = require('../app/data_api/data_package.js');
 var Player = require('../app/data_api/player.js');
 var Action = require('../public/data_api/action.js');
 var Cards = require('../app/data_api/cards.js');
-var socket = io();
 
 var cards; 
 var boost_cards;
