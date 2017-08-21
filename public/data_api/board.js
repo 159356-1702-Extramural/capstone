@@ -14,15 +14,15 @@ function Board(obj) {
 *  Basic setters for board elements
 *********************************************/
 /// modifies the owner of road or house array (used in setup) - modify for general use
-Board.prototype.set_item = function(item, index, player_id){
-   if(item === 'road'){
+Board.prototype.set_item = function(item, index, player_id) {
+   if (item === 'build_road') {
     this.roads[index].owner = player_id;
     this.roads[index].status = ''; //looks like status should be blank for accepted road.
-   }else if(item === 'house'){
-    this.nodes[index].building = item;
+   } else if(item === 'build_settlement') {
+    this.nodes[index].building = 'house';
     this.nodes[index].owner = player_id;
    }
-}
+};
 /********************************************
 *  Basic getters for board elements
 *********************************************/

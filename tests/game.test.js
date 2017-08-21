@@ -26,13 +26,15 @@ test("End of start sequence resources can be allocated", function(t) {
     actions: [
       {
         action_type: 'build_settlement',
-        action_data: [new Point(2,2), new Point(3,2), new Point(2,3)]
+        action_data: {
+          n_tiles: [new Point(2,2), new Point(3,2), new Point(2,3)]
+        }
       }
     ]
   };
 
   game.secondRoundResources(game.players[0], mock_data);
-  
+
   var numCards = game.players[0].cards.count_cards();
 
   t.truthy(numCards > 0);

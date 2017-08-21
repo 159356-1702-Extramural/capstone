@@ -121,7 +121,8 @@ StateMachine.prototype.tick = function(data) {
         this.game.players[data.player_id].turn_data = data;
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
-        if(this.setupPointer > this.setupSequence / 2){
+
+        if(this.setupPointer - 1 > this.setupSequence.length / 2){
             this.game.secondRoundResources(this.game.players[data.player_id], data);
         }
 
@@ -198,6 +199,7 @@ StateMachine.prototype.broadcast_gamestate = function() {
             name            : player.name,
             colour          : player.colour,
             turn_complete   : player.turn_complete,
+            cards           : player.cards,
             points          : 0
         };
     });
