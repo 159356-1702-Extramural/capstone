@@ -1,6 +1,6 @@
 /**
  * Testing the data api - data_package, action and cards
- * This test script tests the building of the object and whether data can be parsed 
+ * This test script tests the building of the object and whether data can be parsed
  * in and out successfully
  */
 
@@ -11,7 +11,7 @@ var Player = require('../app/data_api/player.js');
 var Action = require('../public/data_api/action.js');
 var Cards = require('../app/data_api/cards.js');
 
-var cards; 
+var cards;
 var boost_cards;
 var actions;
 var action;
@@ -162,7 +162,7 @@ test("Correct number of cards in action", function(t) {
     t.is(cards.count_cards(), 2);
 });
 
-//test that all card types can be added 
+//test that all card types can be added
 test("Cards recorded properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
@@ -177,7 +177,7 @@ test("Cards recorded properly" , function (t) {
     t.truthy(result);
 });
 
-//test that all card types can be removed 
+//test that all card types can be removed
 test("Cards removed properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");

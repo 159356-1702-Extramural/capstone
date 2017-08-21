@@ -172,10 +172,10 @@ function set_object_on_canvas(event, ui) {
     var object_dragged_id = ui.draggable[0].id;
     var object_dragged = $("#" + object_dragged_id);
     var node_on_canvas = $("#" + event.target.id);
-    
+
     //  Get the type of structure
     var object_type = (object_dragged_id.indexOf("house") > -1 ? "house" : (object_dragged_id.indexOf("road") > -1 ? "road" : "city"));
-    
+
     //  Nodes vs Roads reference
     var nodes = game_data.board.nodes;
     if (object_type == "road") {
@@ -185,7 +185,7 @@ function set_object_on_canvas(event, ui) {
     //  Grab the node/road based on the drop target
     var node_id = parseInt(node_on_canvas.attr("id").replace("road_", "").replace("node_", ""));
     var node = nodes[node_id];
-    
+
     //  Update game data node/road
     if (node.building) { node.building = object_type; }
     node.status = "pending";
@@ -198,15 +198,15 @@ function set_object_on_canvas(event, ui) {
         if (node.building) { last_node.building = ""; }
         last_node.owner = -1;
     }
-    
+
     //  Adjust top/left to match node and put it in the body
     object_dragged.css("top", node_on_canvas.css("top"));
     object_dragged.css("left", node_on_canvas.css("left"));
     object_dragged.appendTo($("body"));
-    
+
     //  Finally, adjust the class of this object to point to this node
     $("#" + object_dragged_id).attr("id", object_type + "_" + current_player.colour + "_pending_" + node_id);
-    
+
     //  If this is a road, we might need to adjust the angle
     if (object_type == "road") {
         var classes = node_on_canvas.attr('class').split(' ');
@@ -227,7 +227,7 @@ function set_object_on_canvas(event, ui) {
         // TODO get boost cards from the boost dialogue and add them to boost_cards array
         // create_player_action(object_type, node, boost_cards);
     }
-    
+
     update_object_counts();
 }
 
@@ -278,7 +278,7 @@ function return_object(type, event, ui) {
 
         //  Append to appropriate pile and clear positioning
         object_dragged.appendTo($("." + object_type + "box"));
-        
+
         //  Reset node on canvas
         node_on_canvas.attr("class", (object_type == "road" ? "road roadspot" : "node buildspot") + " ui-droppable");
 
@@ -342,7 +342,7 @@ function find_next_object_id(class_name) {
 }
 
 function remove_action_from_list(object_type, node_id){
-    for ( var i = 0; i < turn_actions.length; i++ ) {            
+    for ( var i = 0; i < turn_actions.length; i++ ) {
         if ( ( turn_actions[i].action_data.id === node_id ) && ( object_type === turn_actions[i].action_type ) ) {
             //  remove the action from the list
             turn_actions.splice(i,1);

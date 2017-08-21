@@ -1,6 +1,6 @@
 /**
  * Testing the data api - data_package, action and cards
- * This test script tests the building of the object and whether data can be parsed 
+ * This test script tests the building of the object and whether data can be parsed
  * in and out successfully
  */
 

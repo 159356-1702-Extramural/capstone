@@ -1,7 +1,7 @@
 
 /**
  * Action object describes a specific action for a player or
- *     a specific result from the server 
+ *     a specific result from the server
  */
 
 function Action(){
@@ -18,12 +18,12 @@ function Action(){
      */
     this.action_type    = '';
 
-    //action_result set to true if player action succeeds 
+    //action_result set to true if player action succeeds
     this.action_result  = false;
 
     //action_data will vary based on action_type
     this.action_data    = [];
-    
+
     //boost cards kept seperate so easy to count and to return
     this.boost_cards    = null;
 }

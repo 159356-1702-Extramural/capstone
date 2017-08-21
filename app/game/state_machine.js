@@ -87,7 +87,7 @@ StateMachine.prototype.tick = function(data) {
         //TODO change below if statement to check whether setup placement valid
         var valid = true;
         //set any invalid actions action.action_result = false
-        
+
         if(valid){
             for(var i = 0; i < data.actions.length; i++){
                 var player_id   = data.player_id;
@@ -112,7 +112,7 @@ StateMachine.prototype.tick = function(data) {
             data_package.player = player;
             this.send_to_player('game_update', data_package);
         }
-        
+
         //call start sequence again from here - startSequence will find the next player to have a turn
         this.game_start_sequence();
         this.broadcast_gamestate();
@@ -141,7 +141,7 @@ StateMachine.prototype.tick = function(data) {
         }
 
         this.game.round_num = this.round_num + 1;
-        
+
         return true;
     }
 

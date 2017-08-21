@@ -9,7 +9,7 @@ function Cards(){
         lumber: 0,
         ore   : 0
     };
-    
+
     this.dev_cards = {
         year_of_plenty : 0,
         monopoly : 0,
