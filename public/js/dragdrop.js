@@ -233,6 +233,9 @@ function set_object_on_canvas(event, ui) {
 
 function create_player_action(object_type, node, boost_cards){
     var action = new Action();
+
+    object_type = convert_action_type(object_type);
+
     action.action_type = object_type;
     action.action_data = node;
     action.boost_cards = boost_cards;
@@ -342,11 +345,30 @@ function find_next_object_id(class_name) {
 }
 
 function remove_action_from_list(object_type, node_id){
-    for ( var i = 0; i < turn_actions.length; i++ ) {
+  object_type = convert_action_type(object_type);
+  for ( var i = 0; i < turn_actions.length; i++ ) {
         if ( ( turn_actions[i].action_data.id === node_id ) && ( object_type === turn_actions[i].action_type ) ) {
             //  remove the action from the list
             turn_actions.splice(i,1);
             break;
         }
     }
+}
+
+// HACK: to get the data to match the api spec we're converting
+// the actions types into the correct format for transmission
+function convert_action_type(object_type) {
+  switch (object_type) {
+    case 'house':
+      object_type = 'build_settlement';
+      break;
+    case 'road':
+      object_type = 'build_road';
+      break;
+    case 'city':
+      object_type = 'build_city';
+      break;
+  }
+
+  return object_type;
 }

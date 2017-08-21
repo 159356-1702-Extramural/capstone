@@ -80,6 +80,8 @@ $(document).ready(function() {
         //  Update the local copy of the game data
         game_data = data;
 
+        console.log('game_data: ', game_data);
+
         //  Update all nodes on the board
         buildNodes();
 
@@ -267,19 +269,19 @@ function checkLegitimateTurn(data_package){
 
                 console.log(turn_actions[1]);
                 //if one is a house and the other is a road
-                if((turn_actions[0].action_type == 'house' || turn_actions[1].action_type == 'house') && (turn_actions[0].action_type == 'road' || turn_actions[1].action_type == 'road')){
+                if ((turn_actions[0].action_type == 'build_settlement' || turn_actions[1].action_type == 'build_settlement') && (turn_actions[0].action_type == 'build_road' || turn_actions[1].action_type == 'build_road')){
 
                     update_server("game_update", data_package);
                     turn_actions = [];
 
                     //reset server data to avoid unexpected quirks
                     server_data = [];
-                }else{
+                } else {
                     // TODO: wrong actions taken, clear actions and action object from turn_actions
                     alert('Please place a road and a settlement');
 
                 }
-            }else{
+            } else {
                 //TODO dialogue - Wrong number of actions, clear actions and action object from turn_actions
                 alert('You must build exactly one settlement and one connecting road.');
             }
