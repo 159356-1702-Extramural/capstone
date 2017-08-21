@@ -3,7 +3,7 @@
  */
 
 function Data_package(){
-    
+
     //turn type is used to determine how data is passed see wiki for options
     this.turn_type  = '';
 

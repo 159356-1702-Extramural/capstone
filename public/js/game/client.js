@@ -1,7 +1,8 @@
 //  Our websocket
 var socket = io();
-var actions = [];
 
+//server data is the round data from the server
+var server_data = [];
 var game_data = {};
 
 var building_dimension = 50;
@@ -11,8 +12,8 @@ $(document).ready(function() {
     var $doc = $(document);
 
     //    Show the initial menu
-    buildPopup("start_menu", false);    
-  
+    buildPopup("start_menu", false);
+
     // Events for main start menu buttons
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
@@ -44,8 +45,8 @@ $(document).ready(function() {
     // Update the waiting display as new players join the game
     socket.on('player_joined', function (data) {
         var popupData = [
-            ["player_count", data.player_count], 
-            ["players_needed", data.max_players], 
+            ["player_count", data.player_count],
+            ["players_needed", data.max_players],
         ];
         buildPopup("waiting_for_players", false, popupData);
     });
@@ -56,7 +57,8 @@ $(document).ready(function() {
     });
 
     socket.on('game_turn', function (data) {
-        playerSetup(data);
+        server_data = data;
+        resolve_game_turn(data);
     });
 
     // Detect the game starting
@@ -83,16 +85,17 @@ $(document).ready(function() {
 
         //  Insert holders for all roads
         buildRoads();
-        
+
         //  Update drag and drop
         setupDragDrop();
     });
 
-    //  During the setup phase, each player waits until their 
+    //  During the setup phase, each player waits until their
     //  turn, while the active player places a settlement and road
-    var playerSetup = function (data){
+    var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             alert("setup complete");
+            setup_phase = false;
             hidePopup();
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
@@ -106,22 +109,37 @@ $(document).ready(function() {
             } else {
                 buildPopup("waiting_for_turn", false);
             }
+        }else if ( data.data_type === 'invalid_move'){
+            invalidMove(data);
+        }
+
+        // wipe current turn data
+        if ( data.data_type === 'successfull_turn'){
+            setupTurnFinished();
         }
     }
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
+        console.log(game_data)
         //TODO: Add real data
         var data_package = new Data_package();
         data_package.data_type = "setup_phase";
         data_package.player_id = current_player.id;
-        data_package.actions = actions; 
-        update_server("game_update", data_package);
+        data_package.actions = turn_actions;
 
+        //check correct deployment in setup (one house, one road)
+        if(server_data.data_type === 'setup_phase'){
+
+            checkLegitimateTurn(data_package);
+
+        }else{
+            update_server("game_update", data_package);
+        }
     });
 
 
     /*
-    
+
     New events for upcoming html templates
 
     */
@@ -146,7 +164,7 @@ $(document).ready(function() {
         var image = $(".card_receive[data-resource='" + resource + "']").html();
         $('.trade_receive_box').html(image);
     });
-    
+
     //  Year of Plenty - click on resource to receive
     $doc.on('click', '.year_receive', function(e) {
         e.preventDefault();
@@ -169,8 +187,8 @@ $(document).ready(function() {
         e.preventDefault();
         $(this).html("");
     });
-    
-    //  Monopoly - 
+
+    //  Monopoly -
     $doc.on('click', '.monopoly_receive', function(e) {
         e.preventDefault();
 
@@ -179,8 +197,8 @@ $(document).ready(function() {
         var image = $(".monopoly_receive[data-resource='" + resource + "']").html();
         $('.monopoly_card').html(image);
     });
-    
-    //  Development Card - 
+
+    //  Development Card -
     $doc.on('click', '.devcard_receive', function(e) {
         e.preventDefault();
 
@@ -189,8 +207,8 @@ $(document).ready(function() {
         var image = $(".devcard_receive[data-resource='" + resource + "']").html();
         $('.devcard_card').html(image);
     });
-    
-    //  Player Trading - Add Give Card 
+
+    //  Player Trading - Add Give Card
     $doc.on('click', '.trade_card_give', function(e) {
         e.preventDefault();
 
@@ -199,8 +217,8 @@ $(document).ready(function() {
         var image = $(".trade_card_want[data-resource='" + resource + "']").html();
         $('.trade_give').html(image.replace("_small", "_tiny"));
     });
-    
-    //  Player Trading - Add Want Card 
+
+    //  Player Trading - Add Want Card
     $doc.on('click', '.trade_card_want', function(e) {
         e.preventDefault();
 
@@ -208,12 +226,66 @@ $(document).ready(function() {
         var image = $(".trade_card_want[data-resource='" + resource + "']").html();
         $('.trade_want').html(image.replace("_small", "_tiny"));
     });
-    
-    
-});
 
+
+});
+function setupTurnFinished(){
+    // wipe all current turn info (action arrays)
+}
+
+function invalidMove (data){
+
+    failed_actions.forEach( function (action) {
+
+        //  populate new array with the successful actions (and copy them into turn_actions)
+        var successful_actions = [];
+
+        if(action.action_result){
+            successful_actions.push(action);
+        }else{
+            alert("need to remove failed item artifact");
+            //inform of failed actions
+            //remove relevant artifact from board
+            if(action.action_type === 'road'){
+                //TODO: action failed dialog with 'road'
+            }else if(action.action_type === 'house'){
+                //TODO: action failed dialog with 'road'
+            }else if(action.action_type === 'city'){
+                //TODO: action failed dialog with 'road'
+            }else{
+
+            }
+        }
+        turn_actions = successful_actions;
+    });
+}
+
+function checkLegitimateTurn(data_package){
+    console.log(turn_actions);
+            //only two actions allowed (build road and build house)
+            if(turn_actions.length === 2){
+
+                console.log(turn_actions[1]);
+                //if one is a house and the other is a road
+                if((turn_actions[0].action_type == 'house' || turn_actions[1].action_type == 'house') && (turn_actions[0].action_type == 'road' || turn_actions[1].action_type == 'road')){
+
+                    update_server("game_update", data_package);
+                    turn_actions = [];
+
+                    //reset server data to avoid unexpected quirks
+                    server_data = [];
+                }else{
+                    // TODO: wrong actions taken, clear actions and action object from turn_actions
+                    alert('Please place a road and a settlement');
+
+                }
+            }else{
+                //TODO dialogue - Wrong number of actions, clear actions and action object from turn_actions
+                alert('You must build exactly one settlement and one connecting road.');
+            }
+}
 var update_server = function(data_type, data){
-    
+
     //data_type is a string, usually "game_update" , data is a data_package object
     socket.emit(data_type, data);
 }
@@ -223,7 +295,7 @@ var update_server = function(data_type, data){
 //   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
 function buildPopup(popupClass, useLarge, customData) {
     $.get("templates/" + popupClass + ".html", function(data) {
-        
+
         //  In a few cases, we need a larger popup
         $(".popup_inner").removeClass("popup_inner_large");
         if (useLarge) {
@@ -312,10 +384,10 @@ function buildNodes() {
 
                 //  Now get the nodes and determine positions
                 var node_positions = theTile.associated_nodes;
-                
+
                 //  If there are nodes to check
                 if (node_positions.length > 0) {
-                    
+
                     //  Check each node
                     for (var j=0; j<node_positions.length; j++) {
                         //  j is the position around the tile
@@ -328,7 +400,7 @@ function buildNodes() {
                         if (node_on_canvas.length == 0) {
                             //  First we get the top x,y point of the Tile
                             var point = getObjectPosition(x, y, j);
-                            
+
                             //  Now subtract half the width/height of the city/settlement
                             point[0] -= (building_dimension / 2);
                             point[1] -= (node.building == "city" ? (building_dimension / 2) : (settlement_height / 2));
@@ -367,11 +439,11 @@ function getObjectPosition(x, y, nodeIndex) {
     //  All rows after the first 2 need to be bumped by the variance between the rows
     var new_x = (x * tile_width) - board_left_offset - ((y % 2) == 0 ? (tile_width/2) : 0);
     var new_y = (y * tile_height) - board_top_offset - (y > 1 ? ((y - 1) * row_variance) : 0);
-    
+
     //  Nodes at 0, 1, 4 and 5 adjust to the center/right of the tile
     if (nodeIndex == 0 || nodeIndex == 5) { new_x += tile_width; }
     if (nodeIndex == 1 || nodeIndex == 4) { new_x += (tile_width / 2); }
-    
+
     //  Nodes at 0, 1, 2, 3 and 5 adjust to the center/right of the tile
     if (nodeIndex == 0 || nodeIndex == 2) { new_y += (tile_height * 0.74); }
     if (nodeIndex == 3 || nodeIndex == 5) { new_y += (tile_height * 0.26); }
@@ -394,7 +466,7 @@ function getNodeCSS(node) {
 //  This method determines if a node can be built on by the current player
 function can_build(node, node_to_ignore) {
     var success = false;
-    
+
     //  If we have a node_to_ignore, temporarily hide it's owner/building properties
     var temp_node = new BuildNode();
     if (node_to_ignore) {
@@ -408,7 +480,7 @@ function can_build(node, node_to_ignore) {
     var tempBoard = new Board();
     tempBoard.nodes = game_data.board.nodes;
     var can_build = tempBoard.is_node_valid_build(current_player.id, node.id);
-    
+
     //  TODO: Remove following checks when added to board helper is_node_valid_build
     if (can_build) {
         //  If this is the setup round, we can build here
@@ -430,7 +502,7 @@ function can_build(node, node_to_ignore) {
         node_to_ignore.building = temp_node.building;
         node_to_ignore.owner = temp_node.owner;
     }
-    
+
     return success;
 }
 
@@ -439,6 +511,7 @@ function can_build(node, node_to_ignore) {
 function buildRoads() {
     for (var i=0; i<game_data.board.roads.length; i++) {
         var road = game_data.board.roads[i];
+
         var road_on_canvas = $("#road_" + i);
         var road_class = getRoadCSS(road);
 
@@ -448,12 +521,12 @@ function buildRoads() {
 
             //  We need to know the angle (30, 90, 330)
             var angle = getRoadAngle(road);
-        
+
             //  Finally create the html based on the road properties
             $("body").append("<div id='road_" + i + "' class='road " + road_class + " angle" + angle + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
         } else {
             //  The road exists on the board, update css in case it changed
-            road_on_canvas.attr("class", "road " + road_class);
+            //road_on_canvas.attr("class", "road " + road_class);
         }
     }
 }
@@ -504,7 +577,7 @@ function getRoadPosition(road) {
     //  Find the difference based on the size of the road
     var left_diff = (0.5 * Math.abs((node1_left - node2_left)) - (0.5 * road_width));
     var top_diff = (0.5 * Math.abs((node1_top - node2_top)) - (0.5 * road_height));
-    
+
     //  Assume a 330 degree angle first
     var new_x = node1_left + (0.5 * building_dimension);
     if (node1_left == node2_left) {
@@ -542,7 +615,7 @@ function can_build_road(road, road_to_ignore) {
     //  Grab a local reference of the nodes array
     var nodes = game_data.board.nodes;
     var roads = game_data.board.roads;
-    
+
     //  TODO: Replace with board helper when is_road_valid_build checks for a road leading to this road
 
     //  Is a road already here?
@@ -567,7 +640,7 @@ function can_build_road(road, road_to_ignore) {
     if (road_to_ignore) {
         road_to_ignore.owner = temp_node.owner;
     }
-    
+
     return success;
 }
 

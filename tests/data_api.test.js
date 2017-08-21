@@ -1,29 +1,34 @@
 /**
  * Testing the data api - data_package, action and cards
- * This test script tests the building of the object and whether data can be parsed 
+ * This test script tests the building of the object and whether data can be parsed
  * in and out successfully
  */
 
 var test = require('ava');
 
 var Data_package = require('../app/data_api/data_package.js');
-var Action = require('../app/data_api/action.js');
+var Player = require('../app/data_api/player.js');
+var Action = require('../public/data_api/action.js');
 var Cards = require('../app/data_api/cards.js');
 
-var cards; 
+var cards;
 var boost_cards;
+var actions;
 var action;
 var action2;
 var data;
 var startNode;
 var endNode;
+var player;
 
 test.beforeEach(t => {
     data = new Data_package();
+    actions = [];
     action = new Action();
     action2 = new Action();
     cards = new Cards();
     boost_cards = new Cards();
+    player = new Player({}, 0);
 
     cards.add_card("lumber");
     cards.add_card("ore");
@@ -41,19 +46,22 @@ test.beforeEach(t => {
     action.action_result    = true;
     action.action_data      = [startNode];
     action.action_message   = 'Settlement build complete';
-    action.cards            = cards;
     action.boost_cards      = boost_cards;
 
     action2.action_type      = "build_road";
     action2.action_result    = false;
     action2.action_data      = [startNode, endNode];
     action2.action_message   = 'Road building failed';
-    action2.cards            = boost_cards;
     action2.boost_cards      = cards;
 
+    actions.push(action);
+    actions.push(action2);
+
+    player.actions          = actions;
+
     data.turn_type  = 'turn_complete';
-    data.board_data = null,
-    data.actions    = [action, action2];
+    data.game_state = null,
+    data.player     = player;
 
 });
 
@@ -93,19 +101,23 @@ test('change turn information ', function (t){
 test.todo('add board data from Luke');
 
 test("access actions in data.actions", function (t){
-     t.is(data.actions[0].action_type, "build_settlement");
+     t.is(data.player.actions[0].action_type, "build_settlement");
 });
 
 test('Access cards from the data object' , function (t){
-    t.is(data.actions[0].boost_cards.count_cards(), 3);
+    t.is(data.player.actions[0].boost_cards.count_cards(), 3);
+});
+
+test('Clear data_pakage data' , function (t){
+    data.clear_data();
+    t.is(data.turn_type , '');
+    t.is(data.player , null);
+    t.is(data.game_state , null);
+
 });
 /**
  * Action object testing
  */
-
-test("Action object holds card objects" , function (t) {
-    t.is(action.cards, cards);
-});
 
 test("Action object holds boost_card objects" , function (t) {
     t.is(action2.boost_cards, cards);
@@ -134,10 +146,13 @@ test("action_data data held correctly - accessing second array value" , function
     t.is(action2.action_data[1], endNode);
 });
 
-test("action cards accessable" , function (t) {
-    t.is(action.cards.count_cards(), 2)
+test("clear action data" , function (t) {
+    action.clear_data();
+    t.is(action.action_type, '');
+    t.is(action.action_result, false);
+    t.is(action.action_data.length, 0);
+    t.is(action.boost_cards, null);
 });
-
 
 /**
  * Cards Object testing
@@ -147,7 +162,7 @@ test("Correct number of cards in action", function(t) {
     t.is(cards.count_cards(), 2);
 });
 
-//test that all card types can be added 
+//test that all card types can be added
 test("Cards recorded properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
@@ -162,7 +177,7 @@ test("Cards recorded properly" , function (t) {
     t.truthy(result);
 });
 
-//test that all card types can be removed 
+//test that all card types can be removed
 test("Cards removed properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
@@ -206,39 +221,33 @@ test("Check cards can't be a negative value" , function (t) {
 
 });
 
+test("Remove purchases from Card object" , function (t) {
+    cards.add_card("brick"); //now there should be ore, brick and lumber
+    cards.remove_cards("road");
+    t.is(cards.count_cards(), 1);
 
-//case "place Settlement during game start"
-//check settlement placement valid
-//check road placement valid
-//add settlement to player
-//add road to player
-//  case Year of Plenty   -> [UniqueActionId, 1 , cardNum]
-//loop twice over "add card to player hand function(random / cardName)" (server side)
-//  case Play Soldier / Knight -> [UniqueActionId, 2 , [playerID, hexID],cardsToBoost]
-// check whether any other players playing knight
-// highest boost wins
-// if it's a draw randomise winner (no one will know its a random winner and game moves forward and using soldiers)
-//  case Monopoly   -> [UniqueActionId, 3 , cardNum]
-// take all cards of type{type} from all players and add it to current players hand
-// send revised gameboard and player data
-//  case Build 2 roads  -> [UniqueActionId, 4 , [startNode, endNode], cardsToBoost]
-// loop Build a road twice
-//  case Build a road   -> [UniqueActionId, 5 , [startNode, endNode], cardsTOBoost]
-// Check valid road building choices against current gamedata
-// Check multiple build requests on a node
-    // Build 2 roads card wins
-    // Resolve with boosts
-    // randomise win for ties???
-//  case Build a settlement> [UniqueActionId, 6 , nodeNum, cardsToBoost]
-//Check valid building node against game board
-// Check multiple build requests from all players on  node OR ADJACENT NODES
-    // Boosts to resolve
-    // Randomise win to ties???
-//  case Build a city   -> [UniqueActionId, 7 , nodeNum] (must already exist in settlementarray)
-//Check that city is being build on a settlement of the current player
-//  case Play robber  -> [UniqueActionId, 8 , [playerID, hexID], cardsToBoost] - DELME
-//Dealt with directly after diceroll
-//  case Trade  -> [UniqueActionId, 9 , [card requested, card Offered]]
-//Swap cards for both players 
+    cards.add_card("wheat");
+    cards.add_card("sheep"); //now there should be ore, wheat and sheep
+    cards.remove_cards("dev_card");
+    t.is(cards.count_cards(), 0);
 
-//Build data structure to send to all players
+    cards.add_card("brick");
+    cards.add_card("lumber");
+    cards.add_card("wheat");
+    cards.add_card("sheep"); //now there should be brick, lumber, wheat and sheep
+    cards.remove_cards("settlement");
+    t.is(cards.count_cards(), 0);
+
+    cards.add_card("ore");
+    cards.add_card("ore");
+    cards.add_card("ore");
+    cards.add_card("wheat");
+    cards.add_card("wheat"); //now there should be 33 ore and 2 wheat
+    cards.remove_cards("city");
+    t.is(cards.count_cards(), 0);
+});
+
+/**
+ * public/data_api tests
+ */
+
