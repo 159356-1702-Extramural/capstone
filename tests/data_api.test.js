@@ -13,18 +13,22 @@ var Cards = require('../app/data_api/cards.js');
 
 var cards; 
 var boost_cards;
+var actions;
 var action;
 var action2;
 var data;
 var startNode;
 var endNode;
+var player;
 
 test.beforeEach(t => {
     data = new Data_package();
+    actions = [];
     action = new Action();
     action2 = new Action();
     cards = new Cards();
     boost_cards = new Cards();
+    player = new Player({}, 0);
 
     cards.add_card("lumber");
     cards.add_card("ore");
@@ -42,19 +46,22 @@ test.beforeEach(t => {
     action.action_result    = true;
     action.action_data      = [startNode];
     action.action_message   = 'Settlement build complete';
-    action.cards            = cards;
     action.boost_cards      = boost_cards;
 
     action2.action_type      = "build_road";
     action2.action_result    = false;
     action2.action_data      = [startNode, endNode];
     action2.action_message   = 'Road building failed';
-    action2.cards            = boost_cards;
     action2.boost_cards      = cards;
 
+    actions.push(action);
+    actions.push(action2);
+
+    player.actions          = actions;
+
     data.turn_type  = 'turn_complete';
-    data.board_data = null,
-    data.actions    = [action, action2];
+    data.game_state = null,
+    data.player     = player;
 
 });
 
@@ -94,19 +101,23 @@ test('change turn information ', function (t){
 test.todo('add board data from Luke');
 
 test("access actions in data.actions", function (t){
-     t.is(data.actions[0].action_type, "build_settlement");
+     t.is(data.player.actions[0].action_type, "build_settlement");
 });
 
 test('Access cards from the data object' , function (t){
-    t.is(data.actions[0].boost_cards.count_cards(), 3);
+    t.is(data.player.actions[0].boost_cards.count_cards(), 3);
+});
+
+test('Clear data_pakage data' , function (t){
+    data.clear_data();
+    t.is(data.turn_type , '');
+    t.is(data.player , null);
+    t.is(data.game_state , null);
+
 });
 /**
  * Action object testing
  */
-
-test("Action object holds card objects" , function (t) {
-    t.is(action.cards, cards);
-});
 
 test("Action object holds boost_card objects" , function (t) {
     t.is(action2.boost_cards, cards);
@@ -135,10 +146,13 @@ test("action_data data held correctly - accessing second array value" , function
     t.is(action2.action_data[1], endNode);
 });
 
-test("action cards accessable" , function (t) {
-    t.is(action.cards.count_cards(), 2)
+test("clear action data" , function (t) {
+    action.clear_data();
+    t.is(action.action_type, '');
+    t.is(action.action_result, false);
+    t.is(action.action_data.length, 0);
+    t.is(action.boost_cards, null);
 });
-
 
 /**
  * Cards Object testing
@@ -206,3 +220,34 @@ test("Check cards can't be a negative value" , function (t) {
     t.truthy(result);
 
 });
+
+test("Remove purchases from Card object" , function (t) {
+    cards.add_card("brick"); //now there should be ore, brick and lumber
+    cards.remove_cards("road");
+    t.is(cards.count_cards(), 1);
+
+    cards.add_card("wheat");
+    cards.add_card("sheep"); //now there should be ore, wheat and sheep
+    cards.remove_cards("dev_card");
+    t.is(cards.count_cards(), 0);
+
+    cards.add_card("brick");
+    cards.add_card("wood");
+    cards.add_card("wheat");
+    cards.add_card("sheep"); //now there should be brick, wood, wheat and sheep
+    cards.remove_cards("settlement");
+    t.is(cards.count_cards(), 0);
+
+    cards.add_card("ore");
+    cards.add_card("ore");
+    cards.add_card("ore");
+    cards.add_card("wheat");
+    cards.add_card("wheat"); //now there should be 33 ore and 2 wheat
+    cards.remove_cards("city");
+    t.is(cards.count_cards(), 0);
+});
+
+/**
+ * public/data_api tests
+ */
+

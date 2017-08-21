@@ -83,13 +83,13 @@ Cards.prototype.remove_cards = function(purchase){
             this.remove_card('lumber') &&
             this.remove_card('wheat') &&
             this.remove_card('sheep');
-    }else if ( purchase == 'city' ) {
+    }else if ( purchase === 'city' ) {
         return this.remove_card('ore') &&
             this.remove_card('ore') &&
             this.remove_card('ore') &&
             this.remove_card('wheat') &&
             this.remove_card('wheat');
-    }else if ( card == 'dev_card' ) {
+    }else if ( purchase === 'dev_card' ) {
         return this.remove_card('ore') &&
             this.remove_card('wheat') &&
             this.remove_card('sheep');
