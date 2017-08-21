@@ -232,15 +232,9 @@ test("Remove purchases from Card object" , function (t) {
     t.is(cards.count_cards(), 0);
 
     cards.add_card("brick");
-<<<<<<< HEAD
     cards.add_card("lumber");
     cards.add_card("wheat");
     cards.add_card("sheep"); //now there should be brick, lumber, wheat and sheep
-=======
-    cards.add_card("wood");
-    cards.add_card("wheat");
-    cards.add_card("sheep"); //now there should be brick, wood, wheat and sheep
->>>>>>> d6eae7983a1a8aca5373f18212f1328b7eb98f79
     cards.remove_cards("settlement");
     t.is(cards.count_cards(), 0);
 
