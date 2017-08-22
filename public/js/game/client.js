@@ -370,7 +370,7 @@ function buildTile(theTile, row, col) {
 //  Iterates through the most recent game data to verify buildings
 function buildNodes() {
     //  Grab a local reference of the tiles array
-    var tiles = game_data.board.tiles;
+    var tiles = game_data.game_state.board.tiles;
 
     //  Settlements are slightly shorter
     var settlement_height = 42;
@@ -398,7 +398,7 @@ function buildNodes() {
                         //  j is the position around the tile
                         //  0 = bottom_right clockwise to 5 = top_right
 
-                        var node = game_data.board.nodes[node_positions[j]];
+                        var node = game_data.game_state.board.nodes[node_positions[j]];
                         var node_on_canvas = $("#node_" + node_positions[j]);
                         var node_class = getNodeCSS(node);
 
@@ -428,7 +428,7 @@ function updatePanelDisplay() {
 
   // Update the resouce cards
 
-  var resource_cards = game_data.players[current_player.id].cards.resource_cards;
+  var resource_cards = game_data.player.cards.resource_cards;
   var $resource_box = $('.resources');
   $resource_box.find('.brickcount').text(resource_cards.brick);
   $resource_box.find('.graincount').text(resource_cards.grain);
@@ -471,7 +471,7 @@ function getNodeCSS(node) {
     if (can_build(node)) {
         node_class = "buildspot";
     } else if (node.owner > -1) {
-        node_class = node.building + " locked " + game_data.players[node.owner].colour;
+      node_class = node.building + " locked " + game_data.game_state.players[node.owner].colour;
     }
     return node_class;
 }
@@ -491,18 +491,18 @@ function can_build(node, node_to_ignore) {
 
     //  Use board helper method to check owner and adjacent buildings
     var tempBoard = new Board();
-    tempBoard.nodes = game_data.board.nodes;
+    tempBoard.nodes = game_data.game_state.board.nodes;
     var can_build = tempBoard.is_node_valid_build(current_player.id, node.id);
 
     //  TODO: Remove following checks when added to board helper is_node_valid_build
     if (can_build) {
         //  If this is the setup round, we can build here
-        if (game_data.round_num < 3) {
+      if (game_data.game_state.round_num < 3) { // TODO: MAGIC NUMBER!!!!
             success = true;
         } else {
             //  Finally, if it is a normal round, are we connected by a road?
             for (var i=0; i<node.n_roads.length; i++) {
-                if (game_data.roads[node.n_roads[i]].owner == current_player.id) {
+                if (game_data.game_state.board.roads[node.n_roads[i]].owner == current_player.id) {
                     success = true;
                     break;
                 }
@@ -522,8 +522,8 @@ function can_build(node, node_to_ignore) {
 //  Method for updating the state of all roads on the board
 //  Iterates through the most recent game data to verify roads
 function buildRoads() {
-    for (var i=0; i<game_data.board.roads.length; i++) {
-        var road = game_data.board.roads[i];
+    for (var i=0; i<game_data.game_state.board.roads.length; i++) {
+        var road = game_data.game_state.board.roads[i];
 
         var road_on_canvas = $("#road_" + i);
         var road_class = getRoadCSS(road);
@@ -549,7 +549,7 @@ function buildRoads() {
 function getRoadCSS(road) {
     var road_class = "roadspot";
     if (road.owner > -1) {
-        road_class = "locked " + game_data.players[road.owner].colour;
+        road_class = "locked " + game_data.game_state.players[road.owner].colour;
     }
     return road_class;
 }
@@ -626,8 +626,8 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
     }
 
     //  Grab a local reference of the nodes array
-    var nodes = game_data.board.nodes;
-    var roads = game_data.board.roads;
+    var nodes = game_data.game_state.board.nodes;
+    var roads = game_data.game_state.board.roads;
 
     //  Is a road already here?
     if (road.owner == -1) {

@@ -13,6 +13,8 @@ function Game(state_machine) {
     this.player_colours = ['purple', 'red', 'blue', 'green'];
 
     this.development_cards = [];
+
+    this.dice_roll      = [];
 }
 
 ///

@@ -192,24 +192,41 @@ StateMachine.prototype.tick = function(data) {
  of the game in the browser
 ******************************************************************/
 StateMachine.prototype.broadcast_gamestate = function() {
-    var players = this.game.players.map(function(player, idx) {
-        return {
-            id              : idx,
-            name            : player.name,
-            colour          : player.colour,
-            turn_complete   : player.turn_complete,
-            cards           : player.cards,
-            points          : 0
-        };
-    });
 
-    var game_data = {
-        players   : players,
-        board     : this.game.board,
-        round_num : this.game.round_num
+  var player;
+  var data_package;
+
+  // Set up the game state
+  var game_state = new Game_state();
+
+  var players = this.game.players.map(function (player, idx) {
+    return {
+      id: idx,
+      name: player.name,
+      colour: player.colour,
+      points: player.score.total_points
     };
+  });
 
-    this.broadcast('update_game', game_data);
+  game_state.players          = players;
+  game_state.board            = this.game.board;
+  game_state.round_num        = this.game.round_num;
+  game_state.dice_values      = this.game.dice_roll;
+
+  // Send each player their a game update
+
+  for (var i = 0; i < this.game.players.length; i++) {
+
+    player = Object.assign({}, this.game.players[i]);
+    delete player.socket;
+
+    data_package = new Data_package();
+    data_package.set_turn_type('update_board');
+    data_package.set_player(player);
+    data_package.set_game_state(game_state);
+
+    this.send_to_player('update_game', data_package);
+  }
 };
 
 /// Messages all players in a game
@@ -222,7 +239,7 @@ StateMachine.prototype.broadcast = function(event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function(event_name, data) {
-    var player = players[data.player.id];
+    var player = this.game.players[data.player.id];
     player.socket.emit(event_name, data);
 };
 

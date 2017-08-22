@@ -103,15 +103,15 @@ function setupDragDrop() {
 //  can be built on
 function show_open_spots(object_type, ignore_id) {
     //  Local reference to nodes object
-    var nodes = game_data.board.nodes;
+    var nodes = game_data.game_state.board.nodes;
     if (object_type == "road") {
-        nodes = game_data.board.roads;
+        nodes = game_data.game_state.board.roads;
     }
-    
+
     //  If object is on the canvas, ignore the associated node
     var node_to_ignore = null;
     if (ignore_id.indexOf("_pending_") > -1) {
-        ignore_id = parseInt(ignore_id.replace(object_type + "_" + current_player.colour + "_pending_", ""));
+      ignore_id = parseInt(ignore_id.replace(object_type + "_" + game_state.player.colour + "_pending_", ""));
         node_to_ignore = nodes[ignore_id];
 
         //  Does this object have dependents (i.e. If we remove this object, does it orphan other objects?)
@@ -125,7 +125,7 @@ function show_open_spots(object_type, ignore_id) {
 
     //  Now manage specific object types
     if (object_type == "house") {
-        if (game_data.round_num < 3) {
+        if (game_data.game_state.round_num < 3) { // TODO: remove magic number
             if (turn_actions.length == 0 || node_to_ignore == turn_actions[0].action_data) {
                 //  Setup mode: Show all valid build spots on the board
                 $(".buildspot:not(.locked)").hide();
@@ -160,7 +160,7 @@ function show_open_spots(object_type, ignore_id) {
                 node_to_enforce = turn_actions[0].action_data;
             }
         }
-        
+
         //  All modes: show road spots user is connected to
         $(".roadspot:not(locked)").each(function () {
             //  Find the road in the roads object based on the id of this object
@@ -198,9 +198,9 @@ function set_object_on_canvas(event, ui) {
     //  Get the type of structure
     var object_type = (object_dragged_id.indexOf("house") > -1 ? "house" : (object_dragged_id.indexOf("road") > -1 ? "road" : "city"));
     //  Nodes vs Roads reference
-    var nodes = game_data.board.nodes;
+    var nodes = game_data.game_state.board.nodes;
     if (object_type == "road") {
-        nodes = game_data.board.roads;
+        nodes = game_data.game_state.board.roads;
     }
 
     //  Grab the node/road based on the drop target
@@ -268,13 +268,13 @@ function return_object_on_drop(event, ui) {
     var object_dragged_id = ui.draggable[0].id;
     var object_dragged = $("#" + object_dragged_id);
     var node_id = -1;
-    
+
     //  Do we have an associated node already on the canvas?
     if (object_dragged_id.indexOf("_pending_") > -1) {
         var object_diced = object_dragged_id.split('_');
         node_id = parseInt(object_diced[object_diced.length-1]);
     }
-    
+
     return_object(object_dragged, object_dragged_id, node_id);
 }
 
@@ -283,25 +283,25 @@ function return_object(object_to_return, object_to_return_id, last_node_id) {
     if (last_node_id > -1) {
         //  Get the type of structure
         var object_type = (object_to_return_id.indexOf("house") > -1 ? "house" : (object_to_return_id.indexOf("road") > -1 ? "road" : "city"));
-        
+
         //  Nodes vs Roads reference
-        var nodes = game_data.board.nodes;
+        var nodes = game_data.game_state.board.nodes;
         if (object_type == "road") {
-            nodes = game_data.board.roads;
+            nodes = game_data.game_state.board.roads;
         }
-        
+
         //  Need node id to remove or modify turn_action currently splitting div name
         var split_div_name = object_to_return_id.split('_');
         var node_id = parseInt(split_div_name[split_div_name.length - 1]);
-        
+
         //  Find corresponding Action in actions array to modify or remove
         remove_action_from_list(object_type, node_id);
-        
+
         //  Clear the node it was dropped on
         var last_node = nodes[last_node_id];
         if (last_node.building) { last_node.building = ""; }
         last_node.owner = -1;
-        
+
         //  Reset class
         object_to_return.attr('class', object_type + ' ' + current_player.colour + ' ' + (object_type == "road" ? "angle30 " : "") + 'ui-draggable ui-draggable-handle');
         object_to_return.attr('style', '');
@@ -326,8 +326,8 @@ function return_object(object_to_return, object_to_return_id, last_node_id) {
 function return_dependents(object_type, node) {
     //  Are we using nodes or roads?
     var nodes = game_data.nodes;
-    if (object_type == "road") { nodes = game_data.roads; }  
-    
+    if (object_type == "road") { nodes = game_data.roads; }
+
     //  Temporarily remove this node from the game_state nodes/roads
     var tempNode = new BuildNode();
     stash_node(object_type, tempNode, node);
@@ -454,7 +454,7 @@ function stash_node(object_type, new_node, old_node) {
     new_node.owner = old_node.owner;
     new_node.status = old_node.status;
     if (object_type == "house") { new_node.building = old_node.building;  }
-    
+
     game_data.board.nodes[old_node.id].owner = -1;
     game_data.board.nodes[old_node.id].status = "";
     if (object_type == "house") { game_data.board.nodes[old_node.id].building = "";  }
