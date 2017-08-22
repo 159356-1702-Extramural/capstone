@@ -82,6 +82,9 @@ $(document).ready(function() {
 
         console.log('game_data: ', game_data);
 
+        // Update the game state panel
+        updatePanelDisplay();
+
         //  Update all nodes on the board
         buildNodes();
 
@@ -425,6 +428,21 @@ function buildNodes() {
             }
         }
     }
+}
+
+// Update display figuers
+function updatePanelDisplay() {
+
+  // Update the resouce cards
+
+  var resource_cards = game_data.players[current_player.id].cards.resource_cards;
+  var $resource_box = $('.resources');
+  $resource_box.find('.brickcount').text(resource_cards.brick);
+  $resource_box.find('.graincount').text(resource_cards.grain);
+  $resource_box.find('.lumbercount').text(resource_cards.lumber);
+  $resource_box.find('.orecount').text(resource_cards.ore);
+  $resource_box.find('.sheepcount').text(resource_cards.sheep);
+
 }
 
 //  This method determines the coordinates where a settlement/city is to be drawn

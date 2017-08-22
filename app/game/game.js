@@ -53,6 +53,8 @@ Game.prototype.secondRoundResources = function(player, data) {
   var i;
   var res_type;
 
+  console.log('Allocating second round resources');
+
   // find the settlement action
   for (i = 0; i < data.actions.length; i++) {
 

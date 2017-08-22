@@ -4,7 +4,7 @@
 function Cards(){
     this.resource_cards = {
         brick : 0,
-        wheat : 0,
+        grain : 0,
         sheep : 0,
         lumber: 0,
         ore   : 0
@@ -28,7 +28,7 @@ function Cards(){
 
 //Return number of cards in Cards Object
 Cards.prototype.count_cards = function(){
-    return this.resource_cards.brick + this.resource_cards.wheat + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
+    return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
 }
 
 //Add card to cards
@@ -37,8 +37,8 @@ Cards.prototype.add_card = function(card){
         case "brick":
             this.resource_cards.brick++;
             break;
-        case "wheat":
-            this.resource_cards.wheat++;
+        case "grain":
+            this.resource_cards.grain++;
             break;
         case "sheep":
             this.resource_cards.sheep++;
@@ -57,8 +57,8 @@ Cards.prototype.remove_card = function(card){
     if(card == "sheep" && this.resource_cards.sheep > 0){
         this.resource_cards.sheep--;
         return true;
-    }else if(card == "wheat" && this.resource_cards.wheat > 0){
-        this.resource_cards.wheat--;
+    }else if(card == "grain" && this.resource_cards.grain > 0){
+        this.resource_cards.grain--;
         return true;
     }else if(card == "brick" && this.resource_cards.brick > 0){
         this.resource_cards.brick--;
@@ -81,17 +81,17 @@ Cards.prototype.remove_cards = function(purchase){
     }else if ( purchase == 'settlement' ) {
         return this.remove_card('brick') &&
             this.remove_card('lumber') &&
-            this.remove_card('wheat') &&
+            this.remove_card('grain') &&
             this.remove_card('sheep');
     }else if ( purchase === 'city' ) {
         return this.remove_card('ore') &&
             this.remove_card('ore') &&
             this.remove_card('ore') &&
-            this.remove_card('wheat') &&
-            this.remove_card('wheat');
+            this.remove_card('grain') &&
+            this.remove_card('grain');
     }else if ( purchase === 'dev_card' ) {
         return this.remove_card('ore') &&
-            this.remove_card('wheat') &&
+            this.remove_card('grain') &&
             this.remove_card('sheep');
     }else{
         logger.log('error', 'remove_cards function failed');

@@ -36,7 +36,7 @@ test.beforeEach(t => {
 
     boost_cards.add_card("sheep");
     boost_cards.add_card("brick");
-    boost_cards.add_card("wheat");
+    boost_cards.add_card("grain");
 
     //for a road and a settlement
     startNode = 3;
@@ -166,7 +166,7 @@ test("Correct number of cards in action", function(t) {
 test("Cards recorded properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
-    cards.add_card("wheat");
+    cards.add_card("grain");
     var result = true;
     var i = 0;
     while(i < cards.resource_cards.length){
@@ -181,10 +181,10 @@ test("Cards recorded properly" , function (t) {
 test("Cards removed properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
-    cards.add_card("wheat");
+    cards.add_card("grain");
     cards.remove_card("sheep");
     cards.remove_card("brick");
-    cards.remove_card("wheat");
+    cards.remove_card("grain");
     cards.remove_card("lumber");
     cards.remove_card("ore");
 
@@ -206,7 +206,7 @@ test("Check cards can't be a negative value" , function (t) {
     //now try to go to negative numbers
     cards.remove_card("sheep");
     cards.remove_card("brick");
-    cards.remove_card("wheat");
+    cards.remove_card("grain");
     cards.remove_card("lumber");
     cards.remove_card("ore");
 
@@ -226,23 +226,23 @@ test("Remove purchases from Card object" , function (t) {
     cards.remove_cards("road");
     t.is(cards.count_cards(), 1);
 
-    cards.add_card("wheat");
-    cards.add_card("sheep"); //now there should be ore, wheat and sheep
+    cards.add_card("grain");
+    cards.add_card("sheep"); //now there should be ore, grain and sheep
     cards.remove_cards("dev_card");
     t.is(cards.count_cards(), 0);
 
     cards.add_card("brick");
     cards.add_card("lumber");
-    cards.add_card("wheat");
-    cards.add_card("sheep"); //now there should be brick, lumber, wheat and sheep
+    cards.add_card("grain");
+    cards.add_card("sheep"); //now there should be brick, lumber, grain and sheep
     cards.remove_cards("settlement");
     t.is(cards.count_cards(), 0);
 
     cards.add_card("ore");
     cards.add_card("ore");
     cards.add_card("ore");
-    cards.add_card("wheat");
-    cards.add_card("wheat"); //now there should be 33 ore and 2 wheat
+    cards.add_card("grain");
+    cards.add_card("grain"); //now there should be 33 ore and 2 grain
     cards.remove_cards("city");
     t.is(cards.count_cards(), 0);
 });
