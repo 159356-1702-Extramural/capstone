@@ -345,7 +345,7 @@ body {
     height:50px;
     width:50px;
 }
-.node.disabled {
+.node.disabled, road.disabled, .house.disabled {
     display:none;
 }
 .node.buildspot {
@@ -397,7 +397,7 @@ body {
 .road {
     position:absolute;
     opacity:0.8;
-    z-index:9997;
+    z-index:9996;
 }
 .road.roadspot {
     display:none;
@@ -429,15 +429,15 @@ body {
 
 .road.roadspot.angle30 {
     background-image: url(../images/road_ghost_topdown.png);
-    z-index: 9996 !important;
+    z-index: 9995 !important;
 }
 .road.roadspot.angle90 {
     background-image: url(../images/road_ghost_vertical.png);
-    z-index: 9996 !important;
+    z-index: 9995 !important;
 }
 .road.roadspot.angle330 {
     background-image: url(../images/road_ghost_bottomup.png);
-    z-index: 9996 !important;
+    z-index: 9995 !important;
 }
 
 .road.purple.angle30 {
