@@ -1,5 +1,5 @@
 
-function Game_state(){
+function Game_state() {
 
     //players data = [{player_id:1, name: 'Craig', color: '#000'}, {...}]
     this.players_data   = [];
