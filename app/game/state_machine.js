@@ -113,19 +113,18 @@ StateMachine.prototype.tick = function(data) {
             this.send_to_player('game_update', data_package);
         }
 
-        //call start sequence again from here - startSequence will find the next player to have a turn
-        this.game_start_sequence();
-        this.broadcast_gamestate();
-
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
 
-        if(this.setupPointer - 1 > this.setupSequence.length / 2){
+        if(this.setupPointer > this.setupSequence.length / 2){
             this.game.secondRoundResources(this.game.players[data.player_id], data);
         }
 
+        //call start sequence again from here - startSequence will find the next player to have a turn
+        this.game_start_sequence();
+        this.broadcast_gamestate();
 
         // For now: increment round number and reset the player turn
         // completion status
