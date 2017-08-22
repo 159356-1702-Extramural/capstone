@@ -1,6 +1,8 @@
 language: node_js
 node_js:
 - "stable"
+before_install:
+- sudo chmod ugo+x scripts/nightly.sh
 install:
 - npm install selenium selenium-webdriver geckodriver saucelabs
 notifications:
@@ -9,3 +11,5 @@ after_success:
 - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
 addons:
   sauce_connect: true
+script:
+  scripts/nightly.sh
