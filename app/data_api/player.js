@@ -4,9 +4,9 @@ var Cards = require('../data_api/cards.js');
 
 /**
  * Instance of a player
- * 
- * @param {any} socket 
- * @param {any} data 
+ *
+ * @param {any} socket
+ * @param {any} data
  */
 function Player(socket, data) {
     this.id             = null;
@@ -19,7 +19,13 @@ function Player(socket, data) {
     // Players colour
     this.colour         = null;
 
-    this.score          = [];
+    this.score          = {
+      total_points   : 0,
+      victory_points : 0,
+      longest_road   : false,
+      largest_army   : false
+    };
+
     this.actions        = null;
     this.cards          = new Cards();
 
