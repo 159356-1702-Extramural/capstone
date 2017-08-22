@@ -12,4 +12,4 @@ after_success:
 addons:
   sauce_connect: true
 script:
-  scripts/nightly.sh
+  ./scripts/nightly.sh
