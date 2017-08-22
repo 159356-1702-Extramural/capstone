@@ -103,21 +103,21 @@ function setupDragDrop() {
 //  can be built on
 function show_open_spots(object_type, ignore_id) {
     //  Local reference to nodes object
-    var nodes = game_data.board.nodes;
+    var nodes = game_data.game_state.board.nodes;
     if (object_type == "road") {
-        nodes = game_data.board.roads;
+        nodes = game_data.game_state.board.roads;
     }
 
     //  If object is on the canvas, ignore the associated node
     var node_to_ignore = null;
     if (ignore_id.indexOf("_pending_") > -1) {
-        ignore_id = parseInt(ignore_id.replace(object_type + "_" + current_player.colour + "_pending_", ""));
+      ignore_id = parseInt(ignore_id.replace(object_type + "_" + game_state.player.colour + "_pending_", ""));
         node_to_ignore = nodes[ignore_id];
     }
 
     //  Now manage specific object types
     if (object_type == "house") {
-        if (game_data.round_num < 3) {
+        if (game_data.game_state.round_num < 3) {
             //  Setup mode: Show all valid build spots on the board
             $(".buildspot:not(.locked)").hide();
             $(".buildspot:not(.locked)").each(function () {
@@ -177,9 +177,9 @@ function set_object_on_canvas(event, ui) {
     var object_type = (object_dragged_id.indexOf("house") > -1 ? "house" : (object_dragged_id.indexOf("road") > -1 ? "road" : "city"));
 
     //  Nodes vs Roads reference
-    var nodes = game_data.board.nodes;
+    var nodes = game_data.game_state.board.nodes;
     if (object_type == "road") {
-        nodes = game_data.board.roads;
+        nodes = game_data.game_state.board.roads;
     }
 
     //  Grab the node/road based on the drop target
@@ -256,9 +256,9 @@ function return_object(type, event, ui) {
         var object_type = (object_dragged_id.indexOf("house") > -1 ? "house" : (object_dragged_id.indexOf("road") > -1 ? "road" : "city"));
 
         //  Nodes vs Roads reference
-        var nodes = game_data.board.nodes;
+        var nodes = game_data.game_state.board.nodes;
         if (object_type == "road") {
-            nodes = game_data.board.roads;
+            nodes = game_data.game_state.board.roads;
         }
 
 

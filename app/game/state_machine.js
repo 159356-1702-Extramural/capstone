@@ -209,21 +209,23 @@ StateMachine.prototype.broadcast_gamestate = function() {
   });
 
   game_state.players          = players;
-  game_state.board_setup      = this.game.board;
+  game_state.board            = this.game.board;
   game_state.round_num        = this.game.round_num;
   game_state.dice_values      = this.game.dice_roll;
 
   // Send each player their a game update
 
   for (var i = 0; i < this.game.players.length; i++) {
-    player = this.game.players[i];
+
+    player = Object.assign({}, this.game.players[i]);
+    delete player.socket;
 
     data_package = new Data_package();
     data_package.set_turn_type('update_board');
     data_package.set_player(player);
     data_package.set_game_state(game_state);
 
-    this.send_to_player('update_game', game_state);
+    this.send_to_player('update_game', data_package);
   }
 };
 
