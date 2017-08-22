@@ -80,11 +80,9 @@ $(document).ready(function() {
         //  Update the local copy of the game data
         game_data = data;
 
-        console.log('game_data: ', game_data);
-
         // Update the game state panel
         updatePanelDisplay();
-
+        
         //  Update all nodes on the board
         buildNodes();
 
@@ -133,6 +131,8 @@ $(document).ready(function() {
         data_package.actions = turn_actions;
 
         //check correct deployment in setup (one house, one road)
+        update_server("game_update", data_package);
+        
         if(server_data.data_type === 'setup_phase'){
 
             checkLegitimateTurn(data_package);
@@ -410,13 +410,6 @@ function buildNodes() {
                             point[0] -= (building_dimension / 2);
                             point[1] -= (node.building == "city" ? (building_dimension / 2) : (settlement_height / 2));
 
-                            //  temp (for testing)
-                            if (x == 2 && y == 1 && j == 0) {
-                                node.owner = 0;
-                                node.building = "house";
-                                node_class = getNodeCSS(node);
-                            }
-
                             //  Finally create the html based on the node properties
                             $("body").append("<div id='node_" + node_positions[j] + "' class='node " + node_class + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
                         } else {
@@ -546,7 +539,7 @@ function buildRoads() {
             $("body").append("<div id='road_" + i + "' class='road " + road_class + " angle" + angle + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
         } else {
             //  The road exists on the board, update css in case it changed
-            //road_on_canvas.attr("class", "road " + road_class);
+            road_on_canvas.removeClass("roadspot").removeClass("locked").addClass(road_class);
         }
     }
 }
@@ -622,7 +615,7 @@ function getRoadPosition(road) {
 }
 
 //  Some simple logic to see if a road can be built
-function can_build_road(road, road_to_ignore) {
+function can_build_road(road, road_to_ignore, node_to_enforce) {
     var success = false;
 
     //  If we have a road_to_ignore, temporarily hide it's owner property
@@ -636,24 +629,32 @@ function can_build_road(road, road_to_ignore) {
     var nodes = game_data.board.nodes;
     var roads = game_data.board.roads;
 
-    //  TODO: Replace with board helper when is_road_valid_build checks for a road leading to this road
-
     //  Is a road already here?
     if (road.owner == -1) {
-        //  Do we have an adjacent building?
-        if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
-            //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
-            for (var h = 0; h < 2; h++) {
-                for (var i = 0; i < nodes[road.connects[h]].n_roads.length; i++) {
-                    if (roads[nodes[road.connects[h]].n_roads[i]].owner == current_player.id) {
-                        success = true;
-                        break;
-                    }
-                }
-                if (success) { break; }
+        //  If we have a node_to_enforce, we must build off it
+        var is_enforced = true;
+        if (node_to_enforce) {
+            if (nodes[road.connects[0]] != node_to_enforce && nodes[road.connects[1]] != node_to_enforce) {
+                is_enforced = false;
             }
-        } else {
-            success = true;
+        }
+
+        if (is_enforced) {
+            //  Do we have an adjacent building?
+            if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
+                //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
+                for (var h = 0; h < 2; h++) {
+                    for (var i = 0; i < nodes[road.connects[h]].n_roads.length; i++) {
+                        if (roads[nodes[road.connects[h]].n_roads[i]].owner == current_player.id) {
+                            success = true;
+                            break;
+                        }
+                    }
+                    if (success) { break; }
+                }
+            } else {
+                success = true;
+            }
         }
     }
     //  If we have a road_to_ignore, restore it
@@ -663,7 +664,6 @@ function can_build_road(road, road_to_ignore) {
 
     return success;
 }
-
 
 function getDots(d) {
     if (d == 2 || d == 12) {
