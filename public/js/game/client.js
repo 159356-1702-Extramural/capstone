@@ -82,7 +82,7 @@ $(document).ready(function() {
 
         // Update the game state panel
         updatePanelDisplay();
-        
+
         //  Update all nodes on the board
         buildNodes();
 
@@ -130,9 +130,6 @@ $(document).ready(function() {
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
 
-        //check correct deployment in setup (one house, one road)
-        update_server("game_update", data_package);
-        
         if(server_data.data_type === 'setup_phase'){
 
             checkLegitimateTurn(data_package);
