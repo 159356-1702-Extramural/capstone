@@ -10,7 +10,19 @@ function Board(obj) {
     for (var prop in obj) this[prop] = obj[prop];
   };
 }
-
+/********************************************
+*  Basic setters for board elements
+*********************************************/
+/// modifies the owner of road or house array (used in setup) - modify for general use
+Board.prototype.set_item = function(item, index, player_id){
+   if(item === 'road'){
+    this.roads[index].owner = player_id;
+    this.roads[index].status = ''; //looks like status should be blank for accepted road.
+   }else if(item === 'house'){
+    this.nodes[index].building = item;
+    this.nodes[index].owner = player_id;
+   }
+}
 /********************************************
 *  Basic getters for board elements
 *********************************************/
@@ -230,5 +242,7 @@ function hex_corner(center, tile_height, i) {
   return Point(center.x + tile_height * cos(angle_rad), center.y + tile_height * sin(angle_rad));
 };
 */
-module.exports = { Board, Point, TileNode, RoadNode, BuildNode };
 
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { Board: Board, Point: Point, TileNode: TileNode, RoadNode: RoadNode, BuildNode: BuildNode };
+}

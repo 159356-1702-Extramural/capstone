@@ -5,7 +5,7 @@ var Game    = require('./game.js');
 var Data_package    = require('../data_api/data_package.js');
 var Game_state      = require('../data_api/game_state.js');
 var Player          = require('../data_api/player.js');
-var Action          = require('../data_api/action.js');
+var Action          = require('../../public/data_api/action.js');
 var Cards           = require('../data_api/cards.js');
 /*
 *  The core of the server side
@@ -82,6 +82,37 @@ StateMachine.prototype.tick = function(data) {
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
     if (this.state === "setup") {
+        //check data and add to player
+
+        //TODO change below if statement to check whether setup placement valid
+        var valid = true;
+        //set any invalid actions action.action_result = false
+
+        if(valid){
+            for(var i = 0; i < data.actions.length; i++){
+                var player_id   = data.player_id;
+                var item        = data.actions[i].action_type; //house or road
+                var index       = data.actions[i].action_data.id;
+
+                //  TODO: I think this can be removed
+                // if ( item === 'road' ){
+                //     index       = data.actions[i].action_data.id;
+                // }else if (item === 'house' ){
+                //     index       = data.actions[i].action_data.id;
+                // }
+                this.game.board.set_item(item, index, player_id);
+            }
+        }else{
+            //  send back an invalid move package
+            var data_package = new Data_package();
+            var player = new Player();
+            player.id = data.player_id;
+            player.actions = data.player.actions;
+            data_package.data_type = 'invalid_move';
+            data_package.player = player;
+            this.send_to_player('game_update', data_package);
+        }
+
         //call start sequence again from here - startSequence will find the next player to have a turn
         this.game_start_sequence();
         this.broadcast_gamestate();
@@ -110,6 +141,7 @@ StateMachine.prototype.tick = function(data) {
         }
 
         this.game.round_num = this.round_num + 1;
+
         return true;
     }
 
@@ -160,6 +192,8 @@ StateMachine.prototype.tick = function(data) {
  of the game in the browser
 ******************************************************************/
 StateMachine.prototype.broadcast_gamestate = function() {
+
+    
     var players = this.game.players.map(function(player, idx) {
         return {
             id              : idx,
@@ -185,6 +219,12 @@ StateMachine.prototype.broadcast = function(event_name, data) {
     this.game.players.forEach(function(player) {
         player.socket.emit(event_name, data);
     });
+};
+
+/// Messages individual player in a game
+StateMachine.prototype.send_to_player = function(event_name, data) {
+    var player = players[data.player.id];
+    player.socket.emit(event_name, data);
 };
 
 /***************************************************************
@@ -215,13 +255,9 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
                 if(this.setupPointer < this.setupSequence.length / 2){
                     setup_data.player = 1;
                 } else {
-                    console.log("Set to 2");
                     setup_data.player = 2;
                 }
-
                 this.game.players[i].socket.emit('game_turn', setup_data);
-                console.log(setup_data);
-
             }
         }
     } else {

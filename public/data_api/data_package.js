@@ -31,5 +31,8 @@ Data_package.prototype.clear_data = function (){
     this.actions    = [];
 };
 
-module.exports = Data_package;
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Data_package;
+}
+
 
