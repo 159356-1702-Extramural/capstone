@@ -125,6 +125,7 @@ StateMachine.prototype.tick = function(data) {
 
         if(this.setupPointer > this.setupSequence.length / 2){
             this.game.secondRoundResources(this.game.players[data.player_id], data);
+            this.game.round_num++;
         }
 
         //call start sequence again from here - startSequence will find the next player to have a turn
@@ -144,8 +145,6 @@ StateMachine.prototype.tick = function(data) {
                 this.next_state();
             }
         }
-
-        this.game.round_num++;
 
         return true;
     }

@@ -345,7 +345,7 @@ body {
     height:50px;
     width:50px;
 }
-.node.disabled {
+.node.disabled, road.disabled, .house.disabled {
     display:none;
 }
 .node.buildspot {

@@ -74,7 +74,7 @@ function setupDragDrop() {
     });
 
     //  Setup road drag/drop
-    $(".road:not(.roadspot)").draggable({
+    $(".road:not(.roadspot, .locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
             show_open_spots("road", event.target.id);
@@ -102,30 +102,31 @@ function setupDragDrop() {
 //  Method to show the ghost images for any valid nodes that this object
 //  can be built on
 function show_open_spots(object_type, ignore_id) {
+    doLog(current_game.round_num);
     //  Local reference to nodes object
-    var nodes = game_data.game_state.board.nodes;
+    var nodes = current_game.nodes;
     if (object_type == "road") {
-        nodes = game_data.game_state.board.roads;
+        nodes = current_game.roads;
     }
 
     //  If object is on the canvas, ignore the associated node
     var node_to_ignore = null;
     if (ignore_id.indexOf("_pending_") > -1) {
-      ignore_id = parseInt(ignore_id.replace(object_type + "_" + game_state.player.colour + "_pending_", ""));
+        ignore_id = parseInt(ignore_id.replace(object_type + "_" + current_game.player.colour + "_pending_", ""));
         node_to_ignore = nodes[ignore_id];
-
+        
         //  Does this object have dependents (i.e. If we remove this object, does it orphan other objects?)
         return_dependents(object_type, node_to_ignore);
     }
 
     //  During setup, we can only place 1 house and 1 road
-    if (game_data.round_num < 3 && node_to_ignore == null && turn_actions.length == 2) {
+    if (current_game.round_num < 3 && node_to_ignore == null && turn_actions.length == 2) {
         return false;
     }
 
     //  Now manage specific object types
     if (object_type == "house") {
-        if (game_data.game_state.round_num < 3) { // TODO: remove magic number
+        if (current_game.round_num < 3) { // TODO: remove magic number
             if (turn_actions.length == 0 || node_to_ignore == turn_actions[0].action_data) {
                 //  Setup mode: Show all valid build spots on the board
                 $(".buildspot:not(.locked)").hide();
@@ -151,7 +152,7 @@ function show_open_spots(object_type, ignore_id) {
         var node_to_enforce = null;
 
         //  Is this a setup round?
-        if (game_data.round_num < 3) {
+        if (current_game.round_num < 3) {
             //  If no house has been placed yet, nothing to do
             if (turn_actions.length == 0) { return false; }
 
@@ -173,7 +174,7 @@ function show_open_spots(object_type, ignore_id) {
 
     if (object_type == "city") {
         //  Not allowed in setup mode, all other modes
-        if (game_data.round_num > 2) {
+        if (current_game.round_num > 2) {
             $(".node.house.locked." + current_player.colour).each(function () {
                 $(this).addClass("expand");
             });
@@ -198,9 +199,9 @@ function set_object_on_canvas(event, ui) {
     //  Get the type of structure
     var object_type = (object_dragged_id.indexOf("house") > -1 ? "house" : (object_dragged_id.indexOf("road") > -1 ? "road" : "city"));
     //  Nodes vs Roads reference
-    var nodes = game_data.game_state.board.nodes;
+    var nodes = current_game.nodes;
     if (object_type == "road") {
-        nodes = game_data.game_state.board.roads;
+        nodes = current_game.roads;
     }
 
     //  Grab the node/road based on the drop target
@@ -285,9 +286,9 @@ function return_object(object_to_return, object_to_return_id, last_node_id) {
         var object_type = (object_to_return_id.indexOf("house") > -1 ? "house" : (object_to_return_id.indexOf("road") > -1 ? "road" : "city"));
 
         //  Nodes vs Roads reference
-        var nodes = game_data.game_state.board.nodes;
+        var nodes = current_game.nodes;
         if (object_type == "road") {
-            nodes = game_data.game_state.board.roads;
+            nodes = current_game.roads;
         }
 
         //  Need node id to remove or modify turn_action currently splitting div name
@@ -325,9 +326,9 @@ function return_object(object_to_return, object_to_return_id, last_node_id) {
 //  no longer have a valid path when this node/road is removed
 function return_dependents(object_type, node) {
     //  Are we using nodes or roads?
-    var nodes = game_data.nodes;
-    if (object_type == "road") { nodes = game_data.roads; }
-
+    var nodes = current_game.nodes;
+    if (object_type == "road") { nodes = current_game.roads; }
+    
     //  Temporarily remove this node from the game_state nodes/roads
     var tempNode = new BuildNode();
     stash_node(object_type, tempNode, node);
@@ -372,18 +373,18 @@ function has_valid_path(object_type, node, checked) {
     //  Otherwise we keep going
     if (object_type == "house") {
         for (var i = 0; i < node.n_roads.length; i++) {
-            has_path = has_path & has_valid_path("road", game_data.board.roads[node.n_roads[i]], checked);
+            has_path = has_path & has_valid_path("road", current_game.roads[node.n_roads[i]], checked);
             if (has_path) { break; }
         }
         if (!_has_path) {
             for (var i = 0; i < node.n_nodes.length; i++) {
-                has_path = has_path & has_valid_path("house", game_data.board.nodes[node.n_nodes[i]], checked);
+                has_path = has_path & has_valid_path("house", current_game.nodes[node.n_nodes[i]], checked);
                 if (has_path) { break; }
             }
         }
     } else {
         for (var i = 0; i < node.connects.length; i++) {
-            has_path = has_path & has_valid_path("road", game_data.board.nodes[node.connects[i]], checked);
+            has_path = has_path & has_valid_path("road", current_game.nodes[node.connects[i]], checked);
             if (has_path) { break; }
         }
     }
@@ -455,12 +456,12 @@ function stash_node(object_type, new_node, old_node) {
     new_node.status = old_node.status;
     if (object_type == "house") { new_node.building = old_node.building;  }
 
-    game_data.board.nodes[old_node.id].owner = -1;
-    game_data.board.nodes[old_node.id].status = "";
-    if (object_type == "house") { game_data.board.nodes[old_node.id].building = "";  }
+    current_game.nodes[old_node.id].owner = -1;
+    current_game.nodes[old_node.id].status = "";
+    if (object_type == "house") { current_game.nodes[old_node.id].building = "";  }
 }
 function restore_node(object_type, new_node, old_node) {
-    game_data.board.nodes[new_node.id].owner = new_node.owner;
-    game_data.board.nodes[new_node.id].status = new_node.status;
-    if (object_type == "house") { game_data.board.nodes[new_node.id].building = new_node.building;  }
+    current_game.nodes[new_node.id].owner = new_node.owner;
+    current_game.nodes[new_node.id].status = new_node.status;
+    if (object_type == "house") { current_game.nodes[new_node.id].building = new_node.building;  }
 }
