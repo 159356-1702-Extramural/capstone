@@ -2,7 +2,7 @@ language: node_js
 node_js:
 - "stable"
 before_install:
-- sudo chmod ugo+x scripts/nightly.sh
+- sudo chmod ugo+x ./scripts/nightly.sh
 install:
 - npm install selenium selenium-webdriver geckodriver saucelabs
 notifications:
