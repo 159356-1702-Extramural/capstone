@@ -17,12 +17,19 @@ function Game(state_machine) {
     this.dice_roll      = [];
 }
 
-///
+/**
+* Returns bool if the game contains max players
+* @return {Bool} (this.players.length === this.max_players)
+*/
 Game.prototype.game_full = function() {
     return (this.players.length === this.max_players);
 };
 
-/// Adds a player to the game
+/**
+* Add the player object to this game
+* @param {Player} player
+* @return {Bool} - true if successful
+*/
 Game.prototype.add_player = function(player) {
     console.log('adding player');
     // Store the player id
@@ -38,8 +45,9 @@ Game.prototype.add_player = function(player) {
 };
 
 /**
- * Creates the initial board data and sends it to each client
- */
+* Parse the board to JSON string
+* @return {String} JSON - this.board parsed to a JSON string
+*/
 Game.prototype.buildBoard = function () {
     jsonData = JSON.stringify(this.board);
     return jsonData;
@@ -64,9 +72,14 @@ Game.prototype.secondRoundResources = function(player, data) {
   }
 
   // Loop over each point and give the player one resource of each type
-  for (i = 0; i < tiles.length; i++) {
-    res_type = this.board.get_tile_resource_type(tiles[i]);
-    player.cards.add_card(res_type);
+  if (typeof tiles !== 'undefined') {
+      for (i = 0; i < tiles.length; i++) {
+        res_type = this.board.get_tile_resource_type(tiles[i]);
+        player.cards.add_card(res_type);
+      }
+  } else {
+      console.log("secondRoundResources(): tiles undefined, possible invalid data");
+      logger.log('debug', "secondRoundResources(): tiles undefined, possible invalid data");
   }
 };
 
