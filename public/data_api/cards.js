@@ -53,25 +53,30 @@ Cards.prototype.add_card = function(card){
 }
 
 Cards.prototype.remove_card = function(card){
-    //switch was giving wierd results
-    if(card == "sheep" && this.resource_cards.sheep > 0){
-        this.resource_cards.sheep--;
-        return true;
-    }else if(card == "grain" && this.resource_cards.grain > 0){
-        this.resource_cards.grain--;
-        return true;
-    }else if(card == "brick" && this.resource_cards.brick > 0){
-        this.resource_cards.brick--;
-        return true;
-    }else if(card == "lumber" && this.resource_cards.lumber > 0){
-        this.resource_cards.lumber--;
-        return true;
-    }else if(card == "ore" && this.resource_cards.ore > 0){
-        this.resource_cards.ore--;
-        return true;
-    }else{
-        return false;
+    return this.remove_multiple_cards(card, 1);
+}
+Cards.prototype.remove_multiple_cards = function(card, qty){
+    if (qty > 0) {
+        if(card == "sheep" && this.resource_cards.sheep >= qty){
+            this.resource_cards.sheep -= qty;
+            return true;
+        }else if(card == "grain" && this.resource_cards.grain >= qty){
+            this.resource_cards.grain -= qty;
+            return true;
+        }else if(card == "brick" && this.resource_cards.brick >= qty){
+            this.resource_cards.brick -= qty;
+            return true;
+        }else if(card == "lumber" && this.resource_cards.lumber >= qty){
+            this.resource_cards.lumber -= qty;
+            return true;
+        }else if(card == "ore" && this.resource_cards.ore >= qty){
+            this.resource_cards.ore -= qty;
+            return true;
+        }else{
+            return false;
+        }
     }
+    return false;
 }
 
 Cards.prototype.remove_cards = function(purchase){
@@ -98,4 +103,55 @@ Cards.prototype.remove_cards = function(purchase){
         return false;
     }
 }
-module.exports = Cards;
+
+Cards.prototype.has_cards = function(card_list) {
+    var missing_card = false;
+    var removed_list = [];
+
+    //  Mimic the removal of each card and see if we run out
+    for (var i = 0; i < card_list.length; i++) {
+        var next_card = card_list[i];
+        if (this.remove_card(next_card)) {
+            removed_list.push(next_card);
+        } else {
+            missing_card = true;
+            break;
+        }
+    }
+
+    //  In all cases, we restore the cards
+    for (var i = 0; i < removed_list.length; i++) {
+        var next_card = removed_list[i];
+        this.add_card(next_card);
+    }
+    return !missing_card;
+}
+
+Cards.prototype.get_required_cards = function(object_type){
+    var card_list = [];
+
+    if ( object_type == 'road' ) {
+        card_list.push('lumber');
+        card_list.push('brick');
+    }
+    if ( object_type == 'house' ) {
+        card_list.push('lumber');
+        card_list.push('brick');
+        card_list.push('grain');
+        card_list.push('ore');
+    }
+    if ( object_type == 'city' ) {
+        card_list.push('grain');
+        card_list.push('grain');
+        card_list.push('ore');
+        card_list.push('ore');
+        card_list.push('ore');
+    }
+    return card_list;
+}
+
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = Cards;
+}
+  

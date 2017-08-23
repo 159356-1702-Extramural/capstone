@@ -849,14 +849,14 @@ body {
 }
 
 
-.trade_title {
+.trade_title, .build_title {
     clear:both;
     margin-top:10px;
     font-size:24px;
     font-weight:bold;
     border-bottom:thin solid green;
 }
-.trade_row, .trade_review_row {
+.trade_row, .trade_review_row, .build_row {
     clear:both;
     margin:5px 10px;
     height:120px;
@@ -870,12 +870,26 @@ body {
     border-top: thin solid green;
     border-bottom: thin solid green;
 }
-.trade_row .card_give, .trade_row .card_receive, .year_receive, .monopoly_receive, .devcard_receive, .trade_card_give, .trade_card_want {
+.trade_row .card_give, .trade_row .card_receive, .year_receive, .monopoly_receive, .devcard_receive, .trade_card_give, .trade_card_want, .build_give {
     text-align: center;
     float:left;
 }
 .card_give .unavailable, .card_receive .unavailable, .devcard_card .unavailable, .trade_card_give .unavailable, .trade_card_want .unavailable {
     opacity: 0.4;
+}
+
+.build_card, .extra_card {
+    float:left;
+    width:35px;
+}
+.build_card_list, .extra_card_list {
+    float:left;
+}
+.extra_card_list {
+    margin-left:65px;
+}
+.build_give:hover, .extra_card_list:hover {
+    cursor: pointer;
 }
 
 .trade_picked {
