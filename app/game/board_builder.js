@@ -5,7 +5,7 @@ var Board    = require('../../public/data_api/board.js');
 // TODO: [EASY] Harbours
 
 /*
-*  Takes a 2D array
+* Takes a 2D array
 *
 * Numbers in grid determine the tile type
 */
