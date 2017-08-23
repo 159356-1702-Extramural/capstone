@@ -20,7 +20,7 @@ function Game(state_machine) {
 ///
 Game.prototype.game_full = function() {
     return (this.players.length === this.max_players);
-}
+};
 
 /// Adds a player to the game
 Game.prototype.add_player = function(player) {
@@ -95,6 +95,7 @@ Game.prototype.allocateDicerollResources = function(roll) {
   var i;
   var j;
   var k;
+  var n;
 
   // Robber no resources to allocate
   if (roll === 7) return;
@@ -102,29 +103,39 @@ Game.prototype.allocateDicerollResources = function(roll) {
   var tiles = this.board.tiles;
 
   for (i = 0; i < tiles.length; i++) {
-    // Find tile with token matching diceroll
-    if (tiles[i].token == roll) {
 
-      // Check the associated notes for structures
-      var associated_nodes = tiles[i].associated_nodes;
-      for (j = 0; j < associated_nodes.length; j++) {
+    var tiles_row = tiles[i];
 
-        console.log(JSON.stringify(associated_nodes[j], null, 4));
+    for (n = 0; n < tiles_row.length; n++) {
 
-        // If we find build hand over resource cards to that player
-        if (associated_nodes[j].building !== '') {
+      // Find tile with token matching diceroll
+      if (tiles_row[n].token == roll) {
 
-          var player_id = associated_nodes[j].owner;
-          var num_resources = (associated_nodes[j].building === 'house') ? 1 : 2;
-          var resource = tiles[i].type;
+        // Check the associated notes for structures
+        var associated_nodes = tiles_row[n].associated_nodes;
+        for (j = 0; j < associated_nodes.length; j++) {
 
-          // Send the tile resources to the player
-          for (k = 0; k < num_resources; k++) {
-            this.players[player_id].cards.add_card(resource);
+          var node = this.board.nodes[associated_nodes[j]];
+
+          // If we find build hand over resource cards to that player
+          if (node.building !== '') {
+
+            var player_id = node.owner;
+
+            // settlements get 1 resource, cities 2
+            var num_resources = (node.building === 'house') ? 1 : 2;
+            var resource = tiles_row[n].type;
+
+            // Send the tile resources to the player
+            for (k = 0; k < num_resources; k++) {
+              this.players[player_id].cards.add_card(resource);
+              this.players[player_id].round_distribution_cards.add_card(resource);
+            }
+
           }
-
         }
       }
+
     }
   }
 

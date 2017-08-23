@@ -62,16 +62,7 @@ Board.prototype.get_road_indexes_from_node = function (index) {
       array.push(this.nodes[index].n_roads[i]);
   }
   return array;
-}
-
-// returns an array of the index numbers for roads
-Board.prototype.get_road_indexes_from_node = function (index) {
-    var array = [];
-    for (var i=0; i<this.nodes[index].n_roads.length; i++) {
-        array.push(this.nodes[index].n_roads[i]);
-    }
-    return array;
-}
+};
 
 /// returns an array of tile objects
 Board.prototype.get_tiles_with_resource = function (resource) {

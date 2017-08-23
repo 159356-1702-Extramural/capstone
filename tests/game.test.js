@@ -65,10 +65,9 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
 
   game.board.set_item('build_settlement', 19, 0);
 
-  game.allocateDicerollResources(5);
-
-  console.log(game.players[0]);
+  game.allocateDicerollResources(6);
 
   t.true(game.players[0].cards.resource_cards.ore === 1);
+  t.true(game.players[0].round_distribution_cards.resource_cards.ore === 1);
 
 });
