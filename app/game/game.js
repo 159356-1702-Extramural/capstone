@@ -55,8 +55,6 @@ Game.prototype.secondRoundResources = function(player, data) {
   var i;
   var res_type;
 
-  console.log('Allocating second round resources');
-
   // find the settlement action
   for (i = 0; i < data.actions.length; i++) {
 
@@ -96,22 +94,34 @@ Game.prototype.rollingDice = function() {
 Game.prototype.allocateDicerollResources = function(roll) {
   var i;
   var j;
+  var k;
 
   // Robber no resources to allocate
-  if (roll == 7) return;
+  if (roll === 7) return;
 
   var tiles = this.board.tiles;
+
   for (i = 0; i < tiles.length; i++) {
     // Find tile with token matching diceroll
     if (tiles[i].token == roll) {
+
       // Check the associated notes for structures
       var associated_nodes = tiles[i].associated_nodes;
       for (j = 0; j < associated_nodes.length; j++) {
-        if (associated_nodes.building !== '') {
 
-          // Determine building type
+        console.log(JSON.stringify(associated_nodes[j], null, 4));
+
+        // If we find build hand over resource cards to that player
+        if (associated_nodes[j].building !== '') {
+
+          var player_id = associated_nodes[j].owner;
+          var num_resources = (associated_nodes[j].building === 'house') ? 1 : 2;
+          var resource = tiles[i].type;
 
           // Send the tile resources to the player
+          for (k = 0; k < num_resources; k++) {
+            this.players[player_id].cards.add_card(resource);
+          }
 
         }
       }

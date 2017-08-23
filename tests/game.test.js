@@ -19,7 +19,7 @@ test("End of start sequence resources can be allocated", function(t) {
   var mock_data;
   var game = new Game();
   game.players[0] = new Player({}, { name: 'Tim'});
-  game.players[0].id = 1;
+  game.players[0].id = 0;
 
   // Fake settlement placement
   mock_data = {
@@ -57,8 +57,18 @@ test("Individual rolls are added to the game object", function (t) {
   t.true(game.dice_roll[1] >= 1 && game.dice_roll[1] <= 6);
 });
 
-test.skip("Test dice roll rescources have been allocated correctly.", function() {
+test("Test dice roll rescources have been allocated correctly.", function(t) {
   var game = new Game();
-  var result = game.rollingDice();
+
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+
+  game.board.set_item('build_settlement', 19, 0);
+
+  game.allocateDicerollResources(5);
+
+  console.log(game.players[0]);
+
+  t.true(game.players[0].cards.resource_cards.ore === 1);
 
 });
