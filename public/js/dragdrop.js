@@ -1,6 +1,5 @@
 ﻿//set turn actions here so they are available in client.js
 var turn_actions    = [];
-var setup_phase     = true;
 
 function setupDragDrop() {
     //  Allow the house to be put back
@@ -102,82 +101,84 @@ function setupDragDrop() {
 //  Method to show the ghost images for any valid nodes that this object
 //  can be built on
 function show_open_spots(object_type, ignore_id) {
-    doLog(current_game.round_num);
-    //  Local reference to nodes object
-    var nodes = current_game.nodes;
-    if (object_type == "road") {
-        nodes = current_game.roads;
-    }
+    //  The very first task is to see if we have the resources
+    if (has_resources(object_type)) {
+        //  Local reference to nodes object
+        var nodes = current_game.nodes;
+        if (object_type == "road") {
+            nodes = current_game.roads;
+        }
 
-    //  If object is on the canvas, ignore the associated node
-    var node_to_ignore = null;
-    if (ignore_id.indexOf("_pending_") > -1) {
-        ignore_id = parseInt(ignore_id.replace(object_type + "_" + current_game.player.colour + "_pending_", ""));
-        node_to_ignore = nodes[ignore_id];
-        
-        //  Does this object have dependents (i.e. If we remove this object, does it orphan other objects?)
-        return_dependents(object_type, node_to_ignore);
-    }
+        //  If object is on the canvas, ignore the associated node
+        var node_to_ignore = null;
+        if (ignore_id.indexOf("_pending_") > -1) {
+            ignore_id = parseInt(ignore_id.replace(object_type + "_" + current_game.player.colour + "_pending_", ""));
+            node_to_ignore = nodes[ignore_id];
+            
+            //  Does this object have dependents (i.e. If we remove this object, does it orphan other objects?)
+            return_dependents(object_type, node_to_ignore);
+        }
 
-    //  During setup, we can only place 1 house and 1 road
-    if (current_game.round_num < 3 && node_to_ignore == null && turn_actions.length == 2) {
-        return false;
-    }
+        //  During setup, we can only place 1 house and 1 road
+        if (current_game.round_num < 3 && node_to_ignore == null && turn_actions.length == 2) {
+            return false;
+        }
 
-    //  Now manage specific object types
-    if (object_type == "house") {
-        if (current_game.round_num < 3) { // TODO: remove magic number
-            if (turn_actions.length == 0 || node_to_ignore == turn_actions[0].action_data) {
-                //  Setup mode: Show all valid build spots on the board
-                $(".buildspot:not(.locked)").hide();
-                $(".buildspot:not(.locked)").each(function () {
-                    //  Find the node in the nodes object based on the id of this object
-                    var node_id = parseInt($(this).attr('id').replace("node_", ""));
+        //  Now manage specific object types
+        if (object_type == "house") {
+            if (current_game.round_num < 3) { // TODO: remove magic number
+                if (turn_actions.length == 0 || node_to_ignore == turn_actions[0].action_data) {
+                    //  Setup mode: Show all valid build spots on the board
+                    $(".buildspot:not(.locked)").hide();
+                    $(".buildspot:not(.locked)").each(function () {
+                        //  Find the node in the nodes object based on the id of this object
+                        var node_id = parseInt($(this).attr('id').replace("node_", ""));
 
-                    //  Now check to see if we can build here
-                    if (can_build(nodes[node_id], node_to_ignore)) {
-                        $(this).show();
-                    }
+                        //  Now check to see if we can build here
+                        if (can_build(nodes[node_id], node_to_ignore)) {
+                            $(this).show();
+                        }
+                    });
+                }
+            } else {
+                //  Normal mode: Show build spots this user can reach
+                if (can_build(nodes[node_id], node_to_ignore)) {
+                    $(this).show();
+                }
+            }
+        }
+        if (object_type == "road") {
+            //  During setup, we can only place a road on the house from this round
+            var node_to_enforce = null;
+
+            //  Is this a setup round?
+            if (current_game.round_num < 3) {
+                //  If no house has been placed yet, nothing to do
+                if (turn_actions.length == 0) { return false; }
+
+                //  If we have a house, then it is the only house we can use
+                if (turn_actions.length > 0) {
+                    node_to_enforce = turn_actions[0].action_data;
+                }
+            }
+
+            //  All modes: show road spots user is connected to
+            $(".roadspot:not(locked)").each(function () {
+                //  Find the road in the roads object based on the id of this object
+                var road_id = parseInt($(this).attr('id').replace("road_", ""));
+                if (can_build_road(nodes[road_id], node_to_ignore, node_to_enforce)) {
+                    $(this).show();
+                }
+            });
+        }
+
+        if (object_type == "city") {
+            //  Not allowed in setup mode, all other modes
+            if (current_game.round_num > 2) {
+                $(".node.house.locked." + current_player.colour).each(function () {
+                    $(this).addClass("expand");
                 });
             }
-        } else {
-            //  Normal mode: Show build spots this user can reach
-            if (can_build(nodes[node_id], node_to_ignore)) {
-                $(this).show();
-            }
-        }
-    }
-    if (object_type == "road") {
-        //  During setup, we can only place a road on the house from this round
-        var node_to_enforce = null;
-
-        //  Is this a setup round?
-        if (current_game.round_num < 3) {
-            //  If no house has been placed yet, nothing to do
-            if (turn_actions.length == 0) { return false; }
-
-            //  If we have a house, then it is the only house we can use
-            if (turn_actions.length > 0) {
-                node_to_enforce = turn_actions[0].action_data;
-            }
-        }
-
-        //  All modes: show road spots user is connected to
-        $(".roadspot:not(locked)").each(function () {
-            //  Find the road in the roads object based on the id of this object
-            var road_id = parseInt($(this).attr('id').replace("road_", ""));
-            if (can_build_road(nodes[road_id], node_to_ignore, node_to_enforce)) {
-                $(this).show();
-            }
-        });
-    }
-
-    if (object_type == "city") {
-        //  Not allowed in setup mode, all other modes
-        if (current_game.round_num > 2) {
-            $(".node.house.locked." + current_player.colour).each(function () {
-                $(this).addClass("expand");
-            });
         }
     }
 }
@@ -245,14 +246,13 @@ function set_object_on_canvas(event, ui) {
         }
     }
 
-    // if in the setup phase, no boost cards required
-    if(setup_phase){
-        create_player_action(object_type, node, null);
-    }else{
-        // TODO get boost cards from the boost dialogue and add them to boost_cards array
-        // create_player_action(object_type, node, boost_cards);
+    //  Create our action
+    create_player_action(object_type, node, null);
+    if (current_game.round_num > 2) {
+        //  Prompt the user for more cards
+        start_build_popup(object_type);
     }
-
+    doLog(current_game.round_num);
     update_object_counts();
 }
 

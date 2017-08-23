@@ -6,7 +6,7 @@ var Data_package    = require('../data_api/data_package.js');
 var Game_state      = require('../data_api/game_state.js');
 var Player          = require('../data_api/player.js');
 var Action          = require('../../public/data_api/action.js');
-var Cards           = require('../data_api/cards.js');
+var Cards           = require('../../public/data_api/cards.js');
 /*
 *  The core of the server side
 *

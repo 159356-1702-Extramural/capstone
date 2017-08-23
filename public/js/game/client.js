@@ -223,6 +223,24 @@ $(document).ready(function() {
         $('.trade_want').html(image.replace("_small", "_tiny"));
     });
 
+    //  Build - Add Extra resource
+    $doc.on('click', '.build_give', function(e) {
+        e.preventDefault();
+
+        var resource = $(this).attr('data-resource');
+        var card_list = $(".extra_card_list");
+        var next_z = card_list.html().length + 1;
+        var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
+        card_list.append(new_card);
+    });
+
+    //  Build - Remove resources
+    $doc.on('click', '.extra_card_list', function(e) {
+        e.preventDefault();
+
+        $(".extra_card_list").html("");
+    });
+
 
 });
 function setupTurnFinished(){
@@ -302,7 +320,7 @@ function buildPopup(popupClass, useLarge, customData) {
         var html = data;
         if (customData) {
             customData.forEach(function(data) {
-                html = html.replace("{" + data[0] + "}", data[1]);
+                html = html.replace(new RegExp("{" + data[0] + "}", 'g'), data[1]);
             });
         }
         $(".popup_inner").html(html);
@@ -637,7 +655,7 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
                 is_enforced = false;
             }
         }
-
+        
         if (is_enforced) {
             //  Do we have an adjacent building?
             if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
@@ -691,6 +709,88 @@ function validateNode(neighbors, index, nodeindex) {
         }
     }
     return null;
+}
+
+function has_resources(object_type) {
+    //  Get the current player cards
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+
+    if (object_type == "house") {
+        //  During the setup round, assume they do
+        if (current_game.round_num < 3) { return true; }
+        //  Otherwise we need 1 lumber, 1 grain, 1 brick and 1 sheep
+        return my_cards.has_cards(['lumber', 'grain', 'brick', 'sheep']);
+    }
+    if (object_type == "road") {
+        //  During the setup round, assume they do
+        if (current_game.round_num < 3) { return true; }
+        //  Otherwise we need 1 lumber, 1 brick
+        return my_cards.has_cards(['lumber', 'brick']);
+    }
+    if (object_type == "city") {
+        //  Otherwise we need 2 grain and 3 ore
+        return my_cards.has_cards(['grain', 'grain', 'ore', 'ore', 'ore']);
+    }
+    return false;
+}
+
+function start_build_popup(object_type) {
+    //  Get the list of cards needed
+    var cards = new Cards();
+    var card_list = cards.get_required_cards(object_type);
+    var card_html = "";
+
+    for (var i = 0; i < card_list.length; i++) {
+        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+    }
+
+    buildPopup("round_build", false, [["object_type", object_type], ["build_cards", card_html]]);
+}
+function complete_build_popup() {
+    //  Get html holding the cards
+    var build_cards = $(".build_card_list").html();
+    var extra_cards = $(".extra_card_list").html();
+    var card_list = [];
+    
+    //  Create a reference to the players cards
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    
+    //  Remove cards from player
+    var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
+    for (var i = 0; i < resource_list.length; i++) {
+        //  Count each instance in the html
+        var resource_count = (extra_cards.match(resource_list[i], 'g') ? extra_cards.match(resource_list[i], 'g').length : 0) + (build_cards.match(resource_list[i], 'g') ? build_cards.match(resource_list[i], 'g').length : 0);
+        if (resource_count > 0) {
+            //  Remove that many from the player
+            var result = my_cards.remove_multiple_cards(resource_list[i], resource_count);
+        
+            //  Keep track of the cards
+            for (var j = 0; j < resource_count; j++) {
+                card_list.push(resource_list[i]);
+            }
+        }
+        
+    }
+
+    //  Update the turn_action data
+    turn_actions[turn_actions.length-1].boost_cards = card_list;
+
+    //  Update our counts
+    update_object_counts();
+    updatePanelDisplay();
+
+    //  All done!
+    hidePopup();
+}
+function abort_build_popup() {
+    //  We need to return it to the pile and remove it from turn_actions
+    var object_type = (turn_actions[turn_actions.length - 1].action_type == "build_road" ? "road" : "house");
+    var object_node = turn_actions[turn_actions.length - 1].action_data;
+    var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
+    return_object(object_to_return, object_to_return.attr("id"), object_node.id);
+    hidePopup();
 }
 
 function setupPlayer() {
