@@ -72,4 +72,52 @@ Game.prototype.secondRoundResources = function(player, data) {
   }
 };
 
+
+/**
+ * Rolling two dices, and return the sum of the two dices number.
+ * @return {Number} sum of the two dice
+ */
+Game.prototype.rollingDice = function() {
+  var dice1 = Math.ceil(Math.random() * 6);
+  var dice2 = Math.ceil(Math.random() * 6);
+
+  // Store the individual dice rolls for diplsay in reound completion
+  // modal when the next turn starts
+  this.dice_roll = [dice1, dice2];
+
+  return dice1 + dice2;
+};
+
+/**
+ * Allocate Diceroll Resources
+ * @param roll {numner} : between 2 and 12
+ * @return void
+ */
+Game.prototype.allocateDicerollResources = function(roll) {
+  var i;
+  var j;
+
+  // Robber no resources to allocate
+  if (roll == 7) return;
+
+  var tiles = this.board.tiles;
+  for (i = 0; i < tiles.length; i++) {
+    // Find tile with token matching diceroll
+    if (tiles[i].token == roll) {
+      // Check the associated notes for structures
+      var associated_nodes = tiles[i].associated_nodes;
+      for (j = 0; j < associated_nodes.length; j++) {
+        if (associated_nodes.building !== '') {
+
+          // Determine building type
+
+          // Send the tile resources to the player
+
+        }
+      }
+    }
+  }
+
+};
+
 module.exports = Game;

@@ -37,8 +37,28 @@ test("End of start sequence resources can be allocated", function(t) {
 
   var numCards = game.players[0].cards.count_cards();
 
-  t.truthy(numCards > 0);
+  // Should be at least two cards
+  // might be near a desert dependding on board generation
+  t.truthy(numCards > 1);
 
 });
 
-test.todo("End of start sequence resources can be allocated");
+test("Dice roll function returns a number between 2 and 12", function(t) {
+  var game = new Game();
+  var result = game.rollingDice();
+  t.true(result >= 2 && result <= 12);
+});
+
+test("Individual rolls are added to the game object", function (t) {
+  var game = new Game();
+  game.rollingDice();
+  t.true(game.dice_roll.length == 2);
+  t.true(game.dice_roll[0] >= 1 && game.dice_roll[0] <= 6);
+  t.true(game.dice_roll[1] >= 1 && game.dice_roll[1] <= 6);
+});
+
+test.skip("Test dice roll rescources have been allocated correctly.", function() {
+  var game = new Game();
+  var result = game.rollingDice();
+
+});
