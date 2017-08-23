@@ -118,11 +118,6 @@ StateMachine.prototype.tick = function(data) {
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
 
-
-        console.log('this.setupPointer: ', this.setupPointer);
-
-
-
         if(this.setupPointer > this.setupSequence.length / 2){
             this.game.secondRoundResources(this.game.players[data.player_id], data);
             this.game.round_num++;
@@ -221,6 +216,7 @@ StateMachine.prototype.broadcast_gamestate = function() {
 
   for (var i = 0; i < this.game.players.length; i++) {
 
+    // Clone Player so we can remove the socket for transmission to client
     player = Object.assign({}, this.game.players[i]);
     delete player.socket;
 

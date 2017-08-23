@@ -28,6 +28,7 @@ function Player(socket, data) {
 
     this.actions        = null;
     this.cards          = new Cards();
+    this.round_distribution_cards = new Cards();
 
 }
 

@@ -20,7 +20,7 @@ function Game(state_machine) {
 ///
 Game.prototype.game_full = function() {
     return (this.players.length === this.max_players);
-}
+};
 
 /// Adds a player to the game
 Game.prototype.add_player = function(player) {
@@ -55,8 +55,6 @@ Game.prototype.secondRoundResources = function(player, data) {
   var i;
   var res_type;
 
-  console.log('Allocating second round resources');
-
   // find the settlement action
   for (i = 0; i < data.actions.length; i++) {
 
@@ -70,6 +68,77 @@ Game.prototype.secondRoundResources = function(player, data) {
     res_type = this.board.get_tile_resource_type(tiles[i]);
     player.cards.add_card(res_type);
   }
+};
+
+
+/**
+ * Rolling two dices, and return the sum of the two dices number.
+ * @return {Number} sum of the two dice
+ */
+Game.prototype.rollingDice = function() {
+  var dice1 = Math.ceil(Math.random() * 6);
+  var dice2 = Math.ceil(Math.random() * 6);
+
+  // Store the individual dice rolls for diplsay in reound completion
+  // modal when the next turn starts
+  this.dice_roll = [dice1, dice2];
+
+  return dice1 + dice2;
+};
+
+/**
+ * Allocate Diceroll Resources
+ * @param roll {numner} : between 2 and 12
+ * @return void
+ */
+Game.prototype.allocateDicerollResources = function(roll) {
+  var i;
+  var j;
+  var k;
+  var n;
+
+  // Robber no resources to allocate
+  if (roll === 7) return;
+
+  var tiles = this.board.tiles;
+
+  for (i = 0; i < tiles.length; i++) {
+
+    var tiles_row = tiles[i];
+
+    for (n = 0; n < tiles_row.length; n++) {
+
+      // Find tile with token matching diceroll
+      if (tiles_row[n].token == roll) {
+
+        // Check the associated notes for structures
+        var associated_nodes = tiles_row[n].associated_nodes;
+        for (j = 0; j < associated_nodes.length; j++) {
+
+          var node = this.board.nodes[associated_nodes[j]];
+
+          // If we find build hand over resource cards to that player
+          if (node.building !== '') {
+
+            var player_id = node.owner;
+
+            // settlements get 1 resource, cities 2
+            var num_resources = (node.building === 'house') ? 1 : 2;
+            var resource = tiles_row[n].type;
+
+            // Send the tile resources to the player
+            for (k = 0; k < num_resources; k++) {
+              this.players[player_id].cards.add_card(resource);
+              this.players[player_id].round_distribution_cards.add_card(resource);
+            }
+
+          }
+        }
+      }
+
+    }
+  }
+
 };
 
 module.exports = Game;
