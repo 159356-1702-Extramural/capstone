@@ -78,8 +78,12 @@ $(document).ready(function() {
     socket.on('update_game', function (data) {
         //  Update the local copy of the game data
         current_game = new currentGame(data);
+
+        // DEBUG:
+        console.log('current_game: ', current_game);
+
         turn_actions = [];
-        
+
         // Update the game state panel
         updatePanelDisplay();
 
@@ -671,7 +675,7 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
                 is_enforced = false;
             }
         }
-        
+
         if (is_enforced) {
             //  Do we have an adjacent building?
             if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
@@ -768,11 +772,11 @@ function complete_build_popup() {
     var build_cards = $(".build_card_list").html();
     var extra_cards = $(".extra_card_list").html();
     var card_list = [];
-    
+
     //  Create a reference to the players cards
     var my_cards = new Cards();
     my_cards.resource_cards = current_game.player.cards.resource_cards;
-    
+
     //  Remove cards from player
     var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
     for (var i = 0; i < resource_list.length; i++) {
@@ -781,13 +785,13 @@ function complete_build_popup() {
         if (resource_count > 0) {
             //  Remove that many from the player
             var result = my_cards.remove_multiple_cards(resource_list[i], resource_count);
-        
+
             //  Keep track of the cards
             for (var j = 0; j < resource_count; j++) {
                 card_list.push(resource_list[i]);
             }
         }
-        
+
     }
 
     //  Update the turn_action data
