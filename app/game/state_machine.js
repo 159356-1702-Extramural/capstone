@@ -1,5 +1,18 @@
-// TODO: Move elements of game.js in to state_machine
-
+/*
+* The state_machine is the core of the server side for each game.
+*
+* Upon first player joining the server, on state_machine is created
+* with one Game object, players are added to the Game until it is full
+* and then the state_machine starts, iterating through each valid state.
+*
+* The tasks of the state_machine include:
+*   + game logic per state
+*   + broadcasting to players per state requirements
+*   + management and resolution of incoming player actions
+*   + evaluating state conditions, and switching states as required
+*
+* For each full game, a new state_machine is created.
+*/
 var logger  = require('winston');
 var Game    = require('./game.js');
 var Data_package    = require('../data_api/data_package.js');
@@ -7,30 +20,17 @@ var Game_state      = require('../data_api/game_state.js');
 var Player          = require('../data_api/player.js');
 var Action          = require('../../public/data_api/action.js');
 var Cards           = require('../../public/data_api/cards.js');
-/*
-*  The core of the server side
-*
-*  This is the state machine that handles;
-*   - incoming connections
-*   - assigning and starting games
-*   - iteration of each games gameplay
-*   - end game
-*/
 
-/*
-draft states:
-    setup
-    trade
-    round
-    end
-*/
 
 /*******************************************************
 * The state machine structure and logic
 *******************************************************/
+// draft states: setup, trade, play, end_game
 
-/// The state machine contains the Game and operates on it
-/// One state machine per game
+/*
+* The state machine contains the Game and operates on it per current state logic
+* @param {Integer} id
+*/
 function StateMachine(id) {
     this.id = id;
     this.game = new Game(this);
@@ -40,32 +40,40 @@ function StateMachine(id) {
     this.setupPointer = 0;
 }
 
-/// Only called to create a new game
-StateMachine.prototype.create = function() {
-    this.games.push(new Game(this));
-};
-
-/// Iterates through states according to flags set
-/// for example; setup_complete = true would skip that state
-/// or return false on check_win_condition would skip the
-/// finish (game_end) state
+/*
+* Iterates through states according to flags set
+* for example; setup_complete = true would skip that state
+* or a return of false on check_win_condition() would skip the
+* game_end state
+*/
 StateMachine.prototype.next_state = function() {
     // TODO: checks on game conditions to determine state
     if (this.state === "setup") {
+        console.log('state_machine: in "setup" state'); // TODO: remove later
+        logger.log('debug', 'state_machine: in "setup" state');
         // if (conditions to switch state)
-        if(this.setupComplete)
+        if (this.setupComplete === true) {
+            console.log('state_machine: setup state successfully completed'); // TODO: remove later
+            logger.log('debug', 'state_machine: setup state successfully completed');
             this.state = "trade";
+        }
 
     } else if (this.state === "trade") {
+        console.log('state_machine: in "trade" state'); // TODO: remove later
+        logger.log('debug', 'state_machine: in "trade" state');
         // if (conditions to switch state)
         // eg: if (this.trade_complete) this.state = "play"
 
     } else if (this.state === "play") {
+        console.log('state_machine: in "play" state'); // TODO: remove later
+        logger.log('debug', 'state_machine: in "play" state');
         // if (conditions to switch state)
         // eg: if (this.game.is_won()) this.state = "end_game"
         //     else if (this.round_finished) this.state = "trade"
 
     } else if (this.state === "end_game") {
+        console.log('state_machine: in "end_game" state'); // TODO: remove later
+        logger.log('debug', 'state_machine: in "end_game" state');
         // if (conditions to switch state)
     }
 }
@@ -140,7 +148,7 @@ StateMachine.prototype.tick = function(data) {
                 this.next_state();
             }
         }
-
+        this.next_state();
         return true;
     }
 
