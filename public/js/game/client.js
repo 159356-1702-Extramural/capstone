@@ -102,7 +102,7 @@ $(document).ready(function() {
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             setup_phase = false;
-            hidePopup();
+            $('.popup').hide();
             buildPopup('setup_complete');
             console.log('show popup');
         }else if(data.data_type === 'setup_phase'){
