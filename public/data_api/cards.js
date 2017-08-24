@@ -25,24 +25,6 @@ function Cards(){
         governors_house   : 0
     };
 
-    this.round_distibution = {
-        brick               : 0,
-        wheat               : 0,
-        sheep               : 0,
-        wood                : 0,
-        ore                 : 0,
-
-        year_of_plenty      : 0,
-        monopoly            : 0,
-        knight              : 0,
-        road_building       : 0,
-        
-        library             : 0,
-        market              : 0,
-        chapel              : 0,
-        university_of_catan : 0,
-        governors_house     : 0
-    };
 }
 
 //Return number of cards in Cards Object
@@ -55,36 +37,31 @@ Cards.prototype.add_card = function(card){
     switch (card){
         case "brick":
             this.resource_cards.brick++;
-            this.round_distibution.brick++;
             break;
         case "grain":
             this.resource_cards.grain++;
-            this.round_distibution.grain++;
             break;
         case "sheep":
             this.resource_cards.sheep++;
-            this.round_distibution.sheep++;
             break;
         case "lumber":
             this.resource_cards.lumber++;
-            this.round_distibution.lumber++;
             break;
-        
+        case "ore":
+            this.resource_cards.ore++;
+            break;
+
         case "knight":
             this.dev_cards.knight++;
-            this.round_distibution.knight++;
             break;
         case "year_of_plenty":
             this.dev_cards.year_of_plenty++;
-            this.round_distibution.year_of_plenty++;
             break;
         case "monopoly":
             this.dev_cards.monopoly++;
-            this.round_distibution.monopoly++;
             break;
         case "road_building":
             this.dev_cards.road_building++;
-            this.round_distibution.road_building++;
             break;
     }
 }
@@ -209,4 +186,4 @@ Cards.prototype.available_cards = function ( card_type ) {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Cards;
 }
-  
+
