@@ -55,7 +55,8 @@ StateMachine.prototype.next_state = function() {
         if (this.setupComplete === true) {
             console.log('state_machine: setup state successfully completed'); // TODO: remove later
             logger.log('debug', 'state_machine: setup state successfully completed');
-            this.state = "trade";
+            this.state = "play";
+            this.tick();
         }
 
     } else if (this.state === "trade") {
@@ -63,6 +64,9 @@ StateMachine.prototype.next_state = function() {
         logger.log('debug', 'state_machine: in "trade" state');
         // if (conditions to switch state)
         // eg: if (this.trade_complete) this.state = "play"
+
+        // TODO: just passing to the play state as no trade logic yet
+        this.state = "play";
 
     } else if (this.state === "play") {
         console.log('state_machine: in "play" state'); // TODO: remove later
@@ -174,12 +178,20 @@ StateMachine.prototype.tick = function(data) {
             return player.turn_complete === true;
         });
 
-        for(var i = 0;  i < this.game.players.length; i++){
-            // In normal play, all players should return true, in setup phase only one will
-            if(this.players[i].turn_complete){
-                //add player data to player object
-            }
+        if (round_complete) {
+
+          // Resource distribution for next round
+          for (var i = 0; i < this.game.players.length; i++) {
+            // Reset round distribution cards
+            this.game.players[i].round_distribution_cards = new Cards();
+          }
+
+          var diceroll = this.game.rollingDice();
+          this.game.allocateDicerollResources(diceroll);
+          this.broadcast_gamestate();
+
         }
+
         this.next_state();
         return true;
     }
@@ -290,6 +302,11 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
         logger.log('debug', 'Setup phase completed');
         setup_data.data_type = 'setup_complete';
         this.broadcast('game_turn', setup_data);
+
+        this.game.players.forEach(function(player) {
+          player.turn_complete = true;
+        });
+
     }
     this.setupPointer++;
 }

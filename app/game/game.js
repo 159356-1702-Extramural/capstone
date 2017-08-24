@@ -121,11 +121,16 @@ Game.prototype.allocateDicerollResources = function(roll) {
 
     for (n = 0; n < tiles_row.length; n++) {
 
+      // Robbed!! No resources for you
+      if (tiles_row[n].robber) continue;
+
       // Find tile with token matching diceroll
       if (tiles_row[n].token == roll) {
 
         // Check the associated notes for structures
         var associated_nodes = tiles_row[n].associated_nodes;
+
+
         for (j = 0; j < associated_nodes.length; j++) {
 
           var node = this.board.nodes[associated_nodes[j]];
