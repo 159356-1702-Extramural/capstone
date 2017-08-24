@@ -112,8 +112,15 @@ $(document).ready(function() {
             } else {
                 buildPopup("waiting_for_turn", false);
             }
-        }else if ( data.data_type === 'invalid_move'){
-            invalidMove(data);
+
+        }else if ( data.data_type === 'round_starting'){
+            //  Build the data for the popup
+            var popup_data = [];
+            popup_data.push(["dice1", 1]);
+            popup_data.push(["dice2", 2]);
+            popup_data.push(["robber", "hide"]);
+            
+            buildPopup("round_roll_results", popup_data);
         }
 
         // wipe current turn data
@@ -245,6 +252,7 @@ $(document).ready(function() {
 });
 function setupTurnFinished(){
     // wipe all current turn info (action arrays)
+    turn_actions = [];
 }
 
 function invalidMove (data){
