@@ -49,6 +49,8 @@ Games.prototype.assign_player = function(socket, data) {
     // TODO: an alternative to "action" in the API, is to have the
     //       action be the message here
     player.socket.on('game_update', function(data) {
+        console.log("Player."+player.id,"invoked game_update");
+        logger.log('debug', "Player."+player.id,"invoked game_update");
         // state_machine function to be called
         state_machine.tick(data);
     });
