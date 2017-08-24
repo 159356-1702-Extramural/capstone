@@ -7,6 +7,8 @@
 var test = require('ava');
 
 var Data_package = require('../app/data_api/data_package.js');
+var Public_data_package = require('../public/data_api/data_package.js');
+
 var Player = require('../app/data_api/player.js');
 var Action = require('../public/data_api/action.js');
 var Cards = require('../public/data_api/cards.js');
@@ -20,6 +22,8 @@ var data;
 var startNode;
 var endNode;
 var player;
+var public_data_package;
+
 
 test.beforeEach(t => {
     data = new Data_package();
@@ -62,6 +66,9 @@ test.beforeEach(t => {
     data.turn_type  = 'turn_complete';
     data.game_state = null,
     data.player     = player;
+
+    // For public/data_api testing
+    public_data_package = new Public_data_package();
 
 });
 
@@ -247,7 +254,42 @@ test("Remove purchases from Card object" , function (t) {
     t.is(cards.count_cards(), 0);
 });
 
+test("Check required cards are pushed", function(t) {
+    var roadCards = cards.get_required_cards('road');
+    t.is(roadCards[0], 'lumber');
+    t.is(roadCards[1], 'brick');
+    
+    var houseCards = cards.get_required_cards('house');
+    t.is(houseCards[0], 'lumber');
+    t.is(houseCards[1], 'brick');
+    t.is(houseCards[2], 'grain');
+    t.is(houseCards[3], 'ore');
+
+    var cityCards = cards.get_required_cards('city');
+    t.is(cityCards[0], 'grain');
+    t.is(cityCards[1], 'grain');
+    t.is(cityCards[2], 'ore');
+    t.is(cityCards[3], 'ore');
+    t.is(cityCards[4], 'ore');
+
+});
+
 /**
- * public/data_api tests
+ * public/data_api tests Data Package
  */
 
+ test("Correct number of cards in action", function(t) {
+    public_data_package.set_data_type("test data");
+    public_data_package.set_player_id(1);
+    public_data_package.add_action(action);
+
+    t.is(public_data_package.data_type, 'test data');
+    t.is(public_data_package.player_id, 1);
+    t.is(public_data_package.actions.length, 1);
+    
+    public_data_package.clear_data();
+
+    t.is(public_data_package.data_type, '');
+    t.is(public_data_package.actions.length, 0);
+
+});
