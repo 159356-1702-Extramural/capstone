@@ -937,6 +937,26 @@ body {
     height: 84px;
     overflow: hidden;
 }
+.dice2 {
+    position: relative;
+    left:-89px;
+}
+.dice3 {
+    position: relative;
+    left:-194px;
+}
+.dice4 {
+    position: relative;
+    left:-300px;
+}
+.dice5 {
+    position: relative;
+    left:-405px;
+}
+.dice6 {
+    position: relative;
+    left:-511px;
+}
 
 .monopoly_button, .devcard_button {
     width:150px;

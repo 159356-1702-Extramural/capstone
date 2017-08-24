@@ -55,7 +55,8 @@ StateMachine.prototype.next_state = function() {
         if (this.setupComplete === true) {
             console.log('state_machine: setup state successfully completed'); // TODO: remove later
             logger.log('debug', 'state_machine: setup state successfully completed');
-            this.state = "trade";
+            this.state = "play";
+            this.tick();
         }
 
     } else if (this.state === "trade") {
@@ -63,6 +64,9 @@ StateMachine.prototype.next_state = function() {
         logger.log('debug', 'state_machine: in "trade" state');
         // if (conditions to switch state)
         // eg: if (this.trade_complete) this.state = "play"
+
+        // TODO: just passing to the play state as no trade logic yet
+        this.state = "play";
 
     } else if (this.state === "play") {
         console.log('state_machine: in "play" state'); // TODO: remove later
@@ -92,35 +96,10 @@ StateMachine.prototype.tick = function(data) {
     if (this.state === "setup") {
         //check data and add to player
 
-        //TODO change below if statement to check whether setup placement valid
-        var valid = true;
-        //set any invalid actions action.action_result = false
+        //  Validate each player action
+        this.validate_player_builds(data);
 
-        if(valid){
-            for(var i = 0; i < data.actions.length; i++){
-                var player_id   = data.player_id;
-                var item        = data.actions[i].action_type; //house or road
-                var index       = data.actions[i].action_data.id;
-
-                //  TODO: I think this can be removed
-                // if ( item === 'road' ){
-                //     index       = data.actions[i].action_data.id;
-                // }else if (item === 'house' ){
-                //     index       = data.actions[i].action_data.id;
-                // }
-                this.game.board.set_item(item, index, player_id);
-            }
-        }else{
-            //  send back an invalid move package
-            var data_package = new Data_package();
-            var player = new Player();
-            player.id = data.player_id;
-            player.actions = data.player.actions;
-            data_package.data_type = 'invalid_move';
-            data_package.player = player;
-            this.send_to_player('game_update', data_package);
-        }
-
+        //  Mark turn completed
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
@@ -131,24 +110,41 @@ StateMachine.prototype.tick = function(data) {
             this.game.round_num++;
         }
 
-        //call start sequence again from here - startSequence will find the next player to have a turn
-        this.game_start_sequence();
-        this.broadcast_gamestate();
+        if (this.game.round_num > 2) {
+            //  Do the initial dice roll
+            var diceroll = this.game.rollingDice();
+            this.game.allocateDicerollResources(diceroll);
 
-        // For now: increment round number and reset the player turn
-        // completion status
-        this.game.players.forEach(function(player) {
-            player.turn_complete = false;
-        });
+            //  Update the interface
+            this.broadcast_gamestate();
+            
+            //  Notify each player
+            var setup_data = new Data_package();
+            setup_data.data_type = 'round_turn';
+            this.broadcast('game_turn', setup_data);
 
-        for(var i = 0;  i < this.game.players.length; i++){
-            // In normal play, all players should return true, in setup phase only one will
-            if(this.game.players[i].turn_complete){
-                //add player data to player object
-                this.next_state();
-            }
+            //  Move our state to play
+            this.state = "play";
+
+            // For now: increment round number and reset the player turn
+            // completion status
+            this.game.players.forEach(function(player) {
+                player.turn_complete = false;
+            });
+            
+        } else {
+            //call start sequence again from here - startSequence will find the next player to have a turn
+            this.game_start_sequence();
+            this.broadcast_gamestate();
+
+            // For now: increment round number and reset the player turn
+            // completion status
+            this.game.players.forEach(function(player) {
+                player.turn_complete = false;
+            });
+
         }
-        this.next_state();
+
         return true;
     }
 
@@ -186,6 +182,9 @@ StateMachine.prototype.tick = function(data) {
     * If in Play state - gameplay logic opperates on this.game
     ************************************************************/
     else if (this.state === "play") {
+        //  Validate each player action
+        this.validate_player_builds(data);
+        
         // Handle standard gameplay rounds
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -196,12 +195,38 @@ StateMachine.prototype.tick = function(data) {
             return player.turn_complete === true;
         });
 
-        for(var i = 0;  i < this.game.players.length; i++){
-            // In normal play, all players should return true, in setup phase only one will
-            if(this.players[i].turn_complete){
-                //add player data to player object
+        if (round_complete) {
+            //  Advance the round
+            this.game.round_num++;
+
+            // Resource distribution for next round
+            for (var i = 0; i < this.game.players.length; i++) {
+                // Reset round distribution cards
+                this.game.players[i].round_distribution_cards = new Cards();
             }
+
+            //  Next dice roll
+            var diceroll = this.game.rollingDice();
+            this.game.allocateDicerollResources(diceroll);
+            this.broadcast_gamestate();
+
+            //  Reset player statuses
+            this.game.players.forEach(function(player) {
+                player.turn_complete = false;
+            });
+                
+            //  Notify players
+            var setup_data = new Data_package();
+            setup_data.data_type = 'round_turn';
+            this.broadcast('game_turn', setup_data);
+            
+        } else {
+            //  Tell this player to wait
+            var setup_data = new Data_package();
+            setup_data.data_type = 'wait_others';
+            this.game.players[data.player_id].socket.emit('game_turn', setup_data);
         }
+
         this.next_state();
         return true;
     }
@@ -312,8 +337,49 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
         logger.log('debug', 'Setup phase completed');
         setup_data.data_type = 'setup_complete';
         this.broadcast('game_turn', setup_data);
+
+        this.game.players.forEach(function(player) {
+          player.turn_complete = true;
+        });
+
     }
     this.setupPointer++;
+}
+
+/***************************************************************
+* Validate player builds/actions
+***************************************************************/
+StateMachine.prototype.validate_player_builds = function(data){
+    console.log('validate_player_builds called');
+    logger.log('debug', 'validate_player_builds function called.');
+
+    var invalid_actions = [];
+    for(var i = 0; i < data.actions.length; i++){
+        var player_id   = data.player_id;
+        var item        = data.actions[i].action_type; //house or road
+        var index       = data.actions[i].action_data.id;
+
+        var valid = true;
+        //TODO Build logic to validate moves, check for conflicts, and resolve/fail conflicts
+
+        if (valid) {
+            this.game.board.set_item(item, index, player_id);
+        } else {
+            invalid_actions.push(data.actions[i]);
+        }
+    }
+
+    //  Let the player know if there were moves that failed
+    if (invalid_actions.length > 0) {
+        var data_package = new Data_package();
+        var player = new Player();
+        player.id = data.player_id;
+        player.actions = invalid_actions;
+        data_package.data_type = 'invalid_move';
+        data_package.player = player;
+        this.send_to_player('game_update', data_package);
+    }
+
 }
 
 module.exports = { StateMachine };
