@@ -160,9 +160,14 @@ StateMachine.prototype.tick = function(data) {
             var player = players[data.player_id];
             if(player.cards.available_cards('dev_card')){
                 player.cards.remove_card('dev_card');
-                var dev_card = 'knight';
+                
                 //TODO: how do we generate dev cards???
+                var dev_card = 'knight';
                 player.cards.add_card(dev_card);
+                var data_package = new Data_package();
+                data_package.data_type = 'buy_dev_card';
+                data_package.player = player;
+                send_to_player('game_turn', data_package );
                 
             }
         }

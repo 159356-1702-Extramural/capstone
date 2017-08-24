@@ -113,8 +113,17 @@ $(document).ready(function() {
             } else {
                 buildPopup("waiting_for_turn", false);
             }
-        }else if ( data.data_type === 'invalid_move'){
+        }
+        
+        else if ( data.data_type === 'invalid_move'){
             invalidMove(data);
+        }
+        
+        else if (data.data_type === 'buy_dev_card'){
+            current_player = data.player;
+
+            //TODO: should updatePanelDisplay() also update dev cards???
+            updatePanelDisplay()
         }
 
         // wipe current turn data
