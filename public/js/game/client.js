@@ -97,7 +97,7 @@ $(document).ready(function() {
     //  turn, while the active player places a settlement and road
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
-            alert("setup complete");
+            buildPopup('round_roll_results');
             setup_phase = false;
             hidePopup();
         }else if(data.data_type === 'setup_phase'){
@@ -239,6 +239,13 @@ $(document).ready(function() {
         e.preventDefault();
 
         $(".extra_card_list").html("");
+    });
+
+    //close start window
+    $doc.on('click', '.close-start', function(e) {
+        e.preventDefault();
+
+        hidePopup();
     });
 
 
