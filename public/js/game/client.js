@@ -205,6 +205,25 @@ $(document).ready(function() {
         $('.devcard_card').html(image);
     });
 
+    //  Development Card - Purchase
+    $doc.on('click', '.buy_button', function(e) {
+        e.preventDefault();
+
+        // TODO : only active in certain phase
+
+        // check if enough cards to buy development card
+        if(has_resources('dev_card')){
+
+            // remove resources from hand
+            current_game.player.cards.remove_cards("dev_card");
+            updatePanelDisplay;
+            var data_package = new Data_package();
+            data_package.data_type = "buy_dev_card";
+            data_package.player_id = current_game.player.id;
+            update_server(data_package);
+        }
+    });
+
     //  Player Trading - Add Give Card
     $doc.on('click', '.trade_card_give', function(e) {
         e.preventDefault();
@@ -740,6 +759,11 @@ function has_resources(object_type) {
         //  Otherwise we need 2 grain and 3 ore
         return my_cards.has_cards(['grain', 'grain', 'ore', 'ore', 'ore']);
     }
+    if (object_type == "dev_card") {
+        //  Otherwise we need 2 grain and 3 ore
+        return my_cards.has_cards(['ore', 'grain', 'sheep']);
+    }
+
     return false;
 }
 

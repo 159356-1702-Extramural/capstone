@@ -156,7 +156,24 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
-        this.next_state();
+        if(data.data_type === 'buy_dev_card'){
+            var player = players[data.player_id];
+            if(player.cards.available_cards('dev_card')){
+                player.cards.remove_card('dev_card');
+                var dev_card = 'knight';
+                //TODO: how do we generate dev cards???
+                player.cards.add_card(dev_card);
+                
+            }
+        }
+
+        var round_complete = this.game.players.every(function(player) {
+            return player.turn_complete === true;
+        });
+        if(round_complete){
+            this.next_state();
+        }
+        
         return true;
     }
 

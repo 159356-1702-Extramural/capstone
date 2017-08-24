@@ -46,8 +46,18 @@ Cards.prototype.add_card = function(card){
         case "lumber":
             this.resource_cards.lumber++;
             break;
-        case "ore":
-            this.resource_cards.ore++;
+        
+        case "knight":
+            this.dev_cards.knight++;
+            break;
+        case "year_of_plenty":
+            this.dev_cards.year_of_plenty++;
+            break;
+        case "monopoly":
+            this.dev_cards.monopoly++;
+            break;
+        case "road_building":
+            this.dev_cards.road_building++;
             break;
     }
 }
@@ -150,6 +160,24 @@ Cards.prototype.get_required_cards = function(object_type){
     return card_list;
 }
 
+/**
+ * @param {String} card_type : check whether players have enough cards
+ */
+Cards.prototype.available_cards = function ( card_type ) {
+    if(card_type === 'dev_card'){
+        return((this.resource_cards.ore > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0));
+    }
+    if(card_type === 'house'){
+        return((this.resource_cards.brick > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0) && (this.resource_cards.lumber > 0));
+    }
+    if(card_type === 'road'){
+        return((this.resource_cards.brick > 0) && (this.resource_cards.lumber > 0));
+    }
+    if(card_type === 'city'){
+        return((this.resource_cards.ore > 2) && (this.resource_cards.grain > 1) && (this.resource_cards.grain > 0));
+    }
+
+}
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Cards;
