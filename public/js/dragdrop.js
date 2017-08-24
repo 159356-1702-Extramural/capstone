@@ -252,7 +252,6 @@ function set_object_on_canvas(event, ui) {
         //  Prompt the user for more cards
         start_build_popup(object_type);
     }
-    doLog(current_game.round_num);
     update_object_counts();
 }
 

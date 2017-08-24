@@ -71,3 +71,5 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
   t.true(game.players[0].round_distribution_cards.resource_cards.ore === 1);
 
 });
+
+test.todo("Confirm the robber prevents a tile from give up its resources");
