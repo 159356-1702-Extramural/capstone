@@ -159,4 +159,68 @@ Game.prototype.allocateDicerollResources = function(roll) {
 
 };
 
+// return a shuffled development card deck
+Game.prototype.generate_dev_card_deck = function(){
+
+  /**
+   * create a way to generate / return cards
+   * 14 Knights
+   *  6 Progress cards
+   *      + Road Building x 2
+   *      + Year of Plenty x 2
+   *      + Monopoly x 2
+   *  5 Victory Point Cards
+   *      + Library
+   *      + Chapel
+   *      + Palace
+   *      + University
+   *      + Market
+   */
+  var dev_cards = [];
+  for(var i = 0; i < 14; i++){
+    dev_cards.push('knight');
+  }
+  var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'palace', 'universtiy', 'market'];
+  for(var j = 0; j < other_cards.length; j++){
+    
+    //add the first three options twice
+    if(j < 3){
+      dev_cards.push(other_cards[j]);
+    }
+    dev_cards.push(other_cards[j]);
+  }
+
+  //  Alternate strategy
+  //try to have a mixed start point to shuffle from
+  // dev_cards.push('knight');
+  // var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'palace', 'universtiy', 'market'];
+  // for(var j = 0; j < other_cards.length; j++){
+    
+  //   //add the first three options twice
+  //   if(j < 3){
+  //     dev_cards.push('knight');
+  //     dev_cards.push(other_cards[j]);
+  //   }
+  //   dev_cards.push('knight');
+  //   dev_cards.push(other_cards[j]);
+  // }
+  // dev_cards.push('knight');
+  // dev_cards.push('knight');
+  
+  return Fisher_Yates_shuffle(dev_cards);
+}
+
+function Fisher_Yates_shuffle (array) {
+  var i = 0;
+  var j = 0;
+  var temp = null;
+
+  for (i = array.length - 1; i > 0; i -= 1) {
+    j = Math.floor(Math.random() * (i + 1))
+    temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+  return array;
+}
 module.exports = Game;

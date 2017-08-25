@@ -38,6 +38,7 @@ function StateMachine(id) {
     this.setupComplete = false;
     this.setupSequence = [0,1,1,0];
     this.setupPointer = 0;
+    this.development_cards = this.game.generate_dev_card_deck();
 }
 
 /*
@@ -161,9 +162,12 @@ StateMachine.prototype.tick = function(data) {
                 player.cards.remove_card('dev_card');
 
                 //TODO: how do we generate dev cards???
-                var dev_card = 'knight';
-                player.cards.add_card(dev_card);
-                player.round_distribution_cards.add_card(dev_card);
+                var card = this.development_cards.pop();
+                console.log(card)
+                //var dev_card = collect_development_card();
+                
+                player.cards.add_card(card);
+                player.round_distribution_cards.add_card(card);
                 var data_package = new Data_package();
                 data_package.data_type = 'buy_dev_card';
                 data_package.player = player;

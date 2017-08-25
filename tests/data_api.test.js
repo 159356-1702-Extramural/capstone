@@ -115,13 +115,23 @@ test('Access cards from the data object' , function (t){
     t.is(data.player.actions[0].boost_cards.count_cards(), 3);
 });
 
-test('Clear data_pakage data' , function (t){
+test('Clear data_package data' , function (t){
     data.clear_data();
     t.is(data.turn_type , '');
     t.is(data.player , null);
     t.is(data.game_state , null);
 
 });
+
+test('Add player object' , function (t){
+    var mock_data = {
+        name:'Craig',
+        id  :  7
+    }
+    data.set_player(new Player({}, mock_data));
+    t.is(data.player.name, 'Craig');
+});
+
 /**
  * Action object testing
  */
@@ -274,6 +284,34 @@ test("Check required cards are pushed", function(t) {
 
 });
 
+ test("Available cards correctly checks if player has cards", function(t) {
+    cards.add_card('brick');
+    cards.add_card('grain');
+    cards.add_card('sheep');
+    t.truthy(cards.available_cards('dev_card'));
+    t.truthy(cards.available_cards('house'));
+    t.truthy(cards.available_cards('road'));
+    t.falsy(cards.available_cards('city'));
+
+});
+
+test("has cards performs as expected", function(t) {
+    cards.add_card('brick');
+    cards.add_card('grain');
+    cards.add_card('sheep');
+    
+    //cards are brick, grain, sheep, lumber and ore
+    t.truthy(cards.has_cards(['sheep', 'grain', 'brick']));
+
+    cards.remove_card('grain');
+    t.falsy(cards.has_cards(['sheep', 'grain', 'brick']));
+
+});
+
+test("Remove multiple cards that don't exist fails", function(t){
+    t.falsy(cards.remove_multiple_cards('ore',3));
+})
+
 /**
  * public/data_api tests Data Package
  */
@@ -293,3 +331,4 @@ test("Check required cards are pushed", function(t) {
     t.is(public_data_package.actions.length, 0);
 
 });
+

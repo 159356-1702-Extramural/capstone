@@ -104,7 +104,7 @@ $(document).ready(function() {
             setup_phase = false;
             $('.popup').hide();
             buildPopup('setup_complete');
-            console.log('show popup');
+            
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
                 if(data.player === 1){
@@ -131,7 +131,7 @@ $(document).ready(function() {
                 build_new_round_popup();
             }
         }else if ( data.data_type === 'buy_dev_card'){
-            console.log("development card delivered");
+            console.log(data.player.round_distribution_cards);
             // TODO Alayn show 
 
         }else if ( data.data_type === 'successful_turn'){
@@ -228,13 +228,11 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-        console.log('button clicked');
         // TODO : only active in certain phase
 
         // check if enough cards to buy development card
         if(has_resources('dev_card')){
 
-            console.log('has enough resources');
             // remove resources from hand
             current_game.player.cards.resource_cards.grain--;
             current_game.player.cards.resource_cards.ore--;
@@ -245,7 +243,7 @@ $(document).ready(function() {
             var data_package = new Data_package();
             data_package.data_type = "buy_dev_card";
             data_package.player_id = current_game.player.id;
-            console.log('data package built');
+
             update_server('game_update',data_package);
         }
     });
@@ -328,11 +326,9 @@ function invalidMove (data){
 }
 
 function checkLegitimateTurn(data_package){
-    console.log(turn_actions);
             //only two actions allowed (build road and build house)
             if(turn_actions.length === 2){
 
-                console.log(turn_actions[1]);
                 //if one is a house and the other is a road
                 if ((turn_actions[0].action_type == 'build_settlement' || turn_actions[1].action_type == 'build_settlement') && (turn_actions[0].action_type == 'build_road' || turn_actions[1].action_type == 'build_road')){
 
@@ -921,7 +917,7 @@ function setupPlayer() {
     html += "            <div class='box sheep'><span class='sheepcount'>0</span></div>";
     html += "            <div class='box ore'><span class='orecount'>0</span></div>";
     html += "            <div class='box grain'><span class='graincount'>0</span></div>";
-    html += "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade();'>Trade</div></div>";
+    html += "            <div class='box trade'><div class='btn btn-info tradebutton'>Trade</div></div>";
     html += "        </div>";
     html += "        <div class='buildings'>";
     html += "            Buildings:<br />";
