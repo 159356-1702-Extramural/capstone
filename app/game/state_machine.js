@@ -66,7 +66,7 @@ StateMachine.prototype.next_state = function() {
         // eg: if (this.trade_complete) this.state = "play"
 
         // TODO: just passing to the play state as no trade logic yet
-        this.state = "play";
+        //this.state = "play";
 
     } else if (this.state === "play") {
         console.log('state_machine: in "play" state'); // TODO: remove later
@@ -117,21 +117,21 @@ StateMachine.prototype.tick = function(data) {
 
             //  Update the interface
             this.broadcast_gamestate();
-            
+
             //  Notify each player
             var setup_data = new Data_package();
             setup_data.data_type = 'round_turn';
             this.broadcast('game_turn', setup_data);
 
             //  Move our state to play
-            this.state = "play";
+            this.state = "trade";
 
             // For now: increment round number and reset the player turn
             // completion status
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-            
+
         } else {
             //call start sequence again from here - startSequence will find the next player to have a turn
             this.game_start_sequence();
@@ -153,18 +153,24 @@ StateMachine.prototype.tick = function(data) {
     ************************************************************/
     else if (this.state === "trade") {
         if(data.data_type === 'buy_dev_card'){
-            var player = players[data.player_id];
+
+            var player = this.game.players[data.player_id];
+
+            //check if player has available cards
             if(player.cards.available_cards('dev_card')){
                 player.cards.remove_card('dev_card');
-                
+
                 //TODO: how do we generate dev cards???
                 var dev_card = 'knight';
                 player.cards.add_card(dev_card);
+                player.round_distribution_cards.add_card(dev_card);
                 var data_package = new Data_package();
                 data_package.data_type = 'buy_dev_card';
                 data_package.player = player;
-                send_to_player('game_turn', data_package );
-                
+                this.send_to_player('game_turn', data_package );
+
+            }else{
+                // TODO send a fail message
             }
         }
 
@@ -174,7 +180,7 @@ StateMachine.prototype.tick = function(data) {
         if(round_complete){
             this.next_state();
         }
-        
+
         return true;
     }
 
@@ -184,7 +190,7 @@ StateMachine.prototype.tick = function(data) {
     else if (this.state === "play") {
         //  Validate each player action
         this.validate_player_builds(data);
-        
+
         // Handle standard gameplay rounds
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -214,12 +220,12 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-                
+
             //  Notify players
             var setup_data = new Data_package();
             setup_data.data_type = 'round_turn';
             this.broadcast('game_turn', setup_data);
-            
+
         } else {
             //  Tell this player to wait
             var setup_data = new Data_package();
@@ -294,8 +300,25 @@ StateMachine.prototype.broadcast = function(event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function(event_name, data) {
+
     var player = this.game.players[data.player.id];
+
+    /**
+     *  Check to see if there is a socket object in the data.player object.
+     *  If so, clone the player, remove the socket and add the clone to data
+     */
+    var clonedPlayer;
+    if(player.socket){
+        clonedPlayer = Object.assign({}, this.game.players[data.player.id]);
+        delete clonedPlayer.socket;
+        data.player = clonedPlayer;
+    }
+
+    console.log('preparing to send dev_card');
+    logger.log('debug', 'preparing to send dev_card');
+
     player.socket.emit(event_name, data);
+    logger.log('debug', 'dev_card sent');
 };
 
 /***************************************************************

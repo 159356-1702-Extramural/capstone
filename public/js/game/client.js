@@ -118,10 +118,10 @@ $(document).ready(function() {
                 buildPopup("waiting_for_turn", false);
             }
         }else if ( data.data_type === 'invalid_move'){
-            
+
         }else if ( data.data_type === 'wait_others'){
             buildPopup("round_waiting_others", false);
-            
+
         }else if ( data.data_type === 'round_turn'){
             if (current_game.round_num == 3) {
                 //  On the first round, we need to show the setup phase results
@@ -130,6 +130,9 @@ $(document).ready(function() {
                 //  Otherwise, we start with the dice popup
                 build_new_round_popup();
             }
+        }else if ( data.data_type === 'buy_dev_card'){
+            console.log('dev cards received');
+
         }
 
         // wipe current turn data
@@ -221,21 +224,27 @@ $(document).ready(function() {
     });
 
     //  Development Card - Purchase
-    $doc.on('click', '.buy_button', function(e) {
+    $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-
+        console.log('button clicked');
         // TODO : only active in certain phase
 
         // check if enough cards to buy development card
         if(has_resources('dev_card')){
 
+            console.log('has enough resources');
             // remove resources from hand
-            current_game.player.cards.remove_cards("dev_card");
+            current_game.player.cards.resource_cards.grain--;
+            current_game.player.cards.resource_cards.ore--;
+            current_game.player.cards.resource_cards.sheep--;
+
+            //current_game.player.cards.remove_cards("dev_card");
             updatePanelDisplay;
             var data_package = new Data_package();
             data_package.data_type = "buy_dev_card";
             data_package.player_id = current_game.player.id;
-            update_server(data_package);
+            console.log('data package built');
+            update_server('game_update',data_package);
         }
     });
 
@@ -883,7 +892,7 @@ function build_new_round_popup() {
     }
 
     //  Robber and dice
-    
+
 
     //  Build the popup
     buildPopup("round_roll_results", false, [["dice1", current_game.dice_values[0]], ["dice2", current_game.dice_values[1]], ["setup_cards", card_html]]);
