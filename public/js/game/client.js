@@ -126,6 +126,11 @@ $(document).ready(function() {
                 //  Otherwise, we start with the dice popup
                 build_popup_round_roll_results();
             }
+        }else if (data.data_type === 'returned_trade_card'){
+            // card received from bank trade
+            console.log("trade_card_returned");
+            current_player = data.player;
+            updatePanelDisplay();
         }
 
         // wipe current turn data
@@ -267,6 +272,33 @@ function setupTurnFinished(){
     turn_actions = [];
 }
 
+function openTrade () {
+    
+    //disable trade until setup complete
+    if(current_game.round_num > 2){
+        buildPopup('round_maritime_trade');
+    }
+    buildPopup('round_maritime_trade');
+}
+
+function acceptTrade () {
+    var sendCards = $('#tgb');
+    var receiveCard = $('#trb');
+    console.log($(":first-child", sendCards).attr('class'));
+    var data_package = new Data_package();
+    data_package.data_type = 'trade_with_bank';
+    data_package.player_id = current_player.id;
+    var action = new Action();
+    action.action_type = 'four-to-one';
+    action.action_data = {
+        cards_for_the_bank : $(":first-child", sendCards).attr('class'),
+        cards_from_the_bank: $(":first-child", receiveCards).attr('class'),
+        cards_for_trade    : 4
+    }
+    data_package.actions.push(action);
+    console.log("send trade to bank");
+    update_server( 'game_update' , data_package );
+}
 function invalidMove (data){
 
     failed_actions.forEach( function (action) {

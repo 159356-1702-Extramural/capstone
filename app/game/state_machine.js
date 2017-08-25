@@ -66,7 +66,7 @@ StateMachine.prototype.next_state = function() {
         // eg: if (this.trade_complete) this.state = "play"
 
         // TODO: just passing to the play state as no trade logic yet
-        this.state = "play";
+        //this.state = "play";
 
     } else if (this.state === "play") {
         console.log('state_machine: in "play" state'); // TODO: remove later
@@ -124,7 +124,7 @@ StateMachine.prototype.tick = function(data) {
             this.broadcast('game_turn', setup_data);
 
             //  Move our state to play
-            this.state = "play";
+            this.state = "trade";
 
             // For now: increment round number and reset the player turn
             // completion status
@@ -152,6 +152,28 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
+        console.log("trade");
+        // trading with the bank (4:1, 3:1, 2:1)
+        if ( data.data_type === 'trade_with_bank' ){
+            var player = this.game.players[data.player_id];
+
+            //split the data to get the resource type: currently string = trade_sheep
+            var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
+            var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
+
+            //remove cards from hand
+            player.cards.resource_cards.remove_multiple_cards(cards_for_bank[1]);
+            
+            // add card to hand
+            player.cards.resource_cards.add_card(cards_from_bank[1]);
+            player.cards.round_distribution.add_card(cards_from_bank[1]);
+
+            //send card back to player
+            var data_package = new Data_package();
+            data_package.data_type = "returned_trade_card";
+            data_package.player = player;
+            this.send_to_player('game_update', data_package);
+        }
         this.next_state();
         return true;
     }
