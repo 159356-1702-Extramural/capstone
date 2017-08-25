@@ -131,13 +131,15 @@ $(document).ready(function() {
                 build_new_round_popup();
             }
         }else if ( data.data_type === 'buy_dev_card'){
-            console.log('dev cards received');
+            console.log("development card delivered");
+            // TODO Alayn show 
 
-        }
-
-        // wipe current turn data
-        if ( data.data_type === 'successfull_turn'){
+        }else if ( data.data_type === 'successful_turn'){
+            
+            // wipe current turn data
             setupTurnFinished();
+        }else{
+            console.log('failed to direct data_type into an else if section');
         }
     }
     $doc.on('click', '.finishturnbutton', function(e) {
@@ -239,7 +241,7 @@ $(document).ready(function() {
             current_game.player.cards.resource_cards.sheep--;
 
             //current_game.player.cards.remove_cards("dev_card");
-            updatePanelDisplay;
+            updatePanelDisplay();
             var data_package = new Data_package();
             data_package.data_type = "buy_dev_card";
             data_package.player_id = current_game.player.id;
