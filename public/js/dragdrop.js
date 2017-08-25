@@ -250,7 +250,7 @@ function set_object_on_canvas(event, ui) {
     create_player_action(object_type, node, null);
     if (current_game.round_num > 2) {
         //  Prompt the user for more cards
-        start_build_popup(object_type);
+        build_popup_round_build(object_type);
     }
     update_object_counts();
 }
