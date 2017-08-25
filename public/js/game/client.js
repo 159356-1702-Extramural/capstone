@@ -228,23 +228,26 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-        // TODO : only active in certain phase
+        
+        // TODO : only active in trade phase
+        if(current_game.round_num > 2){
 
-        // check if enough cards to buy development card
-        if(has_resources('dev_card')){
+            // check if enough cards to buy development card
+            if(has_resources('dev_card')){
 
-            // remove resources from hand
-            current_game.player.cards.resource_cards.grain--;
-            current_game.player.cards.resource_cards.ore--;
-            current_game.player.cards.resource_cards.sheep--;
+                // remove resources from hand
+                current_game.player.cards.resource_cards.grain--;
+                current_game.player.cards.resource_cards.ore--;
+                current_game.player.cards.resource_cards.sheep--;
 
-            //current_game.player.cards.remove_cards("dev_card");
-            updatePanelDisplay();
-            var data_package = new Data_package();
-            data_package.data_type = "buy_dev_card";
-            data_package.player_id = current_game.player.id;
+                //current_game.player.cards.remove_cards("dev_card");
+                updatePanelDisplay();
+                var data_package = new Data_package();
+                data_package.data_type = "buy_dev_card";
+                data_package.player_id = current_game.player.id;
 
-            update_server('game_update',data_package);
+                update_server('game_update',data_package);
+            }
         }
     });
 

@@ -161,10 +161,8 @@ StateMachine.prototype.tick = function(data) {
             if(player.cards.available_cards('dev_card')){
                 player.cards.remove_card('dev_card');
 
-                //TODO: how do we generate dev cards???
                 var card = this.development_cards.pop();
-                console.log(card)
-                //var dev_card = collect_development_card();
+                console.log('dev card purchased: '+card);
                 
                 player.cards.add_card(card);
                 player.round_distribution_cards.add_card(card);
@@ -174,6 +172,7 @@ StateMachine.prototype.tick = function(data) {
                 this.send_to_player('game_turn', data_package );
 
             }else{
+                logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
                 // TODO send a fail message
             }
         }
