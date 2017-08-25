@@ -111,13 +111,20 @@ StateMachine.prototype.tick = function(data) {
         }
 
         if (this.game.round_num > 2) {
+
             //  Do the initial dice roll
-            var diceroll = this.game.rollingDice();
+            var diceroll;
+
+            // We can't start with a 7 as that would mean starting with robber
+            do {
+              diceroll = this.game.rollingDice();
+            } while (diceroll === 7);
+
             this.game.allocateDicerollResources(diceroll);
 
             //  Update the interface
             this.broadcast_gamestate();
-            
+
             //  Notify each player
             var setup_data = new Data_package();
             setup_data.data_type = 'round_turn';
@@ -131,7 +138,7 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-            
+
         } else {
             //call start sequence again from here - startSequence will find the next player to have a turn
             this.game_start_sequence();
@@ -162,7 +169,7 @@ StateMachine.prototype.tick = function(data) {
     else if (this.state === "play") {
         //  Validate each player action
         this.validate_player_builds(data);
-        
+
         // Handle standard gameplay rounds
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -185,19 +192,25 @@ StateMachine.prototype.tick = function(data) {
 
             //  Next dice roll
             var diceroll = this.game.rollingDice();
-            this.game.allocateDicerollResources(diceroll);
+
+            if (diceroll !== 7) {
+              this.game.allocateDicerollResources(diceroll);
+            } else {
+              this.game.activateRobber();
+            }
+
             this.broadcast_gamestate();
 
             //  Reset player statuses
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-                
+
             //  Notify players
             var setup_data = new Data_package();
             setup_data.data_type = 'round_turn';
             this.broadcast('game_turn', setup_data);
-            
+
         } else {
             //  Tell this player to wait
             var setup_data = new Data_package();
