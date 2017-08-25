@@ -190,8 +190,16 @@ StateMachine.prototype.tick = function(data) {
                 this.game.players[i].round_distribution_cards = new Cards();
             }
 
+
+            // House rule 7 only comes up once someone has created their first non-startup building
+
+
+
             //  Next dice roll
             var diceroll = this.game.rollingDice();
+
+
+
 
             if (diceroll !== 7) {
               this.game.allocateDicerollResources(diceroll);
