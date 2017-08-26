@@ -1,9 +1,12 @@
 #!/bin/bash
 
 set -ev
-#bundle exec rake:units
-echo ${TRAVIS_EVENT_TYPE};
+
+# echo ${TRAVIS_EVENT_TYPE};
+#    + returns 'api' when manually triggering build
+#    + returns 'push' when pushing to remote branch
+
 if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
-    #bundle exec rake test:integration
+    # run selenium tests here
     echo test;
 fi
