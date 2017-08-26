@@ -63,6 +63,22 @@ Cards.prototype.add_card = function(card){
         case "road_building":
             this.dev_cards.road_building++;
             break;
+        
+        case "library":
+            this.victory_point_cards.library++;
+            break;
+        case "chapel":
+            this.victory_point_cards.chapel++;
+            break;
+        case "market":
+            this.victory_point_cards.market++;
+            break;
+        case "governors_house":
+            this.victory_point_cards.governors_house++;
+            break;
+        case "university_of_catan":
+            this.victory_point_cards.university_of_catan++;
+            break;
     }
 }
 
