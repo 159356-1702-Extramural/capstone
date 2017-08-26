@@ -131,9 +131,27 @@ $(document).ready(function() {
                 build_new_round_popup();
             }
         }else if ( data.data_type === 'buy_dev_card'){
-            console.log(data.player.round_distribution_cards);
-            // TODO Alayn show 
 
+            doLog(data.player.cards.dev_cards.year_of_plenty);
+            doLog(data.player.cards.dev_cards.knight);
+            doLog(data.player.cards.dev_cards.monopoly);
+            doLog(data.player.cards.dev_cards.road_building);
+            
+            var card_list = "";
+            if (data.player.cards.dev_cards.year_of_plenty > 0) {
+                card_list += "<img src='images/dev_year_of_plenty.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.knight > 0) {
+                card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.monopoly > 0) {
+                card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.road_building > 0) {
+                card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            $(".cardlist").html(card_list);
+            
         }else if ( data.data_type === 'successful_turn'){
             
             // wipe current turn data
@@ -223,6 +241,7 @@ $(document).ready(function() {
         var resource = $(this).attr('data-resource');
         var image = $(".devcard_receive[data-resource='" + resource + "']").html();
         $('.devcard_card').html(image);
+
     });
 
     //  Development Card - Purchase
@@ -948,7 +967,7 @@ function setupPlayer() {
     html += "        </div>";
     html += "            <div class='cards'>";
     html += "                Cards:<br />";
-    html += "                <div class='cardlist'><img src='../images/nocards.png' /></div>";
+    html += "                <div class='cardlist'><img src='../images/nocards.png' class='no_cards' /></div>";
     html += "                <div class='buy'><div class='btn btn-info buybutton'>Buy Development Card</div></div>";
     html += "            </div>";
     html += "           <div class='bonuses'>";

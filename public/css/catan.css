@@ -706,6 +706,9 @@ body {
     float:left;
     margin-left:-30px;
 }
+.card.first {
+    margin-left:5px !important;
+}
 
 .turn_button {
     clear:both;
