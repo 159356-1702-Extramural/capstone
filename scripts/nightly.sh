@@ -10,3 +10,8 @@ if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
     # run selenium tests here
     echo test;
 fi
+
+if [ "true" = "true" ]; then
+    npm test selenium.test_off.js
+    echo "running selenium headless browser tests";
+fi
