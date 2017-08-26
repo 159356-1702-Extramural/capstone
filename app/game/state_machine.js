@@ -193,18 +193,19 @@ StateMachine.prototype.tick = function(data) {
 
             // House rule 7 only comes up once someone has created their first non-startup building
 
-
-
             //  Next dice roll
-            var diceroll = this.game.rollingDice();
+            var diceroll;
 
-
-
+            do {
+              diceroll = this.game.rollingDice();
+            } while (false); // TODO: logic to determine if a player has built yet
+                             // eg. while (diceroll === 7 && no_build_flag === true)
 
             if (diceroll !== 7) {
               this.game.allocateDicerollResources(diceroll);
             } else {
-              this.game.activateRobber();
+              this.game.moveRobber();
+              this.game.robPlayers();
             }
 
             this.broadcast_gamestate();

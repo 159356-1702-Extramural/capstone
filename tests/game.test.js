@@ -73,3 +73,11 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
 });
 
 test.todo("Confirm the robber prevents a tile from give up its resources");
+
+test.todo("Robber moves"); // game.moveRobber, check robber has moved to different tile
+
+test.todo("Player with 0 resource doesn't get robbed");
+
+test.todo("Player with 6 resources gets 1 card robbed");
+
+test.todo("Player with 9 cards get 4 cards robbed");
