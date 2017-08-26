@@ -118,8 +118,68 @@ test("Robber moves", function(t) {
 
 });
 
-test.todo("Player with 0 resource doesn't get robbed");
+test("Player with 0 resource doesn't get robbed", function(t) {
+  var game = new Game();
 
-test.todo("Player with 6 resources gets 1 card robbed");
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
 
-test.todo("Player with 9 cards get 4 cards robbed");
+  var start_cards = game.players[0].cards.count_cards();
+
+  game.robPlayers();
+
+  var end_cards = game.players[0].cards.count_cards();
+
+  t.true(start_cards == end_cards);
+});
+
+test("Player with 6 resources gets 1 card robbed", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.players[0].cards.add_card("grain");
+  game.players[0].cards.add_card("sheep");
+  game.players[0].cards.add_card("ore");
+  game.players[0].cards.add_card("brick");
+
+  var start_cards = game.players[0].cards.count_cards();
+
+  game.robPlayers();
+
+  var end_cards = game.players[0].cards.count_cards();
+  var round_cards = game.players[0].round_distribution_cards.count_cards();
+
+  t.true(start_cards == 6 && end_cards == 5);
+  t.true(round_cards === -1);
+});
+
+test("Player with 9 cards get 4 cards robbed", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.players[0].cards.add_card("grain");
+  game.players[0].cards.add_card("sheep");
+  game.players[0].cards.add_card("ore");
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.players[0].cards.add_card("grain");
+
+  var start_cards = game.players[0].cards.count_cards();
+
+  game.robPlayers();
+
+  var end_cards = game.players[0].cards.count_cards();
+  var round_cards = game.players[0].round_distribution_cards.count_cards();
+
+  t.true(start_cards == 9 && end_cards == 5);
+  t.true(round_cards === -4);
+});

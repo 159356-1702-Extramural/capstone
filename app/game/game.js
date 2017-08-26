@@ -179,7 +179,7 @@ Game.prototype.robPlayers = function() {
 
   // Work out what happens to each player
   for (i = 0; i < this.players.length; i++) {
-    player = this.player[i];
+    player = this.players[i];
 
     num_cards = player.cards.count_cards();
 
@@ -202,7 +202,7 @@ Game.prototype.robPlayers = function() {
       player_cards = [];
 
       for (resource in player.cards.resource_cards) {
-        if (!player.cards.resource_cards.hasOwnProperty(resource)) {
+        if (player.cards.resource_cards.hasOwnProperty(resource)) {
           var resource_count = player.cards.resource_cards[resource];
           for (i = 0; i < resource_count; i++) {
             player_cards.push(resource);
@@ -210,14 +210,14 @@ Game.prototype.robPlayers = function() {
         }
       }
 
+      // Randomise the cards then start robbing...
       player_cards = shuffler.shuffle(player_cards);
 
       for (i = 0; i < num_to_steal; i++) {
         player.cards.remove_card(player_cards[i]);
-        player.cards.round_distribution_cards.add_card(resource);
+        player.round_distribution_cards.resource_cards[player_cards[i]]--;
       }
     }
-
   }
 };
 
