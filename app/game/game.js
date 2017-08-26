@@ -204,7 +204,7 @@ Game.prototype.robPlayers = function() {
       for (resource in player.cards.resource_cards) {
         if (player.cards.resource_cards.hasOwnProperty(resource)) {
           var resource_count = player.cards.resource_cards[resource];
-          for (i = 0; i < resource_count; i++) {
+          for (j = 0; j < resource_count; j++) {
             player_cards.push(resource);
           }
         }
@@ -213,9 +213,9 @@ Game.prototype.robPlayers = function() {
       // Randomise the cards then start robbing...
       player_cards = shuffler.shuffle(player_cards);
 
-      for (i = 0; i < num_to_steal; i++) {
-        player.cards.remove_card(player_cards[i]);
-        player.round_distribution_cards.resource_cards[player_cards[i]]--;
+      for (j = 0; j < num_to_steal; j++) {
+        player.cards.remove_card(player_cards[j]);
+        player.round_distribution_cards.resource_cards[player_cards[j]]--;
       }
     }
   }
