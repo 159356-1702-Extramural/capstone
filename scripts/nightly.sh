@@ -2,7 +2,8 @@
 
 set -ev
 #bundle exec rake:units
-if [ "${TRAVIS_PULL_REQUEST}" = "false" ]; then
+echo ${TRAVIS_EVENT_TYPE};
+if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
     #bundle exec rake test:integration
     echo test;
 fi
