@@ -74,7 +74,49 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
 
 test.todo("Confirm the robber prevents a tile from give up its resources");
 
-test.todo("Robber moves"); // game.moveRobber, check robber has moved to different tile
+test("Robber moves", function(t) {
+  var game = new Game();
+
+  var robber_start_x;
+  var robber_start_y;
+
+  var robber_end_x;
+  var robber_end_y;
+
+  var x;
+  var y;
+
+  var tiles = game.board.tiles;
+  var tiles_row;
+
+  // Work out current location of the robber
+  for (x = 0; x < tiles.length; x++) {
+    tiles_row = tiles[x];
+    for (y = 0; y < tiles_row.length; y++) {
+      if (tiles[x][y].robber) {
+        robber_start_x = x;
+        robber_start_y = y;
+      }
+    }
+  }
+
+  game.moveRobber();
+
+  // Work out end location of the robber
+  for (x = 0; x < tiles.length; x++) {
+    tiles_row = tiles[x];
+    for (y = 0; y < tiles_row.length; y++) {
+      if (tiles[x][y].robber) {
+        robber_end_x = x;
+        robber_end_y = y;
+      }
+    }
+  }
+
+  // Robber has moved
+  t.true(!tiles[robber_start_x][robber_start_y].robber && tiles[robber_end_x][robber_end_y].robber);
+
+});
 
 test.todo("Player with 0 resource doesn't get robbed");
 

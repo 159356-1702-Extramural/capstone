@@ -232,7 +232,7 @@ Game.prototype.moveRobber = function() {
   // goes to a new location
   do {
     new_robber_tile = this.board.resourceTiles[Math.floor(Math.random() * this.board.resourceTiles.length)];
-  } while (!new_robber_tile.robber);
+  } while (new_robber_tile == this.board.robberLocation);
 
   new_robber_tile.robber = true;
 
