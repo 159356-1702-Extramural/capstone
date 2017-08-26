@@ -179,6 +179,16 @@ test("Correct number of cards in action", function(t) {
     t.is(cards.count_cards(), 2);
 });
 
+test("Victory points added correctly", function(t) {
+    cards.add_card('library');
+    cards.add_card('market');
+    cards.add_card('chapel');
+    cards.add_card('university_of_catan');
+    cards.add_card('great_hall');
+    
+    t.is(cards.count_victory_cards(), 5);
+});
+
 //test that all card types can be added
 test("Cards recorded properly" , function (t) {
     cards.add_card("sheep");

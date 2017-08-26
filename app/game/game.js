@@ -172,7 +172,7 @@ Game.prototype.generate_dev_card_deck = function(){
    *  5 Victory Point Cards
    *      + Library
    *      + Chapel
-   *      + Governors House
+   *      + Great Hall
    *      + University of Catan
    *      + Market
    */
@@ -180,7 +180,7 @@ Game.prototype.generate_dev_card_deck = function(){
   for(var i = 0; i < 14; i++){
     dev_cards.push('knight');
   }
-  var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'governors_house', 'universtiy_of_catan', 'market'];
+  var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'great_hall', 'universtiy_of_catan', 'market'];
   for(var j = 0; j < other_cards.length; j++){
     
     //add the first three options twice

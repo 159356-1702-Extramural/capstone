@@ -22,7 +22,7 @@ function Cards(){
         market : 0,
         chapel : 0,
         university_of_catan  : 0,
-        governors_house   : 0
+        great_hall   : 0
     };
 
 }
@@ -30,6 +30,10 @@ function Cards(){
 //Return number of cards in Cards Object
 Cards.prototype.count_cards = function(){
     return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
+}
+
+Cards.prototype.count_victory_cards = function(){
+    return this.victory_point_cards.library + this.victory_point_cards.market + this.victory_point_cards.chapel + this.victory_point_cards.university_of_catan + this.victory_point_cards.great_hall;
 }
 
 //Add card to cards
@@ -73,8 +77,8 @@ Cards.prototype.add_card = function(card){
         case "market":
             this.victory_point_cards.market++;
             break;
-        case "governors_house":
-            this.victory_point_cards.governors_house++;
+        case "great_hall":
+            this.victory_point_cards.great_hall++;
             break;
         case "university_of_catan":
             this.victory_point_cards.university_of_catan++;
