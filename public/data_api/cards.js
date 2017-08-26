@@ -29,7 +29,7 @@ function Cards(){
 //Return number of cards in Cards Object
 Cards.prototype.count_cards = function(){
     return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
-}
+};
 
 //Add card to cards
 Cards.prototype.add_card = function(card){
@@ -125,7 +125,7 @@ Cards.prototype.has_cards = function(card_list) {
         this.add_card(next_card);
     }
     return !missing_card;
-}
+};
 
 Cards.prototype.get_required_cards = function(object_type){
     var card_list = [];
@@ -148,10 +148,12 @@ Cards.prototype.get_required_cards = function(object_type){
         card_list.push('ore');
     }
     return card_list;
-}
+};
+
+
 
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Cards;
 }
-  
+

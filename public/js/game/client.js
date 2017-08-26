@@ -343,7 +343,10 @@ function buildTile(theTile, row, col) {
 
         newTile += ((row % 2) != 0 && (col == 0 || col == 6) ? " half" : "") + "'>";
         if (theTile.type == "desert") {
-            newTile += "<div class='robber'></div>";
+            var point = getObjectPosition(col, row, 1);
+            $(".robber").css("left", (point[0] - 15) + "px");
+            $(".robber").css("top", (point[1] - 120) + "px");
+            $(".robber").show();
         }
         if (theTile.type == "harbor") {
             //newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
@@ -416,7 +419,20 @@ function buildNodes() {
                             }
 
                         }
+
+                        //  Use the bottom node as a reference when placing the robber
+                        if (j == 1 & theTile.robber) {
+                            
+                        }
                     }
+                }
+
+                //  Do we need to move the robber?
+                if (theTile.robber) {
+                    var point = getObjectPosition(x, y, 1);
+                    $(".robber").css("left", (point[0] - 15) + "px");
+                    $(".robber").css("top", (point[1] - 120) + "px");
+                    $(".robber").show();
                 }
             }
         }
