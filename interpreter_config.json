@@ -16,7 +16,7 @@
         }
       ],
       "scripts":[
-        "selenium/test/*.py"
+        "selenium/test/*"
       ]
     }
   ]
