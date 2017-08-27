@@ -141,9 +141,13 @@ $(document).ready(function() {
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
 
-        //TODO: Add real data
         var data_package = new Data_package();
-        data_package.data_type = "setup_phase";
+        if(current_game.round_num < 3){
+            data_package.data_type = "setup_phase";
+        }else{
+            data_package.data_type = "turn_complete";
+        }
+            
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
 
@@ -278,21 +282,26 @@ function openTrade () {
     if(current_game.round_num > 2){
         buildPopup('round_maritime_trade');
     }
-    buildPopup('round_maritime_trade');
 }
 
 function acceptTrade () {
+
+    //get id's of selected cards
     var sendCards = $('#tgb');
     var receiveCard = $('#trb');
-    console.log($(":first-child", sendCards).attr('class'));
+
     var data_package = new Data_package();
     data_package.data_type = 'trade_with_bank';
     data_package.player_id = current_player.id;
     var action = new Action();
+
+    // set action_type to trade ratio (four-to-one, three-to-one....)
     action.action_type = 'four-to-one';
     action.action_data = {
         cards_for_the_bank : $(":first-child", sendCards).attr('class'),
         cards_from_the_bank: $(":first-child", receiveCards).attr('class'),
+
+        //set cards_for_trade to trade ratio (4,3,2)
         cards_for_trade    : 4
     }
     data_package.actions.push(action);
