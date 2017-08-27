@@ -14,6 +14,7 @@ addons:
 before_script:
   - "npm install -g se-interpreter"
   - "pip install selenium"
+  - "pip install sauceclient"
 script:
 #  ./scripts/nightly.sh
 #  - "se-interpreter  ./interpreter_config.json"

@@ -2,13 +2,24 @@ __author__ = 'QSG'
 import unittest
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
+from sauceclient import SauceClient
+
 # from selenium.webdriver.support import expected_conditions as EC
 # from selenium.webdriver.common.by import By
+
 
 class SettlerTutorial(unittest.TestCase):
 
     def setUp(self):
-        self.driver=webdriver.Firefox()
+        desired_cap = {
+                        'platform': "Mac OS X 10.9",
+                        'browserName': "chrome",
+                        'version': "31",
+                        }
+        # self.driver=webdriver.Firefox()
+        self.driver=webdriver.Remote(
+            command_executor='http://sumnerfit:e8a11001-6685-43c4-901b-042e862a93f4@ondemand.saucelabs.com:80/wd/hub',
+            desired_capabilities=desired_cap)
 
     def test_tutorial(self):
         driver=self.driver
