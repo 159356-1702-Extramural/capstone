@@ -38,6 +38,7 @@ function StateMachine(id) {
     this.setupComplete = false;
     this.setupSequence = [0,1,1,0];
     this.setupPointer = 0;
+    this.development_cards = this.game.generate_dev_card_deck();
 }
 
 /*
@@ -66,7 +67,7 @@ StateMachine.prototype.next_state = function() {
         // eg: if (this.trade_complete) this.state = "play"
 
         // TODO: just passing to the play state as no trade logic yet
-        this.state = "play";
+        //this.state = "play";
 
     } else if (this.state === "play") {
         console.log('state_machine: in "play" state'); // TODO: remove later
@@ -131,7 +132,7 @@ StateMachine.prototype.tick = function(data) {
             this.broadcast('game_turn', setup_data);
 
             //  Move our state to play
-            this.state = "play";
+            this.state = "trade";
 
             // For now: increment round number and reset the player turn
             // completion status
@@ -159,7 +160,37 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
-        this.next_state();
+        if(data.data_type === 'buy_dev_card'){
+
+            var player = this.game.players[data.player_id];
+
+            //check if player has available cards
+            if(player.cards.available_cards('dev_card')){
+                player.cards.remove_card('dev_card');
+
+                var card = this.development_cards.pop();
+                console.log('dev card purchased: '+card);
+                
+                player.cards.add_card(card);
+                player.round_distribution_cards.add_card(card);
+                var data_package = new Data_package();
+                data_package.data_type = 'buy_dev_card';
+                data_package.player = player;
+                this.send_to_player('game_turn', data_package );
+
+            }else{
+                logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
+                // TODO send a fail message
+            }
+        }
+
+        var round_complete = this.game.players.every(function(player) {
+            return player.turn_complete === true;
+        });
+        if(round_complete){
+            this.next_state();
+        }
+
         return true;
     }
 
@@ -294,8 +325,25 @@ StateMachine.prototype.broadcast = function(event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function(event_name, data) {
+
     var player = this.game.players[data.player.id];
+
+    /**
+     *  Check to see if there is a socket object in the data.player object.
+     *  If so, clone the player, remove the socket and add the clone to data
+     */
+    var clonedPlayer;
+    if(player.socket){
+        clonedPlayer = Object.assign({}, this.game.players[data.player.id]);
+        delete clonedPlayer.socket;
+        data.player = clonedPlayer;
+    }
+
+    console.log('preparing to send dev_card');
+    logger.log('debug', 'preparing to send dev_card');
+
     player.socket.emit(event_name, data);
+    logger.log('debug', 'dev_card sent');
 };
 
 /***************************************************************

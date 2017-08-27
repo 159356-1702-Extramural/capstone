@@ -22,14 +22,19 @@ function Cards(){
         market : 0,
         chapel : 0,
         university_of_catan  : 0,
-        governors_house   : 0
+        great_hall   : 0
     };
+
 }
 
 //Return number of cards in Cards Object
 Cards.prototype.count_cards = function(){
     return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
 };
+
+Cards.prototype.count_victory_cards = function(){
+    return this.victory_point_cards.library + this.victory_point_cards.market + this.victory_point_cards.chapel + this.victory_point_cards.university_of_catan + this.victory_point_cards.great_hall;
+}
 
 //Add card to cards
 Cards.prototype.add_card = function(card){
@@ -48,6 +53,35 @@ Cards.prototype.add_card = function(card){
             break;
         case "ore":
             this.resource_cards.ore++;
+            break;
+
+        case "knight":
+            this.dev_cards.knight++;
+            break;
+        case "year_of_plenty":
+            this.dev_cards.year_of_plenty++;
+            break;
+        case "monopoly":
+            this.dev_cards.monopoly++;
+            break;
+        case "road_building":
+            this.dev_cards.road_building++;
+            break;
+        
+        case "library":
+            this.victory_point_cards.library++;
+            break;
+        case "chapel":
+            this.victory_point_cards.chapel++;
+            break;
+        case "market":
+            this.victory_point_cards.market++;
+            break;
+        case "great_hall":
+            this.victory_point_cards.great_hall++;
+            break;
+        case "university_of_catan":
+            this.victory_point_cards.university_of_catan++;
             break;
     }
 }
@@ -152,6 +186,24 @@ Cards.prototype.get_required_cards = function(object_type){
 
 
 
+/**
+ * @param {String} card_type : check whether players have enough cards
+ */
+Cards.prototype.available_cards = function ( card_type ) {
+    if(card_type === 'dev_card'){
+        return((this.resource_cards.ore > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0));
+    }
+    if(card_type === 'house'){
+        return((this.resource_cards.brick > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0) && (this.resource_cards.lumber > 0));
+    }
+    if(card_type === 'road'){
+        return((this.resource_cards.brick > 0) && (this.resource_cards.lumber > 0));
+    }
+    if(card_type === 'city'){
+        return((this.resource_cards.ore > 2) && (this.resource_cards.grain > 1) && (this.resource_cards.grain > 0));
+    }
+
+}
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Cards;
