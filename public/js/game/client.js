@@ -11,13 +11,13 @@ $(document).ready(function() {
     var $doc = $(document);
 
     //    Show the initial menu
-    buildPopup("start_menu", false);
+    build_popup_start_menu();
 
     // Events for main start menu buttons
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
         var active_class = $(this).attr('data-target');
-        buildPopup("start_" + active_class, false);
+        build_popup_start("start_" + active_class);
     });
 
     // Request to join a game
@@ -38,7 +38,7 @@ $(document).ready(function() {
     socket.on('player_id', function (data) {
         current_player = new currentPlayer(data.name, data.id, data.colour);
         setupPlayer();
-        buildPopup("waiting_for_players", false);
+        build_popup_waiting_for_players([]);
     });
 
     // Update the waiting display as new players join the game
@@ -47,12 +47,12 @@ $(document).ready(function() {
             ["player_count", data.player_count],
             ["players_needed", data.max_players],
         ];
-        buildPopup("waiting_for_players", false, popupData);
+        build_popup_waiting_for_players(popupData);
     });
 
     // Detect the game starting
     socket.on('game_start', function (data) {
-        buildPopup("waiting_for_turn", false);
+        build_popup_waiting_for_turn();
     });
 
     socket.on('game_turn', function (data) {
@@ -104,19 +104,16 @@ $(document).ready(function() {
             setup_phase = false;
             $('.popup').hide();
             buildPopup('setup_complete');
-            
+
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
-                if(data.player === 1){
-                    //TODO: Place First Settlement
-                    buildPopup("setup_phase_your_turn", false);
-                }else{
-                    //TODO: Place Second Settlement
-                    buildPopup("setup_phase_your_turn", false);
-                }
+                //  Popup for instructions on 1st or 2nd placement
+                build_popup_setup_phase_your_turn(data.player);
             } else {
-                buildPopup("waiting_for_turn", false);
+                //  Waiting for others to finish setup placement
+                build_popup_waiting_for_turn();
             }
+
         }else if ( data.data_type === 'invalid_move'){
 
         }else if ( data.data_type === 'wait_others'){
@@ -125,10 +122,11 @@ $(document).ready(function() {
         }else if ( data.data_type === 'round_turn'){
             if (current_game.round_num == 3) {
                 //  On the first round, we need to show the setup phase results
-                build_setup_complete_popup();
+                build_popup_setup_complete();
+                setup_phase = false;
             } else {
                 //  Otherwise, we start with the dice popup
-                build_new_round_popup();
+                build_popup_round_roll_results();
             }
         }else if ( data.data_type === 'buy_dev_card'){
 
@@ -136,7 +134,7 @@ $(document).ready(function() {
             doLog(data.player.cards.dev_cards.knight);
             doLog(data.player.cards.dev_cards.monopoly);
             doLog(data.player.cards.dev_cards.road_building);
-            
+
             var card_list = "";
             if (data.player.cards.dev_cards.year_of_plenty > 0) {
                 card_list += "<img src='images/dev_year_of_plenty.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
@@ -151,9 +149,9 @@ $(document).ready(function() {
                 card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
             }
             $(".cardlist").html(card_list);
-            
+
         }else if ( data.data_type === 'successful_turn'){
-            
+
             // wipe current turn data
             setupTurnFinished();
         }else{
@@ -247,7 +245,7 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-        
+
         // TODO : only active in trade phase
         if(current_game.round_num > 2){
 
@@ -318,6 +316,7 @@ $(document).ready(function() {
 });
 function setupTurnFinished(){
     // wipe all current turn info (action arrays)
+    turn_actions = [];
 }
 
 function invalidMove (data){
@@ -375,36 +374,6 @@ var update_server = function(data_type, data){
     socket.emit(data_type, data);
 }
 
-//  Generic method to build a popup from a template
-//   popupClass: name of the html file without the extention
-//   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
-function buildPopup(popupClass, useLarge, customData) {
-    $.get("templates/" + popupClass + ".html", function(data) {
-
-        //  In a few cases, we need a larger popup
-        $(".popup_inner").removeClass("popup_inner_large");
-        if (useLarge) {
-            $(".popup_inner").addClass("popup_inner_large");
-        }
-
-        //  Now load and update the template
-        var html = data;
-        if (customData) {
-            customData.forEach(function(data) {
-                html = html.replace(new RegExp("{" + data[0] + "}", 'g'), data[1]);
-            });
-        }
-        $(".popup_inner").html(html);
-        $(".popup").show();
-
-    });
-}
-function hidePopup() {
-    $('.popup').fadeOut(400, function() {
-
-    });
-}
-
 //  Method used to create the individual tiles when the board is first drawn
 function buildTile(theTile, row, col) {
     //  We don't need the 1st water on even rows
@@ -424,7 +393,10 @@ function buildTile(theTile, row, col) {
 
         newTile += ((row % 2) != 0 && (col == 0 || col == 6) ? " half" : "") + "'>";
         if (theTile.type == "desert") {
-            newTile += "<div class='robber'></div>";
+            var point = getObjectPosition(col, row, 1);
+            $(".robber").css("left", (point[0] - 15) + "px");
+            $(".robber").css("top", (point[1] - 120) + "px");
+            $(".robber").show();
         }
         if (theTile.type == "harbor") {
             //newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
@@ -497,7 +469,20 @@ function buildNodes() {
                             }
 
                         }
+
+                        //  Use the bottom node as a reference when placing the robber
+                        if (j == 1 & theTile.robber) {
+
+                        }
                     }
+                }
+
+                //  Do we need to move the robber?
+                if (theTile.robber) {
+                    var point = getObjectPosition(x, y, 1);
+                    $(".robber").css("left", (point[0] - 15) + "px");
+                    $(".robber").css("top", (point[1] - 120) + "px");
+                    $(".robber").show();
                 }
             }
         }

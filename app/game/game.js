@@ -1,5 +1,6 @@
 var logger          = require('winston');
 var board_builder   = require('./board_builder.js');
+var Shuffler        = require('../helpers/shuffler.js');
 
 function Game(state_machine) {
     this.state_machine  = state_machine;
@@ -182,7 +183,7 @@ Game.prototype.generate_dev_card_deck = function(){
   }
   var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'great_hall', 'universtiy_of_catan', 'market'];
   for(var j = 0; j < other_cards.length; j++){
-    
+
     //add the first three options twice
     if(j < 3){
       dev_cards.push(other_cards[j]);
@@ -195,7 +196,7 @@ Game.prototype.generate_dev_card_deck = function(){
   // dev_cards.push('knight');
   // var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'palace', 'universtiy', 'market'];
   // for(var j = 0; j < other_cards.length; j++){
-    
+
   //   //add the first three options twice
   //   if(j < 3){
   //     dev_cards.push('knight');
@@ -206,9 +207,9 @@ Game.prototype.generate_dev_card_deck = function(){
   // }
   // dev_cards.push('knight');
   // dev_cards.push('knight');
-  
+
   return Fisher_Yates_shuffle(dev_cards);
-}
+};
 
 function Fisher_Yates_shuffle (array) {
   var i = 0;
@@ -216,11 +217,98 @@ function Fisher_Yates_shuffle (array) {
   var temp = null;
 
   for (i = array.length - 1; i > 0; i -= 1) {
-    j = Math.floor(Math.random() * (i + 1))
-    temp = array[i]
-    array[i] = array[j]
-    array[j] = temp
+    j = Math.floor(Math.random() * (i + 1));
+    temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
   }
   return array;
 }
+
+/**
+ * Steal resources from each player
+ * @return void
+ */
+Game.prototype.robPlayers = function() {
+
+  var i;
+  var j;
+  var player;
+  var num_cards;
+
+  var player_cards;
+  var num_to_steal;
+
+  var resource;
+
+  var shuffler = new Shuffler();
+
+  // Work out what happens to each player
+  for (i = 0; i < this.players.length; i++) {
+    player = this.players[i];
+
+    num_cards = player.cards.count_cards();
+
+    // Work out how many cards to steal
+    if (num_cards > 7) {
+      // if players have > 7 cards steal half their cards,
+      // in players favour if odd number of cards
+      num_to_steal = Math.floor(num_cards/2);
+    } else if (num_cards > 0) {
+      // if players have <= 7 cards steal one random resource
+      num_to_steal = 1;
+    } else {
+      // No cards for the robber to steal!. Well played Sir.
+      num_to_steal = 0;
+    }
+
+    // If we're stealng some cards create an array of cards,
+    // shuffle it then do the robbing
+    if (num_to_steal > 0) {
+      player_cards = [];
+
+      for (resource in player.cards.resource_cards) {
+        if (player.cards.resource_cards.hasOwnProperty(resource)) {
+          var resource_count = player.cards.resource_cards[resource];
+          for (j = 0; j < resource_count; j++) {
+            player_cards.push(resource);
+          }
+        }
+      }
+
+      // Randomise the cards then start robbing...
+      player_cards = shuffler.shuffle(player_cards);
+
+      for (j = 0; j < num_to_steal; j++) {
+        player.cards.remove_card(player_cards[j]);
+        player.round_distribution_cards.resource_cards[player_cards[j]]--;
+      }
+    }
+  }
+};
+
+/**
+ * Moves the robber to a new location
+ * @return void
+ */
+Game.prototype.moveRobber = function() {
+
+  var new_robber_tile;
+
+  // Remove the robber from current location
+  this.board.robberLocation.robber = false;
+
+  // Find a random resource tile for the robber, make sure the robber
+  // goes to a new location
+  do {
+    new_robber_tile = this.board.resourceTiles[Math.floor(Math.random() * this.board.resourceTiles.length)];
+  } while (new_robber_tile == this.board.robberLocation);
+
+  new_robber_tile.robber = true;
+
+  // Store reference to the new home of the robber
+  this.board.robberLocation = new_robber_tile;
+};
+
+
 module.exports = Game;

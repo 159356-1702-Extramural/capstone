@@ -34,6 +34,16 @@ generate = function(_board) {
 
       var tile = new Board.TileNode(tile_type, (tile_type === "desert"), parseInt(tile_info[2]), []);
 
+      // Store reference to robber location
+      if (tile_type === 'desert') {
+        board.robberLocation = tile;
+      }
+
+      // Create an array of the the resource tiles
+      if (['desert', 'water'].indexOf(tile_type) === -1) {
+        board.resourceTiles.push(tile);
+      }
+
       var add_node = true;
       var water = 0;
       // nodes from center of tile are in order;

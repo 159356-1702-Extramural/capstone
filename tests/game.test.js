@@ -73,3 +73,113 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
 });
 
 test.todo("Confirm the robber prevents a tile from give up its resources");
+
+test("Robber moves", function(t) {
+  var game = new Game();
+
+  var robber_start_x;
+  var robber_start_y;
+
+  var robber_end_x;
+  var robber_end_y;
+
+  var x;
+  var y;
+
+  var tiles = game.board.tiles;
+  var tiles_row;
+
+  // Work out current location of the robber
+  for (x = 0; x < tiles.length; x++) {
+    tiles_row = tiles[x];
+    for (y = 0; y < tiles_row.length; y++) {
+      if (tiles[x][y].robber) {
+        robber_start_x = x;
+        robber_start_y = y;
+      }
+    }
+  }
+
+  game.moveRobber();
+
+  // Work out end location of the robber
+  for (x = 0; x < tiles.length; x++) {
+    tiles_row = tiles[x];
+    for (y = 0; y < tiles_row.length; y++) {
+      if (tiles[x][y].robber) {
+        robber_end_x = x;
+        robber_end_y = y;
+      }
+    }
+  }
+
+  // Robber has moved
+  t.true(!tiles[robber_start_x][robber_start_y].robber && tiles[robber_end_x][robber_end_y].robber);
+
+});
+
+test("Player with 0 resource doesn't get robbed", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+
+  var start_cards = game.players[0].cards.count_cards();
+
+  game.robPlayers();
+
+  var end_cards = game.players[0].cards.count_cards();
+
+  t.true(start_cards == end_cards);
+});
+
+test("Player with 6 resources gets 1 card robbed", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.players[0].cards.add_card("grain");
+  game.players[0].cards.add_card("sheep");
+  game.players[0].cards.add_card("ore");
+  game.players[0].cards.add_card("brick");
+
+  var start_cards = game.players[0].cards.count_cards();
+
+  game.robPlayers();
+
+  var end_cards = game.players[0].cards.count_cards();
+  var round_cards = game.players[0].round_distribution_cards.count_cards();
+
+  t.true(start_cards == 6 && end_cards == 5);
+  t.true(round_cards === -1);
+});
+
+test("Player with 9 cards get 4 cards robbed", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.players[0].cards.add_card("grain");
+  game.players[0].cards.add_card("sheep");
+  game.players[0].cards.add_card("ore");
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.players[0].cards.add_card("grain");
+
+  var start_cards = game.players[0].cards.count_cards();
+
+  game.robPlayers();
+
+  var end_cards = game.players[0].cards.count_cards();
+  var round_cards = game.players[0].round_distribution_cards.count_cards();
+
+  t.true(start_cards == 9 && end_cards == 5);
+  t.true(round_cards === -4);
+});

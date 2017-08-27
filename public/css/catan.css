@@ -276,12 +276,18 @@ body {
     background-image:url(../images/hex_desert.png);
 }
 .robber {
-    position:relative;
+    position:absolute;
     background-image:url(../images/robber.png);
     height:70px;
     width:30px;
-    top:50px;
-    left:60px;
+    display:none;
+    z-index:9995;
+}
+.robber_roll {
+    position: relative;;
+    float:left;
+    margin-left:45px;
+    margin-top:18px;
 }
 
 .bottom_left {

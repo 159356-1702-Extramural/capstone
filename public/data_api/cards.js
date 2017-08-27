@@ -30,7 +30,7 @@ function Cards(){
 //Return number of cards in Cards Object
 Cards.prototype.count_cards = function(){
     return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
-}
+};
 
 Cards.prototype.count_victory_cards = function(){
     return this.victory_point_cards.library + this.victory_point_cards.market + this.victory_point_cards.chapel + this.victory_point_cards.university_of_catan + this.victory_point_cards.great_hall;
@@ -159,7 +159,7 @@ Cards.prototype.has_cards = function(card_list) {
         this.add_card(next_card);
     }
     return !missing_card;
-}
+};
 
 Cards.prototype.get_required_cards = function(object_type){
     var card_list = [];
@@ -182,7 +182,9 @@ Cards.prototype.get_required_cards = function(object_type){
         card_list.push('ore');
     }
     return card_list;
-}
+};
+
+
 
 /**
  * @param {String} card_type : check whether players have enough cards

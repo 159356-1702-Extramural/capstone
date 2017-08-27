@@ -8,7 +8,14 @@ function Board(obj) {
   this.node_tree;
   if (obj) {
     for (var prop in obj) this[prop] = obj[prop];
-  };
+  }
+
+  // Array of resource locations
+  this.resourceTiles = [];
+
+  // Where the robber lives
+  this.robberLocation = null;
+
 }
 /********************************************
 *  Basic setters for board elements
