@@ -110,6 +110,12 @@ $(document).ready(function() {
             }
 
         }else if ( data.data_type === 'invalid_move'){
+
+            //  restore player to server held player data
+            current_player = data.player;
+            
+            //  revert current player state
+            updatePanelDisplay();
             //  Details on failed moves
             build_popup_failed_moves();
 

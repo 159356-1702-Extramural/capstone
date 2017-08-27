@@ -117,7 +117,7 @@ StateMachine.prototype.tick = function(data) {
 
             //  Update the interface
             this.broadcast_gamestate();
-            
+
             //  Notify each player
             var setup_data = new Data_package();
             setup_data.data_type = 'round_turn';
@@ -131,7 +131,7 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-            
+
         } else {
             //call start sequence again from here - startSequence will find the next player to have a turn
             this.game_start_sequence();
@@ -152,28 +152,8 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
-        console.log("trade");
-        // trading with the bank (4:1, 3:1, 2:1)
-        if ( data.data_type === 'trade_with_bank' ){
-            var player = this.game.players[data.player_id];
 
-            //split the data to get the resource type: currently string = trade_sheep
-            var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
-            var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
-
-            //remove cards from hand
-            player.cards.resource_cards.remove_multiple_cards(cards_for_bank[1]);
-            
-            // add card to hand
-            player.cards.resource_cards.add_card(cards_from_bank[1]);
-            player.cards.round_distribution.add_card(cards_from_bank[1]);
-
-            //send card back to player
-            var data_package = new Data_package();
-            data_package.data_type = "returned_trade_card";
-            data_package.player = player;
-            this.send_to_player('game_update', data_package);
-        }
+        
         this.next_state();
         return true;
     }
@@ -183,8 +163,49 @@ StateMachine.prototype.tick = function(data) {
     ************************************************************/
     else if (this.state === "play") {
         //  Validate each player action
+
+        // trading with the bank (4:1, 3:1, 2:1)
+        if ( data.data_type === 'trade_with_bank' ){
+            var player = this.game.players[data.player_id];
+
+            //split the data to get the resource type: currently string = trade_sheep
+            var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
+            var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
+
+            var cards_for_trade = data.actions[0].action_data.cards_for_trade;
+
+            // check if cards available and remove cards from hand
+            if(player.cards.resource_cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
+                // add card to hand
+                player.cards.resource_cards.add_card(cards_from_bank[1]);
+                player.cards.round_distribution.add_card(cards_from_bank[1]);
+
+                //send card back to player
+                var data_package = new Data_package();
+                data_package.data_type = "returned_trade_card";
+                data_package.player = player;
+                this.send_to_player('game_update', data_package);
+            }else{
+                //trade failed server side
+                logger.log("error","Bank trade approved client side but failed server side.");
+
+                var data_package = new Data_package();
+                data_package.data_type = "invalid_move";
+
+                // return action to tell client failed reason
+                var action = data.action[0];
+                actions.data_type = 'trade_with_bank_failed';
+                player.actions.push(action);
+                data_package.player = player;
+
+                this.send_to_player('game_update', data_package);
+            }
+
+            
+        }
+
         this.validate_player_builds(data);
-        
+
         // Handle standard gameplay rounds
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -214,12 +235,12 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-                
+
             //  Notify players
             var setup_data = new Data_package();
             setup_data.data_type = 'round_turn';
             this.broadcast('game_turn', setup_data);
-            
+
         } else {
             //  Tell this player to wait
             var setup_data = new Data_package();
