@@ -132,7 +132,7 @@ StateMachine.prototype.tick = function(data) {
             this.broadcast('game_turn', setup_data);
 
             //  Move our state to play
-            this.state = "trade";
+            this.state = "play";
 
             // For now: increment round number and reset the player turn
             // completion status
@@ -170,7 +170,7 @@ StateMachine.prototype.tick = function(data) {
 
                 var card = this.development_cards.pop();
                 console.log('dev card purchased: '+card);
-                
+
                 player.cards.add_card(card);
                 player.round_distribution_cards.add_card(card);
                 var data_package = new Data_package();
