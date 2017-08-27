@@ -18,7 +18,7 @@ class SettlerTutorial(unittest.TestCase):
         ele_tutorial=eles[1]
         ele_tutorial.click()
         wait=WebDriverWait(driver,10)
-        title=wait.until(lambda driver: driver.find_element_by_tag_name('h1'))
+        title=wait.until(lambda driver: driver.find_element_by_tag_name('hhhhhh1'))
         self.assertEqual(title.text,'Tutorial!')
 
     def tearDown(self):
