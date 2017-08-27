@@ -15,4 +15,4 @@ before_script:
   - "npm install -g se-interpreter"
 script:
   ./scripts/nightly.sh
-  - "se-interpreter selenium/interpreter_config.json"
+  - "se-interpreter ./interpreter_config.json"

@@ -11,7 +11,7 @@
       "type": "verifyElementPresent",
       "locator": {
         "type": "xpath",
-        "value": "//div[@class***='popup_inner']/div[3]/div[1]/i"
+        "value": "//div[@class='popup_inner']/div[3]/div[1]/i"
       }
     }
   ],
