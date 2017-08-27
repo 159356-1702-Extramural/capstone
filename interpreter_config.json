@@ -16,7 +16,7 @@
         }
       ],
       "scripts":[
-        "./tests/*.py"
+        "./tests/exer1.test.json"
       ]
     }
   ]
