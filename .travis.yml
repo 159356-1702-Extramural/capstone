@@ -11,5 +11,9 @@ after_success:
 - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
 addons:
   sauce_connect: true
+before_script:
+  - "pip install selenium"
+  - "pip install sauceclient"
 script:
-  ./scripts/nightly.sh
+  - "python ./tests/seleniumPythonTest/click_tutorial.py"
+#  ./scripts/nightly.sh
