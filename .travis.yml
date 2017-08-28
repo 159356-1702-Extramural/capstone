@@ -16,4 +16,4 @@ before_script:
   - "pip install sauceclient"
 script:
   - "python ./tests/seleniumPythonTest/click_toturial.py"
-  ./scripts/nightly.sh
+#  ./scripts/nightly.sh
