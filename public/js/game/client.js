@@ -980,7 +980,7 @@ function setupPlayer() {
     html += "            <div class='box sheep'><span class='sheepcount'>0</span></div>";
     html += "            <div class='box ore'><span class='orecount'>0</span></div>";
     html += "            <div class='box grain'><span class='graincount'>0</span></div>";
-    html += "            <div class='box trade'><div class='btn btn-info tradebutton'>Trade</div></div>";
+    html += "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade()'>Trade</div></div>";
     html += "        </div>";
     html += "        <div class='buildings'>";
     html += "            Buildings:<br />";

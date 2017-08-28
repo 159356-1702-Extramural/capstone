@@ -464,13 +464,14 @@ StateMachine.prototype.trade_with_bank = function (data) {
         console.log("trade with bank failed");
 
         var data_package = new Data_package();
+        data_package.player = this.game.players[data.player_id];
         data_package.data_type = "invalid_move";
 
         // return action to tell client failed reason
         var action = data.actions[0];
-        actions.data_type = 'trade_with_bank_failed';
-        player.actions.push(action);
-        data_package.player = player;
+        action.data_type = 'trade_with_bank_failed';
+        data_package.player.actions = [];
+        data_package.player.actions.push(action);
 
         this.send_to_player('game_update', data_package);
     }
