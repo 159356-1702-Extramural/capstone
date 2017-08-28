@@ -116,8 +116,17 @@ $(document).ready(function() {
 
         }else if ( data.data_type === 'invalid_move'){
 
+            //  restore player to server held player data
+            current_player = data.player;
+
+            //  revert current player state
+            updatePanelDisplay();
+            //  Details on failed moves
+            build_popup_failed_moves();
+
         }else if ( data.data_type === 'wait_others'){
-            buildPopup("round_waiting_others", false);
+            //  Normal round, waiting for others
+            build_popup_round_waiting_for_others();
 
         }else if ( data.data_type === 'round_turn'){
             if (current_game.round_num == 3) {
@@ -128,6 +137,16 @@ $(document).ready(function() {
                 //  Otherwise, we start with the dice popup
                 build_popup_round_roll_results();
             }
+
+        }else if ( data.data_type === 'returned_trade_card'){
+
+            // card received from bank trade
+            console.log("trade_card_returned");
+
+            current_game.player = data.player;
+
+            updatePanelDisplay();
+
         }else if ( data.data_type === 'buy_dev_card'){
 
             doLog(data.player.cards.dev_cards.year_of_plenty);
@@ -161,9 +180,13 @@ $(document).ready(function() {
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
 
-        //TODO: Add real data
         var data_package = new Data_package();
-        data_package.data_type = "setup_phase";
+        if(current_game.round_num < 3){
+            data_package.data_type = "setup_phase";
+        }else{
+            data_package.data_type = "turn_complete";
+        }
+
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
 
@@ -319,6 +342,39 @@ function setupTurnFinished(){
     turn_actions = [];
 }
 
+function openTrade () {
+
+    //disable trade until setup complete
+    if(current_game.round_num > 2){
+        buildPopup('round_maritime_trade');
+    }
+}
+
+function acceptTrade () {
+
+    //get id's of selected cards
+    var sendCards = $('#tgb');
+    var receiveCard = $('#trb');
+
+    var data_package = new Data_package();
+    data_package.data_type = 'trade_with_bank';
+    data_package.player_id = current_player.id;
+    var action = new Action();
+
+    // set action_type to trade ratio (four-to-one, three-to-one....)
+    action.action_type = 'four-to-one';
+    action.action_data = {
+        cards_for_the_bank : $(":first-child", sendCards).attr('class'),
+        cards_from_the_bank: $(":first-child", receiveCard).attr('class'),
+
+        //set cards_for_trade to trade ratio (4,3,2)
+        cards_for_trade    : 4
+    }
+    data_package.actions.push(action);
+    console.log("send trade to bank");
+    update_server( 'game_update' , data_package );
+    hidePopup();
+}
 function invalidMove (data){
 
     failed_actions.forEach( function (action) {
@@ -924,7 +980,7 @@ function setupPlayer() {
     html += "            <div class='box sheep'><span class='sheepcount'>0</span></div>";
     html += "            <div class='box ore'><span class='orecount'>0</span></div>";
     html += "            <div class='box grain'><span class='graincount'>0</span></div>";
-    html += "            <div class='box trade'><div class='btn btn-info tradebutton'>Trade</div></div>";
+    html += "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade()'>Trade</div></div>";
     html += "        </div>";
     html += "        <div class='buildings'>";
     html += "            Buildings:<br />";
