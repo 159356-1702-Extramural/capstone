@@ -14,7 +14,7 @@
     "inspect": "node --inspect app/app.js",
     "test": "nyc ava",
     "test:watch": "nyc ava --watch --verbose",
-    "report":"nyc report --reporter=html"
+    "report": "nyc report --reporter=html"
   },
   "author": "Tim Ackroyd, Craig Walker, Alayn Clint, Jason Qu, Luke Jones",
   "license": "ISC",
@@ -27,11 +27,12 @@
   "devDependencies": {
     "ava": "^0.21.0",
     "coveralls": "^2.13.1",
-    "nyc": "^11.0.3",
-    "sinon": "^2.4.0",
     "geckodriver": "^1.8.0",
+    "mock-socket": "^7.0.0",
+    "nyc": "^11.0.3",
     "saucelabs": "^1.4.0",
     "selenium": "^2.20.0",
-    "selenium-webdriver": "^3.5.0"
+    "selenium-webdriver": "^3.5.0",
+    "sinon": "^2.4.0"
   }
 }
