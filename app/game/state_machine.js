@@ -124,7 +124,7 @@ StateMachine.prototype.tick = function(data) {
             this.broadcast('game_turn', setup_data);
 
             //  Move our state to play
-            this.state = "trade";
+            this.state = "play";
 
             // For now: increment round number and reset the player turn
             // completion status
@@ -167,7 +167,7 @@ StateMachine.prototype.tick = function(data) {
         // trading with the bank (4:1, 3:1, 2:1)
         if ( data.data_type === 'trade_with_bank' ){
             var player = this.game.players[data.player_id];
-
+            console.log(player);
             //split the data to get the resource type: currently string = trade_sheep
             var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
             var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
@@ -175,10 +175,12 @@ StateMachine.prototype.tick = function(data) {
             var cards_for_trade = data.actions[0].action_data.cards_for_trade;
 
             // check if cards available and remove cards from hand
-            if(player.cards.resource_cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
+            console.log(cards_for_bank[1]);
+            if(player.cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
                 // add card to hand
-                player.cards.resource_cards.add_card(cards_from_bank[1]);
-                player.cards.round_distribution.add_card(cards_from_bank[1]);
+                player.cards.add_card(cards_from_bank[1]);
+                player.round_distribution_cards = new Cards();
+                player.round_distribution_cards.add_card(cards_from_bank[1]);
 
                 //send card back to player
                 var data_package = new Data_package();
