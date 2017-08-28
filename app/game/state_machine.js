@@ -38,6 +38,7 @@ function StateMachine(id) {
     this.setupComplete = false;
     this.setupSequence = [0,1,1,0];
     this.setupPointer = 0;
+    this.development_cards = this.game.generate_dev_card_deck();
 }
 
 /*
@@ -111,8 +112,15 @@ StateMachine.prototype.tick = function(data) {
         }
 
         if (this.game.round_num > 2) {
+
             //  Do the initial dice roll
-            var diceroll = this.game.rollingDice();
+            var diceroll;
+
+            // We can't start with a 7 as that would mean starting with robber
+            do {
+              diceroll = this.game.rollingDice();
+            } while (diceroll === 7);
+
             this.game.allocateDicerollResources(diceroll);
 
             //  Update the interface
@@ -152,9 +160,37 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
+        if(data.data_type === 'buy_dev_card'){
 
+            var player = this.game.players[data.player_id];
 
-        this.next_state();
+            //check if player has available cards
+            if(player.cards.available_cards('dev_card')){
+                player.cards.remove_card('dev_card');
+
+                var card = this.development_cards.pop();
+                console.log('dev card purchased: '+card);
+
+                player.cards.add_card(card);
+                player.round_distribution_cards.add_card(card);
+                var data_package = new Data_package();
+                data_package.data_type = 'buy_dev_card';
+                data_package.player = player;
+                this.send_to_player('game_turn', data_package );
+
+            }else{
+                logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
+                // TODO send a fail message
+            }
+        }
+
+        var round_complete = this.game.players.every(function(player) {
+            return player.turn_complete === true;
+        });
+        if(round_complete){
+            this.next_state();
+        }
+
         return true;
     }
 
@@ -191,9 +227,24 @@ StateMachine.prototype.tick = function(data) {
                 this.game.players[i].round_distribution_cards = new Cards();
             }
 
+
+            // House rule 7 only comes up once someone has created their first non-startup building
+
             //  Next dice roll
-            var diceroll = this.game.rollingDice();
-            this.game.allocateDicerollResources(diceroll);
+            var diceroll;
+
+            do {
+              diceroll = this.game.rollingDice();
+            } while (false); // TODO: logic to determine if a player has built yet
+                             // eg. while (diceroll === 7 && no_build_flag === true)
+
+            if (diceroll !== 7) {
+              this.game.allocateDicerollResources(diceroll);
+            } else {
+              this.game.moveRobber();
+              this.game.robPlayers();
+            }
+
             this.broadcast_gamestate();
 
             //  Reset player statuses
@@ -396,7 +447,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
     // check if cards available and remove cards from hand
     if(this.game.players[data.player_id].cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
         // add card to hand
-    
+
         this.game.players[data.player_id].cards.add_card(cards_from_bank[1]);
         this.game.players[data.player_id].round_distribution_cards = new Cards();
         this.game.players[data.player_id].round_distribution_cards.add_card(cards_from_bank[1]);

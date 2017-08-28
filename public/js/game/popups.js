@@ -120,12 +120,22 @@ function build_popup_setup_complete() {
 //          {dice1} - numeric result of 1st dice
 //          {dice2} - numeric result of 2nd dice
 function build_popup_round_roll_results() {
+
+    var robber_active = current_game.dice_values[0] + current_game.dice_values[1] === 7;
+
+    var title = robber_active ?
+          "Robbed! Resources stolen this round:" :
+          "Resources received this round:";
+
+    // User the multipler to convert negative to positive for display
+    var multiplier = robber_active ? -1 : 1;
+
     var popup_data = [];
-    popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick]);
-    popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep]);
-    popup_data.push(["ore", current_game.player.round_distribution_cards.resource_cards.ore]);
-    popup_data.push(["lumber", current_game.player.round_distribution_cards.resource_cards.lumber]);
-    popup_data.push(["grain", current_game.player.round_distribution_cards.resource_cards.grain]);
+    popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick * multiplier]);
+    popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep * multiplier]);
+    popup_data.push(["ore", current_game.player.round_distribution_cards.resource_cards.ore * multiplier]);
+    popup_data.push(["lumber", current_game.player.round_distribution_cards.resource_cards.lumber * multiplier]);
+    popup_data.push(["grain", current_game.player.round_distribution_cards.resource_cards.grain * multiplier]);
 
     //  Build the html to show the cards in the popup
     var card_html = "";
@@ -139,10 +149,19 @@ function build_popup_round_roll_results() {
     }
 
     //  Robber
-    
+    var robber_display = "none";
+    if (robber_active) {
+      robber_display = "block";
+    }
 
     //  Build the popup
-    buildPopup("round_roll_results", false, [["dice1", current_game.dice_values[0]], ["dice2", current_game.dice_values[1]], ["setup_cards", card_html]]);
+    buildPopup("round_roll_results", false, [
+      ["dice1", current_game.dice_values[0]],
+      ["dice2", current_game.dice_values[1]],
+      ["setup_cards", card_html],
+      ["robber", robber_display],
+      ["title", title]
+    ]);
 }
 
 /***************************************************
