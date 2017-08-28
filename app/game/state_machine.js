@@ -469,7 +469,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
 
         // return action to tell client failed reason
         var action = data.actions[0];
-        action.data_type = 'trade_with_bank_failed';
+        action.data_type = 'invalid_move';
         data_package.player.actions = [];
         data_package.player.actions.push(action);
 
