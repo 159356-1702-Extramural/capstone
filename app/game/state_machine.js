@@ -385,7 +385,7 @@ StateMachine.prototype.validate_player_builds = function(data){
 
 StateMachine.prototype.trade_with_bank = function (data) {
     console.log("trade action with bank, player: " + data.player_id);
-    var player = this.game.players[data.player_id];
+    //var player = this.game.players[data.player_id];
 
     //split the data to get the resource type: currently string = trade_sheep
     var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
@@ -394,17 +394,18 @@ StateMachine.prototype.trade_with_bank = function (data) {
     var cards_for_trade = data.actions[0].action_data.cards_for_trade;
 
     // check if cards available and remove cards from hand
-    if(player.cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
+    if(this.game.players[data.player_id].cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
         // add card to hand
-        player.cards.add_card(cards_from_bank[1]);
-        player.round_distribution_cards = new Cards();
-        player.round_distribution_cards.add_card(cards_from_bank[1]);
+    
+        this.game.players[data.player_id].cards.add_card(cards_from_bank[1]);
+        this.game.players[data.player_id].round_distribution_cards = new Cards();
+        this.game.players[data.player_id].round_distribution_cards.add_card(cards_from_bank[1]);
 
         //send card back to player
         var data_package = new Data_package();
         data_package.data_type = "returned_trade_card";
-        data_package.player = player;
-        this.send_to_player('game_update', data_package);
+        data_package.player = this.game.players[data.player_id];
+        this.send_to_player('game_turn', data_package);
         console.log('trade with bank succedded');
     }else{
         //trade failed server side
@@ -415,7 +416,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
         data_package.data_type = "invalid_move";
 
         // return action to tell client failed reason
-        var action = data.action[0];
+        var action = data.actions[0];
         actions.data_type = 'trade_with_bank_failed';
         player.actions.push(action);
         data_package.player = player;
