@@ -1,13 +1,13 @@
 /**
- * 
+ *
  * Selenium testing using Saucelabs
  * https://www.saucelabs.com
- * 
+ *
  * Basic automated tests to ensure functionality across all platforms
  * (Create gameplay tests for all browsers and platforms)
- * 
+ *
  * Selenium tests currently setup for quick testing of major browsers and Desktop OS's
- * 
+ *
  */
 var comprehensiveTest = false;
 
@@ -22,14 +22,14 @@ var saucelabs = new SauceLabs({
 
 var test = require('ava');
 var webdriver = require('selenium-webdriver');
-var drivers = []; 
+var drivers = [];
 
 /**
  * Create browser / platforms to test against here
  * function formated driver_browser_os
  *    i.e. driver_fx_xp = Firefox on Windows XP
- * Note: version number coresponds to browser version number 
- * 
+ * Note: version number coresponds to browser version number
+ *
  * TODO: break down functions below to one function with an input array of platform/browers/version
  */
 
@@ -56,7 +56,7 @@ var drivers = [];
         'platform':'Windows 8',
         'version': '50.0',})
     .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-      .build();        
+      .build();
 
     var driver_chr_xp = new webdriver.Builder()
     .withCapabilities({
@@ -139,7 +139,7 @@ var drivers = [];
     .build();
 
     return [driver_chr_xp, driver_chr_7, driver_chr_Linux, driver_chr_Mac,
-      driver_fx_xp, driver_fx_7, driver_fx_8, 
+      driver_fx_xp, driver_fx_7, driver_fx_8,
       driver_ie_xp, driver_ie_7, driver_ie_8,
       driver_sf_7, driver_sf_Mac];
 
@@ -206,7 +206,7 @@ function frontPageLoads(browserDriver){
   test('Front game page exists (todo:add browser/os here)', async t => {
       let driver = browserDriver;
       await driver.get('http://capstone-settlers.herokuapp.com/');
-      t.is(await driver.getTitle(), "Settlers Of Massey");
+      t.is(await driver.getTitle(), "Settlers of Massey");
       await driver.quit();
   });
 }
