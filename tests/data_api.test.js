@@ -7,9 +7,11 @@
 var test = require('ava');
 
 var Data_package = require('../app/data_api/data_package.js');
+var Public_data_package = require('../public/data_api/data_package.js');
+
 var Player = require('../app/data_api/player.js');
 var Action = require('../public/data_api/action.js');
-var Cards = require('../app/data_api/cards.js');
+var Cards = require('../public/data_api/cards.js');
 
 var cards;
 var boost_cards;
@@ -20,6 +22,8 @@ var data;
 var startNode;
 var endNode;
 var player;
+var public_data_package;
+
 
 test.beforeEach(t => {
     data = new Data_package();
@@ -36,7 +40,7 @@ test.beforeEach(t => {
 
     boost_cards.add_card("sheep");
     boost_cards.add_card("brick");
-    boost_cards.add_card("wheat");
+    boost_cards.add_card("grain");
 
     //for a road and a settlement
     startNode = 3;
@@ -62,6 +66,9 @@ test.beforeEach(t => {
     data.turn_type  = 'turn_complete';
     data.game_state = null,
     data.player     = player;
+
+    // For public/data_api testing
+    public_data_package = new Public_data_package();
 
 });
 
@@ -108,13 +115,23 @@ test('Access cards from the data object' , function (t){
     t.is(data.player.actions[0].boost_cards.count_cards(), 3);
 });
 
-test('Clear data_pakage data' , function (t){
+test('Clear data_package data' , function (t){
     data.clear_data();
     t.is(data.turn_type , '');
     t.is(data.player , null);
     t.is(data.game_state , null);
 
 });
+
+test('Add player object' , function (t){
+    var mock_data = {
+        name:'Craig',
+        id  :  7
+    }
+    data.set_player(new Player({}, mock_data));
+    t.is(data.player.name, 'Craig');
+});
+
 /**
  * Action object testing
  */
@@ -162,11 +179,21 @@ test("Correct number of cards in action", function(t) {
     t.is(cards.count_cards(), 2);
 });
 
+test("Victory points added correctly", function(t) {
+    cards.add_card('library');
+    cards.add_card('market');
+    cards.add_card('chapel');
+    cards.add_card('university_of_catan');
+    cards.add_card('great_hall');
+    
+    t.is(cards.count_victory_cards(), 5);
+});
+
 //test that all card types can be added
 test("Cards recorded properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
-    cards.add_card("wheat");
+    cards.add_card("grain");
     var result = true;
     var i = 0;
     while(i < cards.resource_cards.length){
@@ -181,10 +208,10 @@ test("Cards recorded properly" , function (t) {
 test("Cards removed properly" , function (t) {
     cards.add_card("sheep");
     cards.add_card("brick");
-    cards.add_card("wheat");
+    cards.add_card("grain");
     cards.remove_card("sheep");
     cards.remove_card("brick");
-    cards.remove_card("wheat");
+    cards.remove_card("grain");
     cards.remove_card("lumber");
     cards.remove_card("ore");
 
@@ -206,7 +233,7 @@ test("Check cards can't be a negative value" , function (t) {
     //now try to go to negative numbers
     cards.remove_card("sheep");
     cards.remove_card("brick");
-    cards.remove_card("wheat");
+    cards.remove_card("grain");
     cards.remove_card("lumber");
     cards.remove_card("ore");
 
@@ -226,28 +253,92 @@ test("Remove purchases from Card object" , function (t) {
     cards.remove_cards("road");
     t.is(cards.count_cards(), 1);
 
-    cards.add_card("wheat");
-    cards.add_card("sheep"); //now there should be ore, wheat and sheep
+    cards.add_card("grain");
+    cards.add_card("sheep"); //now there should be ore, grain and sheep
     cards.remove_cards("dev_card");
     t.is(cards.count_cards(), 0);
 
     cards.add_card("brick");
     cards.add_card("lumber");
-    cards.add_card("wheat");
-    cards.add_card("sheep"); //now there should be brick, lumber, wheat and sheep
+    cards.add_card("grain");
+    cards.add_card("sheep"); //now there should be brick, lumber, grain and sheep
     cards.remove_cards("settlement");
     t.is(cards.count_cards(), 0);
 
     cards.add_card("ore");
     cards.add_card("ore");
     cards.add_card("ore");
-    cards.add_card("wheat");
-    cards.add_card("wheat"); //now there should be 33 ore and 2 wheat
+    cards.add_card("grain");
+    cards.add_card("grain"); //now there should be 33 ore and 2 grain
     cards.remove_cards("city");
     t.is(cards.count_cards(), 0);
 });
 
+test("Check required cards are pushed", function(t) {
+    var roadCards = cards.get_required_cards('road');
+    t.is(roadCards[0], 'lumber');
+    t.is(roadCards[1], 'brick');
+    
+    var houseCards = cards.get_required_cards('house');
+    t.is(houseCards[0], 'lumber');
+    t.is(houseCards[1], 'brick');
+    t.is(houseCards[2], 'grain');
+    t.is(houseCards[3], 'ore');
+
+    var cityCards = cards.get_required_cards('city');
+    t.is(cityCards[0], 'grain');
+    t.is(cityCards[1], 'grain');
+    t.is(cityCards[2], 'ore');
+    t.is(cityCards[3], 'ore');
+    t.is(cityCards[4], 'ore');
+
+});
+
+ test("Available cards correctly checks if player has cards", function(t) {
+    cards.add_card('brick');
+    cards.add_card('grain');
+    cards.add_card('sheep');
+    t.truthy(cards.available_cards('dev_card'));
+    t.truthy(cards.available_cards('house'));
+    t.truthy(cards.available_cards('road'));
+    t.falsy(cards.available_cards('city'));
+
+});
+
+test("has cards performs as expected", function(t) {
+    cards.add_card('brick');
+    cards.add_card('grain');
+    cards.add_card('sheep');
+    
+    //cards are brick, grain, sheep, lumber and ore
+    t.truthy(cards.has_cards(['sheep', 'grain', 'brick']));
+
+    cards.remove_card('grain');
+    t.falsy(cards.has_cards(['sheep', 'grain', 'brick']));
+
+});
+
+test("Remove multiple cards that don't exist fails", function(t){
+    t.falsy(cards.remove_multiple_cards('ore',3));
+})
+
 /**
- * public/data_api tests
+ * public/data_api tests Data Package
  */
+
+ test("Correct number of cards in action", function(t) {
+    public_data_package.set_data_type("test data");
+    public_data_package.set_player_id(1);
+    public_data_package.add_action(action);
+
+    t.is(public_data_package.data_type, 'test data');
+    t.is(public_data_package.player_id, 1);
+    t.is(public_data_package.actions.length, 1);
+    
+    public_data_package.clear_data();
+
+    t.is(public_data_package.data_type, '');
+    t.is(public_data_package.actions.length, 0);
+
+});
 

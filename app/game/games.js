@@ -49,6 +49,8 @@ Games.prototype.assign_player = function(socket, data) {
     // TODO: an alternative to "action" in the API, is to have the
     //       action be the message here
     player.socket.on('game_update', function(data) {
+        console.log("Player."+player.id,"invoked game_update");
+        logger.log('debug', "Player."+player.id,"invoked game_update");
         // state_machine function to be called
         state_machine.tick(data);
     });
@@ -91,13 +93,6 @@ Games.prototype.hard_reset = function() {
 /* General purpose functions for Games and StateMachine */
 /********************************************************/
 
-/*
- * Rolling two dices, and return the sum of the two dices number.
- */
-function rollingDice() {
-    var dice1=Math.ceil(Math.random() * 6 );
-    var dice2=Math.ceil(Math.random() * 6 );
-    return dice1+dice2;
-}
 
-module.exports = { Games, rollingDice };
+
+module.exports = { Games };

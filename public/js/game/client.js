@@ -3,7 +3,6 @@ var socket = io();
 
 //server data is the round data from the server
 var server_data = [];
-var game_data = {};
 
 var building_dimension = 50;
 
@@ -12,13 +11,13 @@ $(document).ready(function() {
     var $doc = $(document);
 
     //    Show the initial menu
-    buildPopup("start_menu", false);
+    build_popup_start_menu();
 
     // Events for main start menu buttons
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
         var active_class = $(this).attr('data-target');
-        buildPopup("start_" + active_class, false);
+        build_popup_start("start_" + active_class);
     });
 
     // Request to join a game
@@ -39,7 +38,7 @@ $(document).ready(function() {
     socket.on('player_id', function (data) {
         current_player = new currentPlayer(data.name, data.id, data.colour);
         setupPlayer();
-        buildPopup("waiting_for_players", false);
+        build_popup_waiting_for_players([]);
     });
 
     // Update the waiting display as new players join the game
@@ -48,12 +47,12 @@ $(document).ready(function() {
             ["player_count", data.player_count],
             ["players_needed", data.max_players],
         ];
-        buildPopup("waiting_for_players", false, popupData);
+        build_popup_waiting_for_players(popupData);
     });
 
     // Detect the game starting
     socket.on('game_start', function (data) {
-        buildPopup("waiting_for_turn", false);
+        build_popup_waiting_for_turn();
     });
 
     socket.on('game_turn', function (data) {
@@ -78,9 +77,15 @@ $(document).ready(function() {
 
     socket.on('update_game', function (data) {
         //  Update the local copy of the game data
-        game_data = data;
+        current_game = new currentGame(data);
 
-        console.log('game_data: ', game_data);
+        // DEBUG:
+        console.log('current_game: ', current_game);
+
+        turn_actions = [];
+
+        // Update the game state panel
+        updatePanelDisplay();
 
         //  Update all nodes on the board
         buildNodes();
@@ -96,47 +101,73 @@ $(document).ready(function() {
     //  turn, while the active player places a settlement and road
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
-            alert("setup complete");
             setup_phase = false;
-            hidePopup();
+            $('.popup').hide();
+            buildPopup('setup_complete');
+
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
-                if(data.player === 1){
-                    //TODO: Place First Settlement
-                    buildPopup("setup_phase_your_turn", false);
-                }else{
-                    //TODO: Place Second Settlement
-                    buildPopup("setup_phase_your_turn", false);
-                }
+                //  Popup for instructions on 1st or 2nd placement
+                build_popup_setup_phase_your_turn(data.player);
             } else {
-                buildPopup("waiting_for_turn", false);
+                //  Waiting for others to finish setup placement
+                build_popup_waiting_for_turn();
             }
-        }else if ( data.data_type === 'invalid_move'){
-            invalidMove(data);
-        }
 
-        // wipe current turn data
-        if ( data.data_type === 'successfull_turn'){
+        }else if ( data.data_type === 'invalid_move'){
+
+        }else if ( data.data_type === 'wait_others'){
+            buildPopup("round_waiting_others", false);
+
+        }else if ( data.data_type === 'round_turn'){
+            if (current_game.round_num == 3) {
+                //  On the first round, we need to show the setup phase results
+                build_popup_setup_complete();
+                setup_phase = false;
+            } else {
+                //  Otherwise, we start with the dice popup
+                build_popup_round_roll_results();
+            }
+        }else if ( data.data_type === 'buy_dev_card'){
+
+            doLog(data.player.cards.dev_cards.year_of_plenty);
+            doLog(data.player.cards.dev_cards.knight);
+            doLog(data.player.cards.dev_cards.monopoly);
+            doLog(data.player.cards.dev_cards.road_building);
+
+            var card_list = "";
+            if (data.player.cards.dev_cards.year_of_plenty > 0) {
+                card_list += "<img src='images/dev_year_of_plenty.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.knight > 0) {
+                card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.monopoly > 0) {
+                card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.road_building > 0) {
+                card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            $(".cardlist").html(card_list);
+
+        }else if ( data.data_type === 'successful_turn'){
+
+            // wipe current turn data
             setupTurnFinished();
+        }else{
+            console.log('failed to direct data_type into an else if section');
         }
     }
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
-        console.log(game_data)
+
         //TODO: Add real data
         var data_package = new Data_package();
         data_package.data_type = "setup_phase";
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
 
-        //check correct deployment in setup (one house, one road)
-        if(server_data.data_type === 'setup_phase'){
-
-            checkLegitimateTurn(data_package);
-
-        }else{
-            update_server("game_update", data_package);
-        }
+        update_server("game_update", data_package);
     });
 
 
@@ -208,6 +239,33 @@ $(document).ready(function() {
         var resource = $(this).attr('data-resource');
         var image = $(".devcard_receive[data-resource='" + resource + "']").html();
         $('.devcard_card').html(image);
+
+    });
+
+    //  Development Card - Purchase
+    $doc.on('click', '.buybutton', function(e) {
+        e.preventDefault();
+
+        // TODO : only active in trade phase
+        if(current_game.round_num > 2){
+
+            // check if enough cards to buy development card
+            if(has_resources('dev_card')){
+
+                // remove resources from hand
+                current_game.player.cards.resource_cards.grain--;
+                current_game.player.cards.resource_cards.ore--;
+                current_game.player.cards.resource_cards.sheep--;
+
+                //current_game.player.cards.remove_cards("dev_card");
+                updatePanelDisplay();
+                var data_package = new Data_package();
+                data_package.data_type = "buy_dev_card";
+                data_package.player_id = current_game.player.id;
+
+                update_server('game_update',data_package);
+            }
+        }
     });
 
     //  Player Trading - Add Give Card
@@ -229,10 +287,36 @@ $(document).ready(function() {
         $('.trade_want').html(image.replace("_small", "_tiny"));
     });
 
+    //  Build - Add Extra resource
+    $doc.on('click', '.build_give', function(e) {
+        e.preventDefault();
+
+        var resource = $(this).attr('data-resource');
+        var card_list = $(".extra_card_list");
+        var next_z = card_list.html().length + 1;
+        var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
+        card_list.append(new_card);
+    });
+
+    //  Build - Remove resources
+    $doc.on('click', '.extra_card_list', function(e) {
+        e.preventDefault();
+
+        $(".extra_card_list").html("");
+    });
+
+    //close start window
+    $doc.on('click', '.close-start', function(e) {
+        e.preventDefault();
+
+        hidePopup();
+    });
+
 
 });
 function setupTurnFinished(){
     // wipe all current turn info (action arrays)
+    turn_actions = [];
 }
 
 function invalidMove (data){
@@ -263,11 +347,9 @@ function invalidMove (data){
 }
 
 function checkLegitimateTurn(data_package){
-    console.log(turn_actions);
             //only two actions allowed (build road and build house)
             if(turn_actions.length === 2){
 
-                console.log(turn_actions[1]);
                 //if one is a house and the other is a road
                 if ((turn_actions[0].action_type == 'build_settlement' || turn_actions[1].action_type == 'build_settlement') && (turn_actions[0].action_type == 'build_road' || turn_actions[1].action_type == 'build_road')){
 
@@ -292,36 +374,6 @@ var update_server = function(data_type, data){
     socket.emit(data_type, data);
 }
 
-//  Generic method to build a popup from a template
-//   popupClass: name of the html file without the extention
-//   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
-function buildPopup(popupClass, useLarge, customData) {
-    $.get("templates/" + popupClass + ".html", function(data) {
-
-        //  In a few cases, we need a larger popup
-        $(".popup_inner").removeClass("popup_inner_large");
-        if (useLarge) {
-            $(".popup_inner").addClass("popup_inner_large");
-        }
-
-        //  Now load and update the template
-        var html = data;
-        if (customData) {
-            customData.forEach(function(data) {
-                html = html.replace("{" + data[0] + "}", data[1]);
-            });
-        }
-        $(".popup_inner").html(html);
-        $(".popup").show();
-
-    });
-}
-function hidePopup() {
-    $('.popup').fadeOut(400, function() {
-
-    });
-}
-
 //  Method used to create the individual tiles when the board is first drawn
 function buildTile(theTile, row, col) {
     //  We don't need the 1st water on even rows
@@ -341,7 +393,10 @@ function buildTile(theTile, row, col) {
 
         newTile += ((row % 2) != 0 && (col == 0 || col == 6) ? " half" : "") + "'>";
         if (theTile.type == "desert") {
-            newTile += "<div class='robber'></div>";
+            var point = getObjectPosition(col, row, 1);
+            $(".robber").css("left", (point[0] - 15) + "px");
+            $(".robber").css("top", (point[1] - 120) + "px");
+            $(".robber").show();
         }
         if (theTile.type == "harbor") {
             //newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
@@ -367,35 +422,28 @@ function buildTile(theTile, row, col) {
 //  Iterates through the most recent game data to verify buildings
 function buildNodes() {
     //  Grab a local reference of the tiles array
-    var tiles = game_data.board.tiles;
+    var tiles = current_game.tiles;
 
     //  Settlements are slightly shorter
     var settlement_height = 42;
 
     //  Iterate through all tiles
     for (var y = 0; y < tiles.length; y++) {
-
-        //  Next row of tiles
         for (var x = 0; x < tiles[y].length; x++) {
-
             //  Next tile
             var theTile = tiles[y][x];
-
-            //  We ignore water tiles
             if (theTile.type != "water") {
-
                 //  Now get the nodes and determine positions
                 var node_positions = theTile.associated_nodes;
 
                 //  If there are nodes to check
                 if (node_positions.length > 0) {
-
                     //  Check each node
                     for (var j=0; j<node_positions.length; j++) {
                         //  j is the position around the tile
                         //  0 = bottom_right clockwise to 5 = top_right
 
-                        var node = game_data.board.nodes[node_positions[j]];
+                        var node = current_game.nodes[node_positions[j]];
                         var node_on_canvas = $("#node_" + node_positions[j]);
                         var node_class = getNodeCSS(node);
 
@@ -407,24 +455,53 @@ function buildNodes() {
                             point[0] -= (building_dimension / 2);
                             point[1] -= (node.building == "city" ? (building_dimension / 2) : (settlement_height / 2));
 
-                            //  temp (for testing)
-                            if (x == 2 && y == 1 && j == 0) {
-                                node.owner = 0;
-                                node.building = "house";
-                                node_class = getNodeCSS(node);
-                            }
-
                             //  Finally create the html based on the node properties
                             $("body").append("<div id='node_" + node_positions[j] + "' class='node " + node_class + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
                         } else {
                             //  The node exists on the board, update css in case it changed
                             node_on_canvas.attr("class", "node " + node_class);
+
+                            //  If a companion house/city exists, disable it
+                            var dragged_node = $("#" + node.building + "_" + current_player.colour + "_pending_" + node.id);
+                            if (dragged_node) {
+                                dragged_node.attr("class", node.building + " " + current_player.colour + " disabled");
+                                dragged_node.attr("id", node.building + "_" + current_player.colour + "_locked_" + node.id);
+                            }
+
+                        }
+
+                        //  Use the bottom node as a reference when placing the robber
+                        if (j == 1 & theTile.robber) {
+
                         }
                     }
+                }
+
+                //  Do we need to move the robber?
+                if (theTile.robber) {
+                    var point = getObjectPosition(x, y, 1);
+                    $(".robber").css("left", (point[0] - 15) + "px");
+                    $(".robber").css("top", (point[1] - 120) + "px");
+                    $(".robber").show();
                 }
             }
         }
     }
+}
+
+// Update display figuers
+function updatePanelDisplay() {
+
+  // Update the resouce cards
+
+  var resource_cards = current_game.player.cards.resource_cards;
+  var $resource_box = $('.resources');
+  $resource_box.find('.brickcount').text(resource_cards.brick);
+  $resource_box.find('.graincount').text(resource_cards.grain);
+  $resource_box.find('.lumbercount').text(resource_cards.lumber);
+  $resource_box.find('.orecount').text(resource_cards.ore);
+  $resource_box.find('.sheepcount').text(resource_cards.sheep);
+
 }
 
 //  This method determines the coordinates where a settlement/city is to be drawn
@@ -460,7 +537,7 @@ function getNodeCSS(node) {
     if (can_build(node)) {
         node_class = "buildspot";
     } else if (node.owner > -1) {
-        node_class = node.building + " locked " + game_data.players[node.owner].colour;
+      node_class = node.building + " locked " + current_game.players[node.owner].colour;
     }
     return node_class;
 }
@@ -480,18 +557,18 @@ function can_build(node, node_to_ignore) {
 
     //  Use board helper method to check owner and adjacent buildings
     var tempBoard = new Board();
-    tempBoard.nodes = game_data.board.nodes;
+    tempBoard.nodes = current_game.nodes;
     var can_build = tempBoard.is_node_valid_build(current_player.id, node.id);
 
     //  TODO: Remove following checks when added to board helper is_node_valid_build
     if (can_build) {
         //  If this is the setup round, we can build here
-        if (game_data.round_num < 3) {
+      if (current_game.round_num < 3) { // TODO: MAGIC NUMBER!!!!
             success = true;
         } else {
             //  Finally, if it is a normal round, are we connected by a road?
             for (var i=0; i<node.n_roads.length; i++) {
-                if (game_data.roads[node.n_roads[i]].owner == current_player.id) {
+                if (current_game.roads[node.n_roads[i]].owner == current_player.id) {
                     success = true;
                     break;
                 }
@@ -511,8 +588,8 @@ function can_build(node, node_to_ignore) {
 //  Method for updating the state of all roads on the board
 //  Iterates through the most recent game data to verify roads
 function buildRoads() {
-    for (var i=0; i<game_data.board.roads.length; i++) {
-        var road = game_data.board.roads[i];
+    for (var i=0; i<current_game.roads.length; i++) {
+        var road = current_game.roads[i];
 
         var road_on_canvas = $("#road_" + i);
         var road_class = getRoadCSS(road);
@@ -528,7 +605,14 @@ function buildRoads() {
             $("body").append("<div id='road_" + i + "' class='road " + road_class + " angle" + angle + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
         } else {
             //  The road exists on the board, update css in case it changed
-            //road_on_canvas.attr("class", "road " + road_class);
+            road_on_canvas.removeClass("roadspot").removeClass("locked").addClass(road_class);
+
+            //  If a companion road exists, disable it
+            var dragged_node = $("#road_" + current_player.colour + "_pending_" + road.id);
+            if (dragged_node) {
+                dragged_node.attr("class", "road " + current_player.colour + " disabled");
+                dragged_node.attr("id", "road_" + current_player.colour + "_locked_" + road.id);
+            }
         }
     }
 }
@@ -538,7 +622,7 @@ function buildRoads() {
 function getRoadCSS(road) {
     var road_class = "roadspot";
     if (road.owner > -1) {
-        road_class = "locked " + game_data.players[road.owner].colour;
+        road_class = "locked " + current_game.players[road.owner].colour;
     }
     return road_class;
 }
@@ -604,7 +688,7 @@ function getRoadPosition(road) {
 }
 
 //  Some simple logic to see if a road can be built
-function can_build_road(road, road_to_ignore) {
+function can_build_road(road, road_to_ignore, node_to_enforce) {
     var success = false;
 
     //  If we have a road_to_ignore, temporarily hide it's owner property
@@ -615,27 +699,35 @@ function can_build_road(road, road_to_ignore) {
     }
 
     //  Grab a local reference of the nodes array
-    var nodes = game_data.board.nodes;
-    var roads = game_data.board.roads;
-
-    //  TODO: Replace with board helper when is_road_valid_build checks for a road leading to this road
+    var nodes = current_game.nodes;
+    var roads = current_game.roads;
 
     //  Is a road already here?
     if (road.owner == -1) {
-        //  Do we have an adjacent building?
-        if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
-            //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
-            for (var h = 0; h < 2; h++) {
-                for (var i = 0; i < nodes[road.connects[h]].n_roads.length; i++) {
-                    if (roads[nodes[road.connects[h]].n_roads[i]].owner == current_player.id) {
-                        success = true;
-                        break;
-                    }
-                }
-                if (success) { break; }
+        //  If we have a node_to_enforce, we must build off it
+        var is_enforced = true;
+        if (node_to_enforce) {
+            if (nodes[road.connects[0]] != node_to_enforce && nodes[road.connects[1]] != node_to_enforce) {
+                is_enforced = false;
             }
-        } else {
-            success = true;
+        }
+
+        if (is_enforced) {
+            //  Do we have an adjacent building?
+            if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
+                //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
+                for (var h = 0; h < 2; h++) {
+                    for (var i = 0; i < nodes[road.connects[h]].n_roads.length; i++) {
+                        if (roads[nodes[road.connects[h]].n_roads[i]].owner == current_player.id) {
+                            success = true;
+                            break;
+                        }
+                    }
+                    if (success) { break; }
+                }
+            } else {
+                success = true;
+            }
         }
     }
     //  If we have a road_to_ignore, restore it
@@ -645,7 +737,6 @@ function can_build_road(road, road_to_ignore) {
 
     return success;
 }
-
 
 function getDots(d) {
     if (d == 2 || d == 12) {
@@ -676,6 +767,145 @@ function validateNode(neighbors, index, nodeindex) {
     return null;
 }
 
+function has_resources(object_type) {
+    //  Get the current player cards
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+
+    if (object_type == "house") {
+        //  During the setup round, assume they do
+        if (current_game.round_num < 3) { return true; }
+        //  Otherwise we need 1 lumber, 1 grain, 1 brick and 1 sheep
+        return my_cards.has_cards(['lumber', 'grain', 'brick', 'sheep']);
+    }
+    if (object_type == "road") {
+        //  During the setup round, assume they do
+        if (current_game.round_num < 3) { return true; }
+        //  Otherwise we need 1 lumber, 1 brick
+        return my_cards.has_cards(['lumber', 'brick']);
+    }
+    if (object_type == "city") {
+        //  Otherwise we need 2 grain and 3 ore
+        return my_cards.has_cards(['grain', 'grain', 'ore', 'ore', 'ore']);
+    }
+    if (object_type == "dev_card") {
+        //  Otherwise we need 2 grain and 3 ore
+        return my_cards.has_cards(['ore', 'grain', 'sheep']);
+    }
+
+    return false;
+}
+
+function start_build_popup(object_type) {
+    //  Get the list of cards needed
+    var cards = new Cards();
+    var card_list = cards.get_required_cards(object_type);
+    var card_html = "";
+
+    for (var i = 0; i < card_list.length; i++) {
+        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+    }
+
+    buildPopup("round_build", false, [["object_type", object_type], ["build_cards", card_html]]);
+}
+function complete_build_popup() {
+    //  Get html holding the cards
+    var build_cards = $(".build_card_list").html();
+    var extra_cards = $(".extra_card_list").html();
+    var card_list = [];
+
+    //  Create a reference to the players cards
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+
+    //  Remove cards from player
+    var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
+    for (var i = 0; i < resource_list.length; i++) {
+        //  Count each instance in the html
+        var resource_count = (extra_cards.match(resource_list[i], 'g') ? extra_cards.match(resource_list[i], 'g').length : 0) + (build_cards.match(resource_list[i], 'g') ? build_cards.match(resource_list[i], 'g').length : 0);
+        if (resource_count > 0) {
+            //  Remove that many from the player
+            var result = my_cards.remove_multiple_cards(resource_list[i], resource_count);
+
+            //  Keep track of the cards
+            for (var j = 0; j < resource_count; j++) {
+                card_list.push(resource_list[i]);
+            }
+        }
+
+    }
+
+    //  Update the turn_action data
+    turn_actions[turn_actions.length-1].boost_cards = card_list;
+
+    //  Update our counts
+    update_object_counts();
+    updatePanelDisplay();
+
+    //  All done!
+    hidePopup();
+}
+function abort_build_popup() {
+    //  We need to return it to the pile and remove it from turn_actions
+    var object_type = (turn_actions[turn_actions.length - 1].action_type == "build_road" ? "road" : "house");
+    var object_node = turn_actions[turn_actions.length - 1].action_data;
+    var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
+    return_object(object_to_return, object_to_return.attr("id"), object_node.id);
+    hidePopup();
+}
+
+function build_setup_complete_popup() {
+
+    //  First build a list of cards received during the setup round
+    var popup_data = [];
+    popup_data.push(["brick", current_game.player.cards.resource_cards.brick - current_game.player.round_distribution_cards.resource_cards.brick]);
+    popup_data.push(["sheep", current_game.player.cards.resource_cards.sheep - current_game.player.round_distribution_cards.resource_cards.sheep]);
+    popup_data.push(["ore", current_game.player.cards.resource_cards.ore - current_game.player.round_distribution_cards.resource_cards.ore]);
+    popup_data.push(["lumber", current_game.player.cards.resource_cards.lumber - current_game.player.round_distribution_cards.resource_cards.lumber]);
+    popup_data.push(["grain", current_game.player.cards.resource_cards.grain - current_game.player.round_distribution_cards.resource_cards.grain]);
+
+    //  Build the html to show the cards in the popup
+    var card_html = "";
+    for (var i = 0; i < popup_data.length; i++) {
+        for (var j = 0; j < popup_data[i][1]; j++) {
+            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+        }
+    }
+
+    //  Build the popup
+    buildPopup("setup_complete", false, [["setup_cards", card_html]]);
+
+}
+
+function build_new_round_popup() {
+    var popup_data = [];
+    popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick]);
+    popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep]);
+    popup_data.push(["ore", current_game.player.round_distribution_cards.resource_cards.ore]);
+    popup_data.push(["lumber", current_game.player.round_distribution_cards.resource_cards.lumber]);
+    popup_data.push(["grain", current_game.player.round_distribution_cards.resource_cards.grain]);
+
+    //  Build the html to show the cards in the popup
+    var card_html = "";
+    for (var i = 0; i < popup_data.length; i++) {
+        for (var j = 0; j < popup_data[i][1]; j++) {
+            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+        }
+    }
+    if (card_html.length == 0) {
+        card_html += 'Nothing for you!';
+    }
+
+    //  Robber and dice
+
+
+    //  Build the popup
+    buildPopup("round_roll_results", false, [["dice1", current_game.dice_values[0]], ["dice2", current_game.dice_values[1]], ["setup_cards", card_html]]);
+}
+function start_round() {
+    hidePopup();
+}
+
 function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
@@ -694,7 +924,7 @@ function setupPlayer() {
     html += "            <div class='box sheep'><span class='sheepcount'>0</span></div>";
     html += "            <div class='box ore'><span class='orecount'>0</span></div>";
     html += "            <div class='box grain'><span class='graincount'>0</span></div>";
-    html += "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade();'>Trade</div></div>";
+    html += "            <div class='box trade'><div class='btn btn-info tradebutton'>Trade</div></div>";
     html += "        </div>";
     html += "        <div class='buildings'>";
     html += "            Buildings:<br />";
@@ -722,7 +952,7 @@ function setupPlayer() {
     html += "        </div>";
     html += "            <div class='cards'>";
     html += "                Cards:<br />";
-    html += "                <div class='cardlist'><img src='../images/nocards.png' /></div>";
+    html += "                <div class='cardlist'><img src='../images/nocards.png' class='no_cards' /></div>";
     html += "                <div class='buy'><div class='btn btn-info buybutton'>Buy Development Card</div></div>";
     html += "            </div>";
     html += "           <div class='bonuses'>";

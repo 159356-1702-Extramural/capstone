@@ -1,0 +1,38 @@
+<div class="popup_title">Building Manager</div>
+<div class="popup_subtitle">Choose whether to include extra resources for your build</div>
+
+<div class="build_title">
+    Resources for {object_type}:
+</div>
+<div class="build_row" style="height:140px;">
+    <div class="build_card_list">{build_cards}</div>
+    <div class="extra_card_list"></div>
+</div>
+
+<div class="build_title">Optional Resources</div>
+<div class="build_subtitle">
+    Click on any resources your would like to add.  This improves your chances of winning
+    in case other players are trying to build on this same spot this round
+</div>
+<div class="build_row">
+    <div class="build_give" data-resource="brick">
+        <img class="trade_brick" src="images/card_brick_small.png">
+    </div>
+    <div class="build_give" data-resource="grain">
+        <img class="trade_grain" src="images/card_grain_small.png">
+    </div>
+    <div class="build_give" data-resource="sheep">
+        <img class="trade_sheep" src="images/card_sheep_small.png">
+    </div>
+    <div class="build_give" data-resource="ore">
+        <img class="trade_ore" src="images/card_ore_small.png">
+    </div>
+    <div class="build_give" data-resource="lumber">
+        <img class="trade_lumber" src="images/card_lumber_small.png">
+    </div>
+</div>
+
+<div>
+    <div class="btn btn-info btn-large" onclick="round_build_complete();">Build {object_type}</div>
+    <div class="btn btn-info btn-large" onclick="round_build_abort();">Nevermind</div>
+</div>

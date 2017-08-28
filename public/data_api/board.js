@@ -8,12 +8,25 @@ function Board(obj) {
   this.node_tree;
   if (obj) {
     for (var prop in obj) this[prop] = obj[prop];
-  };
+  }
+
+  // Array of resource locations
+  this.resourceTiles = [];
+
+  // Where the robber lives
+  this.robberLocation = null;
+
 }
 /********************************************
 *  Basic setters for board elements
 *********************************************/
-/// modifies the owner of road or house array (used in setup) - modify for general use
+/**
+* Modifies the owner of road or house array
+* (used in setup) - modify for general use
+* @param {String} item
+* @param {integer} index
+* @param {integer} player_id
+*/
 Board.prototype.set_item = function(item, index, player_id) {
    if (item === 'build_road') {
     this.roads[index].owner = player_id;
@@ -26,22 +39,38 @@ Board.prototype.set_item = function(item, index, player_id) {
 /********************************************
 *  Basic getters for board elements
 *********************************************/
-/// returns road object
+/**
+* Returns road object from the given index to Board.roads
+* @param {Integer} index
+* @return {RoadNode} Board.roads[index]
+*/
 Board.prototype.get_road = function (index) {
   return this.roads[index];
 }
 
-/// returns node object
+/**
+* Returns building node object from the given index to Board.nodes
+* @param {Integer} index
+* @return {BuildNode} Board.nodes[index]
+*/
 Board.prototype.get_node = function (index) {
   return this.nodes[index];
 }
 
-/// returns tile object
+/**
+* Returns tile object located at grid point
+* @param {Point} point
+* @return {Tile} Tile - the tile object
+*/
 Board.prototype.get_tile = function (point) {
   return this.tiles[point.y][point.x];
 };
 
-/// returns resource type string
+/**
+* Returns string describing the resource type
+* @param {Point} point
+* @return {String} resource type name
+*/
 Board.prototype.get_tile_resource_type = function (point) {
   return this.tiles[point.y][point.x].type;
 };
@@ -49,31 +78,34 @@ Board.prototype.get_tile_resource_type = function (point) {
 /********************************************
 *  More advanced getters for board elements
 *********************************************/
-/// returns an array of the index numbers for nodes
+/**
+* Returns an array of the index numbers for nodes
+* @param {Integer} index
+* @return {Object[]} integer - the index number of the node in Board.nodes
+*/
 Board.prototype.get_node_indexes_from_road = function (index) {
   return [this.roads[index].connects[0],
           this.roads[index].connects[1]];
 }
 
-// returns an array of the index numbers for roads
+/**
+* Returns an array of the index numbers for roads
+* @param {Integer} index
+* @return {Object[]} integer - the index number of the road in Board.roads
+*/
 Board.prototype.get_road_indexes_from_node = function (index) {
   var array = [];
   for (var i=0; i<this.nodes[index].n_roads.length; i++) {
       array.push(this.nodes[index].n_roads[i]);
   }
   return array;
-}
+};
 
-// returns an array of the index numbers for roads
-Board.prototype.get_road_indexes_from_node = function (index) {
-    var array = [];
-    for (var i=0; i<this.nodes[index].n_roads.length; i++) {
-        array.push(this.nodes[index].n_roads[i]);
-    }
-    return array;
-}
-
-/// returns an array of tile objects
+/**
+* Returns an array of tile objects
+* @param {String} resource
+* @return {Object[]} Tile - the tile object
+*/
 Board.prototype.get_tiles_with_resource = function (resource) {
   var array = [];
   for (var y=0; y< this.tiles.length; y++) {
@@ -86,7 +118,11 @@ Board.prototype.get_tiles_with_resource = function (resource) {
   return array;
 };
 
-/// returns an array of player names
+/**
+* Returns an array of player names
+* @param {String} resource
+* @return {Object[]} String - player names
+*/
 Board.prototype.get_players_with_resource = function (resource) {
   var players = [];
   var tiles = this.get_tiles_with_resource(resource);
@@ -101,7 +137,10 @@ Board.prototype.get_players_with_resource = function (resource) {
   return players;
 };
 
-/// returns an array of indexes for Board.nodes
+/**
+* Returns an array of indexes for Board.nodes that are on the shoreline
+* @return {Object[]} Integer - the index numbers for nodes in this.nodes
+*/
 Board.prototype.get_shore_node_indexes = function() {
   var nodes = [];
   for (var n=0; n<this.nodes.length; n++) {
@@ -119,7 +158,10 @@ Board.prototype.get_shore_node_indexes = function() {
   return nodes;
 }
 
-/// returns an array of indexes for Board.nodes
+/**
+* Returns an array of indexes for Board.roads that are on the shoreline
+* @return {Object[]} Integer - the index numbers for roads in this.roads
+*/
 Board.prototype.get_shore_road_indexes = function() {
   var roads = [];
   var nodes = this.get_shore_node_indexes();
@@ -130,10 +172,12 @@ Board.prototype.get_shore_road_indexes = function() {
   return roads;
 }
 
-/// returns bool from node index where a player wants to build
-///
-/// Checks if the the node is unowned, and if the nodes around it
-/// have had their nodes taken already. (checks radius 2 of nodes)
+/**
+* Returns bool from node index where a player wants to build.
+* @param {Integer} player
+* @param {Integer} index
+* @return {Bool} - True if player can build here
+*/
 // TODO: recursive memoization would be best here
 // TODO: check roads
 Board.prototype.is_node_valid_build = function(player, index) {
@@ -150,6 +194,13 @@ Board.prototype.is_node_valid_build = function(player, index) {
   return (count === 0);
 }
 
+// TODO:
+/**
+* Returns bool if a node owned by the player has a road path to another node
+* player wants to build.
+* @param {Integer} player
+* @param {Integer} index
+*/
 Board.prototype.has_node_player_road_to = function(player, index) {
 // TODO: stop using forEach on integers, numbnuts
 //    return (this.nodes[index].n_roads.forEach(function(road) {
@@ -157,7 +208,12 @@ Board.prototype.has_node_player_road_to = function(player, index) {
 //        }));
 }
 
-/// returns bool from road index
+/**
+* Returns bool if the road can be built by player
+* @param {Integer} player
+* @param {Integer} index
+* @return {Bool} - true if the road can be built by player
+*/
 Board.prototype.is_road_valid_build = function(player, index) {
   var road = this.roads[index];
   if (road.owner !== -1)

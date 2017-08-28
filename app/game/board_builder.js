@@ -5,7 +5,7 @@ var Board    = require('../../public/data_api/board.js');
 // TODO: [EASY] Harbours
 
 /*
-*  Takes a 2D array
+* Takes a 2D array
 *
 * Numbers in grid determine the tile type
 */
@@ -33,6 +33,16 @@ generate = function(_board) {
       var tile_type = setup_tile_resource(tile_info[1]);
 
       var tile = new Board.TileNode(tile_type, (tile_type === "desert"), parseInt(tile_info[2]), []);
+
+      // Store reference to robber location
+      if (tile_type === 'desert') {
+        board.robberLocation = tile;
+      }
+
+      // Create an array of the the resource tiles
+      if (['desert', 'water'].indexOf(tile_type) === -1) {
+        board.resourceTiles.push(tile);
+      }
 
       var add_node = true;
       var water = 0;

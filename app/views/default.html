@@ -17,6 +17,7 @@
     <script src="data_api/data_package.js"></script>
     <script src="data_api/action.js"></script>
     <script src="data_api/board.js"></script>
+    <script src="data_api/cards.js"></script>
 </head>
 
 <body>
@@ -30,24 +31,13 @@
     <div class="other_players"></div>
 
     <div class="board" style="top:30px; left:30px;"></div>
+    <div class="robber"></div>
     <div class="score"></div>
-
-    <div style="z-index:9999; position:fixed; bottom:0;">
-        Temporary html buttons<br>
-        <div class="btn btn-info" onclick="buildPopup('player_detail');">Other Player</div>
-        <div class="btn btn-info" onclick="buildPopup('round_use_monopoly');">Monopoly</div>
-        <div class="btn btn-info" onclick="buildPopup('round_roll_results');">Start of Round</div>
-        <div class="btn btn-info" onclick="buildPopup('round_use_card');">Use Card</div>
-        <div class="btn btn-info" onclick="buildPopup('round_use_year_of_plenty');">Year of Plenty</div>
-        <div class="btn btn-info" onclick="buildPopup('round_domestic_trade', true);">Player Trade</div>
-        <div class="btn btn-info" onclick="buildPopup('round_maritime_trade');">Bank Trade</div>
-        <div class="btn btn-info" onclick="buildPopup('round_post_results');">After Round Ends</div>
-        <div class="btn btn-info" onclick="buildPopup('end_results');">End of Game</div>
-    </div>
 
     <script src="js/game/game.js"></script>
     <script src="js/game/player.js"></script>
     <script src="js/game/client.js"></script>
+    <script src="js/game/popups.js"></script>
     
 </body>
 </html>
