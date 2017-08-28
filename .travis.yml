@@ -15,5 +15,5 @@ before_script:
   - "pip install selenium"
   - "pip install sauceclient"
 script:
-  - "python ./tests/seleniumPythonTest/click_toturial.py"
+  - "python ./tests/seleniumPythonTest/click_tutorial.py"
 #  ./scripts/nightly.sh
