@@ -133,6 +133,7 @@ $(document).ready(function() {
                 build_popup_round_roll_results();
             }
         }else if (data.data_type === 'returned_trade_card'){
+            
             // card received from bank trade
             console.log("trade_card_returned");
             current_player = data.player;

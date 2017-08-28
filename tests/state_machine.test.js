@@ -11,3 +11,5 @@ test("A statemachine when created also creates an empty game", function(t) {
     t.truthy(machine.game);
 });
 
+test.todo("trade_with_bank function");
+

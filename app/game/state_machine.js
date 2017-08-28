@@ -153,7 +153,7 @@ StateMachine.prototype.tick = function(data) {
     ************************************************************/
     else if (this.state === "trade") {
 
-        
+
         this.next_state();
         return true;
     }
@@ -166,7 +166,7 @@ StateMachine.prototype.tick = function(data) {
 
         // trading with the bank (4:1, 3:1, 2:1)
         if ( data.data_type === 'trade_with_bank' ){
-            trade_with_bank(data);            
+            this.trade_with_bank(data);
         }
 
         this.validate_player_builds(data);
@@ -384,6 +384,7 @@ StateMachine.prototype.validate_player_builds = function(data){
 }
 
 StateMachine.prototype.trade_with_bank = function (data) {
+    console.log("trade action with bank, player: " + data.player_id);
     var player = this.game.players[data.player_id];
 
     //split the data to get the resource type: currently string = trade_sheep
@@ -404,9 +405,11 @@ StateMachine.prototype.trade_with_bank = function (data) {
         data_package.data_type = "returned_trade_card";
         data_package.player = player;
         this.send_to_player('game_update', data_package);
+        console.log('trade with bank succedded');
     }else{
         //trade failed server side
         logger.log("error","Bank trade approved client side but failed server side.");
+        console.log("trade with bank failed");
 
         var data_package = new Data_package();
         data_package.data_type = "invalid_move";
