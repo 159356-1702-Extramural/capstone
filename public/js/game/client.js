@@ -113,7 +113,7 @@ $(document).ready(function() {
 
             //  restore player to server held player data
             current_player = data.player;
-            
+
             //  revert current player state
             updatePanelDisplay();
             //  Details on failed moves
@@ -122,7 +122,7 @@ $(document).ready(function() {
         }else if ( data.data_type === 'wait_others'){
             //  Normal round, waiting for others
             build_popup_round_waiting_for_others();
-            
+
         }else if ( data.data_type === 'round_turn'){
             if (current_game.round_num == 3) {
                 //  On the first round, we need to show the setup phase results
@@ -153,7 +153,7 @@ $(document).ready(function() {
         }else{
             data_package.data_type = "turn_complete";
         }
-            
+
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
 
@@ -283,7 +283,7 @@ function setupTurnFinished(){
 }
 
 function openTrade () {
-    
+
     //disable trade until setup complete
     if(current_game.round_num > 2){
         buildPopup('round_maritime_trade');
@@ -313,6 +313,7 @@ function acceptTrade () {
     data_package.actions.push(action);
     console.log("send trade to bank");
     update_server( 'game_update' , data_package );
+    hidePopup();
 }
 function invalidMove (data){
 

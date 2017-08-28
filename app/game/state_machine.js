@@ -166,44 +166,7 @@ StateMachine.prototype.tick = function(data) {
 
         // trading with the bank (4:1, 3:1, 2:1)
         if ( data.data_type === 'trade_with_bank' ){
-            var player = this.game.players[data.player_id];
-            console.log(player);
-            //split the data to get the resource type: currently string = trade_sheep
-            var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
-            var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
-
-            var cards_for_trade = data.actions[0].action_data.cards_for_trade;
-
-            // check if cards available and remove cards from hand
-            console.log(cards_for_bank[1]);
-            if(player.cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
-                // add card to hand
-                player.cards.add_card(cards_from_bank[1]);
-                player.round_distribution_cards = new Cards();
-                player.round_distribution_cards.add_card(cards_from_bank[1]);
-
-                //send card back to player
-                var data_package = new Data_package();
-                data_package.data_type = "returned_trade_card";
-                data_package.player = player;
-                this.send_to_player('game_update', data_package);
-            }else{
-                //trade failed server side
-                logger.log("error","Bank trade approved client side but failed server side.");
-
-                var data_package = new Data_package();
-                data_package.data_type = "invalid_move";
-
-                // return action to tell client failed reason
-                var action = data.action[0];
-                actions.data_type = 'trade_with_bank_failed';
-                player.actions.push(action);
-                data_package.player = player;
-
-                this.send_to_player('game_update', data_package);
-            }
-
-            
+            trade_with_bank(data);            
         }
 
         this.validate_player_builds(data);
@@ -317,8 +280,23 @@ StateMachine.prototype.broadcast = function(event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function(event_name, data) {
+
     var player = this.game.players[data.player.id];
+
+    /**
+     *  Check to see if there is a socket object in the data.player object.
+     *  If so, clone the player, remove the socket and add the clone to data
+     */
+    var clonedPlayer;
+    if(player.socket){
+        clonedPlayer = Object.assign({}, this.game.players[data.player.id]);
+        delete clonedPlayer.socket;
+        data.player = clonedPlayer;
+    }
+    logger.log('debug', 'preparing to send data to player '+data.player.id);
+
     player.socket.emit(event_name, data);
+    logger.log('debug', 'data sent to player '+data.player.id);
 };
 
 /***************************************************************
@@ -405,4 +383,41 @@ StateMachine.prototype.validate_player_builds = function(data){
 
 }
 
+StateMachine.prototype.trade_with_bank = function (data) {
+    var player = this.game.players[data.player_id];
+
+    //split the data to get the resource type: currently string = trade_sheep
+    var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
+    var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
+
+    var cards_for_trade = data.actions[0].action_data.cards_for_trade;
+
+    // check if cards available and remove cards from hand
+    if(player.cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
+        // add card to hand
+        player.cards.add_card(cards_from_bank[1]);
+        player.round_distribution_cards = new Cards();
+        player.round_distribution_cards.add_card(cards_from_bank[1]);
+
+        //send card back to player
+        var data_package = new Data_package();
+        data_package.data_type = "returned_trade_card";
+        data_package.player = player;
+        this.send_to_player('game_update', data_package);
+    }else{
+        //trade failed server side
+        logger.log("error","Bank trade approved client side but failed server side.");
+
+        var data_package = new Data_package();
+        data_package.data_type = "invalid_move";
+
+        // return action to tell client failed reason
+        var action = data.action[0];
+        actions.data_type = 'trade_with_bank_failed';
+        player.actions.push(action);
+        data_package.player = player;
+
+        this.send_to_player('game_update', data_package);
+    }
+}
 module.exports = { StateMachine };
