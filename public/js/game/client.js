@@ -115,14 +115,13 @@ $(document).ready(function() {
             }
 
         }else if ( data.data_type === 'invalid_move'){
-
             //  restore player to server held player data
             current_player = data.player;
 
             //  revert current player state
             updatePanelDisplay();
             //  Details on failed moves
-            build_popup_failed_moves();
+            alert("That's an invalid move  : " + data.player.actions[0].action_data);
 
         }else if ( data.data_type === 'wait_others'){
             //  Normal round, waiting for others
@@ -141,7 +140,6 @@ $(document).ready(function() {
         }else if ( data.data_type === 'returned_trade_card'){
 
             // card received from bank trade
-            console.log("trade_card_returned");
 
             current_game.player = data.player;
 
@@ -342,6 +340,7 @@ function setupTurnFinished(){
     turn_actions = [];
 }
 
+// Open the trading window and make only tradable cards available
 function openTrade () {
 
     //disable trade until setup complete
@@ -354,32 +353,42 @@ function openTrade () {
         // TODO: update to variable trade values once harbours are introduced.
         var trade_value = 4;
 
+        
+        $.each(resource_cards, function(k, v) {
+            if(v >= trade_value){
+                card_data.push([k+'_status', '']);
+            }else{
+                card_data.push([k+'_status', 'unavailable']);
+            }
+
+        });
+
         //  add information to show only active options
-        if(resource_cards.brick > trade_value){
-            card_data.push(['brick_unavailable', '']);
-        }else{
-            card_data.push(['brick_unavailable', 'unavailable']);
-        }
-        if(resource_cards.grain > trade_value){
-            card_data.push(['grain_unavailable', '']);
-        }else{
-            card_data.push(['grain_unavailable', 'unavailable']);
-        }
-        if(resource_cards.sheep > trade_value){
-            card_data.push(['sheep_unavailable', '']);
-        }else{
-            card_data.push(['sheep_unavailable', 'unavailable']);
-        }
-        if(resource_cards.ore > trade_value){
-            card_data.push(['ore_unavailable', '']);
-        }else{
-            card_data.push(['ore_unavailable', 'unavailable']);
-        }
-        if(resource_cards.lumber > trade_value){
-            card_data.push(['lumber_unavailable', '']);
-        }else{
-            card_data.push(['lumber_unavailable', 'unavailable']);
-        }
+        // if(resource_cards.brick >= trade_value){
+        //     card_data.push(['brick_unavailable', '']);
+        // }else{
+        //     card_data.push(['brick_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.grain >= trade_value){
+        //     card_data.push(['grain_unavailable', '']);
+        // }else{
+        //     card_data.push(['grain_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.sheep >= trade_value){
+        //     card_data.push(['sheep_unavailable', '']);
+        // }else{
+        //     card_data.push(['sheep_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.ore >= trade_value){
+        //     card_data.push(['ore_unavailable', '']);
+        // }else{
+        //     card_data.push(['ore_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.lumber >= trade_value){
+        //     card_data.push(['lumber_unavailable', '']);
+        // }else{
+        //     card_data.push(['lumber_unavailable', 'unavailable']);
+        // }
 
         buildPopup('round_maritime_trade', false, card_data);
     }
@@ -390,11 +399,9 @@ function acceptTrade () {
     //get id's of selected cards
     var sendCards = $('#tgb');
     var receiveCard = $('#trb');
-    console.log(sendCards == null);
-    console.log(sendCards === 'undefined');
-    console.log(sendCards === true);
+
     // make sure both cards have been set
-    if(sendCards != undefined && receiveCard != undefined){
+    if(!$('#tgb').is(':empty') && !$('#trb').is(':empty')){
         var data_package = new Data_package();
         data_package.data_type = 'trade_with_bank';
         data_package.player_id = current_player.id;
@@ -410,9 +417,15 @@ function acceptTrade () {
             cards_for_trade    : 4
         }
         data_package.actions.push(action);
-        console.log("send trade to bank");
+
         update_server( 'game_update' , data_package );
         hidePopup();
+    }else{
+        // hide trade window
+        $('.popup').hide();
+        
+        //display an error window
+        alert("cant trade with that many cards");
     }
 }
 
