@@ -7,7 +7,8 @@ set -ev
 #    + returns 'push' when pushing to remote branch
 #    + returns 'cron' when called by the travis cron job trigger
 
-if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
+if [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
+        pip install selenium && pip install sauceclient
         python tests/seleniumPythonTest/click_tutorial.py;
         echo "running selenium headless browser tests";
     else      
