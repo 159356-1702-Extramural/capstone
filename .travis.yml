@@ -13,12 +13,12 @@ before_script:
   - "pip install selenium"
   - "pip install sauceclient"
 script:
-  - |
-    if [${TRAVIS_EVENT_TYPE} == 'cron']; then
+#  - |
+#    if [${TRAVIS_EVENT_TYPE} == 'cron']; then
       ./scripts/nightly.sh;
-    else
-      npm test;
-    fi
+#    else
+#      npm test;
+#    fi
 after_success:
   - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
 
