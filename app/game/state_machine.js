@@ -435,6 +435,7 @@ StateMachine.prototype.validate_player_builds = function(data){
 }
 
 StateMachine.prototype.trade_with_bank = function (data) {
+    logger.log('debug',"trade action with bank, player: " + data.player_id);
     console.log("trade action with bank, player: " + data.player_id);
     //var player = this.game.players[data.player_id];
 
@@ -457,23 +458,25 @@ StateMachine.prototype.trade_with_bank = function (data) {
         data_package.data_type = "returned_trade_card";
         data_package.player = this.game.players[data.player_id];
         this.send_to_player('game_turn', data_package);
-        console.log('trade with bank succedded');
     }else{
         //trade failed server side
         logger.log("error","Bank trade approved client side but failed server side.");
-        console.log("trade with bank failed");
 
         var data_package = new Data_package();
         data_package.player = this.game.players[data.player_id];
         data_package.data_type = "invalid_move";
 
         // return action to tell client failed reason
-        var action = data.actions[0];
-        action.data_type = 'trade_with_bank_failed';
+        var action = new Action();
+        action.action_type = 'invalid_move';
+
+        // Message to display at client end
+        action.action_data = 'Your trade with the bank failed, you didn\'t have enough cards';
         data_package.player.actions = [];
         data_package.player.actions.push(action);
 
-        this.send_to_player('game_update', data_package);
+        this.send_to_player('game_turn', data_package);
+        console.log('package sent');
     }
 }
 module.exports = { StateMachine };
