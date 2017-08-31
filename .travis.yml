@@ -1,19 +1,25 @@
 language: node_js
 node_js:
-- "stable"
+  - "stable"
 before_install:
-- sudo chmod ugo+x ./scripts/nightly.sh
+  - sudo chmod ugo+x ./scripts/nightly.sh
 install:
-- npm install selenium selenium-webdriver geckodriver saucelabs
+  - npm install selenium selenium-webdriver geckodriver saucelabs
 notifications:
   slack: '1593561702extramural:GwaO5sOja7Oy2kdfJ8xe1jTh'
-after_success:
-- './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
 addons:
   sauce_connect: true
 before_script:
   - "pip install selenium"
   - "pip install sauceclient"
 script:
-#  - "python ./tests/seleniumPythonTest/click_tutorial.py"
-  ./scripts/nightly.sh
+  - |
+    if [${TRAVIS_EVENT_TYPE} == 'cron']; then
+      ./scripts/nightly.sh;
+    else
+      npm test;
+    fi
+after_success:
+  - './node_modules/.bin/nyc report --reporter=text-lcov | ./node_modules/.bin/coveralls'
+
+
