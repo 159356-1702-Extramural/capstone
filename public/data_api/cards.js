@@ -77,7 +77,7 @@ Cards.prototype.add_card = function(card){
         case "road_building":
             this.dev_cards.road_building++;
             break;
-        
+
         case "library":
             this.victory_point_cards.library++;
             break;
@@ -108,8 +108,8 @@ Cards.prototype.remove_card = function(card){
 /**
  * Remove a group of cards from the resources hand by quantity
  * @param {String}  card : a resource card
- * @param {int}     qty  : number of cards to remove   
- * @return {Boolean} 
+ * @param {int}     qty  : number of cards to remove
+ * @return {Boolean}
  */
 Cards.prototype.remove_multiple_cards = function(card, qty){
     if (qty > 0) {
@@ -165,7 +165,7 @@ Cards.prototype.remove_cards = function(purchase){
         this.remove_card('sheep');
         return true;
     }else{
-        logger.log('error', 'remove_cards function failed');
+        //logger.log('error', 'remove_cards function failed');
         return false;
     }
 }
