@@ -3,11 +3,11 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 0,
-        grain : 0,
-        sheep : 0,
-        lumber: 0,
-        ore   : 0
+        brick : 10,
+        grain : 10,
+        sheep : 10,
+        lumber: 10,
+        ore   : 10
     };
 
     this.dev_cards = {
@@ -117,7 +117,7 @@ Cards.prototype.remove_cards = function(purchase){
     //returns true if cards loaded successfully
     if ( purchase == 'road' ) {
         return this.remove_card('brick') && this.remove_card('lumber');
-    }else if ( purchase == 'settlement' ) {
+    }else if ( purchase == 'house' ) {
         return this.remove_card('brick') &&
             this.remove_card('lumber') &&
             this.remove_card('grain') &&

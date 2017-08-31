@@ -134,8 +134,16 @@ $(document).ready(function() {
                 build_popup_setup_complete();
                 setup_phase = false;
             } else {
-                //  Otherwise, we start with the dice popup
-                build_popup_round_roll_results();
+                //  First, check to see if any previous builds failed
+                var has_failed = !check_failed_builds();
+                if (has_failed) {
+                    //  Show the details of the failed builds
+                    build_popup_failed_moves();
+                    
+                } else {
+                    //  Otherwise, we start with the dice popup
+                    build_popup_round_roll_results();
+                }
             }
 
         }else if ( data.data_type === 'returned_trade_card'){
@@ -148,11 +156,6 @@ $(document).ready(function() {
             updatePanelDisplay();
 
         }else if ( data.data_type === 'buy_dev_card'){
-
-            doLog(data.player.cards.dev_cards.year_of_plenty);
-            doLog(data.player.cards.dev_cards.knight);
-            doLog(data.player.cards.dev_cards.monopoly);
-            doLog(data.player.cards.dev_cards.road_building);
 
             var card_list = "";
             if (data.player.cards.dev_cards.year_of_plenty > 0) {
@@ -273,7 +276,7 @@ $(document).ready(function() {
         if(current_game.round_num > 2){
 
             // check if enough cards to buy development card
-            if(has_resources('dev_card')){
+            if(has_resources('dev_card')) {
 
                 // remove resources from hand
                 current_game.player.cards.resource_cards.grain--;
@@ -315,17 +318,30 @@ $(document).ready(function() {
         e.preventDefault();
 
         var resource = $(this).attr('data-resource');
-        var card_list = $(".extra_card_list");
-        var next_z = card_list.html().length + 1;
-        var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
-        card_list.append(new_card);
+        var resource_count = parseInt($(this).attr('data-count'));
+        if (resource_count > 0) {
+            var card_list = $(".extra_card_list");
+            var next_z = card_list.html().length + 1;
+            var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
+            card_list.append(new_card);
+    
+            //  Remove resource and disable as needed
+            resource_count --;
+            $(this).attr('data-count', resource_count);
+            if (resource_count < 1) { $(this).addClass("disabled"); }
+        }
+
     });
 
     //  Build - Remove resources
     $doc.on('click', '.extra_card_list', function(e) {
         e.preventDefault();
 
+        //  Clear the selected cards
         $(".extra_card_list").html("");
+        //  Rebuild the list of selectable cards
+        $(".select_card_list").html(getResourceCardsHtml());
+        
     });
 
     //close start window
@@ -382,7 +398,7 @@ function invalidMove (data){
         //  populate new array with the successful actions (and copy them into turn_actions)
         var successful_actions = [];
 
-        if(action.action_result){
+        if(action.action_result == 0){
             successful_actions.push(action);
         }else{
             alert("need to remove failed item artifact");
@@ -852,114 +868,23 @@ function has_resources(object_type) {
     return false;
 }
 
-function start_build_popup(object_type) {
-    //  Get the list of cards needed
-    var cards = new Cards();
-    var card_list = cards.get_required_cards(object_type);
-    var card_html = "";
-
-    for (var i = 0; i < card_list.length; i++) {
-        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
-    }
-
-    buildPopup("round_build", false, [["object_type", object_type], ["build_cards", card_html]]);
-}
-function complete_build_popup() {
-    //  Get html holding the cards
-    var build_cards = $(".build_card_list").html();
-    var extra_cards = $(".extra_card_list").html();
-    var card_list = [];
-
-    //  Create a reference to the players cards
-    var my_cards = new Cards();
-    my_cards.resource_cards = current_game.player.cards.resource_cards;
-
-    //  Remove cards from player
+function getResourceCardsHtml() {
+    var html = "";
     var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
     for (var i = 0; i < resource_list.length; i++) {
-        //  Count each instance in the html
-        var resource_count = (extra_cards.match(resource_list[i], 'g') ? extra_cards.match(resource_list[i], 'g').length : 0) + (build_cards.match(resource_list[i], 'g') ? build_cards.match(resource_list[i], 'g').length : 0);
-        if (resource_count > 0) {
-            //  Remove that many from the player
-            var result = my_cards.remove_multiple_cards(resource_list[i], resource_count);
-
-            //  Keep track of the cards
-            for (var j = 0; j < resource_count; j++) {
-                card_list.push(resource_list[i]);
-            }
-        }
-
+        var resource_count = current_game.player.cards.resource_cards[resource_list[i]];
+        html += "<img class='build_give trade_" + resource_list[i] + (resource_count < 1 ? " disabled" : "") + "' data-resource='" + resource_list[i] + "' data-count='" + resource_count + "' src='images/card_" + resource_list[i] + "_small.png'>";
     }
-
-    //  Update the turn_action data
-    turn_actions[turn_actions.length-1].boost_cards = card_list;
-
-    //  Update our counts
-    update_object_counts();
-    updatePanelDisplay();
-
-    //  All done!
-    hidePopup();
-}
-function abort_build_popup() {
-    //  We need to return it to the pile and remove it from turn_actions
-    var object_type = (turn_actions[turn_actions.length - 1].action_type == "build_road" ? "road" : "house");
-    var object_node = turn_actions[turn_actions.length - 1].action_data;
-    var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
-    return_object(object_to_return, object_to_return.attr("id"), object_node.id);
-    hidePopup();
+    return html;
 }
 
-function build_setup_complete_popup() {
-
-    //  First build a list of cards received during the setup round
-    var popup_data = [];
-    popup_data.push(["brick", current_game.player.cards.resource_cards.brick - current_game.player.round_distribution_cards.resource_cards.brick]);
-    popup_data.push(["sheep", current_game.player.cards.resource_cards.sheep - current_game.player.round_distribution_cards.resource_cards.sheep]);
-    popup_data.push(["ore", current_game.player.cards.resource_cards.ore - current_game.player.round_distribution_cards.resource_cards.ore]);
-    popup_data.push(["lumber", current_game.player.cards.resource_cards.lumber - current_game.player.round_distribution_cards.resource_cards.lumber]);
-    popup_data.push(["grain", current_game.player.cards.resource_cards.grain - current_game.player.round_distribution_cards.resource_cards.grain]);
-
-    //  Build the html to show the cards in the popup
-    var card_html = "";
-    for (var i = 0; i < popup_data.length; i++) {
-        for (var j = 0; j < popup_data[i][1]; j++) {
-            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+function check_failed_builds() {
+    for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
+        if (current_game.player.turn_data.actions[i].action_result > 0) {
+            return false;
         }
     }
-
-    //  Build the popup
-    buildPopup("setup_complete", false, [["setup_cards", card_html]]);
-
-}
-
-function build_new_round_popup() {
-    var popup_data = [];
-    popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick]);
-    popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep]);
-    popup_data.push(["ore", current_game.player.round_distribution_cards.resource_cards.ore]);
-    popup_data.push(["lumber", current_game.player.round_distribution_cards.resource_cards.lumber]);
-    popup_data.push(["grain", current_game.player.round_distribution_cards.resource_cards.grain]);
-
-    //  Build the html to show the cards in the popup
-    var card_html = "";
-    for (var i = 0; i < popup_data.length; i++) {
-        for (var j = 0; j < popup_data[i][1]; j++) {
-            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
-        }
-    }
-    if (card_html.length == 0) {
-        card_html += 'Nothing for you!';
-    }
-
-    //  Robber and dice
-
-
-    //  Build the popup
-    buildPopup("round_roll_results", false, [["dice1", current_game.dice_values[0]], ["dice2", current_game.dice_values[1]], ["setup_cards", card_html]]);
-}
-function start_round() {
-    hidePopup();
+    return true;
 }
 
 function setupPlayer() {

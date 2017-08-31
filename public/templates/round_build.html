@@ -14,25 +14,9 @@
     Click on any resources your would like to add.  This improves your chances of winning
     in case other players are trying to build on this same spot this round
 </div>
-<div class="build_row">
-    <div class="build_give" data-resource="brick">
-        <img class="trade_brick" src="images/card_brick_small.png">
-    </div>
-    <div class="build_give" data-resource="grain">
-        <img class="trade_grain" src="images/card_grain_small.png">
-    </div>
-    <div class="build_give" data-resource="sheep">
-        <img class="trade_sheep" src="images/card_sheep_small.png">
-    </div>
-    <div class="build_give" data-resource="ore">
-        <img class="trade_ore" src="images/card_ore_small.png">
-    </div>
-    <div class="build_give" data-resource="lumber">
-        <img class="trade_lumber" src="images/card_lumber_small.png">
-    </div>
-</div>
+<div class="build_row select_card_list">{select_cards}</div>
 
 <div>
-    <div class="btn btn-info btn-large" onclick="round_build_complete();">Build {object_type}</div>
-    <div class="btn btn-info btn-large" onclick="round_build_abort();">Nevermind</div>
+    <div class="btn btn-info btn-large" onclick="round_build_complete('{object_type}');">Build {object_type}</div>
+    <div class="btn btn-info btn-large" onclick="round_build_abort('{object_type}');">Nevermind</div>
 </div>

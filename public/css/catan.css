@@ -708,7 +708,7 @@ body {
     float:left;
     width:90%;
 }
-.cards .card {
+.cards .card, .failed_card .card {
     float:left;
     margin-left:-30px;
 }
@@ -853,7 +853,7 @@ body {
 .player_score_token {
     float:left;
 }
-.player_score_token.disabled, .player_score_detail.disabled {
+.player_score_token.disabled, .player_score_detail.disabled, .build_give.disabled {
     opacity: 0.4;
 }
 
@@ -887,7 +887,7 @@ body {
     opacity: 0.4;
 }
 
-.build_card, .extra_card {
+.build_card, .extra_card, .failed_card {
     float:left;
     width:35px;
 }
@@ -1033,4 +1033,18 @@ body {
 .trading_card_3 {
     left:45px;
     z-index:3;
+}
+
+.fail_row {
+    clear: both;
+    width:90%;
+    height:120px;
+}
+.fail_object {
+    float: left;
+    width:80px;
+}
+.fail_cards {
+    float: left;
+    overflow:hidden;
 }

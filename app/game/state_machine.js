@@ -97,7 +97,7 @@ StateMachine.prototype.tick = function(data) {
     if (this.state === "setup") {
         //check data and add to player
 
-        //  Validate each player action
+        //  Set the piece
         this.validate_player_builds(data);
 
         //  Mark turn completed
@@ -205,8 +205,6 @@ StateMachine.prototype.tick = function(data) {
             this.trade_with_bank(data);
         }
 
-        this.validate_player_builds(data);
-
         // Handle standard gameplay rounds
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].turn_data = data;
@@ -218,6 +216,9 @@ StateMachine.prototype.tick = function(data) {
         });
 
         if (round_complete) {
+            //  Determine if there were any conflicts
+            this.validate_player_builds(data);
+
             //  Advance the round
             this.game.round_num++;
 
@@ -405,33 +406,73 @@ StateMachine.prototype.validate_player_builds = function(data){
     console.log('validate_player_builds called');
     logger.log('debug', 'validate_player_builds function called.');
 
-    var invalid_actions = [];
-    for(var i = 0; i < data.actions.length; i++){
-        var player_id   = data.player_id;
-        var item        = data.actions[i].action_type; //house or road
-        var index       = data.actions[i].action_data.id;
-
-        var valid = true;
-        //TODO Build logic to validate moves, check for conflicts, and resolve/fail conflicts
-
-        if (valid) {
+    if (this.game.round_num < 3) {
+        //  During the seutp, just set the piece
+        for(var i = 0; i < data.actions.length; i++){
+            var player_id   = data.player_id;
+            var item        = data.actions[i].action_type; //house or road
+            var index       = data.actions[i].action_data.id;
             this.game.board.set_item(item, index, player_id);
-        } else {
-            invalid_actions.push(data.actions[i]);
+        }
+    } else {
+        for (var p = 0; p < this.game.players.length; p++) {
+            var invalid_actions = [];
+            var data = this.game.players[p].turn_data;
+
+            for(var i = 0; i < data.actions.length; i++){
+                var player_id   = data.player_id;
+                var item        = data.actions[i].action_type; //house or road
+                var index       = data.actions[i].action_data.id;
+                var boost_cards = data.actions[i].boost_cards;
+        
+                var valid = true;
+        
+                //  Are there any others that have the same action/data.id
+                //  wins_conflict will return one of the following:
+                //  0 = Won!
+                //  1 = Tie
+                //  2 = Lost
+                if (this.game.round_num > 2) {
+                    var won_conflict = this.wins_conflict(player_id, item, index, boost_cards);
+                    data.actions[i].action_result = won_conflict;
+
+                    if (won_conflict == 0) {
+                        this.game.board.set_item(item, index, player_id);
+                    }
+                } else {
+                    data.actions[i].action_result = 0;
+                    this.game.board.set_item(item, index, player_id);
+                }
+            }
         }
     }
+}
 
-    //  Let the player know if there were moves that failed
-    if (invalid_actions.length > 0) {
-        var data_package = new Data_package();
-        var player = new Player();
-        player.id = data.player_id;
-        player.actions = invalid_actions;
-        data_package.data_type = 'invalid_move';
-        data_package.player = player;
-        this.send_to_player('game_update', data_package);
+/***************************************************************
+* Validate player builds/actions
+***************************************************************/
+StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_cards){
+
+    for (var i = 0; i < this.game.players.length; i++) {
+        //  Ignore this player
+        if (this.game.players[i].id != player_id) {
+            //  Loop through next player actions
+            for (var j = 0; j < this.game.players[i].turn_data.actions.length; j++) {
+                if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.players[i].turn_data.actions[j].action_data.id == index) {
+                    //  Conflict found
+                    //  Compare # of boost cards
+                    if (boost_cards.length == this.game.players[i].turn_data.actions[j].boost_cards.length) {
+                        return 1;   //  Tie
+                    }
+                    if (boost_cards.length > this.game.players[i].turn_data.actions[j].boost_cards.length) {
+                        return 0;   //  Win
+                    }
+                    return 2;       //  Lost
+                } 
+            }
+        }
     }
-
+    return 0;   //  Win
 }
 
 StateMachine.prototype.trade_with_bank = function (data) {
