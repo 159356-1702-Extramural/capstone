@@ -586,6 +586,9 @@ function updatePanelDisplay() {
         $(".buybutton").addClass("disabled");
     }
 
+    if (current_game.round_num > 2) {
+        $(".tradebutton").removeClass("disabled");
+    }
 }
 
 //  This method determines the coordinates where a settlement/city is to be drawn
@@ -917,7 +920,7 @@ function setupPlayer() {
     html += "            <div class='box sheep'><span class='sheepcount'>0</span></div>";
     html += "            <div class='box ore'><span class='orecount'>0</span></div>";
     html += "            <div class='box grain'><span class='graincount'>0</span></div>";
-    html += "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade()'>Trade</div></div>";
+    html += "            <div class='box trade'><div class='btn btn-info tradebutton disabled' onclick='openTrade()'>Trade</div></div>";
     html += "        </div>";
     html += "        <div class='buildings'>";
     html += "            Buildings:<br />";
