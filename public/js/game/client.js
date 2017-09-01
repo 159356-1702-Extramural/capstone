@@ -185,6 +185,10 @@ $(document).ready(function() {
 
         var data_package = new Data_package();
         if(current_game.round_num < 3){
+            if (turn_actions.length != 2) {
+                alert("Please place a settlement and road.");
+                return false;
+            }
             data_package.data_type = "setup_phase";
         }else{
             data_package.data_type = "turn_complete";
