@@ -578,6 +578,14 @@ function updatePanelDisplay() {
   $resource_box.find('.orecount').text(resource_cards.ore);
   $resource_box.find('.sheepcount').text(resource_cards.sheep);
 
+    var cards = new Cards();
+    cards.resource_cards = current_game.player.cards.resource_cards;
+    if (cards.available_cards("dev_card")) {
+        $(".buybutton").removeClass("disabled");
+    } else {
+        $(".buybutton").addClass("disabled");
+    }
+
 }
 
 //  This method determines the coordinates where a settlement/city is to be drawn
@@ -938,7 +946,7 @@ function setupPlayer() {
     html += "            <div class='cards'>";
     html += "                Cards:<br />";
     html += "                <div class='cardlist'><img src='../images/nocards.png' class='no_cards' /></div>";
-    html += "                <div class='buy'><div class='btn btn-info buybutton'>Buy Development Card</div></div>";
+    html += "                <div class='buy'><div class='btn btn-info buybutton disabled'>Buy Development Card</div></div>";
     html += "            </div>";
     html += "           <div class='bonuses'>";
     html += "               Bonuses:<br />";
