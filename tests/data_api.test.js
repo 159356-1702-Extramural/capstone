@@ -163,6 +163,11 @@ test("action_data data held correctly - accessing second array value" , function
     t.is(action2.action_data[1], endNode);
 });
 
+test("action_data is set through setter correctly" , function (t) {
+    action.set_action_data("testData");
+    t.is(action.action_data, 'testData');
+});
+
 test("clear action data" , function (t) {
     action.clear_data();
     t.is(action.action_type, '');
@@ -179,13 +184,22 @@ test("Correct number of cards in action", function(t) {
     t.is(cards.count_cards(), 2);
 });
 
+test("Development Cards added correctly", function(t) {
+    cards.add_card('knight');
+    cards.add_card('year_of_plenty');
+    cards.add_card('monopoly');
+    cards.add_card('road_building');
+
+    t.is(cards.count_dev_cards(), 4);
+});
+
 test("Victory points added correctly", function(t) {
     cards.add_card('library');
     cards.add_card('market');
     cards.add_card('chapel');
     cards.add_card('university_of_catan');
     cards.add_card('great_hall');
-    
+
     t.is(cards.count_victory_cards(), 5);
 });
 
@@ -272,13 +286,15 @@ test("Remove purchases from Card object" , function (t) {
     cards.add_card("grain"); //now there should be 33 ore and 2 grain
     cards.remove_cards("city");
     t.is(cards.count_cards(), 0);
+
+    t.falsy(cards.remove_cards("Craig")); //Parsing a string that isn't one of the above
 });
 
 test("Check required cards are pushed", function(t) {
     var roadCards = cards.get_required_cards('road');
     t.is(roadCards[0], 'lumber');
     t.is(roadCards[1], 'brick');
-    
+
     var houseCards = cards.get_required_cards('house');
     t.is(houseCards[0], 'lumber');
     t.is(houseCards[1], 'brick');
@@ -291,6 +307,11 @@ test("Check required cards are pushed", function(t) {
     t.is(cityCards[2], 'ore');
     t.is(cityCards[3], 'ore');
     t.is(cityCards[4], 'ore');
+
+    var devCards = cards.get_required_cards('development_card');
+    t.is(devCards[0], 'sheep');
+    t.is(devCards[1], 'grain');
+    t.is(devCards[2], 'ore');
 
 });
 
@@ -309,7 +330,7 @@ test("has cards performs as expected", function(t) {
     cards.add_card('brick');
     cards.add_card('grain');
     cards.add_card('sheep');
-    
+
     //cards are brick, grain, sheep, lumber and ore
     t.truthy(cards.has_cards(['sheep', 'grain', 'brick']));
 
@@ -320,7 +341,11 @@ test("has cards performs as expected", function(t) {
 
 test("Remove multiple cards that don't exist fails", function(t){
     t.falsy(cards.remove_multiple_cards('ore',3));
-})
+});
+
+test("Remove multiple cards fringe case qty = 0", function(t){
+    t.falsy(cards.remove_multiple_cards('ore',0));
+});
 
 /**
  * public/data_api tests Data Package
@@ -334,7 +359,7 @@ test("Remove multiple cards that don't exist fails", function(t){
     t.is(public_data_package.data_type, 'test data');
     t.is(public_data_package.player_id, 1);
     t.is(public_data_package.actions.length, 1);
-    
+
     public_data_package.clear_data();
 
     t.is(public_data_package.data_type, '');
