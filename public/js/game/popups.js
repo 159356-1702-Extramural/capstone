@@ -217,7 +217,8 @@ function round_build_complete(object_type) {
     var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
     for (var i = 0; i < resource_list.length; i++) {
         //  Count each instance in the html
-        var resource_count = (extra_cards.match(resource_list[i], 'g') ? extra_cards.match(resource_list[i], 'g').length : 0);
+        var resource_matches = extra_cards.match(new RegExp(resource_list[i], 'g'));
+        var resource_count = (resource_matches ? resource_matches.length : 0);
         if (resource_count > 0) {
             //  Remove that many from the player
             var result = my_cards.remove_multiple_cards(resource_list[i], resource_count);
@@ -308,7 +309,7 @@ function build_popup_round_waiting_for_others() {
  *  round_post_results.html
  **************************************************/
 function build_popup_failed_moves() {
-    var objects = [["", ""], ["", ""], ["", ""]]
+    var objects = []
     var fail_count = 0;
     
     var cards = new Cards();
@@ -320,9 +321,6 @@ function build_popup_failed_moves() {
             //  Get the object type
             var object_type = current_game.player.turn_data.actions[i].action_type.replace("build_", "");
             
-            //  Get Image of object
-            objects[fail_count, 0] = object_type + "_" + current_game.player.colour + ".png";
-
             //  Build cards to be returned
             var card_list = cards.get_required_cards(object_type);
             for (var c = 0; c < current_game.player.turn_data.actions[i].boost_cards.length; c++) {
@@ -333,14 +331,46 @@ function build_popup_failed_moves() {
             for (var c = 0; c < card_list.length; c++) {
                 card_html += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + card_list[c] + '_small.png"></div>';
             }
-            objects[fail_count, 1] = card_html;
 
+            var failure = [object_type + "_" + current_game.player.colour + ".png", card_html];
+            objects.push(failure);
             fail_count ++;
         }
     }
-    alert(objects);
     
-    buildPopup("round_post_results", false, [["failed_count", fail_count], ["object_type_1", objects[0,0]], ["object_type_2", objects[1,0]], ["object_type_3", objects[2,0]], ["cards_1", objects[0,1]], ["cards_2", objects[1,1]], ["cards_3", objects[2,1]]]);
+    //  Put it all together for the popup call
+    var popup_details = [];
+    popup_details.push(["failed_count", fail_count]);
+    for (var i = 0; i < 3; i++) {
+        if (i < objects.length) {
+            popup_details.push(["object_type_" + i, objects[i][0]]);
+            popup_details.push(["cards_" + i, objects[i][1]]);
+            popup_details.push(["show_" + i, "block"]);
+        } else {
+            popup_details.push(["show_" + i, "none"]);
+        }
+    }
+
+    //  Build it
+    buildPopup("round_post_results", false, popup_details);
+}
+
+//  This method will return any failed objects to the players piles
+function build_popup_failed_done() {
+    var turn_actions = current_game.player.turn_data.actions;
+
+    for (var i = 0; i < turn_actions.length; i++) {
+        if (turn_actions[i].action_result > 0) {
+            //  Return the item to the pile
+            var object_type = (turn_actions[i].action_type == "build_road" ? "road" : "house");
+            var object_node = turn_actions[i].action_data;
+            var object_to_return = $("#" + object_type + "_" + current_player.colour + "_locked_" + object_node.id);
+            return_object(object_to_return, object_to_return.attr("id"), object_node.id);
+        }
+    }
+
+    //  Now continue with the round
+    build_popup_round_roll_results();
 }
 
  /***************************************************

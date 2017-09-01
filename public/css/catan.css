@@ -1042,9 +1042,9 @@ body {
 }
 .fail_object {
     float: left;
-    width:80px;
+    width:130px;
+    padding-top:30px;
 }
 .fail_cards {
     float: left;
-    overflow:hidden;
 }
