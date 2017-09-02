@@ -36,3 +36,4 @@ runner =HTMLTestRunner.HTMLTestRunner(
 
 #Running the test cases.
 runner.run(alltestnames)
+print "Selenium test finished."
