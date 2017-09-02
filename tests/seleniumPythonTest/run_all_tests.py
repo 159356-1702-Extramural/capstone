@@ -26,7 +26,8 @@ def creatsuite():
 alltestnames = creatsuite()
 now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))
 
-filename = test_dir+'/seleniumPythonTest/test_reports/'+now+'result.html'
+# filename = test_dir+'/seleniumPythonTest/test_reports/'+now+'result.html'
+filename = test_dir+'//'+now+'result.html'
 fp = file(filename, 'wb')
 runner =HTMLTestRunner.HTMLTestRunner(
     stream=fp,
