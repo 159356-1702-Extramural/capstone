@@ -6,7 +6,7 @@ import os, time
 
 # Directory for locating test cases
 # tests/seleniumPythonTest/run_all_tests.py
-test_dir='\\tests\\seleniumPythonTest\\test_case'
+test_dir='.\\tests\\seleniumPythonTest\\test_case'
 def creatsuite():
     testunit=unittest.TestSuite()
     #Define discover selenium py test files to find py test cases.
@@ -24,7 +24,7 @@ def creatsuite():
 alltestnames = creatsuite()
 now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))
 
-filename = '\\tests\\seleniumPythonTest\\test_reports\\'+now+'result.html'
+filename = '.\\tests\\seleniumPythonTest\\test_reports\\'+now+'result.html'
 fp = file(filename, 'wb')
 runner =HTMLTestRunner.HTMLTestRunner(
     stream=fp,
