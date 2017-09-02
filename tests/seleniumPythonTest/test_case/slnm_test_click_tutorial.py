@@ -43,7 +43,6 @@ class SauceSampleTest(unittest.TestCase):
     def test_tutorial(self):
         driver=self.driver
         driver.get("https://capstone-settlers.herokuapp.com/")
-        self.assertIn('Settlers of Massey', driver.title)
         eles=driver.find_elements_by_class_name('start_text')
         ele_tutorial=eles[1]
         ele_tutorial.click()
