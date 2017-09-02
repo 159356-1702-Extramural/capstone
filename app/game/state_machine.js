@@ -412,11 +412,11 @@ StateMachine.prototype.validate_player_builds = function(data){
             var player_id   = data.player_id;
             var item        = data.actions[i].action_type; //house or road
             var index       = data.actions[i].action_data.id;
-            this.game.board.set_item(item, index, player_id);
+            this.game.board.set_item(item, index, player_id, "");
         }
     } else {
+        //  Our first pass is to do a direct check for conflicts
         for (var p = 0; p < this.game.players.length; p++) {
-            var invalid_actions = [];
             var data = this.game.players[p].turn_data;
 
             for(var i = 0; i < data.actions.length; i++){
@@ -445,11 +445,32 @@ StateMachine.prototype.validate_player_builds = function(data){
                 }
             }
         }
+
+        //  Now we do a 2nd pass to see if any failed houses/roads caused any orphans
+        for (var p = 0; p < this.game.players.length; p++) {
+            var data = this.game.players[p].turn_data;
+            for (var i = 0; i < data.actions.length; i++) {
+                if (data.actions[i].action_result == 0) {
+                    var object_type = data.actions[i].action_type.replace("build_", "");
+                    var node = (object_type == "road" ? this.game.board.roads[data.actions[i].action_data.id] : this.game.board.nodes[data.action[i].action_data.id]);
+
+                    //  Do we have a path to a locked node/road
+                    if (!this.has_valid_path(this.game.players[p], object_type, node, node.id, "")) {
+                        data.actions[i].action_result = 2;
+                        this.game.board.clear_item(node.id, object_type);
+                    }
+
+                }
+            }
+        }
+
+
+        
     }
 }
 
 /***************************************************************
-* Validate player builds/actions
+* Determine if there is a conflict and who wins the conflict
 ***************************************************************/
 StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_cards){
 
@@ -474,6 +495,59 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
     }
     return 0;   //  Win
 }
+
+/***************************************************************
+* Check a road/house to see if it connects up with another from this player
+***************************************************************/
+StateMachine.prototype.has_valid_path = function(player, object_type, node, original_node, checked) {
+    var has_path = false;
+
+    //  Make sure we have not already checked this node/road
+    if (checked.indexOf(object_type + ":" + node.id) > -1) {
+        return has_path;
+    }
+    checked += object_type + ":" + node.id + ",";
+
+    //  Using nodes or roads?
+    var the_nodes = this.game.board.nodes;
+    if (object_type == "road") { the_nodes = this.game.board.roads; }
+
+    //  If this spot holds a locked node/road
+    if (node.owner == player.id && node.id != original_node) {
+        return true;
+    }
+
+    //  Otherwise we keep going
+    if (object_type == "house") {
+        //  If this is a house, and someone else owns it, we cannot continue on this path
+        if (node.owner != player.id && node.owner > -1) {
+            return false;
+        }
+
+        for (var i = 0; i < node.n_roads.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "road", this.game.board.roads[node.n_roads[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+        if (!has_path) {
+            for (var i = 0; i < node.n_nodes.length; i++) {
+                has_path = has_path || this.has_valid_path(player, "house", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
+                if (has_path) { break; }
+            }
+        }
+    } else {
+        //  No reason to be here if this is a road with no owner
+        if (node.owner == -1) {
+            return false;
+        }
+        //  Otherwise, check neighbor nodes
+        for (var i = 0; i < node.connects.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "house", this.game.board.nodes[node.connects[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+    }
+    return has_path;
+}
+
 
 StateMachine.prototype.trade_with_bank = function (data) {
     console.log("trade action with bank, player: " + data.player_id);

@@ -30,12 +30,25 @@ function Board(obj) {
 Board.prototype.set_item = function(item, index, player_id) {
    if (item === 'build_road') {
     this.roads[index].owner = player_id;
-    this.roads[index].status = ''; //looks like status should be blank for accepted road.
+    this.roads[index].status = '';
    } else if(item === 'build_settlement') {
     this.nodes[index].building = 'house';
     this.nodes[index].owner = player_id;
+    this.nodes[index].status = '';
+  }
+};
+
+Board.prototype.clear_item = function(index, object_type) {
+  if (object_type === 'road') {
+   this.roads[index].owner = -1;
+   this.roads[index].status = "";
+  } else if (object_type === 'house') {
+    this.nodes[index].building = "";
+    this.nodes[index].owner = -1;
+    this.nodes[index].status = "";
    }
 };
+
 /********************************************
 *  Basic getters for board elements
 *********************************************/

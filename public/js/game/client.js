@@ -793,27 +793,28 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
     if (road.owner == -1) {
         //  If we have a node_to_enforce, we must build off it
         var is_enforced = true;
-        if (node_to_enforce) {
+        if (node_to_enforce != null) {
             if (nodes[road.connects[0]] != node_to_enforce && nodes[road.connects[1]] != node_to_enforce) {
                 is_enforced = false;
             }
         }
 
-        if (is_enforced) {
+        if (is_enforced && node_to_enforce != null) {
             //  Do we have an adjacent building?
             if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[1]].owner != current_player.id) {
                 //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
-                for (var h = 0; h < 2; h++) {
-                    for (var i = 0; i < nodes[road.connects[h]].n_roads.length; i++) {
-                        if (roads[nodes[road.connects[h]].n_roads[i]].owner == current_player.id) {
-                            success = true;
-                            break;
-                        }
-                    }
-                    if (success) { break; }
-                }
+                success = has_adjacent_road(road.connects[0]) || has_adjacent_road(road.connects[1]);
             } else {
                 success = true;
+            }
+        } else if (node_to_enforce == null) {
+            //  If we have a building of another player at one end, we need a road of ours at the other
+            if (nodes[road.connects[0]].owner != current_player.id) {
+                //  Check connect #0
+                success = has_adjacent_road(road.connects[1]);
+            } else if (nodes[road.connects[1]].owner != current_player.id) {
+                //  Check connect #1
+                success = has_adjacent_road(road.connects[0]);
             }
         }
     }
@@ -821,8 +822,19 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
     if (road_to_ignore) {
         road_to_ignore.owner = temp_node.owner;
     }
-
     return success;
+}
+//  Helper method to check and see if one direction of a road connects is owned by current player
+function has_adjacent_road(road_connect_index) {
+    var nodes = current_game.nodes;
+    var roads = current_game.roads;
+
+    for (var i = 0; i < nodes[road_connect_index].n_roads.length; i++) {
+        if (roads[nodes[road_connect_index].n_roads[i]].owner == current_player.id) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function getDots(d) {
