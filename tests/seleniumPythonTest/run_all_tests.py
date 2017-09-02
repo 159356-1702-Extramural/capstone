@@ -7,11 +7,11 @@ import os, time
 # tests/seleniumPythonTest/run_all_tests.py
 
 #This is for test
-# p=os.path.abspath('package.json')
-# test_dir,nm=os.path.split(p)
+p=os.path.abspath('run_all_tests.py')
+test_dir,nm=os.path.split(p)
 # print test_dir
 
-test_dir= os.path.dirname(os.path.abspath('.'))
+# test_dir= os.path.dirname(os.path.abspath('.'))
 
 test_case_dir=test_dir+'\\test_case\\'
 test_reports_dir=test_dir+'\\selenium_test_reports\\'
