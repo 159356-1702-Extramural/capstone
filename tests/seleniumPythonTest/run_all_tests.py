@@ -2,11 +2,13 @@ __author__ = 'QSG'
 import unittest
 import HTMLTestRunner
 import os, time
-# import stringIO
 
 # Directory for locating test cases
 # tests/seleniumPythonTest/run_all_tests.py
-test_dir='.\\tests\\seleniumPythonTest\\test_case'
+test_dir= os.path.dirname(os.path.abspath('.'))
+test_case_dir=test_dir+'/test_case/'
+test_reports_dir=test_dir+'/seleniumPythonTest/test_reports/'
+print test_reports_dir
 def creatsuite():
     testunit=unittest.TestSuite()
     #Define discover selenium py test files to find py test cases.
@@ -24,7 +26,7 @@ def creatsuite():
 alltestnames = creatsuite()
 now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))
 
-filename = '.\\tests\\seleniumPythonTest\\test_reports\\'+now+'result.html'
+filename = test_reports_dir+now+'result.html'
 fp = file(filename, 'wb')
 runner =HTMLTestRunner.HTMLTestRunner(
     stream=fp,
