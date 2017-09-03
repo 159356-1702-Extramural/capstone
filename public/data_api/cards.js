@@ -67,7 +67,7 @@ Cards.prototype.add_card = function(card){
         case "road_building":
             this.dev_cards.road_building++;
             break;
-        
+
         case "library":
             this.victory_point_cards.library++;
             break;

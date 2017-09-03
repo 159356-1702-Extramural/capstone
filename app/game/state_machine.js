@@ -218,7 +218,16 @@ StateMachine.prototype.tick = function(data) {
         });
 
         if (round_complete) {
-            //  Advance the round
+
+          // Calculate the scores
+          this.game.calculateScores();
+
+          // End the game if we have a winner
+          if (this.game.haveWinner()) {
+            // TODO: end the game
+          }
+
+          //  Advance the round
             this.game.round_num++;
 
             // Resource distribution for next round
@@ -275,7 +284,7 @@ StateMachine.prototype.tick = function(data) {
         return true;
     }
     return false;
-}
+};
 
 /*****************************************************************
  Gathers up the state of the game and sends the current gamestate
