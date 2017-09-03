@@ -620,10 +620,8 @@ function getObjectPosition(x, y, nodeIndex) {
 
 //  This method sets the appropriate class based on the node state
 function getNodeCSS(node) {
-    var node_class = "disabled";
-    if (can_build(node)) {
-        node_class = "buildspot";
-    } else if (node.owner > -1) {
+    var node_class = "buildspot";
+    if (node.owner > -1) {
       node_class = node.building + " locked " + current_game.players[node.owner].colour;
     }
     return node_class;
@@ -645,12 +643,18 @@ function can_build(node, node_to_ignore) {
     //  Use board helper method to check owner and adjacent buildings
     var tempBoard = new Board();
     tempBoard.nodes = current_game.nodes;
-    var can_build = tempBoard.is_node_valid_build(current_player.id, node.id);
+    if (node.id == 13) {
+        doLog("1");
+    }
+    var can_build_here = tempBoard.is_node_valid_build(current_player.id, node.id);
+    if (node.id == 13) {
+        doLog(can_build_here);
+    }
 
     //  TODO: Remove following checks when added to board helper is_node_valid_build
-    if (can_build) {
+    if (can_build_here) {
         //  If this is the setup round, we can build here
-      if (current_game.round_num < 3) { // TODO: MAGIC NUMBER!!!!
+      if (current_game.round_num < 3) {
             success = true;
         } else {
             //  Finally, if it is a normal round, are we connected by a road?

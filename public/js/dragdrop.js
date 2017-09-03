@@ -134,6 +134,10 @@ function show_open_spots(object_type, ignore_id) {
                     //  Find the node in the nodes object based on the id of this object
                     var node_id = parseInt($(this).attr('id').replace("node_", ""));
 
+                    if (current_game.round_num > 2 && node_id == 13) {
+                        doLog("check");
+                    }
+                        
                     //  Now check to see if we can build here
                     if (can_build(nodes[node_id], node_to_ignore)) {
                         $(this).show();
