@@ -809,12 +809,15 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
             }
         } else if (node_to_enforce == null) {
             //  If we have a building of another player at one end, we need a road of ours at the other
-            if (nodes[road.connects[0]].owner != current_player.id) {
+            if (nodes[road.connects[0]].owner != current_player.id && nodes[road.connects[0]].owner > -1) {
                 //  Check connect #0
                 success = has_adjacent_road(road.connects[1]);
-            } else if (nodes[road.connects[1]].owner != current_player.id) {
+            } else if (nodes[road.connects[1]].owner != current_player.id && nodes[road.connects[1]].owner > -1) {
                 //  Check connect #1
                 success = has_adjacent_road(road.connects[0]);
+            } else {
+                //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
+                success = has_adjacent_road(road.connects[0]) || has_adjacent_road(road.connects[1]);
             }
         }
     }
