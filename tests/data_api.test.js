@@ -279,11 +279,11 @@ test("Check required cards are pushed", function(t) {
     t.is(roadCards[0], 'lumber');
     t.is(roadCards[1], 'brick');
     
-    var houseCards = cards.get_required_cards('house');
-    t.is(houseCards[0], 'lumber');
-    t.is(houseCards[1], 'brick');
-    t.is(houseCards[2], 'grain');
-    t.is(houseCards[3], 'ore');
+    var settlementCards = cards.get_required_cards('settlement');
+    t.is(settlementCards[0], 'lumber');
+    t.is(settlementCards[1], 'brick');
+    t.is(settlementCards[2], 'grain');
+    t.is(settlementCards[3], 'ore');
 
     var cityCards = cards.get_required_cards('city');
     t.is(cityCards[0], 'grain');
@@ -299,7 +299,7 @@ test("Check required cards are pushed", function(t) {
     cards.add_card('grain');
     cards.add_card('sheep');
     t.truthy(cards.available_cards('dev_card'));
-    t.truthy(cards.available_cards('house'));
+    t.truthy(cards.available_cards('settlement'));
     t.truthy(cards.available_cards('road'));
     t.falsy(cards.available_cards('city'));
 
