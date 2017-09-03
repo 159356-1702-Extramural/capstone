@@ -123,6 +123,9 @@ StateMachine.prototype.tick = function(data) {
 
             this.game.allocateDicerollResources(diceroll);
 
+            // Calculate the scores
+            this.game.calculateScores();
+
             //  Update the interface
             this.broadcast_gamestate();
 
@@ -207,7 +210,9 @@ StateMachine.prototype.tick = function(data) {
 
           // End the game if we have a winner
           if (this.game.haveWinner()) {
+
             // TODO: end the game
+
           }
 
           // Advance the round
@@ -215,8 +220,8 @@ StateMachine.prototype.tick = function(data) {
 
           // Resource distribution for next round
           for (var i = 0; i < this.game.players.length; i++) {
-              // Reset round distribution cards
-              this.game.players[i].round_distribution_cards = new Cards();
+            // Reset round distribution cards
+            this.game.players[i].round_distribution_cards = new Cards();
           }
 
 
@@ -226,28 +231,28 @@ StateMachine.prototype.tick = function(data) {
           var diceroll;
 
           do {
-          diceroll = this.game.rollingDice();
+            diceroll = this.game.rollingDice();
           } while (false); // TODO: logic to determine if a player has built yet
                           // eg. while (diceroll === 7 && no_build_flag === true)
 
           if (diceroll !== 7) {
-          this.game.allocateDicerollResources(diceroll);
+            this.game.allocateDicerollResources(diceroll);
           } else {
-          this.game.moveRobber();
-          this.game.robPlayers();
+            this.game.moveRobber();
+            this.game.robPlayers();
           }
 
           this.broadcast_gamestate();
 
           //  Reset player statuses
           this.game.players.forEach(function(player) {
-              player.turn_complete = false;
+            player.turn_complete = false;
           });
 
           //  Notify players
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
-                this.broadcast('game_turn', setup_data);
+          this.broadcast('game_turn', setup_data);
 
         } else {
           //  Tell this player to wait
@@ -265,7 +270,7 @@ StateMachine.prototype.tick = function(data) {
     * If in end_game state - gameplay logic opperates on this.game
     ************************************************************/
     else if (this.state === "end_game") {
-        return true;
+      return true;
     }
     return false;
 };
@@ -389,7 +394,7 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
 
     }
     this.setupPointer++;
-}
+};
 
 /***************************************************************
 * Validate player builds/actions
@@ -425,7 +430,7 @@ StateMachine.prototype.validate_player_builds = function(data){
         this.send_to_player('game_update', data_package);
     }
 
-}
+};
 
 StateMachine.prototype.trade_with_bank = function (data) {
     logger.log('debug',"trade action with bank, player: " + data.player_id);
@@ -471,7 +476,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
         this.send_to_player('game_turn', data_package);
         console.log('package sent');
     }
-}
+};
 
 StateMachine.prototype.buy_dev_card = function (data){
     var player = this.game.players[data.player_id];
@@ -495,5 +500,6 @@ StateMachine.prototype.buy_dev_card = function (data){
         // TODO send a fail message
     }
 
-}
+};
+
 module.exports = { StateMachine };

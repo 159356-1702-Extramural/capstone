@@ -98,7 +98,7 @@ Game.prototype.rollingDice = function() {
   // Store the individual dice rolls for diplsay in reound completion
   // modal when the next turn starts
   this.dice_roll = [dice1, dice2];
-  
+
   return dice1 + dice2;
 };
 
@@ -297,7 +297,7 @@ Game.prototype.calculateScores = function() {
   this.board.nodes.forEach(function(node) {
     if (node.owner > -1) {
       // Score 1 point for each stellement and 2 points for each city
-      this.players[node.owner].score.total_points += (node.type === 'house') ? 1 : 2;
+      this.players[node.owner].score.total_points += (node.building === 'house') ? 1 : 2;
     }
   }, this);
 
@@ -321,7 +321,21 @@ Game.prototype.calculateScores = function() {
  */
 Game.prototype.haveWinner = function() {
 
-  // TODO: write this function
+  var winners = [];
+
+  this.players.forEach(function(player) {
+    if (player.score.total_points === this.WIN_SCORE) {
+      winners.push(player);
+    }
+  }, this);
+
+  if (winners.length === 1) {
+    // Toggle the winner flag for this player
+    winners[0].winner = true;
+    return true;
+  }
+
+  // None or more than one winner - we keep going...
   return false;
 };
 
