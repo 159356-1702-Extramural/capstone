@@ -353,7 +353,7 @@ function openTrade () {
         // TODO: update to variable trade values once harbours are introduced.
         var trade_value = 4;
 
-        
+
         $.each(resource_cards, function(k, v) {
             if(v >= trade_value){
                 card_data.push([k+'_status', '']);
@@ -423,7 +423,7 @@ function acceptTrade () {
     }else{
         // hide trade window
         $('.popup').hide();
-        
+
         //display an error window
         alert("cant trade with that many cards");
     }
@@ -615,6 +615,14 @@ function updatePanelDisplay() {
   $resource_box.find('.lumbercount').text(resource_cards.lumber);
   $resource_box.find('.orecount').text(resource_cards.ore);
   $resource_box.find('.sheepcount').text(resource_cards.sheep);
+
+  // Update the score
+  var score = current_game.player.score;
+  var $bonuses_box = $('.bonuses');
+
+  $bonuses_box.find('.armycount').text(score.largest_army ? 1 : 0);
+  $bonuses_box.find('.longroadcount').text(score.longest_road ? 1 : 0);
+  $bonuses_box.find('.victorycount').text(score.total_points);
 
 }
 

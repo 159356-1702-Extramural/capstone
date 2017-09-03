@@ -7,6 +7,8 @@ function Game(state_machine) {
     this.board          = board_builder.generate();
 
     this.max_players    = 2;
+    this.WIN_SCORE      = 10;
+
     this.players        = [];
 
     this.round_num      = 1;
@@ -96,7 +98,7 @@ Game.prototype.rollingDice = function() {
   // Store the individual dice rolls for diplsay in reound completion
   // modal when the next turn starts
   this.dice_roll = [dice1, dice2];
-  
+
   return dice1 + dice2;
 };
 
@@ -280,5 +282,61 @@ Game.prototype.moveRobber = function() {
   this.board.robberLocation = new_robber_tile;
 };
 
+/**
+ * Determines the player scores
+ * @return void
+ */
+Game.prototype.calculateScores = function() {
+
+  // Reset the score since we're recalculating it
+  this.players.forEach(function (player) {
+    player.score.total_points = 0;
+  }, this);
+
+  // Count the buildings score
+  this.board.nodes.forEach(function(node) {
+    if (node.owner > -1) {
+      // Score 1 point for each stellement and 2 points for each city
+      this.players[node.owner].score.total_points += (node.building === 'house') ? 1 : 2;
+    }
+  }, this);
+
+  // Count VP Cards and Longest Rd, Biggest Army
+  this.players.forEach(function(player) {
+
+    player.score.victory_points = player.cards.count_victory_cards();
+
+    player.score.total_points += (player.score.longest_road) ? 2 : 0;
+    player.score.total_points += (player.score.largest_army) ? 2 : 0;
+
+    player.score.total_points += player.score.victory_points;
+
+  });
+
+};
+
+/**
+ * Check if we have a winner
+ * @return {Boolean}
+ */
+Game.prototype.haveWinner = function() {
+
+  var winners = [];
+
+  this.players.forEach(function(player) {
+    if (player.score.total_points === this.WIN_SCORE) {
+      winners.push(player);
+    }
+  }, this);
+
+  if (winners.length === 1) {
+    // Toggle the winner flag for this player
+    winners[0].winner = true;
+    return true;
+  }
+
+  // None or more than one winner - we keep going...
+  return false;
+};
 
 module.exports = Game;

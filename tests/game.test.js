@@ -183,3 +183,156 @@ test("Player with 9 cards get 4 cards robbed", function(t) {
   t.true(start_cards == 9 && end_cards == 5);
   t.true(round_cards === -4);
 });
+
+test("Starting players have no score", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0].id = 0;
+
+  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1].id = 1;
+
+  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2].id = 2;
+
+  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3].id = 3;
+
+  game.calculateScores();
+
+  t.true(game.players[0].score.total_points === 0);
+  t.true(game.players[1].score.total_points === 0);
+  t.true(game.players[2].score.total_points === 0);
+  t.true(game.players[3].score.total_points === 0);
+});
+
+test("Player scores correctly totalled", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0].id = 0;
+
+  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1].id = 1;
+
+  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2].id = 2;
+
+  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3].id = 3;
+
+  // Give player 0 some points
+  game.players[0].score.longest_road = true;
+  game.players[0].score.largest_army = false;
+
+  // Give player 1 some points
+  game.players[1].score.longest_road = false;
+  game.players[1].score.largest_army = true;
+  game.players[1].cards.victory_point_cards.library = 1;
+  game.players[1].cards.victory_point_cards.market = 1;
+  game.players[1].cards.victory_point_cards.chapel = 1;
+  game.players[1].cards.victory_point_cards.university_of_catan = 1;
+  game.players[1].cards.victory_point_cards.great_hall = 1;
+
+  // Give player 2 some buildings
+  game.board.set_item('build_settlement', 0, 2);
+  game.board.set_item('build_settlement', 1, 2);
+  game.board.set_item('build_settlement', 3, 2);
+
+  // Player 3 - no points for you
+
+  game.calculateScores();
+
+  t.true(game.players[0].score.total_points === 2);
+  t.true(game.players[1].score.total_points === 7);
+  t.true(game.players[2].score.total_points === 3);
+  t.true(game.players[3].score.total_points === 0);
+});
+
+test("Winning player detected", function(t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0].id = 0;
+
+  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1].id = 1;
+
+  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2].id = 2;
+
+  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3].id = 3;
+
+  // Give player 0 some points
+  game.players[0].score.longest_road = true;
+  game.players[0].score.largest_army = false;
+
+  // Give player 1 enough points to win
+  game.players[1].score.longest_road = false;
+  game.players[1].score.largest_army = true;
+  game.players[1].cards.victory_point_cards.library = 1;
+  game.players[1].cards.victory_point_cards.market = 1;
+  game.players[1].cards.victory_point_cards.chapel = 1;
+  game.players[1].cards.victory_point_cards.university_of_catan = 1;
+  game.players[1].cards.victory_point_cards.great_hall = 1;
+
+  game.board.set_item('build_settlement', 4, 1);
+  game.board.set_item('build_settlement', 5, 1);
+  game.board.set_item('build_settlement', 6, 1);
+
+  // Give player 2 some buildings
+  game.board.set_item('build_settlement', 0, 2);
+  game.board.set_item('build_settlement', 1, 2);
+  game.board.set_item('build_settlement', 3, 2);
+
+  game.calculateScores();
+
+  t.true(game.players[1].score.total_points === 10);
+  t.true(game.haveWinner());
+
+});
+
+test("No winnner found", function (t) {
+  var game = new Game();
+
+  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0].id = 0;
+
+  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1].id = 1;
+
+  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2].id = 2;
+
+  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3].id = 3;
+
+  // Give player 0 some points
+  game.players[0].score.longest_road = true;
+  game.players[0].score.largest_army = false;
+
+  // Give player 1 enough points to win
+  game.players[1].score.longest_road = false;
+  game.players[1].score.largest_army = true;
+  game.players[1].cards.victory_point_cards.library = 1;
+  game.players[1].cards.victory_point_cards.market = 1;
+  game.players[1].cards.victory_point_cards.chapel = 1;
+  game.players[1].cards.victory_point_cards.university_of_catan = 1;
+  game.players[1].cards.victory_point_cards.great_hall = 1;
+
+  game.board.set_item('build_settlement', 4, 1);
+  game.board.set_item('build_settlement', 5, 1);
+
+  // Give player 2 some buildings
+  game.board.set_item('build_settlement', 0, 2);
+  game.board.set_item('build_settlement', 1, 2);
+  game.board.set_item('build_settlement', 3, 2);
+
+  game.calculateScores();
+
+  t.true(game.players[1].score.total_points === 9);
+  t.false(game.haveWinner());
+
+});
