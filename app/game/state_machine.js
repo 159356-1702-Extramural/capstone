@@ -160,7 +160,7 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
-        
+
 
         var round_complete = this.game.players.every(function(player) {
             return player.turn_complete === true;
@@ -188,19 +188,18 @@ StateMachine.prototype.tick = function(data) {
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
-            this.validate_player_builds(data);
+          this.validate_player_builds(data);
 
-            // Handle standard gameplay rounds
-            this.game.players[data.player_id].turn_complete = true;
-            this.game.players[data.player_id].turn_data = data;
+          // Handle standard gameplay rounds
+          this.game.players[data.player_id].turn_complete = true;
+          this.game.players[data.player_id].turn_data = data;
 
-            // Determine if the round is complete, ie. all players have
-            // indicated their round is complete
-            var round_complete = this.game.players.every(function(player) {
-                return player.turn_complete === true;
-            });
+          // Determine if the round is complete, ie. all players have
+          // indicated their round is complete
+          var round_complete = this.game.players.every(function(player) {
+              return player.turn_complete === true;
+          });
 
-<<<<<<< HEAD
         if (round_complete) {
 
           // Calculate the scores
@@ -211,60 +210,55 @@ StateMachine.prototype.tick = function(data) {
             // TODO: end the game
           }
 
-          //  Advance the round
-            this.game.round_num++;
-=======
-            if (round_complete) {
-                //  Advance the round
-                this.game.round_num++;
->>>>>>> master
+          // Advance the round
+          this.game.round_num++;
 
-                // Resource distribution for next round
-                for (var i = 0; i < this.game.players.length; i++) {
-                    // Reset round distribution cards
-                    this.game.players[i].round_distribution_cards = new Cards();
-                }
+          // Resource distribution for next round
+          for (var i = 0; i < this.game.players.length; i++) {
+              // Reset round distribution cards
+              this.game.players[i].round_distribution_cards = new Cards();
+          }
 
 
-                // House rule 7 only comes up once someone has created their first non-startup building
+          // House rule 7 only comes up once someone has created their first non-startup building
 
-                //  Next dice roll
-                var diceroll;
+          //  Next dice roll
+          var diceroll;
 
-                do {
-                diceroll = this.game.rollingDice();
-                } while (false); // TODO: logic to determine if a player has built yet
-                                // eg. while (diceroll === 7 && no_build_flag === true)
+          do {
+          diceroll = this.game.rollingDice();
+          } while (false); // TODO: logic to determine if a player has built yet
+                          // eg. while (diceroll === 7 && no_build_flag === true)
 
-                if (diceroll !== 7) {
-                this.game.allocateDicerollResources(diceroll);
-                } else {
-                this.game.moveRobber();
-                this.game.robPlayers();
-                }
+          if (diceroll !== 7) {
+          this.game.allocateDicerollResources(diceroll);
+          } else {
+          this.game.moveRobber();
+          this.game.robPlayers();
+          }
 
-                this.broadcast_gamestate();
+          this.broadcast_gamestate();
 
-                //  Reset player statuses
-                this.game.players.forEach(function(player) {
-                    player.turn_complete = false;
-                });
+          //  Reset player statuses
+          this.game.players.forEach(function(player) {
+              player.turn_complete = false;
+          });
 
-                //  Notify players
-                var setup_data = new Data_package();
-                setup_data.data_type = 'round_turn';
+          //  Notify players
+          var setup_data = new Data_package();
+          setup_data.data_type = 'round_turn';
                 this.broadcast('game_turn', setup_data);
 
-            } else {
-                //  Tell this player to wait
-                var setup_data = new Data_package();
-                setup_data.data_type = 'wait_others';
-                this.game.players[data.player_id].socket.emit('game_turn', setup_data);
-            }
+        } else {
+          //  Tell this player to wait
+          var setup_data = new Data_package();
+          setup_data.data_type = 'wait_others';
+          this.game.players[data.player_id].socket.emit('game_turn', setup_data);
         }
-        
-        this.next_state();
-        return true;
+      }
+
+      this.next_state();
+      return true;
     }
 
     /************************************************************
