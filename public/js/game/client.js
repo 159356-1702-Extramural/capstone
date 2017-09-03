@@ -410,7 +410,7 @@ function invalidMove (data){
             //remove relevant artifact from board
             if(action.action_type === 'road'){
                 //TODO: action failed dialog with 'road'
-            }else if(action.action_type === 'house'){
+            }else if(action.action_type === 'settlement'){
                 //TODO: action failed dialog with 'road'
             }else if(action.action_type === 'city'){
                 //TODO: action failed dialog with 'road'
@@ -423,10 +423,10 @@ function invalidMove (data){
 }
 
 function checkLegitimateTurn(data_package){
-            //only two actions allowed (build road and build house)
+            //only two actions allowed (build road and build settlement)
             if(turn_actions.length === 2){
 
-                //if one is a house and the other is a road
+                //if one is a settlement and the other is a road
                 if ((turn_actions[0].action_type == 'build_settlement' || turn_actions[1].action_type == 'build_settlement') && (turn_actions[0].action_type == 'build_road' || turn_actions[1].action_type == 'build_road')){
 
                     update_server("game_update", data_package);
@@ -537,7 +537,7 @@ function buildNodes() {
                             //  The node exists on the board, update css in case it changed
                             node_on_canvas.attr("class", "node " + node_class);
 
-                            //  If a companion house/city exists, disable it
+                            //  If a companion settlement/city exists, disable it
                             var dragged_node = $("#" + node.building + "_" + current_player.colour + "_pending_" + node.id);
                             if (dragged_node) {
                                 dragged_node.attr("class", node.building + " " + current_player.colour + " disabled");
@@ -874,7 +874,7 @@ function has_resources(object_type) {
     var my_cards = new Cards();
     my_cards.resource_cards = current_game.player.cards.resource_cards;
 
-    if (object_type == "house") {
+    if (object_type == "settlement") {
         //  During the setup round, assume they do
         if (current_game.round_num < 3) { return true; }
         //  Otherwise we need 1 lumber, 1 grain, 1 brick and 1 sheep
@@ -939,11 +939,11 @@ function setupPlayer() {
     html += "        </div>";
     html += "        <div class='buildings'>";
     html += "            Buildings:<br />";
-    html += "            <div class='housebox_disable'></div>";
-    html += "            <div class='housebox'>";
-    html += "                <span class='housecount'>5</span>";
+    html += "            <div class='settlementbox_disable'></div>";
+    html += "            <div class='settlementbox'>";
+    html += "                <span class='settlementcount'>5</span>";
     for (var i = 0; i < 5; i++) {
-        html += "                <div id='house_" + current_player.colour + "_open_" + i + "' class='house " + current_player.colour + "' ></div>";
+        html += "                <div id='settlement_" + current_player.colour + "_open_" + i + "' class='settlement " + current_player.colour + "' ></div>";
     }
     html += "            </div>";
     html += "            <div class='citybox_disable'></div>";

@@ -142,7 +142,7 @@ Game.prototype.allocateDicerollResources = function(roll) {
             var player_id = node.owner;
 
             // settlements get 1 resource, cities 2
-            var num_resources = (node.building === 'house') ? 1 : 2;
+            var num_resources = (node.building === 'settlement') ? 1 : 2;
             var resource = tiles_row[n].type;
 
             // Send the tile resources to the player

@@ -21,7 +21,7 @@ function Board(obj) {
 *  Basic setters for board elements
 *********************************************/
 /**
-* Modifies the owner of road or house array
+* Modifies the owner of road or settlement array
 * (used in setup) - modify for general use
 * @param {String} item
 * @param {integer} index
@@ -32,7 +32,7 @@ Board.prototype.set_item = function(item, index, player_id) {
     this.roads[index].owner = player_id;
     this.roads[index].status = '';
    } else if(item === 'build_settlement') {
-    this.nodes[index].building = 'house';
+    this.nodes[index].building = 'settlement';
     this.nodes[index].owner = player_id;
     this.nodes[index].status = '';
   }
@@ -42,7 +42,7 @@ Board.prototype.clear_item = function(index, object_type) {
   if (object_type === 'road') {
    this.roads[index].owner = -1;
    this.roads[index].status = "";
-  } else if (object_type === 'house') {
+  } else if (object_type === 'settlement') {
     this.nodes[index].building = "";
     this.nodes[index].owner = -1;
     this.nodes[index].status = "";

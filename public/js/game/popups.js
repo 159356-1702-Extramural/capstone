@@ -177,7 +177,7 @@ function build_popup_use_monopoly() {
 //  build_popup_round_build
 //      Creates the initial popup for building an item, and allows the selection of
 //      extra resources to win conflicts
-//          {object_type} - Object being built (road/house/city)
+//          {object_type} - Object being built (road/settlement/city)
 //          {build_cards} - html list of cards
 function build_popup_round_build(object_type) {
     //  Get the list of cards needed
@@ -193,7 +193,7 @@ function build_popup_round_build(object_type) {
     for (var i = 0; i < card_list.length; i++) {
         card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
 
-        //  Remove the right number of cards for this road/house/city
+        //  Remove the right number of cards for this road/settlement/city
         my_cards.remove_card(card_list[i]);
     }
 
@@ -244,7 +244,7 @@ function round_build_complete(object_type) {
 //      Nevermind button in the round_build.html template
 function round_build_abort(object_type) {
     //  We need to return it to the pile and remove it from turn_actions
-    var object_type = (turn_actions[turn_actions.length - 1].action_type == "build_road" ? "road" : "house");
+    var object_type = (turn_actions[turn_actions.length - 1].action_type == "build_road" ? "road" : "settlement");
     var object_node = turn_actions[turn_actions.length - 1].action_data;
     var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
     return_object(object_to_return, object_to_return.attr("id"), object_node.id);
@@ -362,7 +362,7 @@ function build_popup_failed_done() {
     for (var i = 0; i < turn_actions.length; i++) {
         if (turn_actions[i].action_result > 0) {
             //  Return the item to the pile
-            var object_type = (turn_actions[i].action_type == "build_road" ? "road" : "house");
+            var object_type = (turn_actions[i].action_type == "build_road" ? "road" : "settlement");
             var object_node = turn_actions[i].action_data;
             var object_to_return = $("#" + object_type + "_" + current_player.colour + "_locked_" + object_node.id);
             return_object(object_to_return, object_to_return.attr("id"), object_node.id);

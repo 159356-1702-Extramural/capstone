@@ -3,11 +3,11 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 0,
-        grain : 0,
-        sheep : 0,
-        lumber: 0,
-        ore   : 0
+        brick : 5,
+        grain : 5,
+        sheep : 5,
+        lumber: 5,
+        ore   : 5
     };
 
     this.dev_cards = {
@@ -117,7 +117,7 @@ Cards.prototype.remove_cards = function(purchase){
     //returns true if cards loaded successfully
     if ( purchase == 'road' ) {
         return this.remove_card('brick') && this.remove_card('lumber');
-    }else if ( purchase == 'house' ) {
+    }else if ( purchase == 'settlement' ) {
         return this.remove_card('brick') &&
             this.remove_card('lumber') &&
             this.remove_card('grain') &&
@@ -168,7 +168,7 @@ Cards.prototype.get_required_cards = function(object_type){
         card_list.push('lumber');
         card_list.push('brick');
     }
-    if ( object_type == 'house' ) {
+    if ( object_type == 'settlement' ) {
         card_list.push('lumber');
         card_list.push('brick');
         card_list.push('grain');
@@ -193,7 +193,7 @@ Cards.prototype.available_cards = function ( card_type ) {
     if(card_type === 'dev_card'){
         return((this.resource_cards.ore > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0));
     }
-    if(card_type === 'house'){
+    if(card_type === 'settlement'){
         return((this.resource_cards.brick > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0) && (this.resource_cards.lumber > 0));
     }
     if(card_type === 'road'){

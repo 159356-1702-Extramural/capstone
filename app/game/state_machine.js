@@ -229,7 +229,7 @@ StateMachine.prototype.tick = function(data) {
             }
 
 
-            // House rule 7 only comes up once someone has created their first non-startup building
+            // Custom rule: 7 only comes up once someone has created their first non-startup building
 
             //  Next dice roll
             var diceroll;
@@ -410,7 +410,7 @@ StateMachine.prototype.validate_player_builds = function(data){
         //  During the seutp, just set the piece
         for(var i = 0; i < data.actions.length; i++){
             var player_id   = data.player_id;
-            var item        = data.actions[i].action_type; //house or road
+            var item        = data.actions[i].action_type; //settlement or road
             var index       = data.actions[i].action_data.id;
             this.game.board.set_item(item, index, player_id, "");
         }
@@ -421,7 +421,7 @@ StateMachine.prototype.validate_player_builds = function(data){
 
             for(var i = 0; i < data.actions.length; i++){
                 var player_id   = data.player_id;
-                var item        = data.actions[i].action_type; //house or road
+                var item        = data.actions[i].action_type; //settlement or road
                 var index       = data.actions[i].action_data.id;
                 var boost_cards = data.actions[i].boost_cards;
         
@@ -446,13 +446,13 @@ StateMachine.prototype.validate_player_builds = function(data){
             }
         }
 
-        //  Now we do a 2nd pass to see if any failed houses/roads caused any orphans
+        //  Now we do a 2nd pass to see if any failed settlements/roads caused any orphans
         for (var p = 0; p < this.game.players.length; p++) {
             var data = this.game.players[p].turn_data;
             for (var i = 0; i < data.actions.length; i++) {
                 if (data.actions[i].action_result == 0) {
                     var object_type = data.actions[i].action_type.replace("build_", "");
-                    var node = (object_type == "road" ? this.game.board.roads[data.actions[i].action_data.id] : this.game.board.nodes[data.action[i].action_data.id]);
+                    var node = (object_type == "road" ? this.game.board.roads[data.actions[i].action_data.id] : this.game.board.nodes[data.actions[i].action_data.id]);
 
                     //  Do we have a path to a locked node/road
                     if (!this.has_valid_path(this.game.players[p], object_type, node, node.id, "")) {
@@ -497,7 +497,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
 }
 
 /***************************************************************
-* Check a road/house to see if it connects up with another from this player
+* Check a road/settlement to see if it connects up with another from this player
 ***************************************************************/
 StateMachine.prototype.has_valid_path = function(player, object_type, node, original_node, checked) {
     var has_path = false;
@@ -518,8 +518,8 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
     }
 
     //  Otherwise we keep going
-    if (object_type == "house") {
-        //  If this is a house, and someone else owns it, we cannot continue on this path
+    if (object_type == "settlement") {
+        //  If this is a settlement, and someone else owns it, we cannot continue on this path
         if (node.owner != player.id && node.owner > -1) {
             return false;
         }
@@ -530,7 +530,7 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
         }
         if (!has_path) {
             for (var i = 0; i < node.n_nodes.length; i++) {
-                has_path = has_path || this.has_valid_path(player, "house", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
+                has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
                 if (has_path) { break; }
             }
         }
@@ -541,7 +541,7 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
         }
         //  Otherwise, check neighbor nodes
         for (var i = 0; i < node.connects.length; i++) {
-            has_path = has_path || this.has_valid_path(player, "house", this.game.board.nodes[node.connects[i]], original_node, checked);
+            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
             if (has_path) { break; }
         }
     }
