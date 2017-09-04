@@ -22,14 +22,22 @@ var io        = require('socket.io')(server);
 var PORT      = process.env.PORT || 3000;
 
 // Load game lobby
-var gm     = require('./game/games.js');
+var gm        = require('./game/games.js');
 var games     = new gm.Games();
 
 // Define static files directory
 app.use(express.static('public'));
 
+// boolean test flag for headless browser testing
+var testing;
+
 // Serve static page
 app.get('/', function(req, res) {
+
+    //set environment variable if {url}:3000/?test=true is queried
+    testing = req.query["test"];
+    if(typeof testing === 'undefined'){testing = false;}
+    process.env['testing'] = testing;
     res.sendFile(__dirname + '/views/default.html');
 });
 

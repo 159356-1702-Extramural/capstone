@@ -7,6 +7,8 @@ function Game(state_machine) {
     this.board          = board_builder.generate();
 
     this.max_players    = 2;
+    this.WIN_SCORE      = 10;
+
     this.players        = [];
 
     this.round_num      = 1;
@@ -191,39 +193,9 @@ Game.prototype.generate_dev_card_deck = function(){
     dev_cards.push(other_cards[j]);
   }
 
-  //  Alternate strategy
-  //try to have a mixed start point to shuffle from
-  // dev_cards.push('knight');
-  // var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'palace', 'universtiy', 'market'];
-  // for(var j = 0; j < other_cards.length; j++){
-
-  //   //add the first three options twice
-  //   if(j < 3){
-  //     dev_cards.push('knight');
-  //     dev_cards.push(other_cards[j]);
-  //   }
-  //   dev_cards.push('knight');
-  //   dev_cards.push(other_cards[j]);
-  // }
-  // dev_cards.push('knight');
-  // dev_cards.push('knight');
-
-  return Fisher_Yates_shuffle(dev_cards);
+  var shuffler = new Shuffler();
+  return shuffler.shuffle(dev_cards);
 };
-
-function Fisher_Yates_shuffle (array) {
-  var i = 0;
-  var j = 0;
-  var temp = null;
-
-  for (i = array.length - 1; i > 0; i -= 1) {
-    j = Math.floor(Math.random() * (i + 1));
-    temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-  }
-  return array;
-}
 
 /**
  * Steal resources from each player
@@ -310,5 +282,61 @@ Game.prototype.moveRobber = function() {
   this.board.robberLocation = new_robber_tile;
 };
 
+/**
+ * Determines the player scores
+ * @return void
+ */
+Game.prototype.calculateScores = function() {
+
+  // Reset the score since we're recalculating it
+  this.players.forEach(function (player) {
+    player.score.total_points = 0;
+  }, this);
+
+  // Count the buildings score
+  this.board.nodes.forEach(function(node) {
+    if (node.owner > -1) {
+      // Score 1 point for each stellement and 2 points for each city
+      this.players[node.owner].score.total_points += (node.building === 'house') ? 1 : 2;
+    }
+  }, this);
+
+  // Count VP Cards and Longest Rd, Biggest Army
+  this.players.forEach(function(player) {
+
+    player.score.victory_points = player.cards.count_victory_cards();
+
+    player.score.total_points += (player.score.longest_road) ? 2 : 0;
+    player.score.total_points += (player.score.largest_army) ? 2 : 0;
+
+    player.score.total_points += player.score.victory_points;
+
+  });
+
+};
+
+/**
+ * Check if we have a winner
+ * @return {Boolean}
+ */
+Game.prototype.haveWinner = function() {
+
+  var winners = [];
+
+  this.players.forEach(function(player) {
+    if (player.score.total_points === this.WIN_SCORE) {
+      winners.push(player);
+    }
+  }, this);
+
+  if (winners.length === 1) {
+    // Toggle the winner flag for this player
+    winners[0].winner = true;
+    return true;
+  }
+
+  // None or more than one winner - we keep going...
+  return false;
+};
 
 module.exports = Game;
