@@ -5,8 +5,8 @@ import os,sys, time
 
 # Directory for locating test cases
 test_dir=os.path.split(os.path.realpath(sys.argv[0]))[0]
-test_case_dir=test_dir+'\\test_case\\'
-test_reports_dir=test_dir+'\\selenium_test_reports\\'
+test_case_dir= os.path.join(test_dir ,'test_case')
+test_reports_dir= os.path.join(test_dir, 'selenium_test_reports')
 print test_reports_dir
 def creatsuite():
     testunit=unittest.TestSuite()
@@ -28,7 +28,7 @@ now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))
 if not os.path.isdir(test_reports_dir):
     os.mkdir(test_reports_dir)
 
-filename = test_reports_dir+now+'result.html'
+filename = os.path.join(test_reports_dir,now+'_result.html')
 fp = file(filename, 'wb')
 runner =HTMLTestRunner.HTMLTestRunner(
     stream=fp,
