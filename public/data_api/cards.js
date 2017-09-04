@@ -135,6 +135,13 @@ Cards.prototype.remove_multiple_cards = function(card, qty){
     return false;
 }
 
+Cards.prototype.remove_boost_cards = function(boost_cards){
+    for (var b = 0; b < boost_cards.length; b++) {
+        this.remove_card(boost_cards[b]);
+    }
+}
+
+
 /**
  * Remove a group of cards from the resources hand by purchase
  * @param {String} card : a purchase (road, city, development card, settlement)

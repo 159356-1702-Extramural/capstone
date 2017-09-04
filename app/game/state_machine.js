@@ -191,8 +191,6 @@ StateMachine.prototype.tick = function(data) {
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
-          this.validate_player_builds(data);
-
           // Handle standard gameplay rounds
           this.game.players[data.player_id].turn_complete = true;
           this.game.players[data.player_id].turn_data = data;
@@ -205,6 +203,8 @@ StateMachine.prototype.tick = function(data) {
 
         if (round_complete) {
 
+            this.validate_player_builds(data);
+            
           // Calculate the scores
           this.game.calculateScores();
 
@@ -462,7 +462,19 @@ StateMachine.prototype.validate_player_builds = function(data){
             }
         }
 
-
+        //  Finally, a pass to remove cards from successful builds
+        for (var p = 0; p < this.game.players.length; p++) {
+            var data = this.game.players[p].turn_data;
+            for (var a = 0; a < data.actions.length; a++) {
+                if (data.actions[a].action_result == 0) {
+                    //  Remove the base cards
+                    this.game.players[p].cards.remove_cards(item.replace("build_",""));
+                    
+                    //  Remove the boost cards
+                    this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
+                }
+            }
+        }
         
     }
 }
