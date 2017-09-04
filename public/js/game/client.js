@@ -647,6 +647,14 @@ function updatePanelDisplay() {
     if (current_game.round_num > 2) {
         $(".tradebutton").removeClass("disabled");
     }
+  // Update the score
+  var score = current_game.player.score;
+  var $bonuses_box = $('.bonuses');
+
+  $bonuses_box.find('.armycount').text(score.largest_army ? 1 : 0);
+  $bonuses_box.find('.longroadcount').text(score.longest_road ? 1 : 0);
+  $bonuses_box.find('.victorycount').text(score.total_points);
+
 }
 
 //  This method determines the coordinates where a settlement/city is to be drawn

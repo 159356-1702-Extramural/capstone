@@ -204,7 +204,10 @@ StateMachine.prototype.tick = function(data) {
         if (round_complete) {
 
             this.validate_player_builds(data);
-            
+
+            //  Advance the round
+            this.game.round_num++;
+
           // Calculate the scores
           this.game.calculateScores();
 
