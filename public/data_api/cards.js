@@ -203,7 +203,7 @@ Cards.prototype.has_cards = function(card_list) {
 
 /**
  * Get a list of cards required to purchase an item
- * @param {String} object_type : road, house, city, development_card
+ * @param {String} object_type : road, settlement, city, development_card
  * @return {Array} card_list : ['sheep', 'grain', 'ore']
  */
 Cards.prototype.get_required_cards = function(object_type){

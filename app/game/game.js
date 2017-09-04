@@ -297,7 +297,7 @@ Game.prototype.calculateScores = function() {
   this.board.nodes.forEach(function(node) {
     if (node.owner > -1) {
       // Score 1 point for each stellement and 2 points for each city
-      this.players[node.owner].score.total_points += (node.building === 'house') ? 1 : 2;
+      this.players[node.owner].score.total_points += (node.building === 'settlement') ? 1 : 2;
     }
   }, this);
 
