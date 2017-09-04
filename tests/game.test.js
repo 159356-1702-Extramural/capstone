@@ -331,8 +331,8 @@ test("No winnner found", function (t) {
   game.board.set_item('build_settlement', 3, 2);
 
   game.calculateScores();
-
+  
   t.true(game.players[1].score.total_points === 9);
-  t.false(game.haveWinner());
+  t.true(!game.haveWinner());
 
 });

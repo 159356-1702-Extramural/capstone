@@ -340,10 +340,10 @@ body {
     opacity:0.8;
     z-index:9997;
 }
-.node.house, node.city {
+.node.settlement, node.city {
     opacity: 1 !important;
 }
-.node.house, .node.buildspot {
+.node.settlement, .node.buildspot {
     height:42px;
     width:50px;
 }
@@ -351,11 +351,11 @@ body {
     height:50px;
     width:50px;
 }
-.node.disabled, road.disabled, .house.disabled {
+.node.disabled, road.disabled, .settlement.disabled {
     display:none;
 }
 .node.buildspot {
-    background-image:url(../images/house_ghost_small.png);
+    background-image:url(../images/settlement_ghost_small.png);
     z-index: 9996 !important;
 }
 .node.expand {
@@ -363,10 +363,10 @@ body {
     
 }
 
-.node.house.locked {
+.node.settlement.locked {
     display:block !important;
 }
-.house, .house_locked {
+.settlement, .settlement_locked {
     width:50px;
     height:42px;
 }
@@ -374,17 +374,17 @@ body {
     width:50px;
     height:50px;
 }
-.node.house.purple, .house.purple {
-    background-image: url(../images/house_purple_small.png);
+.node.settlement.purple, .settlement.purple {
+    background-image: url(../images/settlement_purple_small.png);
 }
-.node.house.red, .house.red {
-    background-image: url(../images/house_red_small.png);
+.node.settlement.red, .settlement.red {
+    background-image: url(../images/settlement_red_small.png);
 }
-.node.house.green, .house.green {
-    background-image: url(../images/house_green_small.png);
+.node.settlement.green, .settlement.green {
+    background-image: url(../images/settlement_green_small.png);
 }
-.node.house.blue, .house.blue {
-    background-image: url(../images/house_blue_small.png);
+.node.settlement.blue, .settlement.blue {
+    background-image: url(../images/settlement_blue_small.png);
 }
 
 .city.purple {
@@ -597,7 +597,7 @@ body {
     margin: 10px 15px 0px 15px;
     height:auto;
 }
-.housebox, .citybox, .roadbox {
+.settlementbox, .citybox, .roadbox {
     display:inline-block;
     width:42%;
     height:42px;
@@ -605,7 +605,7 @@ body {
     padding:5px;
     background-color:white;
 }
-.housebox_disable, .citybox_disable, .roadbox_disable {
+.settlementbox_disable, .citybox_disable, .roadbox_disable {
     position:absolute;
     width:102px;
     height:58px;
@@ -614,7 +614,7 @@ body {
     z-index:9998;
     display:none;
 }
-.housebox_disable {
+.settlementbox_disable {
     top:360px;
     left:15px;
 }
@@ -627,7 +627,7 @@ body {
     left:15px;
 }
 
-.house, .buildings .road {
+.settlement, .buildings .road {
     position:absolute;
     left:23%;
     z-index:9997;
@@ -642,7 +642,7 @@ body {
     display:none;
 }
 
-.housecount, .roadcount {
+.settlementcount, .roadcount {
     position:absolute;
     left:25px;
     text-align:left;
@@ -708,7 +708,7 @@ body {
     float:left;
     width:90%;
 }
-.cards .card {
+.cards .card, .failed_card .card {
     float:left;
     margin-left:-30px;
 }
@@ -853,7 +853,7 @@ body {
 .player_score_token {
     float:left;
 }
-.player_score_token.disabled, .player_score_detail.disabled {
+.player_score_token.disabled, .player_score_detail.disabled, .build_give.disabled {
     opacity: 0.4;
 }
 
@@ -887,7 +887,7 @@ body {
     opacity: 0.4;
 }
 
-.build_card, .extra_card {
+.build_card, .extra_card, .failed_card {
     float:left;
     width:35px;
 }
@@ -1033,4 +1033,18 @@ body {
 .trading_card_3 {
     left:45px;
     z-index:3;
+}
+
+.fail_row {
+    clear: both;
+    width:90%;
+    height:120px;
+}
+.fail_object {
+    float: left;
+    width:130px;
+    padding-top:30px;
+}
+.fail_cards {
+    float: left;
 }

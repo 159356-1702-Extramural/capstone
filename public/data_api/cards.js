@@ -135,6 +135,13 @@ Cards.prototype.remove_multiple_cards = function(card, qty){
     return false;
 }
 
+Cards.prototype.remove_boost_cards = function(boost_cards){
+    for (var b = 0; b < boost_cards.length; b++) {
+        this.remove_card(boost_cards[b]);
+    }
+}
+
+
 /**
  * Remove a group of cards from the resources hand by purchase
  * @param {String} card : a purchase (road, city, development card, settlement)
@@ -196,7 +203,7 @@ Cards.prototype.has_cards = function(card_list) {
 
 /**
  * Get a list of cards required to purchase an item
- * @param {String} object_type : road, house, city, development_card
+ * @param {String} object_type : road, settlement, city, development_card
  * @return {Array} card_list : ['sheep', 'grain', 'ore']
  */
 Cards.prototype.get_required_cards = function(object_type){
@@ -206,7 +213,7 @@ Cards.prototype.get_required_cards = function(object_type){
         card_list.push('lumber');
         card_list.push('brick');
     }
-    if ( object_type == 'house' ) {
+    if ( object_type == 'settlement' ) {
         card_list.push('lumber');
         card_list.push('brick');
         card_list.push('grain');
@@ -236,7 +243,7 @@ Cards.prototype.available_cards = function ( card_type ) {
     if(card_type === 'dev_card'){
         return((this.resource_cards.ore > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0));
     }
-    if(card_type === 'house'){
+    if(card_type === 'settlement'){
         return((this.resource_cards.brick > 0) && (this.resource_cards.sheep > 0) && (this.resource_cards.grain > 0) && (this.resource_cards.lumber > 0));
     }
     if(card_type === 'road'){

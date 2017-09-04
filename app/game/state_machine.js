@@ -97,7 +97,7 @@ StateMachine.prototype.tick = function(data) {
     if (this.state === "setup") {
         //check data and add to player
 
-        //  Validate each player action
+        //  Set the piece
         this.validate_player_builds(data);
 
         //  Mark turn completed
@@ -191,8 +191,6 @@ StateMachine.prototype.tick = function(data) {
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
-          this.validate_player_builds(data);
-
           // Handle standard gameplay rounds
           this.game.players[data.player_id].turn_complete = true;
           this.game.players[data.player_id].turn_data = data;
@@ -205,12 +203,18 @@ StateMachine.prototype.tick = function(data) {
 
         if (round_complete) {
 
+            this.validate_player_builds(data);
+
+            //  Advance the round
+            this.game.round_num++;
+
           // Calculate the scores
           this.game.calculateScores();
 
           // End the game if we have a winner
           if (this.game.haveWinner()) {
 
+            // Custom rule: 7 only comes up once someone has created their first non-startup building
             // TODO: end the game
 
           }
@@ -403,34 +407,160 @@ StateMachine.prototype.validate_player_builds = function(data){
     console.log('validate_player_builds called');
     logger.log('debug', 'validate_player_builds function called.');
 
-    var invalid_actions = [];
-    for(var i = 0; i < data.actions.length; i++){
-        var player_id   = data.player_id;
-        var item        = data.actions[i].action_type; //house or road
-        var index       = data.actions[i].action_data.id;
+    if (this.game.round_num < 3) {
+        //  During the seutp, just set the piece
+        for(var i = 0; i < data.actions.length; i++){
+            var player_id   = data.player_id;
+            var item        = data.actions[i].action_type; //settlement or road
+            var index       = data.actions[i].action_data.id;
+            this.game.board.set_item(item, index, player_id, "");
+        }
+    } else {
+        //  Our first pass is to do a direct check for conflicts
+        for (var p = 0; p < this.game.players.length; p++) {
+            var data = this.game.players[p].turn_data;
 
-        var valid = true;
-        //TODO Build logic to validate moves, check for conflicts, and resolve/fail conflicts
+            for(var i = 0; i < data.actions.length; i++){
+                var player_id   = data.player_id;
+                var item        = data.actions[i].action_type; //settlement or road
+                var index       = data.actions[i].action_data.id;
+                var boost_cards = data.actions[i].boost_cards;
+        
+                var valid = true;
+        
+                //  Are there any others that have the same action/data.id
+                //  wins_conflict will return one of the following:
+                //  0 = Won!
+                //  1 = Tie
+                //  2 = Lost
+                if (this.game.round_num > 2) {
+                    var won_conflict = this.wins_conflict(player_id, item, index, boost_cards);
+                    data.actions[i].action_result = won_conflict;
 
-        if (valid) {
-            this.game.board.set_item(item, index, player_id);
-        } else {
-            invalid_actions.push(data.actions[i]);
+                    if (won_conflict == 0) {
+                        this.game.board.set_item(item, index, player_id);
+                    }
+                } else {
+                    data.actions[i].action_result = 0;
+                    this.game.board.set_item(item, index, player_id);
+                }
+            }
+        }
+
+        //  Now we do a 2nd pass to see if any failed settlements/roads caused any orphans
+        for (var p = 0; p < this.game.players.length; p++) {
+            var data = this.game.players[p].turn_data;
+            for (var i = 0; i < data.actions.length; i++) {
+                if (data.actions[i].action_result == 0) {
+                    var object_type = data.actions[i].action_type.replace("build_", "");
+                    var node = (object_type == "road" ? this.game.board.roads[data.actions[i].action_data.id] : this.game.board.nodes[data.actions[i].action_data.id]);
+
+                    //  Do we have a path to a locked node/road
+                    if (!this.has_valid_path(this.game.players[p], object_type, node, node.id, "")) {
+                        data.actions[i].action_result = 2;
+                        this.game.board.clear_item(node.id, object_type);
+                    }
+
+                }
+            }
+        }
+
+        //  Finally, a pass to remove cards from successful builds
+        for (var p = 0; p < this.game.players.length; p++) {
+            var data = this.game.players[p].turn_data;
+            for (var a = 0; a < data.actions.length; a++) {
+                if (data.actions[a].action_result == 0) {
+                    //  Remove the base cards
+                    this.game.players[p].cards.remove_cards(item.replace("build_",""));
+                    
+                    //  Remove the boost cards
+                    this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
+                }
+            }
+        }
+        
+    }
+}
+
+/***************************************************************
+* Determine if there is a conflict and who wins the conflict
+***************************************************************/
+StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_cards){
+
+    for (var i = 0; i < this.game.players.length; i++) {
+        //  Ignore this player
+        if (this.game.players[i].id != player_id) {
+            //  Loop through next player actions
+            for (var j = 0; j < this.game.players[i].turn_data.actions.length; j++) {
+                if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.players[i].turn_data.actions[j].action_data.id == index) {
+                    //  Conflict found
+                    //  Compare # of boost cards
+                    if (boost_cards.length == this.game.players[i].turn_data.actions[j].boost_cards.length) {
+                        return 1;   //  Tie
+                    }
+                    if (boost_cards.length > this.game.players[i].turn_data.actions[j].boost_cards.length) {
+                        return 0;   //  Win
+                    }
+                    return 2;       //  Lost
+                } 
+            }
         }
     }
+    return 0;   //  Win
+}
 
-    //  Let the player know if there were moves that failed
-    if (invalid_actions.length > 0) {
-        var data_package = new Data_package();
-        var player = new Player();
-        player.id = data.player_id;
-        player.actions = invalid_actions;
-        data_package.data_type = 'invalid_move';
-        data_package.player = player;
-        this.send_to_player('game_update', data_package);
+/***************************************************************
+* Check a road/settlement to see if it connects up with another from this player
+***************************************************************/
+StateMachine.prototype.has_valid_path = function(player, object_type, node, original_node, checked) {
+    var has_path = false;
+
+    //  Make sure we have not already checked this node/road
+    if (checked.indexOf(object_type + ":" + node.id) > -1) {
+        return has_path;
+    }
+    checked += object_type + ":" + node.id + ",";
+
+    //  Using nodes or roads?
+    var the_nodes = this.game.board.nodes;
+    if (object_type == "road") { the_nodes = this.game.board.roads; }
+
+    //  If this spot holds a locked node/road
+    if (node.owner == player.id && node.id != original_node) {
+        return true;
     }
 
+    //  Otherwise we keep going
+    if (object_type == "settlement") {
+        //  If this is a settlement, and someone else owns it, we cannot continue on this path
+        if (node.owner != player.id && node.owner > -1) {
+            return false;
+        }
+
+        for (var i = 0; i < node.n_roads.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "road", this.game.board.roads[node.n_roads[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+        if (!has_path) {
+            for (var i = 0; i < node.n_nodes.length; i++) {
+                has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
+                if (has_path) { break; }
+            }
+        }
+    } else {
+        //  No reason to be here if this is a road with no owner
+        if (node.owner == -1) {
+            return false;
+        }
+        //  Otherwise, check neighbor nodes
+        for (var i = 0; i < node.connects.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+    }
+    return has_path;
 };
+
 
 StateMachine.prototype.trade_with_bank = function (data) {
     logger.log('debug',"trade action with bank, player: " + data.player_id);

@@ -1,3 +1,20 @@
 <div class="popup_title">Catan Ministry of the Interior</div>
-<div class="popup_subtitle">One or more of your requests has been denied.</div>
+<div class="popup_subtitle">Another player has interferred with {failed_count} of your builds!  The following resources will be returned to you.</div>
 
+<div style="min-height:300px;">
+    <div class='fail_row' style='display:{show_0};'>
+        <div class='fail_object'><img src="images/{object_type_0}" /></div>
+        <div class='fail_cards'>{cards_0}</div>
+    </div>
+    <div class='fail_row' style='display:{show_1};'>
+        <div class='fail_object'><img src="images/{object_type_1}" /></div>
+        <div class='fail_cards'>{cards_1}</div>
+    </div>
+    <div class='fail_row' style='display:{show_2};'>
+        <div class='fail_object'><img src="images/{object_type_2}" /></div>
+        <div class='fail_cards'>{cards_2}</div>
+    </div>
+</div>
+<div>
+    <div class="btn btn-info btn-large" onclick="build_popup_failed_done();">Begin Round</div>
+</div>

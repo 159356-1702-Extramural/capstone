@@ -19,7 +19,8 @@ function Action(){
     this.action_type    = '';
 
     //action_result set to true if player action succeeds
-    this.action_result  = false;
+    //  0 = win, 1 = tie, 2 = lost
+    this.action_result  = 2;
 
     //action_data will vary based on action_type
     this.action_data    = [];
