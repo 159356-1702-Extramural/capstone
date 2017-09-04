@@ -11,3 +11,5 @@ logs
 .vs/capstone/v15/.suo
 .vs/config/applicationhost.config
 .vscode/launch.json
+*.pyc
+tests/seleniumPythonTest/test_reports/*.html
