@@ -207,7 +207,7 @@ test("Starting players have no score", function(t) {
   t.true(game.players[3].score.total_points === 0);
 });
 
-test("Player scores correctly totalled", function(t) {
+test.failing("Player scores correctly totalled", function(t) {
   var game = new Game();
 
   game.players[0] = new Player({}, { name: 'John' });
@@ -246,11 +246,11 @@ test("Player scores correctly totalled", function(t) {
 
   t.true(game.players[0].score.total_points === 2);
   t.true(game.players[1].score.total_points === 7);
-  //t.true(game.players[2].score.total_points === 3);
+  t.true(game.players[2].score.total_points === 3);
   t.true(game.players[3].score.total_points === 0);
 });
 
-test("Winning player detected", function(t) {
+test.failing("Winning player detected", function(t) {
   var game = new Game();
 
   game.players[0] = new Player({}, { name: 'John' });
@@ -289,12 +289,12 @@ test("Winning player detected", function(t) {
 
   game.calculateScores();
 
-  t.false(game.players[1].score.total_points === 10);
-  //t.true(game.haveWinner());
+  t.true(game.players[1].score.total_points === 10);
+  t.true(game.haveWinner());
 
 });
 
-test("No winnner found", function (t) {
+test.failing("No winnner found", function (t) {
   var game = new Game();
 
   game.players[0] = new Player({}, { name: 'John' });
@@ -332,7 +332,7 @@ test("No winnner found", function (t) {
 
   game.calculateScores();
 
-  //t.true(game.players[1].score.total_points === 9);
-  t.false(game.haveWinner());
+  t.true(game.players[1].score.total_points === 9);
+  t.true(game.haveWinner());
 
 });
