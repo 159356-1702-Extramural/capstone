@@ -14,7 +14,7 @@ var comprehensiveTest = false;
 var assert = require('assert');
 var SauceLabs = require("saucelabs");
 var username = "sumnerfit";
-var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4";
+var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4"; 
 var saucelabs = new SauceLabs({
   username: username,
   password: accessKey

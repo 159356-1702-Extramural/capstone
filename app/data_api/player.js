@@ -12,6 +12,10 @@ function Player(socket, data) {
     this.id             = null;
     this.name           = data.name;
     this.socket         = socket;
+
+    // True when player has won the game
+    this.winner         = false;
+
     this.turn_complete  = false;
     //hold on to turn data
     this.turn_data      = null;

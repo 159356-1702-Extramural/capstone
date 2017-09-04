@@ -27,16 +27,26 @@ function Cards(){
 
 }
 
-//Return number of cards in Cards Object
+//Return number of resource cards in Cards Object
 Cards.prototype.count_cards = function(){
     return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
 };
 
+//Return number of development cards in Cards Object
+Cards.prototype.count_dev_cards = function(){
+    return this.dev_cards.year_of_plenty + this.dev_cards.monopoly + this.dev_cards.knight + this.dev_cards.road_building;
+};
+
+//Return number of victory point cards in Cards Object
 Cards.prototype.count_victory_cards = function(){
     return this.victory_point_cards.library + this.victory_point_cards.market + this.victory_point_cards.chapel + this.victory_point_cards.university_of_catan + this.victory_point_cards.great_hall;
 }
 
-//Add card to cards
+/**
+ * Add a single card to the players hand
+ * @param {String} card : a card (resource, victory, development)
+ * @return {Boolean}
+ */
 Cards.prototype.add_card = function(card){
     switch (card){
         case "brick":
@@ -67,7 +77,7 @@ Cards.prototype.add_card = function(card){
         case "road_building":
             this.dev_cards.road_building++;
             break;
-        
+
         case "library":
             this.victory_point_cards.library++;
             break;
@@ -86,9 +96,21 @@ Cards.prototype.add_card = function(card){
     }
 }
 
+/**
+ * Remove a single card from the resources hand
+ * @param {String} card : a resource card
+ * @return {Boolean}
+ */
 Cards.prototype.remove_card = function(card){
     return this.remove_multiple_cards(card, 1);
 }
+
+/**
+ * Remove a group of cards from the resources hand by quantity
+ * @param {String}  card : a resource card
+ * @param {int}     qty  : number of cards to remove
+ * @return {Boolean}
+ */
 Cards.prototype.remove_multiple_cards = function(card, qty){
     if (qty > 0) {
         if(card == "sheep" && this.resource_cards.sheep >= qty){
@@ -113,30 +135,41 @@ Cards.prototype.remove_multiple_cards = function(card, qty){
     return false;
 }
 
+/**
+ * Remove a group of cards from the resources hand by purchase
+ * @param {String} card : a purchase (road, city, development card, settlement)
+ * @return {Boolean}
+ */
 Cards.prototype.remove_cards = function(purchase){
     //returns true if cards loaded successfully
     if ( purchase == 'road' ) {
-        return this.remove_card('brick') && this.remove_card('lumber');
+        this.remove_card('brick');
+        this.remove_card('lumber');
+        return true;
     }else if ( purchase == 'settlement' ) {
-        return this.remove_card('brick') &&
-            this.remove_card('lumber') &&
-            this.remove_card('grain') &&
-            this.remove_card('sheep');
+        this.remove_card('brick');
+        this.remove_card('lumber');
+        this.remove_card('grain');
+        this.remove_card('sheep');
+        return true;
     }else if ( purchase === 'city' ) {
-        return this.remove_card('ore') &&
-            this.remove_card('ore') &&
-            this.remove_card('ore') &&
-            this.remove_card('grain') &&
-            this.remove_card('grain');
+        this.remove_card('ore');
+        this.remove_card('ore');
+        this.remove_card('ore');
+        this.remove_card('grain');
+        this.remove_card('grain');
+        return true;
     }else if ( purchase === 'dev_card' ) {
-        return this.remove_card('ore') &&
-            this.remove_card('grain') &&
-            this.remove_card('sheep');
+        this.remove_card('ore');
+        this.remove_card('grain');
+        this.remove_card('sheep');
+        return true;
     }else{
-        logger.log('error', 'remove_cards function failed');
+        //logger.log('error', 'remove_cards function failed');
         return false;
     }
 }
+
 
 Cards.prototype.has_cards = function(card_list) {
     var missing_card = false;
@@ -161,6 +194,11 @@ Cards.prototype.has_cards = function(card_list) {
     return !missing_card;
 };
 
+/**
+ * Get a list of cards required to purchase an item
+ * @param {String} object_type : road, house, city, development_card
+ * @return {Array} card_list : ['sheep', 'grain', 'ore']
+ */
 Cards.prototype.get_required_cards = function(object_type){
     var card_list = [];
 
@@ -179,6 +217,11 @@ Cards.prototype.get_required_cards = function(object_type){
         card_list.push('grain');
         card_list.push('ore');
         card_list.push('ore');
+        card_list.push('ore');
+    }
+    if ( object_type == 'development_card' ) {
+        card_list.push('sheep');
+        card_list.push('grain');
         card_list.push('ore');
     }
     return card_list;

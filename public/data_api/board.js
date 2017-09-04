@@ -251,14 +251,14 @@ Board.prototype.is_road_valid_build = function(player, index) {
 function Point(x,y) {
   this.x = parseInt(x);
   this.y = parseInt(y);
-};
+}
 
 function RoadNode(connects) {
   this.id = -1;
   this.connects = connects; // nodes that are neighbours of this node
   this.owner = -1;
   this.status = "";         //  Client state while player is interacting with board
-};
+}
 
 function BuildNode(n_tiles) {
   this.id = -1;
@@ -268,14 +268,14 @@ function BuildNode(n_tiles) {
   this.building = "";       //
   this.owner = -1;
   this.status = "";         //  Client state while player is interacting with board
-};
+}
 
 function TileNode(type, robber, token, asso) {
   this.type = type;
   this.robber = robber;
   this.token = token;
   this.associated_nodes = asso;
-};
+}
 
 TileNode.prototype.get_node_by_corner_num = function(corner_number) {
   return this.associated_nodes[corner_number];

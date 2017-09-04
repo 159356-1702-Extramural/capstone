@@ -123,6 +123,9 @@ StateMachine.prototype.tick = function(data) {
 
             this.game.allocateDicerollResources(diceroll);
 
+            // Calculate the scores
+            this.game.calculateScores();
+
             //  Update the interface
             this.broadcast_gamestate();
 
@@ -160,29 +163,7 @@ StateMachine.prototype.tick = function(data) {
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
     else if (this.state === "trade") {
-        if(data.data_type === 'buy_dev_card'){
 
-            var player = this.game.players[data.player_id];
-
-            //check if player has available cards
-            if(player.cards.available_cards('dev_card')){
-                player.cards.remove_card('dev_card');
-
-                var card = this.development_cards.pop();
-                console.log('dev card purchased: '+card);
-
-                player.cards.add_card(card);
-                player.round_distribution_cards.add_card(card);
-                var data_package = new Data_package();
-                data_package.data_type = 'buy_dev_card';
-                data_package.player = player;
-                this.send_to_player('game_turn', data_package );
-
-            }else{
-                logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
-                // TODO send a fail message
-            }
-        }
 
         var round_complete = this.game.players.every(function(player) {
             return player.turn_complete === true;
@@ -204,79 +185,96 @@ StateMachine.prototype.tick = function(data) {
         if ( data.data_type === 'trade_with_bank' ){
             this.trade_with_bank(data);
         }
+        else if(data.data_type === 'buy_dev_card'){
 
-        // Handle standard gameplay rounds
-        this.game.players[data.player_id].turn_complete = true;
-        this.game.players[data.player_id].turn_data = data;
+            this.buy_dev_card(data);
+        }
+        // this section is activated when each player finishes their turn
+        else if(data.data_type === 'turn_complete'){
+          this.validate_player_builds(data);
 
-        // Determine if the round is complete, ie. all players have
-        // indicated their round is complete
-        var round_complete = this.game.players.every(function(player) {
-            return player.turn_complete === true;
-        });
+          // Handle standard gameplay rounds
+          this.game.players[data.player_id].turn_complete = true;
+          this.game.players[data.player_id].turn_data = data;
+
+          // Determine if the round is complete, ie. all players have
+          // indicated their round is complete
+          var round_complete = this.game.players.every(function(player) {
+              return player.turn_complete === true;
+          });
 
         if (round_complete) {
-            //  Determine if there were any conflicts
-            this.validate_player_builds(data);
 
-            //  Advance the round
-            this.game.round_num++;
+          // Calculate the scores
+          this.game.calculateScores();
 
-            // Resource distribution for next round
-            for (var i = 0; i < this.game.players.length; i++) {
-                // Reset round distribution cards
-                this.game.players[i].round_distribution_cards = new Cards();
-            }
-
+          // End the game if we have a winner
+          if (this.game.haveWinner()) {
 
             // Custom rule: 7 only comes up once someone has created their first non-startup building
+            // TODO: end the game
 
-            //  Next dice roll
-            var diceroll;
+          }
 
-            do {
-              diceroll = this.game.rollingDice();
-            } while (false); // TODO: logic to determine if a player has built yet
-                             // eg. while (diceroll === 7 && no_build_flag === true)
+          // Advance the round
+          this.game.round_num++;
 
-            if (diceroll !== 7) {
-              this.game.allocateDicerollResources(diceroll);
-            } else {
-              this.game.moveRobber();
-              this.game.robPlayers();
-            }
+          // Resource distribution for next round
+          for (var i = 0; i < this.game.players.length; i++) {
+            // Reset round distribution cards
+            this.game.players[i].round_distribution_cards = new Cards();
+          }
 
-            this.broadcast_gamestate();
 
-            //  Reset player statuses
-            this.game.players.forEach(function(player) {
-                player.turn_complete = false;
-            });
+          // House rule 7 only comes up once someone has created their first non-startup building
 
-            //  Notify players
-            var setup_data = new Data_package();
-            setup_data.data_type = 'round_turn';
-            this.broadcast('game_turn', setup_data);
+          //  Next dice roll
+          var diceroll;
+
+          do {
+            diceroll = this.game.rollingDice();
+          } while (false); // TODO: logic to determine if a player has built yet
+                          // eg. while (diceroll === 7 && no_build_flag === true)
+
+          if (diceroll !== 7) {
+            this.game.allocateDicerollResources(diceroll);
+          } else {
+            this.game.moveRobber();
+            this.game.robPlayers();
+          }
+
+          this.broadcast_gamestate();
+
+          //  Reset player statuses
+          this.game.players.forEach(function(player) {
+            player.turn_complete = false;
+          });
+
+          //  Notify players
+          var setup_data = new Data_package();
+          setup_data.data_type = 'round_turn';
+          this.broadcast('game_turn', setup_data);
 
         } else {
-            //  Tell this player to wait
-            var setup_data = new Data_package();
-            setup_data.data_type = 'wait_others';
-            this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+          //  Tell this player to wait
+          var setup_data = new Data_package();
+          setup_data.data_type = 'wait_others';
+          this.game.players[data.player_id].socket.emit('game_turn', setup_data);
         }
+      }
 
-        this.next_state();
-        return true;
+      this.next_state();
+      return true;
     }
 
     /************************************************************
     * If in end_game state - gameplay logic opperates on this.game
     ************************************************************/
     else if (this.state === "end_game") {
-        return true;
+      return true;
     }
     return false;
-}
+};
 
 /*****************************************************************
  Gathers up the state of the game and sends the current gamestate
@@ -397,7 +395,7 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
 
     }
     this.setupPointer++;
-}
+};
 
 /***************************************************************
 * Validate player builds/actions
@@ -546,10 +544,11 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
         }
     }
     return has_path;
-}
+};
 
 
 StateMachine.prototype.trade_with_bank = function (data) {
+    logger.log('debug',"trade action with bank, player: " + data.player_id);
     console.log("trade action with bank, player: " + data.player_id);
     //var player = this.game.players[data.player_id];
 
@@ -572,23 +571,50 @@ StateMachine.prototype.trade_with_bank = function (data) {
         data_package.data_type = "returned_trade_card";
         data_package.player = this.game.players[data.player_id];
         this.send_to_player('game_turn', data_package);
-        console.log('trade with bank succedded');
     }else{
         //trade failed server side
         logger.log("error","Bank trade approved client side but failed server side.");
-        console.log("trade with bank failed");
 
         var data_package = new Data_package();
         data_package.player = this.game.players[data.player_id];
         data_package.data_type = "invalid_move";
 
         // return action to tell client failed reason
-        var action = data.actions[0];
-        action.data_type = 'trade_with_bank_failed';
+        var action = new Action();
+        action.action_type = 'invalid_move';
+
+        // Message to display at client end
+        action.action_data = 'Your trade with the bank failed, you didn\'t have enough cards';
         data_package.player.actions = [];
         data_package.player.actions.push(action);
 
-        this.send_to_player('game_update', data_package);
+        this.send_to_player('game_turn', data_package);
+        console.log('package sent');
     }
-}
+};
+
+StateMachine.prototype.buy_dev_card = function (data){
+    var player = this.game.players[data.player_id];
+
+    //check if player has available cards
+    if(player.cards.available_cards('dev_card')){
+        player.cards.remove_cards('dev_card');
+
+        var card = this.development_cards.pop();
+        console.log('Dev card purchased: '+card);
+
+        player.cards.add_card(card);
+        player.round_distribution_cards.add_card(card);
+        var data_package = new Data_package();
+        data_package.data_type = 'buy_dev_card';
+        data_package.player = player;
+        this.send_to_player('game_turn', data_package );
+
+    }else{
+        logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
+        // TODO send a fail message
+    }
+
+};
+
 module.exports = { StateMachine };
