@@ -384,7 +384,7 @@ test("Remove boost cards array from a cards deck", function (t){
 
     var boost = ['sheep', 'grain'];
     cards.remove_boost_cards(boost);
-    t.is(cards.count_cards, 3);
+    t.is(cards.count_cards(), 3);
 });
 
 /**
