@@ -697,6 +697,12 @@ StateMachine.prototype.activate_monopoly = function (data) {
     var cards = 0;
     var action = new Action();
     action.action_type = 'monopoly';
+    /**
+     * action_data carries all information about parties affected by monopoly
+     * action_data = [2, 1, -1, 3, 'grain']
+     * shows player 1 lost 2 grain etc...
+     */
+    action.action_data = [];
     for (var i = 0; i < this.game.players.length; i++){
         if (i != data.player_id){
 
@@ -705,17 +711,29 @@ StateMachine.prototype.activate_monopoly = function (data) {
 
             // add those cards to the card count
             cards += stolen_cards;
+            action.action_data.push(stolen_cards);
 
             //remove those cards from the victim's hand
             this.game.players[i].cards.remove_multiple_cards(data.actions[0].action_data, stolen_cards);
+        }
+        else{
+            // -1 indicates player that played monopoly
+            action.action_data.push(-1);
+        }
+    }
+    // push the card type into the end of the array
+    action.action_data.push(data.actions[0].action_data);
+    console.log(action);
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){         
 
             //tell player that they have just been robbed
             data_package.player = this.game.players[i];
 
             data_package.player.actions = [];
-            action.action_data = data.actions[0].action_data;
+            //action.action_data = data.actions[0].action_data;
             //send action to everyone (to carry stolen card)
-            data_package.player.actions.push(data.actions[0]);
+            data_package.player.actions.push(action);
             this.send_to_player('game_turn', data_package);
         }
     }
@@ -732,7 +750,7 @@ StateMachine.prototype.activate_monopoly = function (data) {
     data_package.player = this.game.players[data.player_id];
     
     //reuse action -> action_data = [card type, num of cards]
-    action.action_data = [data.actions[0].action_data, cards];
+    //action.action_data = [data.actions[0].action_data, cards];
 
     //send action to everyone (to carry stolen card)
     data_package.player.actions = [];
