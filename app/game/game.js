@@ -99,6 +99,16 @@ Game.prototype.rollingDice = function() {
   // modal when the next turn starts
   this.dice_roll = [dice1, dice2];
 
+  // create fixed dice roll for testing -> constantly goes through dice values 4,5,6,7,8,9,10
+  if(process.env['testing']){
+    var dice1array = [1,2,3,4,5,6];
+    dice1 = dice1array[dice1array.length % this.round_num];
+    dice2 = 3;
+    
+    this.dice_roll = [dice1, dice2];
+  }
+  
+
   return dice1 + dice2;
 };
 

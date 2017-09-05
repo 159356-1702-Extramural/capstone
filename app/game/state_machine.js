@@ -91,6 +91,7 @@ StateMachine.prototype.next_state = function() {
 *       come in is of use per state
 ****************************************************************/
 StateMachine.prototype.tick = function(data) {
+    console.log(process.env['testing']);
     /************************************************************
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
