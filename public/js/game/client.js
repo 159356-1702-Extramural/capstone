@@ -127,7 +127,14 @@ $(document).ready(function() {
             //  Normal round, waiting for others
             build_popup_round_waiting_for_others();
 
-        }else if ( data.data_type === 'round_turn'){
+        }else if ( data.data_type === 'monopoly_received'){
+            console.log(data.player);
+            alert("you've received " + data.player.actions[0].action_data[1] +" " +data.player.actions[0].action_data[0] + "---Alayn, can you create / reuse a window? ");
+            current_game.player = data.player;
+            console.log(data.player);
+            updatePanelDisplay();
+
+        }else if ( data.data_type === 'round_turn' || data.data_type === 'monopoly_used'){
             if (current_game.round_num == 3) {
                 //  On the first round, we need to show the setup phase results
                 build_popup_setup_complete();
@@ -143,6 +150,17 @@ $(document).ready(function() {
                     //  Otherwise, we start with the dice popup
                     build_popup_round_roll_results();
                 }
+
+                // check if monopoly played and which action id it is
+                if(data.player !== null && data.player.actions !== null ){
+                    var monopoly_action_id = get_monopoly_action(data);
+                    if(monopoly_action_id >= 0){
+                        current_game.player = data.player;
+                        alert("you've been robbed of all your " + data.player.actions[monopoly_action_id].action_data);
+                        updatePanelDisplay();
+                    }
+                }
+                update_dev_cards(data);
             }
 
         }else if ( data.data_type === 'returned_trade_card'){
@@ -155,20 +173,7 @@ $(document).ready(function() {
 
         }else if ( data.data_type === 'buy_dev_card'){
 
-            var card_list = "";
-            if (data.player.cards.dev_cards.year_of_plenty > 0) {
-                card_list += "<img src='images/dev_year_of_plenty.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            if (data.player.cards.dev_cards.knight > 0) {
-                card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            if (data.player.cards.dev_cards.monopoly > 0) {
-                card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            if (data.player.cards.dev_cards.road_building > 0) {
-                card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            $(".cardlist").html(card_list);
+            update_dev_cards(data);
 
         }else if ( data.data_type === 'successful_turn'){
 
@@ -257,6 +262,30 @@ $(document).ready(function() {
         var resource = $(this).attr('data-resource');
         var image = $(".monopoly_receive[data-resource='" + resource + "']").html();
         $('.monopoly_card').html(image);
+    });
+
+    $doc.on('click', '.monopoly_button', function(e) {
+        e.preventDefault();
+
+        if(this.innerHTML === 'Collect Resources'){
+            var action = new Action();
+            action.action_type = 'monopoly';
+            action.action_result = 1;
+            var temp_data = $(":first-child", ".monopoly_card").attr("class").split('_'); //action_data {String} 'trade_sheep'
+            
+            action.action_data = temp_data[1];
+            var data_package = new Data_package();
+            data_package.data_type = 'monopoly_used';
+            data_package.player_id = current_player.id;
+            data_package.actions.push(action);
+            update_server('game_update', data_package);
+            hidePopup();
+        //TODO Grey out dev cards?
+        }else if(this.innerHTML === 'Save for Later'){
+            hidePopup();
+        }else{
+            console.log('Monopoly button click sent wrong click information');
+        }
     });
 
     //  Development Card -
@@ -382,33 +411,6 @@ function openTrade () {
             }
 
         });
-
-        //  add information to show only active options
-        // if(resource_cards.brick >= trade_value){
-        //     card_data.push(['brick_unavailable', '']);
-        // }else{
-        //     card_data.push(['brick_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.grain >= trade_value){
-        //     card_data.push(['grain_unavailable', '']);
-        // }else{
-        //     card_data.push(['grain_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.sheep >= trade_value){
-        //     card_data.push(['sheep_unavailable', '']);
-        // }else{
-        //     card_data.push(['sheep_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.ore >= trade_value){
-        //     card_data.push(['ore_unavailable', '']);
-        // }else{
-        //     card_data.push(['ore_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.lumber >= trade_value){
-        //     card_data.push(['lumber_unavailable', '']);
-        // }else{
-        //     card_data.push(['lumber_unavailable', 'unavailable']);
-        // }
 
         buildPopup('round_maritime_trade', false, card_data);
     }
@@ -980,7 +982,7 @@ function getResourceCardsHtml() {
 
 function check_failed_builds() {
     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
-        if (current_game.player.turn_data.actions[i].action_result > 0) {
+        if (current_game.player.turn_data.actions[i].action_type !== 'monopoly' && current_game.player.turn_data.actions[i].action_result > 0) {
             return false;
         }
     }
@@ -1046,6 +1048,58 @@ function setupPlayer() {
     $(".score").html(html);
 }
 
+/**
+ * Show monopoly prompt if this player has monopoly card
+ * 
+ * TODO: make this prompt a bit nicer
+ */
+function checkMonopoly(){
+
+    if(current_game.player.cards.dev_cards.monopoly > 0){
+        if(confirm('Do you want to use the monopoly card?')){
+            buildPopup('round_use_monopoly');
+        }else{
+            //send hide popups to all players
+            var data_package = new Data_package();
+            data_package.data_type = 'monopoly_not_used';
+            data_package.player_id = this.current_game.player.id;
+            update_server('game_update',data_package);
+        }
+    }
+}
+
+/**
+ * Check though actions for monopoly
+ * @return {int}                : monopoly returns action number of monopoly action
+ *                           
+ */
+function get_monopoly_action (data) {
+    var monopoly = -1;  //return action id value
+    for (var i = 0; i < data.player.actions.length; i++) {
+        if(data.player.actions[i].action_type === 'monopoly'){
+            monopoly = i;
+            return monopoly;
+        }
+    }
+    return monopoly;
+}
+
+function update_dev_cards (data) {
+    var card_list = "";
+            if (data.player.cards.dev_cards.year_of_plenty > 0) {
+                card_list += "<img src='images/dev_year_of_plenty.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.knight > 0) {
+                card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.monopoly > 0) {
+                card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            if (data.player.cards.dev_cards.road_building > 0) {
+                card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            }
+            $(".cardlist").html(card_list);
+}
 function doLog(m) {
     $(".log").append(m + "<br />");
 }

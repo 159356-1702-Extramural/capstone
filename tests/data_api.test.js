@@ -347,6 +347,46 @@ test("Remove multiple cards fringe case qty = 0", function(t){
     t.falsy(cards.remove_multiple_cards('ore',0));
 });
 
+test("Add and remove development cards", function(t){
+    cards.add_card('knight');
+    cards.add_cards('knight',2);
+    cards.add_card('monopoly');
+    cards.add_cards('year_of_plenty', 2);
+    cards.add_card('road_building');
+
+    t.is(cards.count_dev_cards(), 7);
+    t.is(cards.dev_cards.knight, 3);
+    t.is(cards.dev_cards.monopoly, 1);
+    t.is(cards.dev_cards.year_of_plenty, 2);
+    t.is(cards.dev_cards.road_building, 1);
+
+    cards.remove_multiple_cards('knight', cards.dev_cards.knight);
+    t.is(cards.dev_cards.knight, 0);
+    t.falsy(cards.remove_multiple_cards('knight', 2));
+    cards.remove_card('monopoly');
+    cards.remove_multiple_cards('year_of_plenty', 2);
+    cards.remove_multiple_cards('road_building', 1);
+});
+
+test("Count single card type (resource cards)", function(t){
+    t.is(boost_cards.count_single_card("sheep"), 1);
+    t.is(boost_cards.count_single_card("grain"), 1);
+    t.is(cards.count_single_card("lumber"), 1);
+    t.is(cards.count_single_card("ore"), 1);
+    t.is(boost_cards.count_single_card("brick"), 1);
+});
+
+test("Remove boost cards array from a cards deck", function (t){
+    cards.add_card('sheep');
+    cards.add_card('grain');
+    cards.add_card('brick');
+    // now there should be one of each card in the standard hand
+
+    var boost = ['sheep', 'grain'];
+    cards.remove_boost_cards(boost);
+    t.is(cards.count_cards, 3);
+});
+
 /**
  * public/data_api tests Data Package
  */
