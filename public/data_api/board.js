@@ -155,20 +155,18 @@ Board.prototype.get_players_with_resource = function (resource) {
 * @return {Object[]} Integer - the index numbers for nodes in this.nodes
 */
 Board.prototype.get_shore_node_indexes = function() {
-  var nodes = [];
+  var ret_nodes = [];
   for (var n=0; n<this.nodes.length; n++) {
     var count = 0;
-    for (var t=0; t<this.nodes[n].tiles.length; t++) {
-      var tile = this.nodes[n].tiles[t];
-      if (tile.type === 'water') {
+    for (var t=0; t<this.nodes[n].n_tiles.length; t++) {
+      var point = this.nodes[n].n_tiles[t];
+      if (this.get_tile_resource_type(point) === "water")
         count +=1;
-      }
     }
-    if ((count === 1 || count === 2) && count !== 3) {
-      nodes.push(n);
-    }
+    if ((count === 1 || count === 2) && count !== 3)
+      ret_nodes.push(n);
   }
-  return nodes;
+  return ret_nodes;
 }
 
 /**
@@ -178,9 +176,16 @@ Board.prototype.get_shore_node_indexes = function() {
 Board.prototype.get_shore_road_indexes = function() {
   var roads = [];
   var nodes = this.get_shore_node_indexes();
-  for (var r=0; r<this.roads.length; r++) {
-    if (nodes.indexOf(this.roads[r].connects[0]) && nodes.indexOf(this.roads[r].connects[0]))
-    roads.push(r);
+
+  for (var n=0; n<nodes.length; n++) {
+    var node = this.nodes[nodes[n]];
+    for (var r=0; r<node.n_roads.length; r++) {
+      var road = this.roads[node.n_roads[r]];
+      if (nodes.indexOf(road.connects[0]) !== -1 &&
+          nodes.indexOf(road.connects[1]) !== -1 &&
+          roads.indexOf(road.id) === -1)
+        roads.push(road.id);
+    }
   }
   return roads;
 }
