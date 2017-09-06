@@ -152,18 +152,13 @@ test("Get a tile corner functions return the same", function(t) {
     t.is(corner1, corner2);
 });
 
-test.failing("Get shore nodes", function(t) {
-
+test("Get shore nodes", function(t) {
   // TODO: function errors
   var nodes = _board.get_shore_node_indexes();
-
-  t.true(false);
+  t.truthy(nodes);
 });
 
-test.failing("Get shore road indexs", function (t) {
-
-  // TODO: function errors
-  var indicies = _board.get_shore_road_indexes();
-
-  t.true(false);
+test("Get shore road indexs", function (t) {
+  var indices = _board.get_shore_road_indexes();
+  t.truthy(indices);
 });
