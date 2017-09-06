@@ -91,6 +91,7 @@ StateMachine.prototype.next_state = function() {
 *       come in is of use per state
 ****************************************************************/
 StateMachine.prototype.tick = function(data) {
+    console.log(process.env['testing']);
     /************************************************************
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
@@ -218,9 +219,6 @@ StateMachine.prototype.tick = function(data) {
             // TODO: end the game
 
           }
-
-          // Advance the round
-          this.game.round_num++;
 
           // Resource distribution for next round
           for (var i = 0; i < this.game.players.length; i++) {
