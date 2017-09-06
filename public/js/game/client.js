@@ -138,6 +138,7 @@ $(document).ready(function() {
             //  Update cards
             current_game.player = data.player;
             updatePanelDisplay();
+            update_dev_cards(data);
 
         }else if ( data.data_type === 'round_turn' || data.data_type === 'monopoly_used'){
             if (current_game.round_num == 3) {
@@ -166,9 +167,9 @@ $(document).ready(function() {
                         
                         //alert("you've been robbed of all your " + data.player.actions[monopoly_action_id].action_data);
                         updatePanelDisplay();
+                        update_dev_cards(data);
                     }
                 }
-                update_dev_cards(data);
             }
 
         }else if ( data.data_type === 'returned_trade_card'){
@@ -287,7 +288,7 @@ $(document).ready(function() {
             data_package.player_id = current_player.id;
             data_package.actions.push(action);
             update_server('game_update', data_package);
-            hidePopup();
+            $('.popup').hide();
         //TODO Grey out dev cards?
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();

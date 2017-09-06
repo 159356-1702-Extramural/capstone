@@ -748,7 +748,7 @@ StateMachine.prototype.activate_monopoly = function (data) {
     // send the spoils to the victor
     data_package.data_type = 'monopoly_received';
     data_package.player = this.game.players[data.player_id];
-    
+    console.log(data_package.player);
     //reuse action -> action_data = [card type, num of cards]
     //action.action_data = [data.actions[0].action_data, cards];
 

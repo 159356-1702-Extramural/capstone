@@ -177,7 +177,7 @@ function build_popup_monopoly_win(data) {
     for (var i = 0; i < current_game.players.length; i++) {
         var stolen_cards = "";
         for (var i = 0; i < data.action_data[current_game.player.id]; i++) {
-            stolen_cards += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + data.action_data[data.action_data.length - 1] + '_small.png"></div>';
+            stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + data.action_data[data.action_data.length - 1] + '_small.png"></div>';
         }
         if (stolen_cards.length == 0) {
             stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.action_data[data.action_data.length - 1] + ", but you didn't have any!";
@@ -207,7 +207,7 @@ function build_popup_monopoly_lose(data) {
     //  Get the list of cards
     var stolen_cards = "";
     for (var i = 0; i < data.action_data[current_game.player.id]; i++) {
-        stolen_cards += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + data.action_data[data.action_data.length - 1] + '_small.png"></div>';
+        stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + data.action_data[data.action_data.length - 1] + '_small.png"></div>';
     }
     if (stolen_cards.length == 0) {
         stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.action_data[data.action_data.length - 1] + ", but you didn't have any!";
