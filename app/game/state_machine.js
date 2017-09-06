@@ -220,9 +220,6 @@ StateMachine.prototype.tick = function(data) {
 
           }
 
-          // Advance the round
-          this.game.round_num++;
-
           // Resource distribution for next round
           for (var i = 0; i < this.game.players.length; i++) {
             // Reset round distribution cards
