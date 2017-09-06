@@ -154,12 +154,16 @@ function build_popup_round_roll_results() {
       robber_display = "block";
     }
 
+    //  Does this player have a monopoly card?
+    var has_monopoly = current_game.player.cards.dev_cards.monopoly > 0 ? "inline-block" : "none";
+
     //  Build the popup
     buildPopup("round_roll_results", false, [
       ["dice1", current_game.dice_values[0]],
       ["dice2", current_game.dice_values[1]],
       ["setup_cards", card_html],
       ["robber", robber_display],
+      ["has_monopoly", has_monopoly],
       ["title", title]
     ]);
 }
@@ -172,22 +176,35 @@ function build_popup_use_monopoly() {
 }
 
 function build_popup_monopoly_win(data) {
-    test1 = data;
-    console.log(current_game.players);
-    var popup_data = [];
+    //  Who played the card?
+    var monopoly_played_by = -1;
     for (var i = 0; i < current_game.players.length; i++) {
-        var stolen_cards = "";
-        console.log(data.action_data);
-        for (var i = 0; i < 6; i++) {
-            stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + (data.action_data[data.action_data.length - 1]) + '_small.png"></div>';
+        if (data.action_data[i] < 0) {
+            monopoly_played_by = i;
+            break;
         }
-        if (stolen_cards.length == 0) {
-            stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.action_data[data.action_data.length - 1] + ", but you didn't have any!";
+    }
+    
+    var popup_data = [];
+    for (var i = 0; i < 3; i++) {
+        if (i > current_game.players.length) {
+            popup_data.push(["player_" + i + "_display", "none"]);
+        } else if (i == monopoly_played_by) {
+            popup_data.push(["player_" + i + "_display", "none"]);
+        } else {
+            var stolen_cards = "";
+            for (var i = 0; i < data.action_data[i]; i++) {
+                stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + (data.action_data[data.action_data.length - 1]) + '_small.png"></div>';
+            }
+            if (stolen_cards.length == 0) {
+                stolen_cards = "Nothing! " + current_game.players[monopoly_played_by].name + " tried to steal " + data.action_data[data.action_data.length - 1] + ", but you didn't have any!";
+            }
+
+            popup_data.push(["player_" + i + "_display", "block"]);
+            popup_data.push(["player_" + i + "_name", current_game.players[i].name]);
+            popup_data.push(["stolen_cards_player_" + i, stolen_cards]);
+    
         }
-        
-        popup_data.push(["player_" + i + "_display", data.action_data[1]]);
-        popup_data.push(["player_" + i + "_name", current_game.players[i]]);
-        popup_data.push(["stolen_cards_player_" + i, stolen_cards]);
     }
 
     //  Build the popup
