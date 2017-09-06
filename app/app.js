@@ -35,12 +35,12 @@ var testing;
 app.get('/', function(req, res) {
 
     //start with testing set to false
-    process.env['testing'] = false;
+    process.env['testing'] = 'false';
 
     //set environment variable if {url}:3000/?test=true is queried
     testing = req.query["test"];
     console.log(typeof testing);
-    if(typeof testing === 'undefined'){testing = false;}
+    if(typeof testing === 'undefined'){testing = 'false';}
     process.env['testing'] = testing;
 
     res.sendFile(__dirname + '/views/default.html');
