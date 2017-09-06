@@ -133,7 +133,7 @@ $(document).ready(function() {
 
         }else if ( data.data_type === 'monopoly_received'){
             //  Build popup to show what was won and from who
-            build_popup_monopoly_win(data.player.actions);
+            build_popup_monopoly_win(data.player.actions[0]);
 
             //  Update cards
             current_game.player = data.player;
