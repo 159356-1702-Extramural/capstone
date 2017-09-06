@@ -183,11 +183,22 @@ StateMachine.prototype.tick = function(data) {
 
         // trading with the bank (4:1, 3:1, 2:1)
         if ( data.data_type === 'trade_with_bank' ){
+            logger.log('debug','player ' + data.player_id + ' traded with the bank');
             this.trade_with_bank(data);
         }
         else if(data.data_type === 'buy_dev_card'){
-
+            logger.log('debug','development card purchased by player ' + data.player_id);
             this.buy_dev_card(data);
+        }
+        else if(data.data_type === 'monopoly_used'){
+
+            logger.log('debug','monopoly used by player ' + data.player_id);
+            this.game.monopoly = -1;
+            this.activate_monopoly(data);
+        }
+        else if(data.data_type === 'monopoly_not_used'){
+            logger.log('debug','monopoly not used by player ' + data.player_id);
+            this.continue_turn(data);
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
@@ -220,7 +231,7 @@ StateMachine.prototype.tick = function(data) {
           }
 
           // Advance the round
-          this.game.round_num++;
+          //this.game.round_num++;
 
           // Resource distribution for next round
           for (var i = 0; i < this.game.players.length; i++) {
@@ -253,10 +264,28 @@ StateMachine.prototype.tick = function(data) {
             player.turn_complete = false;
           });
 
-          //  Notify players
+          //  Notify players - modified to allow monopoly
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
-          this.broadcast('game_turn', setup_data);
+
+          /**
+           * if mpnopoly is in play, tell the person with monopoly to have their turn
+           * and the last person that ended the round to wait
+           */ 
+          if(this.game.monopoly >= 0){
+            setup_data.player = this.game.players[this.game.monopoly]; // person who has monopoly
+            this.send_to_player('game_turn', setup_data);
+
+            if(data.player_id !== this.game.monopoly){
+                setup_data.data_type = 'wait_others';
+                setup_data.player = this.game.players[data.player_id]; // person who triggered the turn to end.
+                this.send_to_player('game_turn', setup_data);
+            }
+          }else{
+            this.broadcast('game_turn', setup_data);
+          }
+          
+          
 
         } else {
           //  Tell this player to wait
@@ -267,6 +296,7 @@ StateMachine.prototype.tick = function(data) {
       }
 
       this.next_state();
+      logger.log('debug','-------------New Round Starting-------------');
       return true;
     }
 
@@ -609,20 +639,26 @@ StateMachine.prototype.trade_with_bank = function (data) {
 };
 
 StateMachine.prototype.buy_dev_card = function (data){
-    var player = this.game.players[data.player_id];
 
     //check if player has available cards
-    if(player.cards.available_cards('dev_card')){
-        player.cards.remove_cards('dev_card');
+    if(this.game.players[data.player_id].cards.available_cards('dev_card')){
+        this.game.players[data.player_id].cards.remove_cards('dev_card');
 
         var card = this.development_cards.pop();
+
+        card = 'monopoly';
         console.log('Dev card purchased: '+card);
 
-        player.cards.add_card(card);
-        player.round_distribution_cards.add_card(card);
+        if(card === 'monopoly'){
+            // set monopoly to the player's id to use later
+            this.game.monopoly = data.player_id;
+        }
+
+        this.game.players[data.player_id].cards.add_card(card);
+        this.game.players[data.player_id].round_distribution_cards.add_card(card);
         var data_package = new Data_package();
         data_package.data_type = 'buy_dev_card';
-        data_package.player = player;
+        data_package.player = this.game.players[data.player_id];
         this.send_to_player('game_turn', data_package );
 
     }else{
@@ -631,5 +667,95 @@ StateMachine.prototype.buy_dev_card = function (data){
     }
 
 };
+
+/**
+ *  monopoly wasn't played this round, other players continue turn
+ * @param {data_package} data : received data from the player with the monopoly card saying 'not used'
+ */
+StateMachine.prototype.continue_turn = function (data) {
+    var setup_data = new Data_package();
+    setup_data.data_type = 'round_turn';
+    for ( var i = 0; i < this.game.players.length; i++ ){
+
+        if ( i !== data.player_id ){
+            // data.player_id has already started their round
+            setup_data.player = this.game.players[i];
+            this.send_to_player('game_turn', setup_data);
+        }
+    }
+}
+
+/**
+ * Monopoly havs been played
+ * @param {data_package} data : received data from the player with the monopoly card holding card to take
+ */
+StateMachine.prototype.activate_monopoly = function (data) {
+    console.log("Activated monopoly");
+    var data_package = new Data_package();
+    data_package.data_type = 'monopoly_used';
+    
+    var cards = 0;
+    var action = new Action();
+    action.action_type = 'monopoly';
+    /**
+     * action_data carries all information about parties affected by monopoly
+     * action_data = [2, 1, -1, 3, 'grain']
+     * shows player 1 lost 2 grain etc...
+     */
+    action.action_data = [];
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){
+
+            //find out how many of the given resource a player has
+            var stolen_cards = this.game.players[i].cards.count_single_card(data.actions[0].action_data);
+
+            // add those cards to the card count
+            cards += stolen_cards;
+            action.action_data.push(stolen_cards);
+
+            //remove those cards from the victim's hand
+            this.game.players[i].cards.remove_multiple_cards(data.actions[0].action_data, stolen_cards);
+        }
+        else{
+            // -1 indicates player that played monopoly
+            action.action_data.push(-1);
+        }
+    }
+    // push the card type into the end of the array
+    action.action_data.push(data.actions[0].action_data);
+    console.log(action);
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){         
+
+            //tell player that they have just been robbed
+            data_package.player = this.game.players[i];
+
+            data_package.player.actions = [];
+            //action.action_data = data.actions[0].action_data;
+            //send action to everyone (to carry stolen card)
+            data_package.player.actions.push(action);
+            this.send_to_player('game_turn', data_package);
+        }
+    }
+
+    //add cards to the player who activated monopoly
+    this.game.players[data.player_id].cards.add_cards(data.actions[0].action_data, cards);
+
+    //remove monopoly from player's hand
+    this.game.players[data.player_id].cards.remove_card('monopoly');
+    this.game.return_dev_card('monopoly');
+
+    // send the spoils to the victor
+    data_package.data_type = 'monopoly_received';
+    data_package.player = this.game.players[data.player_id];
+    console.log(data_package.player);
+    //reuse action -> action_data = [card type, num of cards]
+    //action.action_data = [data.actions[0].action_data, cards];
+
+    //send action to everyone (to carry stolen card)
+    data_package.player.actions = [];
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+}
 
 module.exports = { StateMachine };
