@@ -6,6 +6,9 @@ var server_data = [];
 
 var building_dimension = 50;
 
+var test1 = null;
+var test2 = null;
+
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -120,6 +123,7 @@ $(document).ready(function() {
 
             //  revert current player state
             updatePanelDisplay();
+
             //  Details on failed moves
             alert("That's an invalid move  : " + data.player.actions[0].action_data);
 
@@ -128,10 +132,11 @@ $(document).ready(function() {
             build_popup_round_waiting_for_others();
 
         }else if ( data.data_type === 'monopoly_received'){
-            console.log(data.player);
-            alert("you've received " + data.player.actions[0].action_data[1] +" " +data.player.actions[0].action_data[0] + "---Alayn, can you create / reuse a window? ");
+            //  Build popup to show what was won and from who
+            build_popup_monopoly_win(data.player.actions);
+
+            //  Update cards
             current_game.player = data.player;
-            console.log(data.player);
             updatePanelDisplay();
 
         }else if ( data.data_type === 'round_turn' || data.data_type === 'monopoly_used'){
@@ -152,11 +157,14 @@ $(document).ready(function() {
                 }
 
                 // check if monopoly played and which action id it is
-                if(data.player !== null && data.player.actions !== null ){
+                if (data.player !== null && data.player.actions !== null ) {
                     var monopoly_action_id = get_monopoly_action(data);
                     if(monopoly_action_id >= 0){
                         current_game.player = data.player;
-                        alert("you've been robbed of all your " + data.player.actions[monopoly_action_id].action_data);
+
+                        build_popup_monopoly_lose(data.player.actions[monopoly_action_id]);
+                        
+                        //alert("you've been robbed of all your " + data.player.actions[monopoly_action_id].action_data);
                         updatePanelDisplay();
                     }
                 }
@@ -711,13 +719,7 @@ function can_build(node, node_to_ignore) {
     //  Use board helper method to check owner and adjacent buildings
     var tempBoard = new Board();
     tempBoard.nodes = current_game.nodes;
-    if (node.id == 13) {
-        doLog("1");
-    }
     var can_build_here = tempBoard.is_node_valid_build(current_player.id, node.id);
-    if (node.id == 13) {
-        doLog(can_build_here);
-    }
 
     //  TODO: Remove following checks when added to board helper is_node_valid_build
     if (can_build_here) {

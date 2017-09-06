@@ -171,6 +171,56 @@ function build_popup_use_monopoly() {
     buildPopup('round_use_monopoly', false);
 }
 
+function build_popup_monopoly_win(data) {
+    test1 = data;
+    var popup_data = [];
+    for (var i = 0; i < current_game.players.length; i++) {
+        var stolen_cards = "";
+        for (var i = 0; i < data.action_data[current_game.player.id]; i++) {
+            stolen_cards += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + data.action_data[data.action_data.length - 1] + '_small.png"></div>';
+        }
+        if (stolen_cards.length == 0) {
+            stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.action_data[data.action_data.length - 1] + ", but you didn't have any!";
+        }
+        
+        popup_data.push(["player_" + i + "_display", data.action_data[1]]);
+        popup_data.push(["player_" + i + "_name", current_game.players[i].name]);
+        popup_data.push(["stolen_cards_player_" + i, stolen_cards]);
+    }
+
+    //  Build the popup
+    buildPopup("round_monopoly_win", false, popup_data);
+}
+
+function build_popup_monopoly_lose(data) {
+    test2 = data;
+
+    //  Who played the card?
+    var monopoly_played_by = "";
+    for (var i = 0; i < current_game.players.length; i++) {
+        if (data.action_data[i] < 0) {
+            monopoly_played_by = current_game.players[i].name;
+            break;
+        }
+    }
+
+    //  Get the list of cards
+    var stolen_cards = "";
+    for (var i = 0; i < data.action_data[current_game.player.id]; i++) {
+        stolen_cards += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + data.action_data[data.action_data.length - 1] + '_small.png"></div>';
+    }
+    if (stolen_cards.length == 0) {
+        stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.action_data[data.action_data.length - 1] + ", but you didn't have any!";
+    }
+    
+    //  Build the popup
+    buildPopup("round_monopoly_lose", false, [
+        ["player_id", current_player.id],
+        ["monopoly_player_name", monopoly_played_by],
+        ["stolen_cards", stolen_cards]
+      ]);
+}
+
 /***************************************************
  *  round_build.html
  **************************************************/
