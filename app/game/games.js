@@ -33,6 +33,10 @@ Games.prototype.assign_player = function(socket, data) {
     }
     var state_machine = this.games[this.games.length-1];
 
+    if(state_machine.game.test_mode === 'false'){
+        state_machine.game.test_mode = this.set_test_flag();
+    }
+
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 
@@ -92,7 +96,8 @@ Games.prototype.hard_reset = function() {
 /********************************************************/
 /* General purpose functions for Games and StateMachine */
 /********************************************************/
-
-
-
+Games.prototype.set_test_flag = function (){
+    console.log(process.env['testing'] + "set_test_flag");
+    return process.env['testing'];
+}
 module.exports = { Games };
