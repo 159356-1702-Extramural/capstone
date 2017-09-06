@@ -97,7 +97,6 @@ Games.prototype.hard_reset = function() {
 /* General purpose functions for Games and StateMachine */
 /********************************************************/
 Games.prototype.set_test_flag = function (){
-    console.log(process.env['testing'] + "set_test_flag");
     return process.env['testing'];
 }
 module.exports = { Games };
