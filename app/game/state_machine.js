@@ -205,8 +205,8 @@ StateMachine.prototype.tick = function(data) {
 
             this.validate_player_builds(data);
 
-            //  Advance the round
-            this.game.round_num++;
+            //  We have two copies of this code.. Delete this one.
+            //this.game.round_num++;
 
           // Calculate the scores
           this.game.calculateScores();
@@ -253,16 +253,34 @@ StateMachine.prototype.tick = function(data) {
             player.turn_complete = false;
           });
 
-          //  Notify players
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
-          this.broadcast('game_turn', setup_data);
+          console.log("--------------------");
+          console.log(this.game.monopoly);
+          //  Notify players if there is no monopoly in play
+          if(this.game.monopoly < 0){  
+              console.log('no monopoly in play');
+            this.broadcast('game_turn', setup_data);
+          }else{
+            console.log('monopoly in play');
+            // if there is a monopoly in play, notify only that player to start their turn
+            setup_data.player = this.game.players[this.game.monopoly];
+            this.send_to_player('game_turn', setup_data);
+            console.log('player with monopoly told to continue');
+            //tell the player who finished the round to wait (if they aren't the monopoly player)
+            if(this.game.monopoly !== data.player_id){
+                setup_data.data_type = 'wait_others';
+                this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+                console.log('player who finished turn told to wait');
+            }
+          }
 
         } else {
           //  Tell this player to wait
           var setup_data = new Data_package();
           setup_data.data_type = 'wait_others';
           this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+          console.log("player finished early and told to wait.");
         }
       }
 
@@ -616,7 +634,14 @@ StateMachine.prototype.buy_dev_card = function (data){
         player.cards.remove_cards('dev_card');
 
         var card = this.development_cards.pop();
+        
+        // TODO: Delete following 2 lines
+        card = 'monopoly';
         console.log('Dev card purchased: '+card);
+
+        if(card === 'monopoly'){
+            this.game.monopoly = data.player_id;
+        }
 
         player.cards.add_card(card);
         player.round_distribution_cards.add_card(card);
