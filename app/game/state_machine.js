@@ -189,6 +189,22 @@ StateMachine.prototype.tick = function(data) {
 
             this.buy_dev_card(data);
         }
+        else if(data.data_type === 'monopoly_not_used'){
+
+            //ignore this if monopoly not in play
+            if(this.game.monopoly >= 0){
+                var data_package = new Data_package();
+                data_package.data_type = "round_turn";
+                
+                // player with monopoly chose not to play it... tell all players to have their turn
+                for(var i = 0; i < this.game.players.length; i++){
+                    if( i !== this.game.monopoly){
+                        data_package.player = this.game.players[i];
+                        this.send_to_player('game_turn', data_package);        
+                    }
+                }
+            }
+        }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
           // Handle standard gameplay rounds

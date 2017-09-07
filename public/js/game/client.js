@@ -987,6 +987,16 @@ function check_failed_builds() {
     return true;
 }
 
+function continue_turn(){
+    
+}
+function monopoly_not_used(){
+    var data_package = new Data_package();
+    data_package.data_type = 'monopoly_not_used';
+    data_package.player_id = current_game.player.id;
+    update_server('game_update', data_package);
+}
+
 function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
