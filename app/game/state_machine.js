@@ -197,18 +197,18 @@ StateMachine.prototype.tick = function(data) {
         else if(data.data_type === 'monopoly_not_used'){
 
             //ignore this if monopoly not in play
-            if(this.game.monopoly >= 0){
+            if(this.game.monopoly === data.player_id){
                 var data_package = new Data_package();
                 data_package.data_type = "round_turn";
-                
+
                 // player with monopoly chose not to play it... tell all players to have their turn
                 for(var i = 0; i < this.game.players.length; i++){
                     if( i !== this.game.monopoly){
                         data_package.player = this.game.players[i];
-                        this.send_to_player('game_turn', data_package);        
+                        this.send_to_player('game_turn', data_package);
                     }
                 }
-            }
+            }else{console.log('ignored');}
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
@@ -276,23 +276,22 @@ StateMachine.prototype.tick = function(data) {
 
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
-          console.log("--------------------");
-          console.log(this.game.monopoly);
+
           //  Notify players if there is no monopoly in play
-          if(this.game.monopoly < 0){  
-              console.log('no monopoly in play');
+          if(this.game.monopoly < 0){
+
             this.broadcast('game_turn', setup_data);
           }else{
-            console.log('monopoly in play');
+
             // if there is a monopoly in play, notify only that player to start their turn
             setup_data.player = this.game.players[this.game.monopoly];
             this.send_to_player('game_turn', setup_data);
-            console.log('player with monopoly told to continue');
+
             //tell the player who finished the round to wait (if they aren't the monopoly player)
             if(this.game.monopoly !== data.player_id){
                 setup_data.data_type = 'wait_others';
                 this.game.players[data.player_id].socket.emit('game_turn', setup_data);
-                console.log('player who finished turn told to wait');
+
             }
           }
 
@@ -301,7 +300,7 @@ StateMachine.prototype.tick = function(data) {
           var setup_data = new Data_package();
           setup_data.data_type = 'wait_others';
           this.game.players[data.player_id].socket.emit('game_turn', setup_data);
-          console.log("player finished early and told to wait.");
+
         }
       }
 
@@ -464,9 +463,9 @@ StateMachine.prototype.validate_player_builds = function(data){
                 var item        = data.actions[i].action_type; //settlement or road
                 var index       = data.actions[i].action_data.id;
                 var boost_cards = data.actions[i].boost_cards;
-        
+
                 var valid = true;
-        
+
                 //  Are there any others that have the same action/data.id
                 //  wins_conflict will return one of the following:
                 //  0 = Won!
@@ -511,13 +510,13 @@ StateMachine.prototype.validate_player_builds = function(data){
                 if (data.actions[a].action_result == 0) {
                     //  Remove the base cards
                     this.game.players[p].cards.remove_cards(item.replace("build_",""));
-                    
+
                     //  Remove the boost cards
                     this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
                 }
             }
         }
-        
+
     }
 }
 
@@ -541,7 +540,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                         return 0;   //  Win
                     }
                     return 2;       //  Lost
-                } 
+                }
             }
         }
     }
@@ -603,7 +602,7 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
 
 StateMachine.prototype.trade_with_bank = function (data) {
     logger.log('debug',"trade action with bank, player: " + data.player_id);
-    console.log("trade action with bank, player: " + data.player_id);
+
     //var player = this.game.players[data.player_id];
 
     //split the data to get the resource type: currently string = trade_sheep
@@ -655,7 +654,7 @@ StateMachine.prototype.buy_dev_card = function (data){
         player.cards.remove_cards('dev_card');
 
         var card = this.development_cards.pop();
-        
+
         // TODO: Delete following 2 lines
         card = 'monopoly';
         console.log('Dev card purchased: '+card);
@@ -684,10 +683,10 @@ StateMachine.prototype.buy_dev_card = function (data){
  * @param {data_package} data : received data from the player with the monopoly card holding card to take
  */
 StateMachine.prototype.activate_monopoly = function (data) {
-    console.log("Activated monopoly");
+
     var data_package = new Data_package();
     data_package.data_type = 'monopoly_used';
-    
+
     var cards = 0;
     var action = new Action();
     action.action_type = 'monopoly';
@@ -721,9 +720,9 @@ StateMachine.prototype.activate_monopoly = function (data) {
 
     // push the card type into the end of the array
     action.action_data.push(data.actions[0].action_data);
-    console.log(action);
+
     for (var i = 0; i < this.game.players.length; i++){
-        if (i != data.player_id){         
+        if (i != data.player_id){
 
             //tell player that they have just been robbed
             data_package.player = this.game.players[i];
@@ -748,7 +747,7 @@ StateMachine.prototype.activate_monopoly = function (data) {
     // send the spoils to the victor
     data_package.data_type = 'monopoly_received';
     data_package.player = this.game.players[data.player_id];
-    console.log(data_package.player);
+
     //reuse action -> action_data = [card type, num of cards]
     //action.action_data = [data.actions[0].action_data, cards];
 

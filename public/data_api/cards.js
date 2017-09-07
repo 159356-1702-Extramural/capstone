@@ -27,6 +27,25 @@ function Cards(){
 
 }
 
+/**
+ * Return the number of a single resource type
+ * @param {String} card : 'sheep' ...
+ * @return {int}
+ */
+Cards.prototype.count_single_card = function (card){
+    if(card === 'sheep'){
+        return this.resource_cards.sheep;
+    }else if(card === 'lumber'){
+        return this.resource_cards.lumber;
+    }else if(card === 'brick'){
+        return this.resource_cards.brick;
+    }else if(card === 'grain'){
+        return this.resource_cards.grain;
+    }else if(card === 'ore'){
+        return this.resource_cards.ore;
+    }
+}
+
 //Return number of resource cards in Cards Object
 Cards.prototype.count_cards = function(){
     return this.resource_cards.brick + this.resource_cards.grain + this.resource_cards.sheep + this.resource_cards.lumber + this.resource_cards.ore;
@@ -48,50 +67,60 @@ Cards.prototype.count_victory_cards = function(){
  * @return {Boolean}
  */
 Cards.prototype.add_card = function(card){
+    this.add_cards(card, 1);
+}
+
+/**
+ * Add multiple cards
+ * @param {String} card : 'sheep' ...
+ * @param {int} qty
+ */
+Cards.prototype.add_cards = function(card, qty){
     switch (card){
         case "brick":
-            this.resource_cards.brick++;
+            this.resource_cards.brick+=qty;
             break;
         case "grain":
-            this.resource_cards.grain++;
+            this.resource_cards.grain+=qty;
             break;
         case "sheep":
-            this.resource_cards.sheep++;
+            this.resource_cards.sheep+=qty;
             break;
         case "lumber":
-            this.resource_cards.lumber++;
+            this.resource_cards.lumber+=qty;
             break;
         case "ore":
-            this.resource_cards.ore++;
+            this.resource_cards.ore+=qty;
             break;
 
         case "knight":
-            this.dev_cards.knight++;
+            this.dev_cards.knight+=qty;
             break;
         case "year_of_plenty":
-            this.dev_cards.year_of_plenty++;
+            this.dev_cards.year_of_plenty+=qty;
             break;
         case "monopoly":
-            this.dev_cards.monopoly++;
+            this.dev_cards.monopoly+=qty;
             break;
         case "road_building":
-            this.dev_cards.road_building++;
+            this.dev_cards.road_building+=qty;
             break;
 
+        //qty always one but keeping it consistent
         case "library":
-            this.victory_point_cards.library++;
+            this.victory_point_cards.library+=qty;
             break;
         case "chapel":
-            this.victory_point_cards.chapel++;
+            this.victory_point_cards.chapel+=qty;
             break;
         case "market":
-            this.victory_point_cards.market++;
+            this.victory_point_cards.market+=qty;
             break;
         case "great_hall":
-            this.victory_point_cards.great_hall++;
+            this.victory_point_cards.great_hall+=qty;
             break;
         case "university_of_catan":
-            this.victory_point_cards.university_of_catan++;
+            this.victory_point_cards.university_of_catan+=qty;
             break;
     }
 }
@@ -128,6 +157,18 @@ Cards.prototype.remove_multiple_cards = function(card, qty){
         }else if(card == "ore" && this.resource_cards.ore >= qty){
             this.resource_cards.ore -= qty;
             return true;
+        }else if(card == "monopoly" && this.dev_cards.monopoly >= qty){
+            this.dev_cards.monopoly -= qty;
+            return true;
+        }else if(card == "year_of_plenty" && this.dev_cards.year_of_plenty >= qty){
+            this.dev_cards.year_of_plenty -= qty;
+            return true;
+        }else if(card == "knight" && this.dev_cards.knight >= qty){
+            this.dev_cards.knight -= qty;
+            return true;
+        }else if(card == "road_building" && this.dev_cards.road_building >= qty){
+            this.dev_cards.road_building -= qty;
+            return true;
         }else{
             return false;
         }
@@ -135,6 +176,10 @@ Cards.prototype.remove_multiple_cards = function(card, qty){
     return false;
 }
 
+/**
+ * Remove boost cards from a successful purchase
+ * @param {Array} boost_cards ['sheep,' grain', ....]
+ */
 Cards.prototype.remove_boost_cards = function(boost_cards){
     for (var b = 0; b < boost_cards.length; b++) {
         this.remove_card(boost_cards[b]);
