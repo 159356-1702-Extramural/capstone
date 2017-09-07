@@ -227,8 +227,7 @@ StateMachine.prototype.tick = function(data) {
 
             this.validate_player_builds(data);
 
-            //  We have two copies of this code.. Delete this one.
-            //this.game.round_num++;
+            this.game.round_num++;
 
           // Calculate the scores
           this.game.calculateScores();
