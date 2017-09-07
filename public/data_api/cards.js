@@ -128,6 +128,18 @@ Cards.prototype.remove_multiple_cards = function(card, qty){
         }else if(card == "ore" && this.resource_cards.ore >= qty){
             this.resource_cards.ore -= qty;
             return true;
+        }else if(card == "monopoly" && this.dev_cards.monopoly >= qty){
+            this.dev_cards.monopoly -= qty;
+            return true;
+        }else if(card == "year_of_plenty" && this.dev_cards.year_of_plenty >= qty){
+            this.dev_cards.year_of_plenty -= qty;
+            return true;
+        }else if(card == "knight" && this.dev_cards.knight >= qty){
+            this.dev_cards.knight -= qty;
+            return true;
+        }else if(card == "road_building" && this.dev_cards.road_building >= qty){
+            this.dev_cards.road_building -= qty;
+            return true;
         }else{
             return false;
         }

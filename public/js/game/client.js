@@ -155,20 +155,12 @@ $(document).ready(function() {
 
         }else if ( data.data_type === 'buy_dev_card'){
 
-            var card_list = "";
-            if (data.player.cards.dev_cards.year_of_plenty > 0) {
-                card_list += "<img src='images/dev_year_of_plenty.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            if (data.player.cards.dev_cards.knight > 0) {
-                card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            if (data.player.cards.dev_cards.monopoly > 0) {
-                card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            if (data.player.cards.dev_cards.road_building > 0) {
-                card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-            }
-            $(".cardlist").html(card_list);
+            update_dev_cards(data);
+
+        }else if (data.data_type ==='return_year_of_plenty'){
+            current_game.player = data.player;
+            update_dev_cards(data);
+            updatePanelDisplay();
 
         }else if ( data.data_type === 'successful_turn'){
 
@@ -247,6 +239,39 @@ $(document).ready(function() {
     $doc.on('click', '.year_box_card', function(e) {
         e.preventDefault();
         $(this).html("");
+    });
+
+    // Year of Plenty - open Year of Plenty window
+    $doc.on('click', '.year_of_plenty', function(e) {
+        buildPopup('round_use_year_of_plenty');
+    });
+
+    $doc.on('click', '.year_of_plenty_button', function(e) {
+        e.preventDefault();
+
+        if(this.innerHTML === 'Collect Resources'){
+            var action = new Action();
+            action.action_type = 'year_of_plenty';
+            action.action_result = 0;
+            action.action_data = [];
+            var temp_data1 = $(":first-child", ".year_box_card1").attr("class").split('_'); //action_data {String} 'trade_sheep'
+            var temp_data2 = $(":first-child", ".year_box_card2").attr("class").split('_'); //action_data {String} 'trade_sheep'
+            
+            action.action_data.push(temp_data1[1]);
+            action.action_data.push(temp_data2[1]);
+
+            var data_package = new Data_package();
+            data_package.data_type = 'year_of_plenty_used';
+            data_package.player_id = current_player.id;
+            data_package.actions.push(action);
+            update_server('game_update', data_package);
+            hidePopup();
+        //TODO Grey out dev cards?
+        }else if(this.innerHTML === 'Save for Later'){
+            hidePopup();
+        }else{
+            console.log('Monopoly button click sent wrong click information');
+        }
     });
 
     //  Monopoly -
@@ -1046,6 +1071,22 @@ function setupPlayer() {
     $(".score").html(html);
 }
 
+function update_dev_cards(data){
+    var card_list = "";
+        if (data.player.cards.dev_cards.year_of_plenty > 0) {
+            card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (data.player.cards.dev_cards.knight > 0) {
+            card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (data.player.cards.dev_cards.monopoly > 0) {
+            card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (data.player.cards.dev_cards.road_building > 0) {
+            card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        $(".cardlist").html(card_list);
+}
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
