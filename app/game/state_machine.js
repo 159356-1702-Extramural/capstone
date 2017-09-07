@@ -190,7 +190,7 @@ StateMachine.prototype.tick = function(data) {
             this.buy_dev_card(data);
         }
         else if ( data.data_type === 'monopoly_used' ){
-            
+                
         }
         else if(data.data_type === 'monopoly_not_used'){
 
