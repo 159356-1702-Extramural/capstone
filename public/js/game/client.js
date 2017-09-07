@@ -145,6 +145,9 @@ $(document).ready(function() {
                 }
             }
 
+        }else if (data.data_type === 'monopoly_used'){
+        
+            
         }else if ( data.data_type === 'returned_trade_card'){
 
             // card received from bank trade

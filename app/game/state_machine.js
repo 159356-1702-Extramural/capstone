@@ -190,7 +190,9 @@ StateMachine.prototype.tick = function(data) {
             this.buy_dev_card(data);
         }
         else if ( data.data_type === 'monopoly_used' ){
-                
+
+            this.game.monopoly = -1;
+            this.activate_monopoly(data);
         }
         else if(data.data_type === 'monopoly_not_used'){
 
@@ -675,5 +677,86 @@ StateMachine.prototype.buy_dev_card = function (data){
     }
 
 };
+
+
+/**
+ * Monopoly havs been played
+ * @param {data_package} data : received data from the player with the monopoly card holding card to take
+ */
+StateMachine.prototype.activate_monopoly = function (data) {
+    console.log("Activated monopoly");
+    var data_package = new Data_package();
+    data_package.data_type = 'monopoly_used';
+    
+    var cards = 0;
+    var action = new Action();
+    action.action_type = 'monopoly';
+    /**
+     * action_data carries all information about parties affected by monopoly
+     * action_data = [2, 1, -1, 3, 6(total_stolen), 'grain']
+     * shows player 1 lost 2 grain etc...
+     */
+    action.action_data = [];
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){
+
+            //find out how many of the given resource a player has
+            var stolen_cards = this.game.players[i].cards.count_single_card(data.actions[0].action_data);
+
+            // add those cards to the card count
+            cards += stolen_cards;
+            action.action_data.push(stolen_cards);
+
+            //remove those cards from the victim's hand
+            this.game.players[i].cards.remove_multiple_cards(data.actions[0].action_data, stolen_cards);
+        }
+        else{
+            // -1 indicates player that played monopoly
+            action.action_data.push(-1);
+        }
+    }
+
+    // push the total into the end of the array
+    action.action_data.push(cards);
+
+    // push the card type into the end of the array
+    action.action_data.push(data.actions[0].action_data);
+    console.log(action);
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){         
+
+            //tell player that they have just been robbed
+            data_package.player = this.game.players[i];
+
+            data_package.player.actions = [];
+            //action.action_data = data.actions[0].action_data;
+            //send action to everyone (to carry stolen card)
+            data_package.player.actions.push(action);
+            this.send_to_player('game_turn', data_package);
+        }
+    }
+
+    //add cards to the player who activated monopoly
+    this.game.players[data.player_id].cards.add_cards(data.actions[0].action_data, cards);
+
+    //remove monopoly from player's hand
+    this.game.players[data.player_id].cards.remove_card('monopoly');
+
+    // put monopoly back in the deck
+    this.game.return_dev_card('monopoly');
+
+    // send the spoils to the victor
+    data_package.data_type = 'monopoly_received';
+    data_package.player = this.game.players[data.player_id];
+    console.log(data_package.player);
+    //reuse action -> action_data = [card type, num of cards]
+    //action.action_data = [data.actions[0].action_data, cards];
+
+    //send action to everyone (to carry stolen card)
+    data_package.player.actions = [];
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+}
+
 
 module.exports = { StateMachine };
