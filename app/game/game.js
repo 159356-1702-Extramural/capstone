@@ -21,6 +21,7 @@ function Game(state_machine) {
 
     // Holds id of player with monopoly (-1 for no one holding card);
     this.monopoly       = -1;
+    this.test_mode      = 'false';
 }
 
 /**
@@ -101,6 +102,17 @@ Game.prototype.rollingDice = function() {
   // Store the individual dice rolls for diplsay in reound completion
   // modal when the next turn starts
   this.dice_roll = [dice1, dice2];
+
+  // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
+  console.log(this.test_mode +' -- testmode');
+  if(this.test_mode === 'true'){
+    var dice1array = [1,2,3,4,5,6];
+    dice1 = dice1array[this.round_num % dice1array.length];
+    dice2 = 4;
+    
+    this.dice_roll = [dice1, dice2];
+  }
+  
 
   return dice1 + dice2;
 };
