@@ -193,11 +193,13 @@ function build_popup_monopoly_win(data) {
             popup_data.push(["player_" + j + "_display", "none"]);
         } else {
             var stolen_cards = "";
-            for (var i = 0; i < data.player.actions[0].action_data[i]; i++) {
+
+            // length - 2 used to get second to last item which is total stolen
+            for (var i = 0; i < data.player.actions[0].action_data[j]; i++) {
                 stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + (data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1]) + '_small.png"></div>';
             }
             if (stolen_cards.length == 0) {
-                stolen_cards = "Nothing! " + current_game.players[monopoly_played_by].name + " tried to steal " + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + ", but you didn't have any!";
+                stolen_cards = "Nothing! " + current_game.players[monopoly_played_by].name + " tried to steal " + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + ", but they didn't have any!";
             }
 
             popup_data.push(["player_" + j + "_display", "block"]);
