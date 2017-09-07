@@ -259,6 +259,30 @@ $(document).ready(function() {
         $('.monopoly_card').html(image);
     });
 
+    $doc.on('click', '.monopoly_button', function(e) {
+        e.preventDefault();
+
+        if(this.innerHTML === 'Collect Resources'){
+            var action = new Action();
+            action.action_type = 'monopoly';
+            //action.action_result = 0;
+            var temp_data = $(":first-child", ".monopoly_card").attr("class").split('_'); //action_data {String} 'trade_sheep'
+            
+            action.action_data = temp_data[1]; //card name
+            var data_package = new Data_package();
+            data_package.data_type = 'monopoly_used';
+            data_package.player_id = current_game.player.id;
+            data_package.actions.push(action);
+            update_server('game_update', data_package);
+            $('.popup').hide();
+        //TODO Grey out dev cards?
+        }else if(this.innerHTML === 'Save for Later'){
+            hidePopup();
+        }else{
+            console.log('Monopoly button click sent wrong click information');
+        }
+    });
+
     //  Development Card -
     $doc.on('click', '.devcard_receive', function(e) {
         e.preventDefault();
