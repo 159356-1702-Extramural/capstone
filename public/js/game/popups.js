@@ -154,12 +154,18 @@ function build_popup_round_roll_results() {
       robber_display = "block";
     }
 
+   //  Does this player have a monopoly card?
+    console.log(current_game.player.cards.dev_cards.monopoly);
+    var has_monopoly = current_game.player.cards.dev_cards.monopoly > 0 ? "inline-block" : "none";
+    console.log("has_monopolly = "+has_monopoly);
+    
     //  Build the popup
     buildPopup("round_roll_results", false, [
       ["dice1", current_game.dice_values[0]],
       ["dice2", current_game.dice_values[1]],
       ["setup_cards", card_html],
       ["robber", robber_display],
+      ["has_monopoly", has_monopoly],
       ["title", title]
     ]);
 }
