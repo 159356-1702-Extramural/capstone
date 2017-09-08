@@ -6,6 +6,8 @@ var server_data = [];
 
 var building_dimension = 50;
 
+var free_roads = 0;
+
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -233,6 +235,11 @@ $(document).ready(function() {
         } else if (card2.length == 0) {
             $('.year_box_card2').html(image);
         }
+    });
+    //Road Building - open Road Building window
+    $doc.on('click', '.road_building', function(e) {
+        free_roads = 2;
+        alert('Place two roads for free');
     });
 
     //  Year of Plenty - clear selected resource
@@ -1077,13 +1084,13 @@ function update_dev_cards(data){
             card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.knight > 0) {
-            card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.monopoly > 0) {
-            card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_monopoly.png' class='monoploy card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.road_building > 0) {
-            card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_road_building.png' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         $(".cardlist").html(card_list);
 }

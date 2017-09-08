@@ -620,7 +620,7 @@ StateMachine.prototype.buy_dev_card = function (data){
         var card = this.development_cards.pop();
 
         // TODO: Delete following two lines
-        card = 'year_of_plenty';
+        card = 'road_building';
         console.log('Dev card purchased: '+card);
 
         player.cards.add_card(card);
