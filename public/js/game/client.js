@@ -6,8 +6,6 @@ var server_data = [];
 
 var building_dimension = 50;
 
-var free_roads = 0;
-
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -1083,14 +1081,19 @@ function update_dev_cards(data){
         if (data.player.cards.dev_cards.year_of_plenty > 0) {
             card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
-        if (data.player.cards.dev_cards.knight > 0) {
+        else if (data.player.cards.dev_cards.knight > 0) {
             card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
-        if (data.player.cards.dev_cards.monopoly > 0) {
+        else if (data.player.cards.dev_cards.monopoly > 0) {
             card_list += "<img src='images/dev_monopoly.png' class='monoploy card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
-        if (data.player.cards.dev_cards.road_building > 0) {
+        else if (data.player.cards.dev_cards.road_building > 0) {
             card_list += "<img src='images/dev_road_building.png' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        else if (data.player.round_distribution_cards.count_victory_cards > 0 ){
+            //TODO Show a window with victory point collected.
+        }else{
+            console.log('update_dev_cards failed to parse the data given to it');
         }
         $(".cardlist").html(card_list);
 }
