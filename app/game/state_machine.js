@@ -191,6 +191,10 @@ StateMachine.prototype.tick = function(data) {
 
             this.buy_dev_card(data);
         }
+        else if(data.data_type === 'year_of_plenty_used'){
+            logger.log('debug','year of plenty played by player ' + data.player_id);
+            this.activate_year_of_plenty(data);
+        }
         else if ( data.data_type === 'monopoly_used' ){
 
             this.game.monopoly = -1;
@@ -676,8 +680,8 @@ StateMachine.prototype.buy_dev_card = function (data){
 
         var card = this.development_cards.pop();
 
-        // TODO: Delete following 2 lines
-        card = 'monopoly';
+        // TODO: Delete following two lines
+        card = 'year_of_plenty';
         console.log('Dev card purchased: '+card);
 
         if(card === 'monopoly'){
@@ -697,6 +701,30 @@ StateMachine.prototype.buy_dev_card = function (data){
     }
 
 };
+
+StateMachine.prototype.activate_year_of_plenty = function (data) {
+
+    //request sent immediately so action will always be first but check to be sure
+    if(data.actions[0].action_type === 'year_of_plenty'){
+        var requested_cards = data.actions[0].action_data;
+        for(var i = 0; i < requested_cards.length; i++){
+            this.game.players[data.player_id].cards.add_card(requested_cards[i]);
+            this.game.players[data.player_id].round_distribution_cards.add_card(requested_cards[i]);
+        }
+
+        this.game.players[data.player_id].cards.remove_card('year_of_plenty');
+        // return the purchse immediately
+        var data_package = new Data_package();
+        data_package.data_type = 'return_year_of_plenty';
+        data_package.player = this.game.players[data.player_id];
+        
+        this.send_to_player('game_turn',data_package);
+    }else{
+        console.log("Year of plenty called but year of plenty action not visible");
+        logger.log('error', "Year of plenty called but year of plenty action not visible");
+    }
+    
+}
 
 
 /**
