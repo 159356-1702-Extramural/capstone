@@ -154,12 +154,17 @@ function build_popup_round_roll_results() {
       robber_display = "block";
     }
 
+   //  Does this player have a monopoly card?
+    var has_monopoly = current_game.player.cards.dev_cards.monopoly > 0 ? "inline-block" : "none";
+
+
     //  Build the popup
     buildPopup("round_roll_results", false, [
       ["dice1", current_game.dice_values[0]],
       ["dice2", current_game.dice_values[1]],
       ["setup_cards", card_html],
       ["robber", robber_display],
+      ["has_monopoly", has_monopoly],
       ["title", title]
     ]);
 }
@@ -170,7 +175,71 @@ function build_popup_round_roll_results() {
 function build_popup_use_monopoly() {
     buildPopup('round_use_monopoly', false);
 }
+function build_popup_monopoly_win(data) {
+    //  Who played the card?
+    var monopoly_played_by = -1;
+    for (var i = 0; i < current_game.players.length; i++) {
+        if (data.player.actions[0].action_data[i] < 0) {
+            monopoly_played_by = i;
+            break;
+        }
+    }
 
+    var popup_data = [];
+    for (var j = 0; j < 4; j++) {
+        if (j >= current_game.players.length) {
+            popup_data.push(["player_" + j + "_display", "none"]);
+        } else if (j === monopoly_played_by) {
+            popup_data.push(["player_" + j + "_display", "none"]);
+        } else {
+            var stolen_cards = "";
+
+            // length - 2 used to get second to last item which is total stolen
+            for (var i = 0; i < data.player.actions[0].action_data[j]; i++) {
+                stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + (data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1]) + '_small.png"></div>';
+            }
+            if (stolen_cards.length == 0) {
+                stolen_cards = "Nothing! " + current_game.players[monopoly_played_by].name + " tried to steal " + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + ", but they didn't have any!";
+            }
+
+            popup_data.push(["player_" + j + "_display", "block"]);
+            popup_data.push(["player_" + j + "_name", current_game.players[j].name]);
+            popup_data.push(["stolen_cards_player_" + j, stolen_cards]);
+
+        }
+    }
+
+    //  Build the popup
+    buildPopup("round_monopoly_win", false, popup_data);
+}
+
+function build_popup_monopoly_lose(data) {
+
+    //  Who played the card?
+    var monopoly_played_by = "";
+    for (var i = 0; i < current_game.players.length; i++) {
+        if (data.player.actions[0].action_data[i] < 0) {
+            monopoly_played_by = current_game.players[i].name;
+            break;
+        }
+    }
+
+    //  Get the list of cards
+    var stolen_cards = "";
+    for (var i = 0; i < data.player.actions[0].action_data[current_game.player.id]; i++) {
+        stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + '_small.png"></div>';
+    }
+    if (stolen_cards.length == 0) {
+        stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + ", but you didn't have any!";
+    }
+
+    //  Build the popup
+    buildPopup("round_monopoly_lose", false, [
+        ["player_id", current_player.id],
+        ["monopoly_player_name", monopoly_played_by],
+        ["stolen_cards", stolen_cards]
+      ]);
+}
 /***************************************************
  *  round_build.html
  **************************************************/
@@ -199,7 +268,7 @@ function build_popup_round_build(object_type) {
 
     //  Add in the selectable resources based on what the player has
     var select_html = getResourceCardsHtml();
-    
+
     buildPopup("round_build", false, [["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
 }
 //  round_build_complete
@@ -311,7 +380,7 @@ function build_popup_round_waiting_for_others() {
 function build_popup_failed_moves() {
     var objects = []
     var fail_count = 0;
-    
+
     var cards = new Cards();
 
     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
@@ -320,13 +389,13 @@ function build_popup_failed_moves() {
 
             //  Get the object type
             var object_type = current_game.player.turn_data.actions[i].action_type.replace("build_", "");
-            
+
             //  Build cards to be returned
             var card_list = cards.get_required_cards(object_type);
             for (var c = 0; c < current_game.player.turn_data.actions[i].boost_cards.length; c++) {
                 card_list.push(current_game.player.turn_data.actions[i].boost_cards[c]);
             }
-            
+
             //  Now the html
             for (var c = 0; c < card_list.length; c++) {
                 card_html += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + card_list[c] + '_small.png"></div>';
@@ -337,7 +406,7 @@ function build_popup_failed_moves() {
             fail_count ++;
         }
     }
-    
+
     //  Put it all together for the popup call
     var popup_details = [];
     popup_details.push(["failed_count", fail_count]);

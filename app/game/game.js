@@ -19,6 +19,8 @@ function Game(state_machine) {
 
     this.dice_roll      = [];
 
+    // Holds id of player with monopoly (-1 for no one holding card);
+    this.monopoly       = -1;
     this.test_mode      = 'false';
 }
 
@@ -351,5 +353,13 @@ Game.prototype.haveWinner = function() {
   // None or more than one winner - we keep going...
   return false;
 };
+
+/**
+ * Return a dev card to the pack after it has been used
+ * @param {String} card : knight, monopoly, road_building, year_of_plenty
+ */
+Game.prototype.return_dev_card = function(card){
+  this.development_cards.push(card);
+}
 
 module.exports = Game;
