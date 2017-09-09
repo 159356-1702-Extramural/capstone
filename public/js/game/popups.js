@@ -352,8 +352,31 @@ function build_popup_round_use_year_of_plenty() {
 function build_popup_victory_point_received(card) {
     var vp_html = '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_' + card + '" src="images/dev_victory_' + card + '.png"></div>';
 
-    var vp_card = [['vp_card',vp_html]];
-    buildPopup("victory_point_received", false, vp_card);
+    var vp_cards = [['vp_card',vp_html]];
+
+    // add cards they already have to bottom of window
+    var other_vp_cards = [];
+    if(this.current_game.player.cards.victory_point_cards.library == 1 && card !== 'library'){
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_library" src="images/dev_victory_library.png"></div>'
+    }
+    if(this.current_game.player.cards.victory_point_cards.market == 1 && card !== 'market'){
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_market" src="images/dev_victory_market.png"></div>'
+
+    }
+    if(this.current_game.player.cards.victory_point_cards.chapel == 1 && card !== 'chapel'){
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_chapel" src="images/dev_victory_chapel.png"></div>'
+        
+    }
+    if(this.current_game.player.cards.victory_point_cards.great_hall == 1 && card !== 'great_hall'){
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.png"></div>'
+        
+    }
+    if(this.current_game.player.cards.victory_point_cards.universtiy_of_catan == 1 && card !== 'university_of_catan'){
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.png"></div>'
+        
+    }
+    vp_cards.push(['other_vp_cards',other_vp_cards]);
+    buildPopup("victory_point_received", false, vp_cards);
 }
 
 /***************************************************

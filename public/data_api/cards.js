@@ -18,8 +18,8 @@ function Cards(){
     };
 
     this.victory_point_cards = {
-        library : 0,
-        market : 0,
+        library : 1,
+        market : 1,
         chapel : 0,
         university_of_catan  : 0,
         great_hall : 0
