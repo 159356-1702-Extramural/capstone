@@ -159,6 +159,7 @@ StateMachine.prototype.tick = function(data) {
         return true;
     }
 
+
     /************************************************************
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
@@ -203,20 +204,18 @@ StateMachine.prototype.tick = function(data) {
 
         if (round_complete) {
 
-            this.validate_player_builds(data);
+          this.validate_player_builds(data);
 
-            //  Advance the round
-            this.game.round_num++;
+          // Advance the round
+          this.game.round_num++;
 
           // Calculate the scores
           this.game.calculateScores();
 
           // End the game if we have a winner
           if (this.game.haveWinner()) {
-
-            // Custom rule: 7 only comes up once someone has created their first non-startup building
-            // TODO: end the game
-
+            this.broadcast_end();
+            return;
           }
 
           // Advance the round
@@ -323,6 +322,30 @@ StateMachine.prototype.broadcast_gamestate = function() {
   }
 };
 
+/**
+ * The game is over and we have a winner!
+ */
+StateMachine.prototype.broadcast_end = function() {
+
+  var player;
+  var end_game_data = {
+    players: []
+  };
+
+  for (var i = 0; i < this.game.players.length; i++) {
+    // Clone Player so we can remove the socket for transmission to client
+    player = Object.assign({}, this.game.players[i]);
+    delete player.socket;
+    end_game_data.players.push(player);
+    if (player.winner) {
+      end_game_data.winners_name = player.name;
+    }
+  }
+
+  this.broadcast('game_end', end_game_data);
+};
+
+
 /// Messages all players in a game
 StateMachine.prototype.broadcast = function(event_name, data) {
     console.log('Broadcasting event: ' + event_name);
@@ -425,9 +448,9 @@ StateMachine.prototype.validate_player_builds = function(data){
                 var item        = data.actions[i].action_type; //settlement or road
                 var index       = data.actions[i].action_data.id;
                 var boost_cards = data.actions[i].boost_cards;
-        
+
                 var valid = true;
-        
+
                 //  Are there any others that have the same action/data.id
                 //  wins_conflict will return one of the following:
                 //  0 = Won!
@@ -472,13 +495,13 @@ StateMachine.prototype.validate_player_builds = function(data){
                 if (data.actions[a].action_result == 0) {
                     //  Remove the base cards
                     this.game.players[p].cards.remove_cards(item.replace("build_",""));
-                    
+
                     //  Remove the boost cards
                     this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
                 }
             }
         }
-        
+
     }
 }
 
@@ -502,7 +525,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                         return 0;   //  Win
                     }
                     return 2;       //  Lost
-                } 
+                }
             }
         }
     }

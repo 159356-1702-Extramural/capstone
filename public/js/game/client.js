@@ -60,6 +60,13 @@ $(document).ready(function() {
         resolve_game_turn(data);
     });
 
+    // Detect the game end and load up the final modal with the
+    // end stats
+    socket.on('game_end', function(data) {
+      build_popup_end_results(data);
+    });
+
+
     // Detect the game starting
     socket.on('build_board', function (data) {
         board = JSON.parse(data);
@@ -138,7 +145,7 @@ $(document).ready(function() {
                 if (has_failed) {
                     //  Show the details of the failed builds
                     build_popup_failed_moves();
-                    
+
                 } else {
                     //  Otherwise, we start with the dice popup
                     build_popup_round_roll_results();
@@ -326,7 +333,7 @@ $(document).ready(function() {
             var next_z = card_list.html().length + 1;
             var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
             card_list.append(new_card);
-    
+
             //  Remove resource and disable as needed
             resource_count --;
             $(this).attr('data-count', resource_count);
@@ -343,7 +350,7 @@ $(document).ready(function() {
         $(".extra_card_list").html("");
         //  Rebuild the list of selectable cards
         $(".select_card_list").html(getResourceCardsHtml());
-        
+
     });
 
     //close start window

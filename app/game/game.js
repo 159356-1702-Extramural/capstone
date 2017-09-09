@@ -322,11 +322,18 @@ Game.prototype.calculateScores = function() {
 Game.prototype.haveWinner = function() {
 
   var winners = [];
+  var highest_score = 0;
 
   this.players.forEach(function(player) {
-    if (player.score.total_points === this.WIN_SCORE) {
+
+    if (player.score.total_points >= this.WIN_SCORE) {
+
+      if (player.score.total_points < highest_score) return;
+      if (player.score.total_points > highest_score) winners = [];
+
       winners.push(player);
     }
+
   }, this);
 
   if (winners.length === 1) {

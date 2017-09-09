@@ -199,7 +199,7 @@ function build_popup_round_build(object_type) {
 
     //  Add in the selectable resources based on what the player has
     var select_html = getResourceCardsHtml();
-    
+
     buildPopup("round_build", false, [["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
 }
 //  round_build_complete
@@ -311,7 +311,7 @@ function build_popup_round_waiting_for_others() {
 function build_popup_failed_moves() {
     var objects = []
     var fail_count = 0;
-    
+
     var cards = new Cards();
 
     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
@@ -320,13 +320,13 @@ function build_popup_failed_moves() {
 
             //  Get the object type
             var object_type = current_game.player.turn_data.actions[i].action_type.replace("build_", "");
-            
+
             //  Build cards to be returned
             var card_list = cards.get_required_cards(object_type);
             for (var c = 0; c < current_game.player.turn_data.actions[i].boost_cards.length; c++) {
                 card_list.push(current_game.player.turn_data.actions[i].boost_cards[c]);
             }
-            
+
             //  Now the html
             for (var c = 0; c < card_list.length; c++) {
                 card_html += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + card_list[c] + '_small.png"></div>';
@@ -337,7 +337,7 @@ function build_popup_failed_moves() {
             fail_count ++;
         }
     }
-    
+
     //  Put it all together for the popup call
     var popup_details = [];
     popup_details.push(["failed_count", fail_count]);
@@ -383,6 +383,26 @@ function build_popup_player_detail() {
  /***************************************************
  *  end_results.html
  **************************************************/
-function build_popup_end_results() {
-    buildPopup("end_results", false);
+function build_popup_end_results(data) {
+
+  var winner_name = data.winners_name;
+  var results_html = '';
+
+  data.players.forEach(function(player) {
+      results_html += '<div class="player_row">' +
+                        '<div class="player_icon"><img src="images/player'+player.id+'.png" /></div>' +
+                        '<div class="player_name">' +
+                          player.name + '<br>' +
+                          '<span class="player_score">'+player.score.total_points+' Victory Points!</span>' +
+                        '</div>' +
+                        '<div class="player_score_details">' +
+                          '<div class="player_score_detail"><img src="images/settlement_'+player.colour+'_small.png" /><br />x 2</div>' +
+                          '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x '+player.score.victory_points+'</div>' +
+                          '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (player.score.longest_road ? 1 : 0) + '</div>' +
+                          '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (player.score.largest_army ? 1 : 0) + '</div>' +
+                        '</div>' +
+                      '</div>';
+  }, this);
+
+  buildPopup("end_results", false, [['results_html', results_html], ['winner_name', winner_name]]);
 }
