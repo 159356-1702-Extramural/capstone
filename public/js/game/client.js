@@ -6,6 +6,9 @@ var server_data = [];
 
 var building_dimension = 50;
 
+// records whether player has had monopoly played on them
+var monopoly_played = null;
+
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -152,6 +155,21 @@ $(document).ready(function() {
                 }
             }
 
+        }else if (data.data_type === 'monopoly_used'){
+            monopoly_played = data;
+            current_game.player = data.player;
+            build_popup_round_roll_results();
+
+        }else if (data.data_type === 'monopoly_received'){
+            //  Build popup to show what was won and from who
+            current_game.player = data.player;
+
+            build_popup_monopoly_win(data);
+
+            //  Update cards
+            updatePanelDisplay();
+            update_dev_cards(data);
+
         }else if ( data.data_type === 'returned_trade_card'){
 
             // card received from bank trade
@@ -264,6 +282,30 @@ $(document).ready(function() {
         var resource = $(this).attr('data-resource');
         var image = $(".monopoly_receive[data-resource='" + resource + "']").html();
         $('.monopoly_card').html(image);
+    });
+
+    $doc.on('click', '.monopoly_button', function(e) {
+        e.preventDefault();
+
+        if(this.innerHTML === 'Collect Resources'){
+            var action = new Action();
+            action.action_type = 'monopoly';
+            //action.action_result = 0;
+            var temp_data = $(":first-child", ".monopoly_card").attr("class").split('_'); //action_data {String} 'trade_sheep'
+
+            action.action_data = temp_data[1]; //card name
+            var data_package = new Data_package();
+            data_package.data_type = 'monopoly_used';
+            data_package.player_id = current_game.player.id;
+            data_package.actions.push(action);
+            update_server('game_update', data_package);
+            $('.popup').hide();
+        //TODO Grey out dev cards?
+        }else if(this.innerHTML === 'Save for Later'){
+            hidePopup();
+        }else{
+            console.log('Monopoly button click sent wrong click information');
+        }
     });
 
     //  Development Card -
@@ -994,6 +1036,26 @@ function check_failed_builds() {
     return true;
 }
 
+// Checked every time "begin Round" clicked to manage monopoly actions
+function monopoly_check(){
+
+    if(monopoly_played !== null){
+        build_popup_monopoly_lose(monopoly_played);
+        //  Update cards
+        updatePanelDisplay();
+        monopoly_played = null;
+    }else{
+        monopoly_not_used();
+    }
+
+}
+function monopoly_not_used(){
+    var data_package = new Data_package();
+    data_package.data_type = 'monopoly_not_used';
+    data_package.player_id = current_game.player.id;
+    update_server('game_update', data_package);
+}
+
 function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
@@ -1051,6 +1113,26 @@ function setupPlayer() {
     html += "            </div>";
 
     $(".score").html(html);
+}
+
+function update_dev_cards (data) {
+    var card_list = "";
+    if (data.player.cards.dev_cards.year_of_plenty > 0) {
+        card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (data.player.cards.dev_cards.knight > 0) {
+        card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (data.player.cards.dev_cards.monopoly > 0) {
+        card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (data.player.cards.dev_cards.road_building > 0) {
+        card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (card_list === ""){
+        card_list += "<img src='../images/nocards.png' class='no_cards' />";
+    }
+    $(".cardlist").html(card_list);
 }
 
 function doLog(m) {

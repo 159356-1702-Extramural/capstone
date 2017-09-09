@@ -1048,3 +1048,21 @@ body {
 .fail_cards {
     float: left;
 }
+
+.monopoly_player_box {
+    clear: both;
+    width:95%;
+    height: 160px;
+    margin:20px;
+    overflow:hidden;
+}
+.monopoly_row {
+    float:left;
+    margin: 5px 10px;
+    height: 140px;
+    width:300px;
+}
+.monopoly_avatar {
+    float: left;
+    width:150px;
+}
