@@ -19,6 +19,8 @@ function Game(state_machine) {
 
     this.dice_roll      = [];
 
+    // Holds id of player with monopoly (-1 for no one holding card);
+    this.monopoly       = -1;
     this.test_mode      = 'false';
 }
 
@@ -335,11 +337,18 @@ Game.prototype.calculateScores = function() {
 Game.prototype.haveWinner = function() {
 
   var winners = [];
+  var highest_score = 0;
 
   this.players.forEach(function(player) {
-    if (player.score.total_points === this.WIN_SCORE) {
+
+    if (player.score.total_points >= this.WIN_SCORE) {
+
+      if (player.score.total_points < highest_score) return;
+      if (player.score.total_points > highest_score) winners = [];
+
       winners.push(player);
     }
+
   }, this);
 
   if (winners.length === 1) {
@@ -351,5 +360,13 @@ Game.prototype.haveWinner = function() {
   // None or more than one winner - we keep going...
   return false;
 };
+
+/**
+ * Return a dev card to the pack after it has been used
+ * @param {String} card : knight, monopoly, road_building, year_of_plenty
+ */
+Game.prototype.return_dev_card = function(card){
+  this.development_cards.push(card);
+}
 
 module.exports = Game;

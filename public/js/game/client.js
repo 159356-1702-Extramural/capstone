@@ -6,6 +6,9 @@ var server_data = [];
 
 var building_dimension = 50;
 
+// records whether player has had monopoly played on them
+var monopoly_played = null;
+
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -59,6 +62,13 @@ $(document).ready(function() {
         server_data = data;
         resolve_game_turn(data);
     });
+
+    // Detect the game end and load up the final modal with the
+    // end stats
+    socket.on('game_end', function(data) {
+      build_popup_end_results(data);
+    });
+
 
     // Detect the game starting
     socket.on('build_board', function (data) {
@@ -138,12 +148,27 @@ $(document).ready(function() {
                 if (has_failed) {
                     //  Show the details of the failed builds
                     build_popup_failed_moves();
-                    
+
                 } else {
                     //  Otherwise, we start with the dice popup
                     build_popup_round_roll_results();
                 }
             }
+
+        }else if (data.data_type === 'monopoly_used'){
+            monopoly_played = data;
+            current_game.player = data.player;
+            build_popup_round_roll_results();
+
+        }else if (data.data_type === 'monopoly_received'){
+            //  Build popup to show what was won and from who
+            current_game.player = data.player;
+
+            build_popup_monopoly_win(data);
+
+            //  Update cards
+            updatePanelDisplay();
+            update_dev_cards(data);
 
         }else if ( data.data_type === 'returned_trade_card'){
 
@@ -284,6 +309,30 @@ $(document).ready(function() {
         $('.monopoly_card').html(image);
     });
 
+    $doc.on('click', '.monopoly_button', function(e) {
+        e.preventDefault();
+
+        if(this.innerHTML === 'Collect Resources'){
+            var action = new Action();
+            action.action_type = 'monopoly';
+            //action.action_result = 0;
+            var temp_data = $(":first-child", ".monopoly_card").attr("class").split('_'); //action_data {String} 'trade_sheep'
+
+            action.action_data = temp_data[1]; //card name
+            var data_package = new Data_package();
+            data_package.data_type = 'monopoly_used';
+            data_package.player_id = current_game.player.id;
+            data_package.actions.push(action);
+            update_server('game_update', data_package);
+            $('.popup').hide();
+        //TODO Grey out dev cards?
+        }else if(this.innerHTML === 'Save for Later'){
+            hidePopup();
+        }else{
+            console.log('Monopoly button click sent wrong click information');
+        }
+    });
+
     //  Development Card -
     $doc.on('click', '.devcard_receive', function(e) {
         e.preventDefault();
@@ -351,7 +400,7 @@ $(document).ready(function() {
             var next_z = card_list.html().length + 1;
             var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
             card_list.append(new_card);
-    
+
             //  Remove resource and disable as needed
             resource_count --;
             $(this).attr('data-count', resource_count);
@@ -368,7 +417,7 @@ $(document).ready(function() {
         $(".extra_card_list").html("");
         //  Rebuild the list of selectable cards
         $(".select_card_list").html(getResourceCardsHtml());
-        
+
     });
 
     //close start window
@@ -1012,6 +1061,26 @@ function check_failed_builds() {
     return true;
 }
 
+// Checked every time "begin Round" clicked to manage monopoly actions
+function monopoly_check(){
+
+    if(monopoly_played !== null){
+        build_popup_monopoly_lose(monopoly_played);
+        //  Update cards
+        updatePanelDisplay();
+        monopoly_played = null;
+    }else{
+        monopoly_not_used();
+    }
+
+}
+function monopoly_not_used(){
+    var data_package = new Data_package();
+    data_package.data_type = 'monopoly_not_used';
+    data_package.player_id = current_game.player.id;
+    update_server('game_update', data_package);
+}
+
 function setupPlayer() {
     //  For the first time here, create the structure
     var html = "";
@@ -1071,22 +1140,26 @@ function setupPlayer() {
     $(".score").html(html);
 }
 
-function update_dev_cards(data){
+function update_dev_cards (data) {
     var card_list = "";
-        if (data.player.cards.dev_cards.year_of_plenty > 0) {
-            card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
-        }
-        if (data.player.cards.dev_cards.knight > 0) {
-            card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-        }
-        if (data.player.cards.dev_cards.monopoly > 0) {
-            card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-        }
-        if (data.player.cards.dev_cards.road_building > 0) {
-            card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-        }
-        $(".cardlist").html(card_list);
+    if (data.player.cards.dev_cards.year_of_plenty > 0) {
+        card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (data.player.cards.dev_cards.knight > 0) {
+        card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (data.player.cards.dev_cards.monopoly > 0) {
+        card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (data.player.cards.dev_cards.road_building > 0) {
+        card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
+    }
+    if (card_list === ""){
+        card_list += "<img src='../images/nocards.png' class='no_cards' />";
+    }
+    $(".cardlist").html(card_list);
 }
+
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
