@@ -278,6 +278,16 @@ function build_popup_round_use_year_of_plenty() {
 }
 
 /***************************************************
+ *  round_use_year_of_plenty.html
+ **************************************************/
+function build_popup_victory_point_received(card) {
+    var vp_html = '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_' + card + '" src="images/dev_victory_' + card + '.png"></div>';
+
+    var vp_card = [['vp_card',vp_html]];
+    buildPopup("victory_point_received", false, vp_card);
+}
+
+/***************************************************
  *  round_domestic_trade.html
  **************************************************/
 function build_popup_round_domestic_trade() {

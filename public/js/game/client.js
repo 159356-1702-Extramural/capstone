@@ -154,8 +154,9 @@ $(document).ready(function() {
             updatePanelDisplay();
 
         }else if ( data.data_type === 'buy_dev_card'){
-
+            current_game.player = data.player;
             update_dev_cards(data);
+            updatePanelDisplay();
 
         }else if (data.data_type ==='return_year_of_plenty'){
             current_game.player = data.player;
@@ -1077,6 +1078,7 @@ function setupPlayer() {
 }
 
 function update_dev_cards(data){
+
     var card_list = "";
         if (data.player.cards.dev_cards.year_of_plenty > 0) {
             card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
@@ -1090,8 +1092,21 @@ function update_dev_cards(data){
         else if (data.player.cards.dev_cards.road_building > 0) {
             card_list += "<img src='images/dev_road_building.png' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
-        else if (data.player.round_distribution_cards.count_victory_cards > 0 ){
-            //TODO Show a window with victory point collected.
+        //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
+        else if (data.player.round_distribution_cards.victory_point_cards.chapel > 0 ){
+            build_popup_victory_point_received("chapel");
+            }
+        else if (data.player.round_distribution_cards.victory_point_cards.library > 0 ){
+            build_popup_victory_point_received("library");
+        }
+        else if (data.player.round_distribution_cards.victory_point_cards.market > 0 ){
+            build_popup_victory_point_received("market");
+        }
+        else if (data.player.round_distribution_cards.victory_point_cards.university_of_catan > 0 ){
+            build_popup_victory_point_received("university_of_catan");
+        }
+        else if (data.player.round_distribution_cards.victory_point_cards.great_hall > 0 ){
+            build_popup_victory_point_received("great_hall");
         }else{
             console.log('update_dev_cards failed to parse the data given to it');
         }

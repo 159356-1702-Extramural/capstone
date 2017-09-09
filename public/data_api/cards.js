@@ -39,7 +39,7 @@ Cards.prototype.count_dev_cards = function(){
 
 //Return number of victory point cards in Cards Object
 Cards.prototype.count_victory_cards = function(){
-    return this.victory_point_cards.library + this.victory_point_cards.market + this.victory_point_cards.chapel + this.victory_point_cards.university_of_catan + this.victory_point_cards.great_hall;
+        return this.victory_point_cards.library + this.victory_point_cards.market + this.victory_point_cards.chapel + this.victory_point_cards.university_of_catan + this.victory_point_cards.great_hall;
 }
 
 /**
