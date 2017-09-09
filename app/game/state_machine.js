@@ -160,6 +160,7 @@ StateMachine.prototype.tick = function(data) {
         return true;
     }
 
+
     /************************************************************
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
@@ -194,6 +195,27 @@ StateMachine.prototype.tick = function(data) {
             logger.log('debug','year of plenty played by player ' + data.player_id);
             this.activate_year_of_plenty(data);
         }
+        else if ( data.data_type === 'monopoly_used' ){
+
+            this.game.monopoly = -1;
+            this.activate_monopoly(data);
+        }
+        else if(data.data_type === 'monopoly_not_used'){
+
+            //ignore this if monopoly not in play
+            if(this.game.monopoly === data.player_id){
+                var data_package = new Data_package();
+                data_package.data_type = "round_turn";
+
+                // player with monopoly chose not to play it... tell all players to have their turn
+                for(var i = 0; i < this.game.players.length; i++){
+                    if( i !== this.game.monopoly){
+                        data_package.player = this.game.players[i];
+                        this.send_to_player('game_turn', data_package);
+                    }
+                }
+            }else{console.log('ignored');}
+        }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
           // Handle standard gameplay rounds
@@ -208,20 +230,18 @@ StateMachine.prototype.tick = function(data) {
 
         if (round_complete) {
 
-            this.validate_player_builds(data);
+          this.validate_player_builds(data);
 
-            //  Advance the round
-            this.game.round_num++;
+          // Advance the round
+          this.game.round_num++;
 
           // Calculate the scores
           this.game.calculateScores();
 
           // End the game if we have a winner
           if (this.game.haveWinner()) {
-
-            // Custom rule: 7 only comes up once someone has created their first non-startup building
-            // TODO: end the game
-
+            this.broadcast_end();
+            return;
           }
 
           // Resource distribution for next round
@@ -255,16 +275,33 @@ StateMachine.prototype.tick = function(data) {
             player.turn_complete = false;
           });
 
-          //  Notify players
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
-          this.broadcast('game_turn', setup_data);
+
+          //  Notify players if there is no monopoly in play
+          if(this.game.monopoly < 0){
+
+            this.broadcast('game_turn', setup_data);
+          }else{
+
+            // if there is a monopoly in play, notify only that player to start their turn
+            setup_data.player = this.game.players[this.game.monopoly];
+            this.send_to_player('game_turn', setup_data);
+
+            //tell the player who finished the round to wait (if they aren't the monopoly player)
+            if(this.game.monopoly !== data.player_id){
+                setup_data.data_type = 'wait_others';
+                this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+
+            }
+          }
 
         } else {
           //  Tell this player to wait
           var setup_data = new Data_package();
           setup_data.data_type = 'wait_others';
           this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+
         }
       }
 
@@ -324,6 +361,30 @@ StateMachine.prototype.broadcast_gamestate = function() {
     this.send_to_player('update_game', data_package);
   }
 };
+
+/**
+ * The game is over and we have a winner!
+ */
+StateMachine.prototype.broadcast_end = function() {
+
+  var player;
+  var end_game_data = {
+    players: []
+  };
+
+  for (var i = 0; i < this.game.players.length; i++) {
+    // Clone Player so we can remove the socket for transmission to client
+    player = Object.assign({}, this.game.players[i]);
+    delete player.socket;
+    end_game_data.players.push(player);
+    if (player.winner) {
+      end_game_data.winners_name = player.name;
+    }
+  }
+
+  this.broadcast('game_end', end_game_data);
+};
+
 
 /// Messages all players in a game
 StateMachine.prototype.broadcast = function(event_name, data) {
@@ -427,9 +488,9 @@ StateMachine.prototype.validate_player_builds = function(data){
                 var item        = data.actions[i].action_type; //settlement or road
                 var index       = data.actions[i].action_data.id;
                 var boost_cards = data.actions[i].boost_cards;
-        
+
                 var valid = true;
-        
+
                 //  Are there any others that have the same action/data.id
                 //  wins_conflict will return one of the following:
                 //  0 = Won!
@@ -474,13 +535,13 @@ StateMachine.prototype.validate_player_builds = function(data){
                 if (data.actions[a].action_result == 0) {
                     //  Remove the base cards
                     this.game.players[p].cards.remove_cards(item.replace("build_",""));
-                    
+
                     //  Remove the boost cards
                     this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
                 }
             }
         }
-        
+
     }
 }
 
@@ -504,7 +565,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                         return 0;   //  Win
                     }
                     return 2;       //  Lost
-                } 
+                }
             }
         }
     }
@@ -566,7 +627,7 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
 
 StateMachine.prototype.trade_with_bank = function (data) {
     logger.log('debug',"trade action with bank, player: " + data.player_id);
-    console.log("trade action with bank, player: " + data.player_id);
+
     //var player = this.game.players[data.player_id];
 
     //split the data to get the resource type: currently string = trade_sheep
@@ -624,6 +685,14 @@ StateMachine.prototype.buy_dev_card = function (data){
 
         this.game.players[data.player_id].cards.add_card(card);
         this.game.players[data.player_id].round_distribution_cards.add_card(card);
+        // TODO: Delete following 2 lines
+
+        if(card === 'monopoly'){
+            this.game.monopoly = data.player_id;
+        }
+
+        player.cards.add_card(card);
+        player.round_distribution_cards.add_card(card);
         var data_package = new Data_package();
         data_package.data_type = 'buy_dev_card';
         data_package.player = this.game.players[data.player_id];
@@ -662,5 +731,86 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
     }
     
 }
+
+
+/**
+ * Monopoly havs been played
+ * @param {data_package} data : received data from the player with the monopoly card holding card to take
+ */
+StateMachine.prototype.activate_monopoly = function (data) {
+
+    var data_package = new Data_package();
+    data_package.data_type = 'monopoly_used';
+
+    var cards = 0;
+    var action = new Action();
+    action.action_type = 'monopoly';
+    /**
+     * action_data carries all information about parties affected by monopoly
+     * action_data = [2, 1, -1, 3, 6(total_stolen), 'grain']
+     * shows player 1 lost 2 grain etc...
+     */
+    action.action_data = [];
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){
+
+            //find out how many of the given resource a player has
+            var stolen_cards = this.game.players[i].cards.count_single_card(data.actions[0].action_data);
+
+            // add those cards to the card count
+            cards += stolen_cards;
+            action.action_data.push(stolen_cards);
+
+            //remove those cards from the victim's hand
+            this.game.players[i].cards.remove_multiple_cards(data.actions[0].action_data, stolen_cards);
+        }
+        else{
+            // -1 indicates player that played monopoly
+            action.action_data.push(-1);
+        }
+    }
+
+    // push the total into the end of the array
+    action.action_data.push(cards);
+
+    // push the card type into the end of the array
+    action.action_data.push(data.actions[0].action_data);
+
+    for (var i = 0; i < this.game.players.length; i++){
+        if (i != data.player_id){
+
+            //tell player that they have just been robbed
+            data_package.player = this.game.players[i];
+
+            data_package.player.actions = [];
+            //action.action_data = data.actions[0].action_data;
+            //send action to everyone (to carry stolen card)
+            data_package.player.actions.push(action);
+            this.send_to_player('game_turn', data_package);
+        }
+    }
+
+    //add cards to the player who activated monopoly
+    this.game.players[data.player_id].cards.add_cards(data.actions[0].action_data, cards);
+
+    //remove monopoly from player's hand
+    this.game.players[data.player_id].cards.remove_card('monopoly');
+
+    // put monopoly back in the deck
+    this.game.return_dev_card('monopoly');
+
+    // send the spoils to the victor
+    data_package.data_type = 'monopoly_received';
+    data_package.player = this.game.players[data.player_id];
+
+    //reuse action -> action_data = [card type, num of cards]
+    //action.action_data = [data.actions[0].action_data, cards];
+
+    //send action to everyone (to carry stolen card)
+    data_package.player.actions = [];
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+}
+
 
 module.exports = { StateMachine };
