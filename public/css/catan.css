@@ -930,6 +930,9 @@ body {
     padding-top:50px;
     padding-left:10px;
 }
+.year_accept{
+    padding-top:20px;
+}
 .monopoly_accept, .devcard_accept {
     float:left;
     padding-top:25px;
@@ -967,7 +970,7 @@ body {
     left:-511px;
 }
 
-.monopoly_button, .devcard_button {
+.monopoly_button, .devcard_button, .year_of_plenty_button {
     width:150px;
     margin:10px;
 }
