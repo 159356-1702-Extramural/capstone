@@ -611,23 +611,25 @@ StateMachine.prototype.trade_with_bank = function (data) {
 };
 
 StateMachine.prototype.buy_dev_card = function (data){
-    var player = this.game.players[data.player_id];
 
     //check if player has available cards
-    if(player.cards.available_cards('dev_card')){
-        player.cards.remove_cards('dev_card');
+    if(this.game.players[data.player_id].cards.available_cards('dev_card')){
+        this.game.players[data.player_id].cards.remove_cards('dev_card');
 
         var card = this.development_cards.pop();
 
         // TODO: Delete following two lines
-        card = 'road_building';
+        card = 'great_hall';
         console.log('Dev card purchased: '+card);
 
-        player.cards.add_card(card);
-        player.round_distribution_cards.add_card(card);
+        this.game.players[data.player_id].cards.add_card(card);
+        this.game.players[data.player_id].round_distribution_cards.add_card(card);
         var data_package = new Data_package();
         data_package.data_type = 'buy_dev_card';
-        data_package.player = player;
+        data_package.player = this.game.players[data.player_id];
+
+        //  Refreshes all player's scores, strip out to calc only one players score :- TODO
+        this.game.calculateScores();
         this.send_to_player('game_turn', data_package );
 
     }else{
