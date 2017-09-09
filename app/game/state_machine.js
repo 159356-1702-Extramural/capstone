@@ -160,6 +160,7 @@ StateMachine.prototype.tick = function(data) {
         return true;
     }
 
+
     /************************************************************
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
@@ -225,19 +226,18 @@ StateMachine.prototype.tick = function(data) {
 
         if (round_complete) {
 
-            this.validate_player_builds(data);
+          this.validate_player_builds(data);
 
-            this.game.round_num++;
+          // Advance the round
+          this.game.round_num++;
 
           // Calculate the scores
           this.game.calculateScores();
 
           // End the game if we have a winner
           if (this.game.haveWinner()) {
-
-            // Custom rule: 7 only comes up once someone has created their first non-startup building
-            // TODO: end the game
-
+            this.broadcast_end();
+            return;
           }
 
           // Resource distribution for next round
@@ -357,6 +357,30 @@ StateMachine.prototype.broadcast_gamestate = function() {
     this.send_to_player('update_game', data_package);
   }
 };
+
+/**
+ * The game is over and we have a winner!
+ */
+StateMachine.prototype.broadcast_end = function() {
+
+  var player;
+  var end_game_data = {
+    players: []
+  };
+
+  for (var i = 0; i < this.game.players.length; i++) {
+    // Clone Player so we can remove the socket for transmission to client
+    player = Object.assign({}, this.game.players[i]);
+    delete player.socket;
+    end_game_data.players.push(player);
+    if (player.winner) {
+      end_game_data.winners_name = player.name;
+    }
+  }
+
+  this.broadcast('game_end', end_game_data);
+};
+
 
 /// Messages all players in a game
 StateMachine.prototype.broadcast = function(event_name, data) {

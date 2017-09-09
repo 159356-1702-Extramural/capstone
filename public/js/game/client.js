@@ -63,6 +63,13 @@ $(document).ready(function() {
         resolve_game_turn(data);
     });
 
+    // Detect the game end and load up the final modal with the
+    // end stats
+    socket.on('game_end', function(data) {
+      build_popup_end_results(data);
+    });
+
+
     // Detect the game starting
     socket.on('build_board', function (data) {
         board = JSON.parse(data);
