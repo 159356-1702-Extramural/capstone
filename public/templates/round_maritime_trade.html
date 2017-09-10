@@ -9,27 +9,27 @@
     <div class="card_give" data-resource="brick">
         <img class="trade_brick {brick_status}" src="images/card_brick_small.png">
         <br />
-       {brick_cards}       
+       {brick_cards}
     </div>
     <div class="card_give" data-resource="grain">
         <img class="trade_grain {grain_status}" src="images/card_grain_small.png">
         <br />
-        {grain_cards}      
+        {grain_cards}
     </div>
     <div class="card_give" data-resource="sheep">
         <img class="trade_sheep {sheep_status}" src="images/card_sheep_small.png">
         <br />
-        {sheep_cards}        
+        {sheep_cards}
     </div>
     <div class="card_give" data-resource="ore">
         <img class="trade_ore {ore_status}" src="images/card_ore_small.png">
         <br />
-        {ore_cards}       
+        {ore_cards}
     </div>
     <div class="card_give" data-resource="lumber">
         <img class="trade_lumber {lumber_status}" src="images/card_lumber_small.png">
         <br />
-        {lumber_cards}       
+        {lumber_cards}
     </div>
 
 </div>
@@ -39,9 +39,13 @@
     <div class="trade_give_box" id='tgb'></div>
     <div class="trade_arrow"><i class="fa fa-arrow-right fa-3x"></i></div>
     <div class="trade_receive_box" id='trb'></div>
-    <div class="trade_accept"><div class="btn btn-info" onclick='acceptTrade()'>Accept Trade</div></div>
+    <div class="trade_accept">
+      <div class="btn btn-info" onclick='acceptTrade()'>Accept Trade</div>
+      <br />
+      <div class="btn btn-info" onclick="hidePopup()">Cancel Trade</div>
+    </div>
 </div>
-    
+
 
 <div class="trade_title">
     Select a resource to receive:
@@ -63,4 +67,3 @@
         <img class="trade_lumber" src="images/card_lumber_small.png">
     </div>
 </div>
-    
