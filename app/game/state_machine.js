@@ -691,8 +691,8 @@ StateMachine.prototype.buy_dev_card = function (data){
             this.game.monopoly = data.player_id;
         }
 
-        player.cards.add_card(card);
-        player.round_distribution_cards.add_card(card);
+        this.game.players[data.player_id].cards.add_card(card);
+        this.game.players[data.player_id].round_distribution_cards.add_card(card);
         var data_package = new Data_package();
         data_package.data_type = 'buy_dev_card';
         data_package.player = this.game.players[data.player_id];
