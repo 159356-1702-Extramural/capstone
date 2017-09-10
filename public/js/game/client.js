@@ -179,8 +179,9 @@ $(document).ready(function() {
             updatePanelDisplay();
 
         }else if ( data.data_type === 'buy_dev_card'){
-
+            current_game.player = data.player;
             update_dev_cards(data);
+            updatePanelDisplay();
 
         }else if (data.data_type ==='return_year_of_plenty'){
             current_game.player = data.player;
@@ -258,6 +259,11 @@ $(document).ready(function() {
         } else if (card2.length == 0) {
             $('.year_box_card2').html(image);
         }
+    });
+    //Road Building - open Road Building window
+    $doc.on('click', '.road_building', function(e) {
+        free_roads = 2;
+        alert('Place two roads for free');
     });
 
     //  Year of Plenty - clear selected resource
@@ -1140,26 +1146,44 @@ function setupPlayer() {
     $(".score").html(html);
 }
 
-function update_dev_cards (data) {
-    var card_list = "";
-    if (data.player.cards.dev_cards.year_of_plenty > 0) {
-        card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
-    }
-    if (data.player.cards.dev_cards.knight > 0) {
-        card_list += "<img src='images/dev_knight.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-    }
-    if (data.player.cards.dev_cards.monopoly > 0) {
-        card_list += "<img src='images/dev_monopoly.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-    }
-    if (data.player.cards.dev_cards.road_building > 0) {
-        card_list += "<img src='images/dev_road_building.png' class='card" + (card_list.length == 0 ? " first" : "") + "'>";
-    }
-    if (card_list === ""){
-        card_list += "<img src='../images/nocards.png' class='no_cards' />";
-    }
-    $(".cardlist").html(card_list);
-}
+function update_dev_cards(data){
 
+    var card_list = "";
+        if (data.player.cards.dev_cards.year_of_plenty > 0) {
+            card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (data.player.cards.dev_cards.knight > 0) {
+            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (data.player.cards.dev_cards.monopoly > 0) {
+            card_list += "<img src='images/dev_monopoly.png' class='monoploy card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (data.player.cards.dev_cards.road_building > 0) {
+            card_list += "<img src='images/dev_road_building.png' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
+        }
+        if (card_list === ""){
+            card_list += "<img src='../images/nocards.png' class='no_cards' />";
+        }
+        //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
+        if (data.player.round_distribution_cards.victory_point_cards.chapel > 0 ){
+            build_popup_victory_point_received("chapel");
+            }
+        if (data.player.round_distribution_cards.victory_point_cards.library > 0 ){
+            build_popup_victory_point_received("library");
+        }
+        if (data.player.round_distribution_cards.victory_point_cards.market > 0 ){
+            build_popup_victory_point_received("market");
+        }
+        if (data.player.round_distribution_cards.victory_point_cards.university_of_catan > 0 ){
+            build_popup_victory_point_received("university_of_catan");
+        }
+        if (data.player.round_distribution_cards.victory_point_cards.great_hall > 0 ){
+            build_popup_victory_point_received("great_hall");
+        }else{
+            console.log('update_dev_cards failed to parse the data given to it');
+        }
+        $(".cardlist").html(card_list);
+}
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
