@@ -360,7 +360,7 @@ body {
 }
 .node.expand {
     background-image:url(../images/city_ghost_small.png) !important;
-    
+
 }
 
 .node.settlement.locked {
@@ -723,44 +723,44 @@ body {
 }
 
 /*  Dice    */
-.die.die1 .dot { 
-	box-shadow: 0 .2em 0 #FFF 
+.die.die1 .dot {
+	box-shadow: 0 .2em 0 #FFF
 }
-.die.die2 .dot { 
+.die.die2 .dot {
 	background: transparent;
-	box-shadow: -2.3em -2.3em 0 #345, 
-		     2.3em  2.3em 0 #345, 
-		    -2.3em -2.3em 0 #FFF, 
-		     2.3em  2.4em 0 #FFF 
+	box-shadow: -2.3em -2.3em 0 #345,
+		     2.3em  2.3em 0 #345,
+		    -2.3em -2.3em 0 #FFF,
+		     2.3em  2.4em 0 #FFF
 }
-.die.die3 .dot { 
-	box-shadow: -2.3em -2.3em 0 #345, 
-		     2.3em  2.3em 0 #345, 
-		    -2.3em -2.3em 0 #FFF, 
-		     2.3em  2.4em 0 #FFF, 
-		         0   .2em 0 #FFF 
+.die.die3 .dot {
+	box-shadow: -2.3em -2.3em 0 #345,
+		     2.3em  2.3em 0 #345,
+		    -2.3em -2.3em 0 #FFF,
+		     2.3em  2.4em 0 #FFF,
+		         0   .2em 0 #FFF
 }
-.die.die4 .dot { 
+.die.die4 .dot {
 	background: transparent;
-        box-shadow: -2.3em -2.3em 0 #345, 
-        	     2.3em  2.3em 0 #345, 
-        	    -2.3em  2.3em 0 #345, 
-        	     2.3em -2.3em 0 #345, 
-        	    -2.3em -2.3em 0 #FFF, 
-        	     2.3em  2.4em 0 #FFF, 
-        	    -2.3em  2.4em 0 #FFF, 
-        	     2.3em -2.3em 0 #FFF 
+        box-shadow: -2.3em -2.3em 0 #345,
+        	     2.3em  2.3em 0 #345,
+        	    -2.3em  2.3em 0 #345,
+        	     2.3em -2.3em 0 #345,
+        	    -2.3em -2.3em 0 #FFF,
+        	     2.3em  2.4em 0 #FFF,
+        	    -2.3em  2.4em 0 #FFF,
+        	     2.3em -2.3em 0 #FFF
 }
-.die.die5 .dot { 
-	box-shadow: -2.3em -2.3em 0 #345, 
-		     2.3em  2.3em 0 #345, 
-		    -2.3em  2.3em 0 #345, 
-		     2.3em -2.3em 0 #345, 
-		    -2.3em -2.2em 0 #FFF, 
-		     2.3em -2.2em 0 #FFF, 
-		     2.3em  2.4em 0 #FFF, 
+.die.die5 .dot {
+	box-shadow: -2.3em -2.3em 0 #345,
+		     2.3em  2.3em 0 #345,
+		    -2.3em  2.3em 0 #345,
+		     2.3em -2.3em 0 #345,
+		    -2.3em -2.2em 0 #FFF,
+		     2.3em -2.2em 0 #FFF,
+		     2.3em  2.4em 0 #FFF,
 		    -2.3em  2.4em 0 #FFF,
-		         0   .2em 0 #FFF 
+		         0   .2em 0 #FFF
 }
 .die.die6 .dot {
 	background: transparent;
@@ -789,9 +789,9 @@ body {
 	background-image: linear-gradient(top, #fefefe, #f1f1f1 80%)
 }
 .dot {
-	width: 20%; 
-	height: 20%; 
-	left: 50%; 
+	width: 20%;
+	height: 20%;
+	left: 50%;
 	top: 50%;
 	margin: -10%;
 	background: #345;
@@ -930,6 +930,13 @@ body {
     padding-top:50px;
     padding-left:10px;
 }
+.trade_accept {
+  padding-top: 34px;
+}
+.trade_accept .btn {
+  margin-bottom: 6px;
+}
+
 .year_accept{
     padding-top:20px;
 }

@@ -287,7 +287,7 @@ $(document).ready(function() {
             action.action_data = [];
             var temp_data1 = $(":first-child", ".year_box_card1").attr("class").split('_'); //action_data {String} 'trade_sheep'
             var temp_data2 = $(":first-child", ".year_box_card2").attr("class").split('_'); //action_data {String} 'trade_sheep'
-            
+
             action.action_data.push(temp_data1[1]);
             action.action_data.push(temp_data2[1]);
 
@@ -432,7 +432,6 @@ $(document).ready(function() {
 
         hidePopup();
     });
-
 
 });
 function setupTurnFinished(){
