@@ -347,6 +347,13 @@ function build_popup_round_use_year_of_plenty() {
 }
 
 /***************************************************
+ *  build_popup_use_road_building.html
+ **************************************************/
+function build_popup_use_road_building() {
+    buildPopup("round_use_road_building", false);
+}
+
+/***************************************************
  *  round_use_year_of_plenty.html
  **************************************************/
 function build_popup_victory_point_received(card) {

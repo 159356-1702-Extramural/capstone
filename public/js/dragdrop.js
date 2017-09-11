@@ -123,7 +123,7 @@ function show_open_spots(object_type, ignore_id) {
         if (current_game.round_num < 3 && node_to_ignore == null && turn_actions.length == 2) {
             return false;
         }
-
+        
         //  Now manage specific object types
         if (object_type == "settlement") {
             //  When in setup, show all available spots, otherwise just connected ones
@@ -134,13 +134,11 @@ function show_open_spots(object_type, ignore_id) {
                     //  Find the node in the nodes object based on the id of this object
                     var node_id = parseInt($(this).attr('id').replace("node_", ""));
 
-                    if (current_game.round_num > 2 && node_id == 13) {
-                        doLog("check");
-                    }
-                        
-                    //  Now check to see if we can build here
-                    if (can_build(nodes[node_id], node_to_ignore)) {
-                        $(this).show();
+                    //  Now check to see if we can build here (if not the node we are already on)
+                    if (node_id != ignore_id) {
+                        if (can_build(nodes[node_id], node_to_ignore)) {
+                            $(this).show();
+                        }
                     }
                 });
             }
@@ -206,7 +204,7 @@ function set_object_on_canvas(event, ui) {
     //  Grab the node/road based on the drop target
     var node_id = parseInt(node_on_canvas.attr("id").replace("road_", "").replace("node_", ""));
     var node = nodes[node_id];
-
+    
     //  Make sure it is not already owned
     if ((node.owner > -1 && object_type != "city") || (object_type == "city" && node.owner != current_game.player.id)) {
         //  This piece should not be placed, return it to its pile
@@ -224,7 +222,7 @@ function set_object_on_canvas(event, ui) {
         if (node.building) { node.building = object_type; }
         node.status = "pending";
         node.owner = current_player.id;
-
+        
         //  If the object came from another node, clear that node
         if (object_dragged_id.indexOf("_pending_") > -1) {
             reset_node_on_board(object_dragged_id, object_type);
@@ -253,9 +251,11 @@ function set_object_on_canvas(event, ui) {
 
         //  Create our action
         create_player_action(object_type, node, null);
-        if (current_game.round_num > 2) {
-            //  Prompt the user for more cards
-            build_popup_round_build(object_type);
+        if (!current_player.road_building_used || object_type != "road") {
+            if (current_game.round_num > 2) {
+                //  Prompt the user for more cards
+                build_popup_round_build(object_type);
+            }
         }
         update_object_counts();
     }
@@ -271,13 +271,15 @@ function reset_node_on_board(object_dragged_id, object_type) {
     //  Find node to be reset
     var last_node_id = parseInt(object_dragged_id.replace(object_type + "_" + current_player.colour + "_pending_", ""));
     var last_node = nodes[last_node_id];
-
+    
     //  If the last place we dropped it is locked, we don't clear it (It exists from a previous round)
-    var last_canvas_node_class = $("#" + object_type + "_" + last_node_id).attr("class");
-    if (last_canvas_node_class.indexOf("locked") == -1) {
-        if (last_node.building) { last_node.building = ""; }
-        last_node.owner = -1;
-        last_node.status = "";
+    var last_canvas_node_class = $("#" + (object_type == "road" ? "road" : "node") + "_" + last_node_id).attr("class");
+    if (last_canvas_node_class) {
+        if (last_canvas_node_class.indexOf("locked") == -1) {
+            if (last_node.building) { last_node.building = ""; }
+            last_node.owner = -1;
+            last_node.status = "";
+        }
     }
 
     //  Remove it from the turn_actions array
@@ -390,36 +392,32 @@ function has_valid_path(object_type, node, checked) {
     }
     checked += object_type + ":" + node.id + ",";
 
+    //  No reason to be here if there is no owner
+    if (node.owner == -1) {
+        return false;
+    }
+
     //  If this spot holds a locked node/road
     if (node.owner == current_player.id && node.status != "pending") {
         return true;
     }
 
     //  Otherwise we keep going
-    if (object_type == "settlement") {
-        //  If this is a settlement, and someone else owns it, we cannot continue on this path
-        if (node.owner != player.id && node.owner > -1) {
+    if (object_type == "road") {
+        //  Road: Check neighbor nodes
+        for (var i = 0; i < node.connects.length; i++) {
+            has_path = has_path || has_valid_path("settlement", current_game.nodes[node.connects[i]], checked);
+            if (has_path) { break; }
+        }
+    } else {
+        //  Settlement or City: If someone else owns it, we cannot continue on this path
+        if (node.owner != current_player.id && node.owner > -1) {
             return false;
         }
 
+        //  Otherwise check attached roads
         for (var i = 0; i < node.n_roads.length; i++) {
             has_path = has_path || has_valid_path("road", current_game.roads[node.n_roads[i]], checked);
-            if (has_path) { break; }
-        }
-        if (!has_path) {
-            for (var i = 0; i < node.n_nodes.length; i++) {
-                has_path = has_path || has_valid_path("settlement", current_game.nodes[node.n_nodes[i]], checked);
-                if (has_path) { break; }
-            }
-        }
-    } else {
-        //  No reason to be here if this is a road with no owner
-        if (node.owner == -1) {
-            return false;
-        }
-        //  Otherwise checking neighbor nodes
-        for (var i = 0; i < node.connects.length; i++) {
-            has_path = has_path || has_valid_path("settlement", current_game.nodes[node.connects[i]], checked);
             if (has_path) { break; }
         }
     }
