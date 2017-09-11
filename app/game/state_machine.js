@@ -336,7 +336,8 @@ StateMachine.prototype.broadcast_gamestate = function() {
       id: idx,
       name: player.name,
       colour: player.colour,
-      points: player.score.total_points
+      points: player.score.total_points,
+      victory_points: player.cards.victory_point_cards
     };
   });
 
