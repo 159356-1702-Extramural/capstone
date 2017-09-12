@@ -251,13 +251,21 @@ function set_object_on_canvas(event, ui) {
 
         //  Create our action
         create_player_action(object_type, node, null);
-        if (!current_player.road_building_used || object_type != "road") {
+        if (!current_player.road_building_used || object_type != "road" || (current_player.road_building_used && current_player.free_roads == 0)) {
             if (current_game.round_num > 2) {
                 //  Prompt the user for more cards
                 build_popup_round_build(object_type);
             }
         }
+
+        //  In the case of a road building card, take away the resources directly
+        if (current_player.road_building_used && current_player.free_roads > 0 && object_type == "road") {
+            remove_base_cards_for_item("road");
+            current_player.free_roads --;
+        }
+
         update_object_counts();
+        updatePanelDisplay();
     }
 }
 //  Helper method to reset a node/road on the canvas and in the nodes/roads object

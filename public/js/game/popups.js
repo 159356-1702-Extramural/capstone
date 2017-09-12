@@ -254,17 +254,13 @@ function build_popup_round_build(object_type) {
     var card_list = cards.get_required_cards(object_type);
     var card_html = "";
 
-    //  Create a reference to the players cards
-    var my_cards = new Cards();
-    my_cards.resource_cards = current_game.player.cards.resource_cards;
-
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
         card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
-
-        //  Remove the right number of cards for this road/settlement/city
-        my_cards.remove_card(card_list[i]);
     }
+
+    //  Remove for this player
+    remove_base_cards_for_item(object_type);
 
     //  Add in the selectable resources based on what the player has
     var select_html = getResourceCardsHtml();

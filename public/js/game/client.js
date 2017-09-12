@@ -212,15 +212,7 @@ $(document).ready(function() {
             }
             data_package.data_type = "setup_phase";
         } else if (current_player.road_building_used) {
-            //  Check to see if at least 2 roads have been built
-            var built_roads = 0;
-            for (var i = 0; i < turn_actions.length; i++) {
-                if (turn_actions[i].action_type == "build_road") {
-                    built_roads ++;
-                }
-            }
-
-            if (built_roads > 1) {
+            if (current_player.free_roads == 0) {
                 data_package.data_type = "turn_complete";
                 current_player.road_building_used = false;
             } else {
@@ -291,6 +283,7 @@ $(document).ready(function() {
         e.preventDefault();
 
         current_player.road_building_used = true;
+        current_player.free_roads = 2;
 
         var action = new Action();
         action.action_type = 'road_building';
@@ -1226,6 +1219,21 @@ function update_dev_cards(data){
         }
         $(".cardlist").html(card_list);
 }
+
+function remove_base_cards_for_item(object_type) {
+    //  Get the list of cards needed
+    var cards = new Cards();
+    var card_list = cards.get_required_cards(object_type);
+
+    //  Create a reference to the players cards
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    for (var i = 0; i < card_list.length; i++) {
+        //  Remove each card
+        my_cards.remove_card(card_list[i]);
+    }
+}
+
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
