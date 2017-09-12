@@ -3,11 +3,11 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 1,
-        grain : 1,
-        sheep : 1,
-        lumber: 1,
-        ore   : 1
+        brick : 0,
+        grain : 0,
+        sheep : 0,
+        lumber: 0,
+        ore   : 0
     };
 
     this.dev_cards = {
