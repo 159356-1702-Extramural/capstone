@@ -700,10 +700,6 @@ StateMachine.prototype.buy_dev_card = function (data){
         card = 'road_building';
         console.log('Dev card purchased: '+card);
 
-        this.game.players[data.player_id].cards.add_card(card);
-        this.game.players[data.player_id].round_distribution_cards.add_card(card);
-        // TODO: Delete following 2 lines
-
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
         }
@@ -741,13 +737,13 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
         var data_package = new Data_package();
         data_package.data_type = 'return_year_of_plenty';
         data_package.player = this.game.players[data.player_id];
-        
+
         this.send_to_player('game_turn',data_package);
     }else{
         console.log("Year of plenty called but year of plenty action not visible");
         logger.log('error', "Year of plenty called but year of plenty action not visible");
     }
-    
+
 }
 
 StateMachine.prototype.activate_road_building = function (data) {
@@ -767,13 +763,13 @@ StateMachine.prototype.activate_road_building = function (data) {
         var data_package = new Data_package();
         data_package.data_type = 'return_road_building';
         data_package.player = this.game.players[data.player_id];
-        
+
         this.send_to_player('game_turn',data_package);
     }else{
         console.log("Road building called but road building action not visible");
         logger.log('error', "Road building called but road building action not visible");
     }
-    
+
 }
 
 

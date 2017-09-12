@@ -289,7 +289,7 @@ $(document).ready(function() {
         e.preventDefault();
 
         current_player.road_building_used = true;
-        
+
         var action = new Action();
         action.action_type = 'road_building';
         action.action_result = 0;
@@ -298,10 +298,10 @@ $(document).ready(function() {
         action.action_data.push("brick");
         action.action_data.push("lumber");
         action.action_data.push("lumber");
-        
+
         var data_package = new Data_package();
         data_package.data_type = 'road_building_used';
-        data_package.player_id = current_player.id;
+        data_package.player_id = current_game.player.id;
         data_package.actions.push(action);
         update_server('game_update', data_package);
         hidePopup();
