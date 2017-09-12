@@ -297,11 +297,21 @@ StateMachine.prototype.tick = function(data) {
           }
 
         } else {
-          //  Tell this player to wait
-          var setup_data = new Data_package();
-          setup_data.data_type = 'wait_others';
-          this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+            //  Tell this player to wait and update the interface for all others
+            var waiting = [];
+            for(var i = 0; i < this.game.players.length; i++){
+                waiting.push([i, this.game.players[i].turn_complete]);
+            }
 
+            for(var i = 0; i < this.game.players.length; i++){
+                if (i == data.player_id) {
+                    var setup_data = new Data_package();
+                    setup_data.data_type = 'wait_others';
+                    this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+                } else {
+                    this.game.players[i].socket.emit('update_players_waiting', waiting);
+                }
+            }
         }
       }
 

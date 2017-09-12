@@ -137,14 +137,15 @@ body {
     background-color: #17099D;
     cursor: pointer;
 }
-
-
-
-
 .other_player_avatar {
     height: 50px;
     padding: 5px 0px 5px 15px;
     overflow:hidden;
+}
+.other_player0_status, .other_player1_status, .other_player2_status, .other_player3_status {
+    position: absolute;
+    left: 75px;
+    top: 10px;
 }
 .other_player_name {
     text-align: center;
