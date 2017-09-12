@@ -25,8 +25,8 @@ def creatsuite():
 alltestnames = creatsuite()
 now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))
 #If selenium test reports dir is not exists, then create it.
-if not os.path.isdir(test_reports_dir):
-    os.mkdir(test_reports_dir)
+# if not os.path.isdir(test_reports_dir):
+#     os.mkdir(test_reports_dir)
 
 filename = test_reports_dir+now+'result.html'
 fp = file(filename, 'wb')
