@@ -18,11 +18,11 @@ function Cards(){
     };
 
     this.victory_point_cards = {
-        library : 1,
-        market : 1,
-        chapel : 1,
-        university_of_catan  : 1,
-        great_hall : 1
+        library : 0,
+        market : 0,
+        chapel : 0,
+        university_of_catan  : 0,
+        great_hall : 0
     };
 
 }
