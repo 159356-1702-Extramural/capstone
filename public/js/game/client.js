@@ -283,7 +283,9 @@ $(document).ready(function() {
     });
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
-        build_popup_use_road_building();
+        if (!current_player.road_building_used) {
+            build_popup_use_road_building();
+        }
     });
     $doc.on('click', '.road_building_button', function(e) {
         e.preventDefault();
@@ -304,6 +306,9 @@ $(document).ready(function() {
         data_package.player_id = current_game.player.id;
         data_package.actions.push(action);
         update_server('game_update', data_package);
+
+        $(".road_building").addClass("disabled");
+
         hidePopup();
 
     });
