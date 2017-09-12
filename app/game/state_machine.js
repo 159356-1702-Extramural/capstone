@@ -683,9 +683,10 @@ StateMachine.prototype.buy_dev_card = function (data){
         card = 'great_hall';
         console.log('Dev card purchased: '+card);
 
-        this.game.players[data.player_id].cards.add_card(card);
-        this.game.players[data.player_id].round_distribution_cards.add_card(card);
-        // TODO: Delete following 2 lines
+        // TODO: DUPLICATE CODE Delete following 2 lines
+        // this.game.players[data.player_id].cards.add_card(card);
+        // this.game.players[data.player_id].round_distribution_cards.add_card(card);
+
 
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
@@ -693,6 +694,7 @@ StateMachine.prototype.buy_dev_card = function (data){
 
         this.game.players[data.player_id].cards.add_card(card);
         this.game.players[data.player_id].round_distribution_cards.add_card(card);
+
         var data_package = new Data_package();
         data_package.data_type = 'buy_dev_card';
         data_package.player = this.game.players[data.player_id];
@@ -723,13 +725,13 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
         var data_package = new Data_package();
         data_package.data_type = 'return_year_of_plenty';
         data_package.player = this.game.players[data.player_id];
-        
+
         this.send_to_player('game_turn',data_package);
     }else{
         console.log("Year of plenty called but year of plenty action not visible");
         logger.log('error', "Year of plenty called but year of plenty action not visible");
     }
-    
+
 }
 
 
