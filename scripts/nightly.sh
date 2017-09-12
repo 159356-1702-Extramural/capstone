@@ -10,7 +10,8 @@ set -ev
 if [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
         npm test;
         echo "running selenium headless browser tests";
-        pip install urllib3[secure];
+        python -V;
+        pip install urllib3;
         pip install selenium && pip install sauceclient;
 
         python tests/seleniumPythonTest/run_all_tests.py;
