@@ -756,8 +756,8 @@ StateMachine.prototype.activate_road_building = function (data) {
             this.game.players[data.player_id].round_distribution_cards.add_card(requested_cards[i]);
         }
 
-        //  Set road_building intoround_distribution_cards
-        this.game.players[data.player_id].round_distribution_cards.dev_cards.road_building = 1;
+        //  Remove road building card
+        this.game.players[data.player_id].cards.dev_cards.road_building --;
 
         // return the purchse immediately
         var data_package = new Data_package();
