@@ -1178,8 +1178,6 @@ function update_dev_cards(data){
         }
         if (data.player.round_distribution_cards.victory_point_cards.great_hall > 0 ){
             build_popup_victory_point_received("great_hall");
-        }else{
-            console.log('update_dev_cards failed to parse the data given to it');
         }
         $(".cardlist").html(card_list);
 }
