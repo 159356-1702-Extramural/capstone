@@ -1,33 +1,20 @@
 <div class="end_row">
     <div class="player_row">
-        <div class="player_icon"><img src="images/player0.png" /></div>
+        <div class="player_icon"><img src="images/player{player_id}.png" /></div>
         <div class="player_name">
-            Jim the Giant<br>
-            <span class="player_score">7 Victory Points!</span>
+            {player_name}<br>
+            <span class="player_score">{player_score} Victory Points!</span>
         </div>
     </div>
 </div>
 
 <div class="player_detail">
-    <div class="player_row">
-        <div class="player_score_detail"><img src="images/settlement_purple_small.png" /></div>
-        <div class="player_score_detail"><img src="images/settlement_purple_small.png" /></div>
-        <div class="player_score_detail"><img src="images/settlement_purple_small.png" /></div>
-        <div class="player_score_detail disabled"><img src="images/settlement_purple_small.png" /></div>
-        <div class="player_score_detail disabled"><img src="images/settlement_purple_small.png" /></div>
-    </div>
-    <div class="player_row">
-        <div class="player_score_detail"><img src="images/city_purple_small.png" /></div>
-        <div class="player_score_detail disabled"><img src="images/city_purple_small.png" /></div>
-        <div class="player_score_detail disabled"><img src="images/city_purple_small.png" /></div>
-        <div class="player_score_detail disabled"><img src="images/city_purple_small.png" /></div>
-    </div>
-    <div class="player_row">
-        <div class="player_score_token"><img src="images/score_token_2.png" width="50" /></div>
-        <div class="player_score_token disabled"><img src="images/score_token_3.png" width="50" /></div>
-    </div>
-    <div class="player_row">
-        <div class="player_score_token"><img src="images/dev_knight_small.png" width="50" /></div>
-        <div class="player_score_token"><img src="images/dev_knight_small.png" width="50" /></div>
-    </div>
+    <div class="player_row" style="height:75px;">{settlements}</div>
+    <div class="player_row" style="height:75px;">{cities}</div>
+    <div class="player_row" style="height:125px;">{cards}</div>
+</div>
+
+<br />
+<div class="player_row">
+    <div class="btn btn-info btn-large" onclick="hidePopup();">Close Popup</div>
 </div>
