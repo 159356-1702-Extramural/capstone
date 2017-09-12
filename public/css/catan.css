@@ -126,15 +126,15 @@ body {
     cursor: pointer;
 }
 .other_player1_cell:hover {
-    background-color: #089110;
+    background-color: #AB0F12;
     cursor: pointer;
 }
 .other_player2_cell:hover {
-    background-color: #C21C33;
+    background-color: #0C1BC3;
     cursor: pointer;
 }
 .other_player3_cell:hover {
-    background-color: #17099D;
+    background-color: #0A9D08;
     cursor: pointer;
 }
 .other_player_avatar {

@@ -3,7 +3,7 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 50,
+        brick : 0,
         grain : 0,
         sheep : 0,
         lumber: 0,
