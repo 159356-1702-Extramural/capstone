@@ -397,7 +397,7 @@ Game.prototype.randomise_startup_array = function (number_of_players){
   //Create the first half of the array
   for ( var i = 0; i < number_of_players; i++){
     straight_array.push(i);
-  } 
+  }
 
   // Shuffle the first half
   var shuffled_array = shuffler.shuffle(straight_array);

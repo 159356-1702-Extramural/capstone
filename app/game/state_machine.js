@@ -110,7 +110,7 @@ StateMachine.prototype.tick = function(data) {
             console.log("setupPointer: "+ this.setupPointer + " | setupSeq ID: "+ this.setupSequence[this.setupPointer]+ "| data.player_id: "+ data.player_id );
             this.game.secondRoundResources(this.game.players[data.player_id], data);
         }
-        
+
         // increment round number once
         if(this.setupPointer === this.setupSequence.length / 2){
             this.game.round_num++;
@@ -150,7 +150,7 @@ StateMachine.prototype.tick = function(data) {
                 player.turn_complete = false;
             });
 
-            
+
             this.game_start_sequence();
 
         } else {
@@ -482,7 +482,7 @@ StateMachine.prototype.game_start_sequence = function(initiatingGame){
 
     //required because it increments pointer out of position before player starts
     this.setupPointer++;
-    
+
 };
 
 /***************************************************************

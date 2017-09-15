@@ -151,7 +151,7 @@ function build_popup_round_roll_results() {
     if (card_count > 15) {
         card_html += "<br /><div class='player-row' style='width:99%;'>+ " + (card_count - 16) + " more cards</div>";
     }
-    
+
 
     if (card_html.length == 0) {
         card_html += 'Nothing for you!';
@@ -374,15 +374,15 @@ function build_popup_victory_point_received(card) {
     }
     if(this.current_game.player.cards.victory_point_cards.chapel == 1 && card !== 'chapel'){
         other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_chapel" src="images/dev_victory_chapel.png"></div>'
-        
+
     }
     if(this.current_game.player.cards.victory_point_cards.great_hall == 1 && card !== 'great_hall'){
         other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.png"></div>'
-        
+
     }
     if(this.current_game.player.cards.victory_point_cards.universtiy_of_catan == 1 && card !== 'university_of_catan'){
         other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.png"></div>'
-        
+
     }
     vp_cards.push(['other_vp_cards',other_vp_cards]);
     buildPopup("victory_point_received", false, vp_cards);
@@ -502,25 +502,25 @@ function build_popup_player_detail(id) {
             cities += (node.building === 'settlement') ? 0 : 1;
         }
     }, this);
-    
+
     //  Build settlements in use
     var settlement_html = "";
     for (var i = 0; i < 5; i++) {
         settlement_html += '<div class="player_score_detail' + (settlements <= i ? " disabled" : "") + '"><img src="images/settlement_' + current_game.players[id].colour + '_small.png" /></div>';
     }
     popup_data.push(["settlements", settlement_html]);
-    
+
     //  Build cities in use
     var city_html = "";
     for (var i = 0; i < 5; i++) {
         city_html += '<div class="player_score_detail' + (cities <= i ? " disabled" : "") + '"><img src="images/city_' + current_game.players[id].colour + '_small.png" /></div>';
     }
     popup_data.push(["cities", city_html]);
-    
+
     //  TODO: Build list of Knights
     var knight_html = "";
     //<div class="player_score_token"><img src="images/dev_knight_small.png" width="50" /></div>
-    
+
     //  Victory Points
     var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
     var victory_html = "";
@@ -530,7 +530,7 @@ function build_popup_player_detail(id) {
         }
     }
     popup_data.push(["cards", knight_html + victory_html]);
-    
+
     buildPopup("player_detail", false, popup_data);
 }
 
