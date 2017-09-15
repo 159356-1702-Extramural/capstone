@@ -36,7 +36,7 @@ function StateMachine(id) {
     this.game = new Game(this);
     this.state = "setup"; // starting state, states are ref by string for readability
     this.setupComplete = false;
-    this.setupSequence = [0,1,2,3,3,2,1,0];
+    this.setupSequence = this.setSequence();
     this.setupPointer = 0;
     this.development_cards = this.game.generate_dev_card_deck();
 }
@@ -95,7 +95,6 @@ StateMachine.prototype.tick = function(data) {
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
     if (this.state === "setup") {
-        //check data and add to player
 
         //  Set the piece
         this.validate_player_builds(data);
@@ -106,13 +105,19 @@ StateMachine.prototype.tick = function(data) {
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
 
-        if(this.setupPointer > this.setupSequence.length / 2){
+        //second round resources was running 1 too many times so needed to add the extra check
+        if(this.setupPointer > this.setupSequence.length / 2 && this.setupPointer <= this.setupSequence.length ){
+            console.log("setupPointer: "+ this.setupPointer + " | setupSeq ID: "+ this.setupSequence[this.setupPointer]+ "| data.player_id: "+ data.player_id );
             this.game.secondRoundResources(this.game.players[data.player_id], data);
+        }
+        
+        // increment round number once
+        if(this.setupPointer === this.setupSequence.length / 2){
             this.game.round_num++;
         }
 
-        if (this.game.round_num > 2) {
-
+        if (this.setupPointer === this.setupSequence.length) {
+            console.log("final player setup");
             //  Do the initial dice roll
             var diceroll;
 
@@ -125,6 +130,8 @@ StateMachine.prototype.tick = function(data) {
 
             // Calculate the scores
             this.game.calculateScores();
+
+            this.game.round_num++;
 
             //  Update the interface
             this.broadcast_gamestate();
@@ -142,6 +149,9 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
+
+            
+            this.game_start_sequence();
 
         } else {
             //call start sequence again from here - startSequence will find the next player to have a turn
@@ -428,8 +438,7 @@ StateMachine.prototype.send_to_player = function(event_name, data) {
 /***************************************************************
 * Start Sequence
 ***************************************************************/
-StateMachine.prototype.game_start_sequence = function(setup_data){
-    console.log('game_start_sequence called');
+StateMachine.prototype.game_start_sequence = function(initiatingGame){
     logger.log('debug', 'game_start_sequence function called.');
 
     //Create data package for setup phase
@@ -470,7 +479,10 @@ StateMachine.prototype.game_start_sequence = function(setup_data){
         });
 
     }
+
+    //required because it increments pointer out of position before player starts
     this.setupPointer++;
+    
 };
 
 /***************************************************************
@@ -547,7 +559,9 @@ StateMachine.prototype.validate_player_builds = function(data){
                     this.game.players[p].cards.remove_cards(item.replace("build_",""));
 
                     //  Remove the boost cards
-                    this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
+                    if(data.actions[a].boost_cards !== null){
+                        this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
+                    }
                 }
             }
         }

@@ -6,7 +6,7 @@ function Game(state_machine) {
     this.state_machine  = state_machine;
     this.board          = board_builder.generate();
 
-    this.max_players    = 4;
+    this.max_players    = this.set_player_number();
     this.WIN_SCORE      = 10;
 
     this.players        = [];
@@ -380,9 +380,33 @@ Game.prototype.set_player_number = function (){
   if(typeof player_num === 'undefined'){player_num = 2;}
   if(parseInt(player_num) === 4){
     this.state_machine.setupSequence = [0,1,2,3,3,2,1,0];
+    this.state_machine.setupSequence = this.randomise_startup_array(4);
     return 4;
   }
   return 2;
+}
+
+/**
+ * @param {int} number_of_players : integer with the number of players in the game
+ * @return {Array} : Array holding a shuffled first round order and a mirrored second round
+ *                      i.e [1,2,3,0,0,3,2,1]
+ */
+Game.prototype.randomise_startup_array = function (number_of_players){
+  var shuffler = new Shuffler()
+  var straight_array = [];
+  //Create the first half of the array
+  for ( var i = 0; i < number_of_players; i++){
+    straight_array.push(i);
+  } 
+
+  // Shuffle the first half
+  var shuffled_array = shuffler.shuffle(straight_array);
+
+  // add in the mirrored second half
+  for (var j = 0; j < number_of_players; j++){
+    shuffled_array.push(shuffled_array[j]);
+  }
+  return shuffled_array;
 }
 
 module.exports = Game;

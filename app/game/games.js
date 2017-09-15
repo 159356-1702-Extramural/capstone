@@ -76,7 +76,7 @@ Games.prototype.assign_player = function(socket, data) {
         //  Create the board and send it to the clients
         state_machine.broadcast('build_board', state_machine.game.buildBoard());
         state_machine.broadcast_gamestate();
-        state_machine.game_start_sequence();
+        state_machine.game_start_sequence(true);
     }
 };
 
