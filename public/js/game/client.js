@@ -228,7 +228,7 @@ $(document).ready(function() {
 
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
-
+        console.log(data_package);
         update_server("game_update", data_package);
     });
 

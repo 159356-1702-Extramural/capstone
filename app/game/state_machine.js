@@ -475,7 +475,7 @@ StateMachine.prototype.game_start_sequence = function(initiatingGame){
         this.broadcast('game_turn', setup_data);
 
         this.game.players.forEach(function(player) {
-          player.turn_complete = true;
+          player.turn_complete = false;
         });
 
     }
