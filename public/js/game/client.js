@@ -354,6 +354,18 @@ $(document).ready(function() {
         }
     });
 
+    // Play the Knight card
+    $doc.on('click', '.cardlist .knight.card', function(e) {
+      e.preventDefault();
+
+      var data_package = new Data_package();
+      data_package.data_type = "play_knight";
+      data_package.player_id = current_game.player.id;
+
+      update_server('game_update', data_package);
+
+    });
+
     //  Development Card -
     $doc.on('click', '.devcard_receive', function(e) {
         e.preventDefault();

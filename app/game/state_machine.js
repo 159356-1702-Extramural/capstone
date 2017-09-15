@@ -265,7 +265,7 @@ StateMachine.prototype.tick = function(data) {
             this.game.allocateDicerollResources(diceroll);
           } else {
             this.game.moveRobber();
-            this.game.robPlayers();
+            // this.game.robPlayers(); // TODO: turn back on!!
           }
 
           this.broadcast_gamestate();
@@ -691,7 +691,7 @@ StateMachine.prototype.buy_dev_card = function (data){
         var card = this.development_cards.pop();
 
         // TODO: Delete following two lines
-        card = 'great_hall';
+        card = 'knight';
         console.log('Dev card purchased: '+card);
 
         this.game.players[data.player_id].cards.add_card(card);
@@ -734,13 +734,13 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
         var data_package = new Data_package();
         data_package.data_type = 'return_year_of_plenty';
         data_package.player = this.game.players[data.player_id];
-        
+
         this.send_to_player('game_turn',data_package);
     }else{
         console.log("Year of plenty called but year of plenty action not visible");
         logger.log('error', "Year of plenty called but year of plenty action not visible");
     }
-    
+
 }
 
 

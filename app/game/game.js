@@ -109,10 +109,10 @@ Game.prototype.rollingDice = function() {
     var dice1array = [1,2,3,4,5,6];
     dice1 = dice1array[this.round_num % dice1array.length];
     dice2 = 4;
-    
+
     this.dice_roll = [dice1, dice2];
   }
-  
+
 
   return dice1 + dice2;
 };

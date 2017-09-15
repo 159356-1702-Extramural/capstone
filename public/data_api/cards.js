@@ -3,18 +3,18 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 0,
-        grain : 0,
-        sheep : 0,
-        lumber: 0,
-        ore   : 0
+        brick : 20,
+        grain : 20,
+        sheep : 20,
+        lumber: 20,
+        ore   : 20
     };
 
     this.dev_cards = {
         year_of_plenty : 0,
-        monopoly : 0,
-        knight : 0,
-        knight_played: 0,
+        monopoly       : 0,
+        knight         : 0,
+        knight_played  : 0,
         road_building  : 0,
     };
 
