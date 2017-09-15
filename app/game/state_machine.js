@@ -195,6 +195,10 @@ StateMachine.prototype.tick = function(data) {
             logger.log('debug','year of plenty played by player ' + data.player_id);
             this.activate_year_of_plenty(data);
         }
+        else if(data.data_type === 'road_building_used'){
+            logger.log('debug','road building played by player ' + data.player_id);
+            this.activate_road_building(data);
+        }
         else if ( data.data_type === 'monopoly_used' ){
 
             this.game.monopoly = -1;
@@ -548,7 +552,9 @@ StateMachine.prototype.validate_player_builds = function(data){
                     this.game.players[p].cards.remove_cards(item.replace("build_",""));
 
                     //  Remove the boost cards
-                    this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
+                    if (data.actions[a].boost_cards) {
+                        this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
+                    }
                 }
             }
         }
@@ -568,6 +574,17 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
             for (var j = 0; j < this.game.players[i].turn_data.actions.length; j++) {
                 if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.players[i].turn_data.actions[j].action_data.id == index) {
                     //  Conflict found
+
+                    //  First check to see if main player used road building
+                    if (item == "build_road" && this.game.players[player_id].round_distribution_cards.dev_cards.road_building > 0) {
+                        return 0;   //  Automatic win
+                    }
+
+                    //  Then check to see if other player used road building
+                    if (item == "build_road" && this.game.players[i].round_distribution_cards.dev_cards.road_building > 0) {
+                        return 2;   //  Automatic Lost
+                    }
+
                     //  Compare # of boost cards
                     if (boost_cards.length == this.game.players[i].turn_data.actions[j].boost_cards.length) {
                         return 1;   //  Tie
@@ -691,13 +708,12 @@ StateMachine.prototype.buy_dev_card = function (data){
         var card = this.development_cards.pop();
 
         // TODO: Delete following two lines
-        card = 'great_hall';
+        card = 'road_building';
         console.log('Dev card purchased: '+card);
 
         // TODO: DUPLICATE CODE Delete following 2 lines
         // this.game.players[data.player_id].cards.add_card(card);
         // this.game.players[data.player_id].round_distribution_cards.add_card(card);
-
 
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
@@ -721,6 +737,7 @@ StateMachine.prototype.buy_dev_card = function (data){
 
 };
 
+
 StateMachine.prototype.activate_year_of_plenty = function (data) {
 
     //request sent immediately so action will always be first but check to be sure
@@ -743,6 +760,31 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
         logger.log('error', "Year of plenty called but year of plenty action not visible");
     }
 
+}
+
+StateMachine.prototype.activate_road_building = function (data) {
+
+    //request sent immediately so action will always be first but check to be sure
+    if(data.actions[0].action_type === 'road_building'){
+        var requested_cards = data.actions[0].action_data;
+        for(var i = 0; i < requested_cards.length; i++){
+            this.game.players[data.player_id].cards.add_card(requested_cards[i]);
+            this.game.players[data.player_id].round_distribution_cards.add_card(requested_cards[i]);
+        }
+
+        //  Remove road building card
+        this.game.players[data.player_id].cards.dev_cards.road_building --;
+
+        // return the purchse immediately
+        var data_package = new Data_package();
+        data_package.data_type = 'return_road_building';
+        data_package.player = this.game.players[data.player_id];
+
+        this.send_to_player('game_turn',data_package);
+    }else{
+        console.log("Road building called but road building action not visible");
+        logger.log('error', "Road building called but road building action not visible");
+    }
 }
 
 

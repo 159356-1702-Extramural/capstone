@@ -14,7 +14,7 @@ function Cards(){
         year_of_plenty : 0,
         monopoly : 0,
         knight : 0,
-        road_building  : 0,
+        road_building  : 0
     };
 
     this.victory_point_cards = {

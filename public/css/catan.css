@@ -1133,3 +1133,11 @@ body {
     float: left;
     width:150px;
 }
+
+.road_cell {
+    float: left;
+    margin-right:10px;
+}
+.road_building.disabled {
+    opacity: 0.4;
+}
