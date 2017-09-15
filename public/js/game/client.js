@@ -55,12 +55,24 @@ $(document).ready(function() {
 
     // Detect the game starting
     socket.on('game_start', function (data) {
+        //  Start the game with the waiting popups
         build_popup_waiting_for_turn();
     });
 
     socket.on('game_turn', function (data) {
         server_data = data;
         resolve_game_turn(data);
+
+        //  Update player statuses
+        for (var i = 0; i < current_game.players.length; i++) {
+            $(".other_player" + i + "_status").html("<i class='fa fa-spin fa-spinner'></i>");
+        }
+    });
+
+    socket.on('update_players_waiting', function (waiting) {
+        for (var i = 0; i < waiting.length; i++) {
+            $(".other_player" + i + "_status").html("<i class='fa " + (waiting[i][1] ? "fa-check" : "fa-spin fa-spinner") + "'></i>");
+        }
     });
 
     // Detect the game end and load up the final modal with the
@@ -93,6 +105,9 @@ $(document).ready(function() {
         console.log('current_game: ', current_game);
 
         turn_actions = [];
+
+        //  Show all players score box
+        setup_player_scores();
 
         // Update the game state panel
         updatePanelDisplay();
@@ -471,6 +486,18 @@ $(document).ready(function() {
         hidePopup();
     });
 
+    //  Other Player Scores/Summaries
+    $doc.on('click', '.other_player_cell', function(e) {
+        e.preventDefault();
+
+        //  Get the id of the player we are viewing
+        var id = $(this).attr('data-id');
+
+        //  Build the summary popup
+        build_popup_player_detail(id);
+
+    });
+
 });
 function setupTurnFinished(){
     // wipe all current turn info (action arrays)
@@ -768,8 +795,8 @@ function updatePanelDisplay() {
   var score = current_game.player.score;
   var $bonuses_box = $('.bonuses');
 
-  $bonuses_box.find('.armycount').text(score.largest_army ? 1 : 0);
-  $bonuses_box.find('.longroadcount').text(score.longest_road ? 1 : 0);
+  $bonuses_box.find('.armycount').text(score.largest_army ? 2 : 0);
+  $bonuses_box.find('.longroadcount').text(score.longest_road ? 2 : 0);
   $bonuses_box.find('.victorycount').text(score.total_points);
 
 }
@@ -1192,6 +1219,23 @@ function setupPlayer() {
 function show_dev_card_info(card){
     build_popup_show_dev_card(card);
 }
+function setup_player_scores() {
+    var scores = "";
+    for (var p = 0; p < current_game.players.length; p++) {
+        if (p != current_player.id) {
+            scores += '<div class="other_player_cell other_player' + current_game.players[p].id + '_cell" data-id="' + current_game.players[p].id + '">';
+            scores += '    <div class="other_player_avatar"><img src="images/player' + current_game.players[p].id + '.png" /></div>';
+            scores += '    <div class="other_player' + current_game.players[p].id + '_status"></div>';
+            scores += '    <div class="other_player_name">' + current_game.players[p].name + '</div>';
+            scores += '    <div class="other_player_score">' + current_game.players[p].points + '</div>';
+            scores += '</div>';
+        }
+    }
+
+    $('.other_players').html(scores);
+    $('.other_players').show();
+}
+
 function update_dev_cards(data){
 
     var card_list = "";

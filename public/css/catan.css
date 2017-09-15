@@ -113,8 +113,50 @@ body {
     height:100px;
     width:300px;
     z-index:9998;
-    display:none;
 }
+.other_player0_cell, .other_player1_cell, .other_player2_cell, .other_player3_cell {
+    float: left;
+    overflow:hidden;
+    background-color: white;
+    border: thin solid black;
+    margin:5px;
+}
+.other_player0_cell:hover {
+    background-color: #7168CA;
+    cursor: pointer;
+}
+.other_player1_cell:hover {
+    background-color: #AB0F12;
+    cursor: pointer;
+}
+.other_player2_cell:hover {
+    background-color: #0C1BC3;
+    cursor: pointer;
+}
+.other_player3_cell:hover {
+    background-color: #0A9D08;
+    cursor: pointer;
+}
+.other_player_avatar {
+    height: 50px;
+    padding: 5px 0px 5px 15px;
+    overflow:hidden;
+}
+.other_player0_status, .other_player1_status, .other_player2_status, .other_player3_status {
+    position: absolute;
+    left: 75px;
+    top: 10px;
+}
+.other_player_name {
+    text-align: center;
+    font-size:14px;
+}
+.other_player_score {
+    text-align: center;
+    font-size:18px;
+    font-weight: bold;
+}
+
 .other_players .player_red, .other_players .player_blue, .other_players .player_green, .other_players .player_purple {
     float:left;
     width: 90px;

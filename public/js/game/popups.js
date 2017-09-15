@@ -139,11 +139,20 @@ function build_popup_round_roll_results() {
 
     //  Build the html to show the cards in the popup
     var card_html = "";
+    var card_count = 0;
     for (var i = 0; i < popup_data.length; i++) {
         for (var j = 0; j < popup_data[i][1]; j++) {
-            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+            if (card_count < 16) {
+                card_html += '<div class="build_card" style="z-index:' + (500 + card_count) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+            }
+            card_count ++;
         }
     }
+    if (card_count > 15) {
+        card_html += "<br /><div class='player-row' style='width:99%;'>+ " + (card_count - 16) + " more cards</div>";
+    }
+    
+
     if (card_html.length == 0) {
         card_html += 'Nothing for you!';
     }
@@ -478,8 +487,51 @@ function build_popup_failed_done() {
  /***************************************************
  *  player_detail.html
  **************************************************/
-function build_popup_player_detail() {
-    buildPopup("player_detail", false);
+function build_popup_player_detail(id) {
+    var popup_data = [];
+
+    popup_data.push(["player_id", id]);
+    popup_data.push(["player_name", current_game.players[id].name]);
+    popup_data.push(["player_score", current_game.players[id].points]);
+
+    var settlements = 0;
+    var cities = 0;
+    this.current_game.nodes.forEach(function(node) {
+        if (node.owner > -1 && node.owner == id) {
+            settlements += (node.building === 'settlement') ? 1 : 0;
+            cities += (node.building === 'settlement') ? 0 : 1;
+        }
+    }, this);
+    
+    //  Build settlements in use
+    var settlement_html = "";
+    for (var i = 0; i < 5; i++) {
+        settlement_html += '<div class="player_score_detail' + (settlements <= i ? " disabled" : "") + '"><img src="images/settlement_' + current_game.players[id].colour + '_small.png" /></div>';
+    }
+    popup_data.push(["settlements", settlement_html]);
+    
+    //  Build cities in use
+    var city_html = "";
+    for (var i = 0; i < 5; i++) {
+        city_html += '<div class="player_score_detail' + (cities <= i ? " disabled" : "") + '"><img src="images/city_' + current_game.players[id].colour + '_small.png" /></div>';
+    }
+    popup_data.push(["cities", city_html]);
+    
+    //  TODO: Build list of Knights
+    var knight_html = "";
+    //<div class="player_score_token"><img src="images/dev_knight_small.png" width="50" /></div>
+    
+    //  Victory Points
+    var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
+    var victory_html = "";
+    for (var i = 0; i < victories.length; i++) {
+        if (current_game.players[id].victory_points[victories[i]] > 0) {
+            victory_html += '<div class="player_score_token"><img src="images/dev_victory_' + victories[i] + '.png" width="75" /></div>';
+        }
+    }
+    popup_data.push(["cards", knight_html + victory_html]);
+    
+    buildPopup("player_detail", false, popup_data);
 }
 
  /***************************************************
@@ -500,8 +552,8 @@ function build_popup_end_results(data) {
                         '<div class="player_score_details">' +
                           '<div class="player_score_detail"><img src="images/settlement_'+player.colour+'_small.png" /><br />x 2</div>' +
                           '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x '+player.score.victory_points+'</div>' +
-                          '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (player.score.longest_road ? 1 : 0) + '</div>' +
-                          '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (player.score.largest_army ? 1 : 0) + '</div>' +
+                          '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (player.score.longest_road ? 2 : 0) + '</div>' +
+                          '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (player.score.largest_army ? 2 : 0) + '</div>' +
                         '</div>' +
                       '</div>';
   }, this);
