@@ -36,7 +36,7 @@ function StateMachine(id) {
     this.game = new Game(this);
     this.state = "setup"; // starting state, states are ref by string for readability
     this.setupComplete = false;
-    this.setupSequence = [0,1,1,0];
+    this.setupSequence = [0,1,2,3,3,2,1,0];
     this.setupPointer = 0;
     this.development_cards = this.game.generate_dev_card_deck();
 }
@@ -91,7 +91,6 @@ StateMachine.prototype.next_state = function() {
 *       come in is of use per state
 ****************************************************************/
 StateMachine.prototype.tick = function(data) {
-    console.log(process.env['testing']);
     /************************************************************
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
@@ -214,7 +213,7 @@ StateMachine.prototype.tick = function(data) {
                         this.send_to_player('game_turn', data_package);
                     }
                 }
-            }else{console.log('ignored');}
+            }else{logger.log('monopoly ignored');}
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
@@ -734,13 +733,13 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
         var data_package = new Data_package();
         data_package.data_type = 'return_year_of_plenty';
         data_package.player = this.game.players[data.player_id];
-        
+
         this.send_to_player('game_turn',data_package);
     }else{
         console.log("Year of plenty called but year of plenty action not visible");
         logger.log('error', "Year of plenty called but year of plenty action not visible");
     }
-    
+
 }
 
 
@@ -821,6 +820,15 @@ StateMachine.prototype.activate_monopoly = function (data) {
     data_package.player.actions = [];
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
+}
+
+StateMachine.prototype.setSequence = function (){
+    var player_num = process.env['players'];
+    if(typeof player_num === 'undefined'){player_num = 2;}
+    if(parseInt(player_num) === 4){
+      return [0,1,2,3,3,2,1,0];
+    }
+    return [0,1,1,0];
 }
 
 

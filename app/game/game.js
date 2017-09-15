@@ -6,7 +6,7 @@ function Game(state_machine) {
     this.state_machine  = state_machine;
     this.board          = board_builder.generate();
 
-    this.max_players    = 2;
+    this.max_players    = 4;
     this.WIN_SCORE      = 10;
 
     this.players        = [];
@@ -104,15 +104,16 @@ Game.prototype.rollingDice = function() {
   this.dice_roll = [dice1, dice2];
 
   // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
-  console.log(this.test_mode +' -- testmode');
   if(this.test_mode === 'true'){
+    console.log("Fixed dice rolls enabled");
+    logger.log("Fixed dice rolls enabled");
     var dice1array = [1,2,3,4,5,6];
     dice1 = dice1array[this.round_num % dice1array.length];
     dice2 = 4;
-    
+
     this.dice_roll = [dice1, dice2];
   }
-  
+
 
   return dice1 + dice2;
 };
@@ -367,6 +368,21 @@ Game.prototype.haveWinner = function() {
  */
 Game.prototype.return_dev_card = function(card){
   this.development_cards.push(card);
+}
+
+/**
+ * Check whether 4 player tests are required and set max players and setupSequence
+ * @return {int} number of players : currently 2 or 4
+ */
+
+Game.prototype.set_player_number = function (){
+  var player_num = process.env['players'];
+  if(typeof player_num === 'undefined'){player_num = 2;}
+  if(parseInt(player_num) === 4){
+    this.state_machine.setupSequence = [0,1,2,3,3,2,1,0];
+    return 4;
+  }
+  return 2;
 }
 
 module.exports = Game;

@@ -42,6 +42,11 @@ app.get('/', function(req, res) {
     if(typeof testing === 'undefined'){testing = 'false';}
     process.env['testing'] = testing;
 
+    //set environment variable for 4 players if {url}:3000/?players=4 is queried  --> {url}:3000/?test=true&players=4
+    var playerNum = req.query["players"];
+    if(typeof playerNum === 'undefined'){playerNum = 2}
+    process.env['players'] = parseInt(playerNum);
+
     res.sendFile(__dirname + '/views/default.html');
 });
 
