@@ -771,7 +771,6 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
         logger.log('error', "Year of plenty called but year of plenty action not visible");
     }
 
-<<<<<<< HEAD
 }
 
 StateMachine.prototype.activate_road_building = function (data) {
@@ -797,8 +796,6 @@ StateMachine.prototype.activate_road_building = function (data) {
         console.log("Road building called but road building action not visible");
         logger.log('error', "Road building called but road building action not visible");
     }
-=======
->>>>>>> 84f7493a92936d4a149d7f984e2a043d0fdcdb6b
 }
 
 
