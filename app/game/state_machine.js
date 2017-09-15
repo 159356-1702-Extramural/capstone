@@ -301,11 +301,21 @@ StateMachine.prototype.tick = function(data) {
           }
 
         } else {
-          //  Tell this player to wait
-          var setup_data = new Data_package();
-          setup_data.data_type = 'wait_others';
-          this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+            //  Tell this player to wait and update the interface for all others
+            var waiting = [];
+            for(var i = 0; i < this.game.players.length; i++){
+                waiting.push([i, this.game.players[i].turn_complete]);
+            }
 
+            for(var i = 0; i < this.game.players.length; i++){
+                if (i == data.player_id) {
+                    var setup_data = new Data_package();
+                    setup_data.data_type = 'wait_others';
+                    this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+                } else {
+                    this.game.players[i].socket.emit('update_players_waiting', waiting);
+                }
+            }
         }
       }
 
@@ -340,7 +350,8 @@ StateMachine.prototype.broadcast_gamestate = function() {
       id: idx,
       name: player.name,
       colour: player.colour,
-      points: player.score.total_points
+      points: player.score.total_points,
+      victory_points: player.cards.victory_point_cards
     };
   });
 
@@ -700,12 +711,17 @@ StateMachine.prototype.buy_dev_card = function (data){
         card = 'road_building';
         console.log('Dev card purchased: '+card);
 
+        // TODO: DUPLICATE CODE Delete following 2 lines
+        // this.game.players[data.player_id].cards.add_card(card);
+        // this.game.players[data.player_id].round_distribution_cards.add_card(card);
+
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
         }
 
         this.game.players[data.player_id].cards.add_card(card);
         this.game.players[data.player_id].round_distribution_cards.add_card(card);
+
         var data_package = new Data_package();
         data_package.data_type = 'buy_dev_card';
         data_package.player = this.game.players[data.player_id];
@@ -769,7 +785,6 @@ StateMachine.prototype.activate_road_building = function (data) {
         console.log("Road building called but road building action not visible");
         logger.log('error', "Road building called but road building action not visible");
     }
-
 }
 
 

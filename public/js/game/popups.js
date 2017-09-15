@@ -139,11 +139,20 @@ function build_popup_round_roll_results() {
 
     //  Build the html to show the cards in the popup
     var card_html = "";
+    var card_count = 0;
     for (var i = 0; i < popup_data.length; i++) {
         for (var j = 0; j < popup_data[i][1]; j++) {
-            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+            if (card_count < 16) {
+                card_html += '<div class="build_card" style="z-index:' + (500 + card_count) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+            }
+            card_count ++;
         }
     }
+    if (card_count > 15) {
+        card_html += "<br /><div class='player-row' style='width:99%;'>+ " + (card_count - 16) + " more cards</div>";
+    }
+    
+
     if (card_html.length == 0) {
         card_html += 'Nothing for you!';
     }
@@ -256,7 +265,10 @@ function build_popup_round_build(object_type) {
 
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
-        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+        card_html += '<div class="build_card main_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+
+        //  Remove the right number of cards for this road/settlement/city
+        my_cards.remove_card(card_list[i]);
     }
 
     //  Remove for this player
@@ -353,7 +365,7 @@ function build_popup_use_road_building() {
  *  round_use_year_of_plenty.html
  **************************************************/
 function build_popup_victory_point_received(card) {
-    var vp_html = '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_' + card + '" src="images/dev_victory_' + card + '.png"></div>';
+    var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="vp_' + card + ' set_large_image_width" src="images/dev_victory_' + card + '_large.png"></div>';
 
     var vp_cards = [['vp_card',vp_html]];
 
@@ -368,15 +380,15 @@ function build_popup_victory_point_received(card) {
     }
     if(this.current_game.player.cards.victory_point_cards.chapel == 1 && card !== 'chapel'){
         other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_chapel" src="images/dev_victory_chapel.png"></div>'
-        
+
     }
     if(this.current_game.player.cards.victory_point_cards.great_hall == 1 && card !== 'great_hall'){
         other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.png"></div>'
-        
+
     }
     if(this.current_game.player.cards.victory_point_cards.universtiy_of_catan == 1 && card !== 'university_of_catan'){
         other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.png"></div>'
-        
+
     }
     vp_cards.push(['other_vp_cards',other_vp_cards]);
     buildPopup("victory_point_received", false, vp_cards);
@@ -481,8 +493,51 @@ function build_popup_failed_done() {
  /***************************************************
  *  player_detail.html
  **************************************************/
-function build_popup_player_detail() {
-    buildPopup("player_detail", false);
+function build_popup_player_detail(id) {
+    var popup_data = [];
+
+    popup_data.push(["player_id", id]);
+    popup_data.push(["player_name", current_game.players[id].name]);
+    popup_data.push(["player_score", current_game.players[id].points]);
+
+    var settlements = 0;
+    var cities = 0;
+    this.current_game.nodes.forEach(function(node) {
+        if (node.owner > -1 && node.owner == id) {
+            settlements += (node.building === 'settlement') ? 1 : 0;
+            cities += (node.building === 'settlement') ? 0 : 1;
+        }
+    }, this);
+    
+    //  Build settlements in use
+    var settlement_html = "";
+    for (var i = 0; i < 5; i++) {
+        settlement_html += '<div class="player_score_detail' + (settlements <= i ? " disabled" : "") + '"><img src="images/settlement_' + current_game.players[id].colour + '_small.png" /></div>';
+    }
+    popup_data.push(["settlements", settlement_html]);
+    
+    //  Build cities in use
+    var city_html = "";
+    for (var i = 0; i < 5; i++) {
+        city_html += '<div class="player_score_detail' + (cities <= i ? " disabled" : "") + '"><img src="images/city_' + current_game.players[id].colour + '_small.png" /></div>';
+    }
+    popup_data.push(["cities", city_html]);
+    
+    //  TODO: Build list of Knights
+    var knight_html = "";
+    //<div class="player_score_token"><img src="images/dev_knight_small.png" width="50" /></div>
+    
+    //  Victory Points
+    var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
+    var victory_html = "";
+    for (var i = 0; i < victories.length; i++) {
+        if (current_game.players[id].victory_points[victories[i]] > 0) {
+            victory_html += '<div class="player_score_token"><img src="images/dev_victory_' + victories[i] + '.png" width="75" /></div>';
+        }
+    }
+    popup_data.push(["cards", knight_html + victory_html]);
+    
+    buildPopup("player_detail", false, popup_data);
 }
 
  /***************************************************
@@ -503,11 +558,56 @@ function build_popup_end_results(data) {
                         '<div class="player_score_details">' +
                           '<div class="player_score_detail"><img src="images/settlement_'+player.colour+'_small.png" /><br />x 2</div>' +
                           '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x '+player.score.victory_points+'</div>' +
-                          '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (player.score.longest_road ? 1 : 0) + '</div>' +
-                          '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (player.score.largest_army ? 1 : 0) + '</div>' +
+                          '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (player.score.longest_road ? 2 : 0) + '</div>' +
+                          '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (player.score.largest_army ? 2 : 0) + '</div>' +
                         '</div>' +
                       '</div>';
   }, this);
 
   buildPopup("end_results", false, [['results_html', results_html], ['winner_name', winner_name]]);
+}
+
+/***************************************************
+ *  round_show_dev_card.html
+ **************************************************/
+function build_popup_show_dev_card(card) {
+
+    var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="dev_' + card + ' set_large_image_width" src="images/dev_' + card + '_large.png"></div>';
+    var dev_cards_rules = "";
+    var other_dev_cards = "";
+    if(card === "knight"){
+        dev_cards_rules = "Rules coming soon";
+    }else if(card === "year_of_plenty"){
+        dev_cards_rules = "Year of Plenty is played by clicking the 'Year of Plenty' card at any time during your turn.  You can choose any two resource cards to add to your hand.";
+    }else if(card === "monopoly"){
+        dev_cards_rules = "Monopoly takes all of a resource you nominate from all of the other players.  Use it wisely.  The monopoly button will show at the start of each turn until you use it.  To use it, click the button and choose a resource."
+    }else if(card === "road_building"){
+        dev_cards_rules = "Click this card to play it.  You are given the resources to build two additional roads in the turn.  They will automatically win any road conflicts with other players so you don't need to boost the success with cards.";
+    }
+
+    //Use this if we want to only show a players current cards
+
+    // if (current_game.player.cards.dev_cards.year_of_plenty > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
+    // }
+    // if (current_game.player.cards.dev_cards.knight > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
+    // }
+    // if (current_game.player.cards.dev_cards.monopoly > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
+    // }
+    // if (current_game.player.cards.dev_cards.road_building > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+    // }
+
+    //use this to show all cards
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+
+    var dev_cards = [['dev_card', dev_card]];
+    dev_cards.push(['dev_card_rules', dev_cards_rules]);
+    dev_cards.push(['other_dev_cards', other_dev_cards]);
+    buildPopup("round_show_dev_card", false, dev_cards);
 }
