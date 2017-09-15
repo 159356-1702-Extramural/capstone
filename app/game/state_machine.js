@@ -36,7 +36,7 @@ function StateMachine(id) {
     this.game = new Game(this);
     this.state = "setup"; // starting state, states are ref by string for readability
     this.setupComplete = false;
-    this.setupSequence = this.setSequence();
+    this.setupSequence = [0,1,1,0];
     this.setupPointer = 0;
     this.development_cards = this.game.generate_dev_card_deck();
 }
@@ -91,10 +91,12 @@ StateMachine.prototype.next_state = function() {
 *       come in is of use per state
 ****************************************************************/
 StateMachine.prototype.tick = function(data) {
+    console.log(process.env['testing']);
     /************************************************************
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
     if (this.state === "setup") {
+        //check data and add to player
 
         //  Set the piece
         this.validate_player_builds(data);
@@ -105,19 +107,13 @@ StateMachine.prototype.tick = function(data) {
         //logger.log('debug', 'Player '+data.player_id+' has tried to place a settlement.');
         //distribute resources from the second round settlement placement
 
-        //second round resources was running 1 too many times so needed to add the extra check
-        if(this.setupPointer > this.setupSequence.length / 2 && this.setupPointer <= this.setupSequence.length ){
-            console.log("setupPointer: "+ this.setupPointer + " | setupSeq ID: "+ this.setupSequence[this.setupPointer]+ "| data.player_id: "+ data.player_id );
+        if(this.setupPointer > this.setupSequence.length / 2){
             this.game.secondRoundResources(this.game.players[data.player_id], data);
-        }
-
-        // increment round number once
-        if(this.setupPointer === this.setupSequence.length / 2){
             this.game.round_num++;
         }
 
-        if (this.setupPointer === this.setupSequence.length) {
-            console.log("final player setup");
+        if (this.game.round_num > 2) {
+
             //  Do the initial dice roll
             var diceroll;
 
@@ -130,8 +126,6 @@ StateMachine.prototype.tick = function(data) {
 
             // Calculate the scores
             this.game.calculateScores();
-
-            this.game.round_num++;
 
             //  Update the interface
             this.broadcast_gamestate();
@@ -149,9 +143,6 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-
-
-            this.game_start_sequence();
 
         } else {
             //call start sequence again from here - startSequence will find the next player to have a turn
@@ -227,7 +218,7 @@ StateMachine.prototype.tick = function(data) {
                         this.send_to_player('game_turn', data_package);
                     }
                 }
-            }else{logger.log('monopoly ignored');}
+            }else{console.log('ignored');}
         }
         // this section is activated when each player finishes their turn
         else if(data.data_type === 'turn_complete'){
@@ -442,7 +433,8 @@ StateMachine.prototype.send_to_player = function(event_name, data) {
 /***************************************************************
 * Start Sequence
 ***************************************************************/
-StateMachine.prototype.game_start_sequence = function(initiatingGame){
+StateMachine.prototype.game_start_sequence = function(setup_data){
+    console.log('game_start_sequence called');
     logger.log('debug', 'game_start_sequence function called.');
 
     //Create data package for setup phase
@@ -479,14 +471,11 @@ StateMachine.prototype.game_start_sequence = function(initiatingGame){
         this.broadcast('game_turn', setup_data);
 
         this.game.players.forEach(function(player) {
-          player.turn_complete = false;
+          player.turn_complete = true;
         });
 
     }
-
-    //required because it increments pointer out of position before player starts
     this.setupPointer++;
-
 };
 
 /***************************************************************
@@ -563,7 +552,7 @@ StateMachine.prototype.validate_player_builds = function(data){
                     this.game.players[p].cards.remove_cards(item.replace("build_",""));
 
                     //  Remove the boost cards
-                    if(data.actions[a].boost_cards !== null){
+                    if (data.actions[a].boost_cards) {
                         this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
                     }
                 }
@@ -761,10 +750,6 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
 
         this.game.players[data.player_id].cards.remove_card('year_of_plenty');
         // return the purchse immediately
-
-        //return the card to the pack
-        this.game.return_dev_card('year_of_plenty');
-
         var data_package = new Data_package();
         data_package.data_type = 'return_year_of_plenty';
         data_package.player = this.game.players[data.player_id];
@@ -789,9 +774,6 @@ StateMachine.prototype.activate_road_building = function (data) {
 
         //  Remove road building card
         this.game.players[data.player_id].cards.dev_cards.road_building --;
-
-        //return it to the pack
-        this.game.return_dev_card('road_building');
 
         // return the purchse immediately
         var data_package = new Data_package();
@@ -883,15 +865,6 @@ StateMachine.prototype.activate_monopoly = function (data) {
     data_package.player.actions = [];
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
-}
-
-StateMachine.prototype.setSequence = function (){
-    var player_num = process.env['players'];
-    if(typeof player_num === 'undefined'){player_num = 2;}
-    if(parseInt(player_num) === 4){
-      return [0,1,2,3,3,2,1,0];
-    }
-    return [0,1,1,0];
 }
 
 

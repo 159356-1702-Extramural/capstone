@@ -128,8 +128,7 @@ $(document).ready(function() {
         if (data.data_type === "setup_complete" ){
             setup_phase = false;
             $('.popup').hide();
-            build_popup_setup_complete();
-            //buildPopup('setup_complete');
+            buildPopup('setup_complete');
 
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
@@ -150,15 +149,13 @@ $(document).ready(function() {
             alert("That's an invalid move  : " + data.player.actions[0].action_data);
 
         }else if ( data.data_type === 'wait_others'){
-            // allow players to purchase and play dev cards this round
-            reset_dev_cards_per_round()
             //  Normal round, waiting for others
             build_popup_round_waiting_for_others();
 
         }else if ( data.data_type === 'round_turn'){
-            if (current_game.round_num === 2) {
+            if (current_game.round_num == 3) {
                 //  On the first round, we need to show the setup phase results
-                //build_popup_setup_complete();
+                build_popup_setup_complete();
                 setup_phase = false;
             } else {
                 //  First, check to see if any previous builds failed
@@ -171,8 +168,6 @@ $(document).ready(function() {
                     //  Otherwise, we start with the dice popup
                     build_popup_round_roll_results();
                 }
-                // allow players to purchase and play dev cards this round
-                reset_dev_cards_per_round()
             }
 
         }else if (data.data_type === 'monopoly_used'){
@@ -193,15 +188,12 @@ $(document).ready(function() {
         }else if ( data.data_type === 'returned_trade_card'){
 
             // card received from bank trade
+
             current_game.player = data.player;
 
             updatePanelDisplay();
 
         }else if ( data.data_type === 'buy_dev_card'){
-
-            // keep track of how many cards are purchased
-            current_player.dev_cards.purchased++;
-
             current_game.player = data.player;
             update_dev_cards(data);
             updatePanelDisplay();
@@ -248,6 +240,7 @@ $(document).ready(function() {
 
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
+
         update_server("game_update", data_package);
     });
 
@@ -333,15 +326,8 @@ $(document).ready(function() {
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
         if (!current_player.road_building_used) {
-
-            //check to be sure no dev cards have been played yet
-            if(!current_player.dev_cards.played){
-                build_popup_use_road_building();
-            }else{
-                build_popup_restrict_dev_card_use('play');
-            }
+            build_popup_use_road_building();
         }
-
     });
     $doc.on('click', '.road_building_button', function(e) {
         e.preventDefault();
@@ -368,9 +354,6 @@ $(document).ready(function() {
 
         hidePopup();
 
-        //Development card played for the turn
-        dev_card_played();
-
     });
 
     //Monopoly - open development card rules popup
@@ -386,14 +369,7 @@ $(document).ready(function() {
 
     // Year of Plenty - open Year of Plenty window
     $doc.on('click', '.year_of_plenty', function(e) {
-
-        //check to be sure no dev cards have been played yet
-        if(!current_player.dev_cards.played){
-            buildPopup('round_use_year_of_plenty');
-        }else{
-            build_popup_restrict_dev_card_use('play');
-        }
-
+        buildPopup('round_use_year_of_plenty');
     });
 
     $doc.on('click', '.year_of_plenty_button', function(e) {
@@ -416,9 +392,7 @@ $(document).ready(function() {
             data_package.actions.push(action);
             update_server('game_update', data_package);
             hidePopup();
-
-            //Development card played for the turn
-            dev_card_played();
+        //TODO Grey out dev cards?
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
         }else{
@@ -450,13 +424,9 @@ $(document).ready(function() {
             data_package.data_type = 'monopoly_used';
             data_package.player_id = current_game.player.id;
             data_package.actions.push(action);
-
-            // allow only one card per turn
-            dev_card_played();
-
             update_server('game_update', data_package);
             $('.popup').hide();
-
+        //TODO Grey out dev cards?
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
         }else{
@@ -478,30 +448,25 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-        // only active in trade phase
+
+        // TODO : only active in trade phase
         if(current_game.round_num > 2){
 
-            // only purchase 2 cards per round
-            if(current_player.dev_cards.purchased < 2){
-                console.log("----"+current_player.dev_cards.purchased);
-                // check if enough cards to buy development card
-                if(has_resources('dev_card')) {
+            // check if enough cards to buy development card
+            if(has_resources('dev_card')) {
 
-                    // remove resources from hand
-                    current_game.player.cards.resource_cards.grain--;
-                    current_game.player.cards.resource_cards.ore--;
-                    current_game.player.cards.resource_cards.sheep--;
+                // remove resources from hand
+                current_game.player.cards.resource_cards.grain--;
+                current_game.player.cards.resource_cards.ore--;
+                current_game.player.cards.resource_cards.sheep--;
 
-                    //current_game.player.cards.remove_cards("dev_card");
-                    updatePanelDisplay();
-                    var data_package = new Data_package();
-                    data_package.data_type = "buy_dev_card";
-                    data_package.player_id = current_game.player.id;
+                //current_game.player.cards.remove_cards("dev_card");
+                updatePanelDisplay();
+                var data_package = new Data_package();
+                data_package.data_type = "buy_dev_card";
+                data_package.player_id = current_game.player.id;
 
-                    update_server('game_update',data_package);
-                }
-            }else{
-                build_popup_restrict_dev_card_use('purchase');
+                update_server('game_update',data_package);
             }
         }
     });
@@ -584,8 +549,8 @@ function setupTurnFinished(){
 // Open the trading window and make only tradable cards available
 function openTrade () {
 
-    //disable trade until setup complete and if tradebutton greyed out (logic in update panel)
-    if(current_game.round_num > 2 && !$(".tradebutton").hasClass("disabled")){
+    //disable trade until setup complete
+    if(current_game.round_num > 2){
         var resource_cards = current_game.player.cards.resource_cards;
 
         //basic card values
@@ -603,6 +568,34 @@ function openTrade () {
             }
 
         });
+
+        //  add information to show only active options
+        // if(resource_cards.brick >= trade_value){
+        //     card_data.push(['brick_unavailable', '']);
+        // }else{
+        //     card_data.push(['brick_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.grain >= trade_value){
+        //     card_data.push(['grain_unavailable', '']);
+        // }else{
+        //     card_data.push(['grain_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.sheep >= trade_value){
+        //     card_data.push(['sheep_unavailable', '']);
+        // }else{
+        //     card_data.push(['sheep_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.ore >= trade_value){
+        //     card_data.push(['ore_unavailable', '']);
+        // }else{
+        //     card_data.push(['ore_unavailable', 'unavailable']);
+        // }
+        // if(resource_cards.lumber >= trade_value){
+        //     card_data.push(['lumber_unavailable', '']);
+        // }else{
+        //     card_data.push(['lumber_unavailable', 'unavailable']);
+        // }
+
         buildPopup('round_maritime_trade', false, card_data);
     }
 }
@@ -819,9 +812,6 @@ function buildNodes() {
 // Update display figuers
 function updatePanelDisplay() {
 
-  // set trade to disabled to start with
-  $(".tradebutton").addClass("disabled");
-
   // Update the resouce cards
 
   var resource_cards = current_game.player.cards.resource_cards;
@@ -840,10 +830,7 @@ function updatePanelDisplay() {
         $(".buybutton").addClass("disabled");
     }
 
-    //currently set to 4:1 only ... add function as harbours added (TODO)
-    var current_cards = current_game.player.cards.resource_cards;
-
-    if(current_cards.lumber > 3 || current_cards.grain > 3 || current_cards.brick > 3 || current_cards.sheep > 3 || current_cards.ore > 3){
+    if (current_game.round_num > 2) {
         $(".tradebutton").removeClass("disabled");
     }
   // Update the score
@@ -1337,16 +1324,6 @@ function remove_base_cards_for_item(object_type) {
     }
 }
 
-// Only one card can be played per turn
-function dev_card_played(){
-    current_player.dev_cards.played = true;
-}
-
-//At end of turn reset the dev_card.played and dev_card.purchased variables
-function reset_dev_cards_per_round(){
-    current_player.dev_cards.played = false;
-    current_player.dev_cards.purchased = 0;
-}
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
