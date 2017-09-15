@@ -260,7 +260,7 @@ function build_popup_round_build(object_type) {
 
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
-        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+        card_html += '<div class="build_card main_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
 
         //  Remove the right number of cards for this road/settlement/city
         my_cards.remove_card(card_list[i]);
@@ -350,7 +350,7 @@ function build_popup_round_use_year_of_plenty() {
  *  round_use_year_of_plenty.html
  **************************************************/
 function build_popup_victory_point_received(card) {
-    var vp_html = '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_' + card + '" src="images/dev_victory_' + card + '_large.png"></div>';
+    var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="vp_' + card + ' set_large_image_width" src="images/dev_victory_' + card + '_large.png"></div>';
 
     var vp_cards = [['vp_card',vp_html]];
 
@@ -507,4 +507,49 @@ function build_popup_end_results(data) {
   }, this);
 
   buildPopup("end_results", false, [['results_html', results_html], ['winner_name', winner_name]]);
+}
+
+/***************************************************
+ *  round_show_dev_card.html
+ **************************************************/
+function build_popup_show_dev_card(card) {
+
+    var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="dev_' + card + ' set_large_image_width" src="images/dev_' + card + '_large.png"></div>';
+    var dev_cards_rules = "";
+    var other_dev_cards = "";
+    if(card === "knight"){
+        dev_cards_rules = "Rules coming soon";
+    }else if(card === "year_of_plenty"){
+        dev_cards_rules = "Year of Plenty is played by clicking the 'Year of Plenty' card at any time during your turn.  You can choose any two resource cards to add to your hand.";
+    }else if(card === "monopoly"){
+        dev_cards_rules = "Monopoly takes all of a resource you nominate from all of the other players.  Use it wisely.  The monopoly button will show at the start of each turn until you use it.  To use it, click the button and choose a resource."
+    }else if(card === "road_building"){
+        dev_cards_rules = "Click this card to play it.  You are given the resources to build two additional roads in the turn.  They will automatically win any road conflicts with other players so you don't need to boost the success with cards.";
+    }
+
+    //Use this if we want to only show a players current cards
+
+    // if (current_game.player.cards.dev_cards.year_of_plenty > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
+    // }
+    // if (current_game.player.cards.dev_cards.knight > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
+    // }
+    // if (current_game.player.cards.dev_cards.monopoly > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
+    // }
+    // if (current_game.player.cards.dev_cards.road_building > 0) {
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+    // }
+
+    //use this to show all cards
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+
+    var dev_cards = [['dev_card', dev_card]];
+    dev_cards.push(['dev_card_rules', dev_cards_rules]);
+    dev_cards.push(['other_dev_cards', other_dev_cards]);
+    buildPopup("round_show_dev_card", false, dev_cards);
 }
