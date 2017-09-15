@@ -5,17 +5,18 @@ function Board(obj) {
   this.nodes = [];
   this.roads = [];
   this.tiles = [];
-  this.node_tree;
-  if (obj) {
-    for (var prop in obj) this[prop] = obj[prop];
-  }
-
+  this.harbours = [];
+  this.node_tree; // TODO: to be used for longest road
   // Array of resource locations
   this.resourceTiles = [];
 
   // Where the robber lives
   this.robberLocation = null;
 
+  // This if statement must come last to ensure all data is filled in correctly
+  if (obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
 }
 /********************************************
 *  Basic setters for board elements
