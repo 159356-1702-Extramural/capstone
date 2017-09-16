@@ -110,6 +110,11 @@ Game.prototype.rollingDice = function() {
     logger.log("Fixed dice rolls enabled");
     var dice1array = [1,2,3,4,5,6];
     dice1 = dice1array[this.round_num % dice1array.length];
+
+    //to stop 7 being the first number and causing infinite loop
+    if(this.round_num === 2){
+      dice1 = 4;
+    }
     dice2 = 4;
 
     this.dice_roll = [dice1, dice2];

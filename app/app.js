@@ -38,7 +38,7 @@ app.get('/', function(req, res) {
     process.env['testing'] = 'false';
 
     //set environment variable if {url}:3000/?test=true is queried
-    testing = req.query["test"];
+    testing = req.query["fixedDice"];
     if(typeof testing === 'undefined'){testing = 'false';}
     process.env['testing'] = testing;
 
