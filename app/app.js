@@ -47,6 +47,11 @@ app.get('/', function(req, res) {
     if(typeof playerNum === 'undefined'){playerNum = 2}
     process.env['players'] = parseInt(playerNum);
 
+    // skip setup phase using {url}:3000/?setup=skip
+    var setupGame = req.query["setup"];
+    if(typeof playerNum === 'undefined'){setupGame = 'continue'}
+    process.env['setup'] = setupGame;
+
     res.sendFile(__dirname + '/views/default.html');
 });
 

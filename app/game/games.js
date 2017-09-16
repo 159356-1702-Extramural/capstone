@@ -37,6 +37,12 @@ Games.prototype.assign_player = function(socket, data) {
         state_machine.game.test_mode = this.set_test_flag();
     }
 
+    if(process.env['setup'] === 'skip'){
+        state_machine.state = 'play';
+        state_machine.setupComplete = true;
+        state_machine.setupPointer = 8;
+        
+    }
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 
