@@ -4,6 +4,7 @@
 var test = require('ava');
 
 var Game = require('../app/game/game.js');
+var StateMachine = require('../app/game/state_machine.js');
 var BoardBuilder = require('../app/game/board_builder.js');
 var Player = require('../app/data_api/player.js');
 
@@ -335,4 +336,51 @@ test("No winnner found", function (t) {
   t.true(game.players[1].score.total_points === 9);
   t.true(!game.haveWinner());
 
+});
+
+test("Randomised array returned", function(t) {
+  var game = new Game();
+  var randomised_array = game.randomise_startup_array (4);
+
+  t.is(randomised_array.length, 8);
+  t.truthy(randomised_array !== [0,1,2,3,3,2,1,0]);
+});
+
+test("Set player number", function(t) {
+  var game = new Game();
+  var state_machine = new StateMachine.StateMachine();
+  game.state_machine = state_machine;
+  process.env['players'] = 2;
+  t.is(game.state_machine.setupSequence.length, 4);
+
+  process.env['players'] = 4;
+  t.is(game.set_player_number(), 4);
+  t.is(game.state_machine.setupSequence.length, 8);
+});
+
+test("Set player number2", function(t) {
+  var state_machine = new StateMachine.StateMachine();
+  var game = new Game(state_machine);
+  game.test_mode = 'true';
+  /**
+   * round number = 1
+   * var dice1array = [1,2,3,4,5,6];
+   * dice2 = 4
+   * total = dice1Array[1] + dice2 = 2 + 4 = 6
+   */
+  var dice_total = game.rollingDice();
+  t.is(dice_total,6);
+  t.is(game.dice_roll[0], 2);
+  t.is(game.dice_roll[1], 4);
+});
+
+test("Return a development card to the pack", function(t) {
+  var state_machine = new StateMachine.StateMachine();
+  var game = new Game(state_machine);
+
+  var dev_card_original_length = game.state_machine.development_cards.length;
+  game.return_dev_card("knight");
+  t.is(game.state_machine.development_cards.length, dev_card_original_length + 1);
+  t.truthy(game.state_machine.development_cards[game.state_machine.development_cards.length-1], "knight");
+  
 });

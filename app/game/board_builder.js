@@ -112,15 +112,6 @@ compare_point_array = function(a1, a2) {
     return count;
 };
 
-array_contains_point = function(point, array) {
-    for (var i=0; i<array.length; i++) {
-      if (point.x === array[i].x && point.y === array[i].y) {
-          return true;
-      }
-    }
-    return false;
-};
-
 setup_tile_resource = function (t) {
     if (t === 'a') {
         return "brick";
