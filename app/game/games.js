@@ -41,7 +41,17 @@ Games.prototype.assign_player = function(socket, data) {
         state_machine.state = 'play';
         state_machine.setupComplete = true;
         state_machine.setupPointer = 8;
-        
+        state_machine.game.round_num = 3;
+
+        state_machine.game.board.set_item('build_settlement', 24, 0);
+        state_machine.game.board.set_item('build_settlement', 32, 0);
+        state_machine.game.board.set_item('build_road', 24, 32);
+        state_machine.game.board.set_item('build_road', 45, 0);
+
+        state_machine.game.board.set_item('build_settlement', 17, 1);
+        state_machine.game.board.set_item('build_settlement', 42, 1);
+        state_machine.game.board.set_item('build_road', 26, 1);
+        state_machine.game.board.set_item('build_road', 58, 1);
     }
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
