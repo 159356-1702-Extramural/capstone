@@ -761,6 +761,10 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
 
         this.game.players[data.player_id].cards.remove_card('year_of_plenty');
         // return the purchse immediately
+
+        //return the card to the pack
+        this.game.return_dev_card('year_of_plenty');
+
         var data_package = new Data_package();
         data_package.data_type = 'return_year_of_plenty';
         data_package.player = this.game.players[data.player_id];
@@ -785,6 +789,9 @@ StateMachine.prototype.activate_road_building = function (data) {
 
         //  Remove road building card
         this.game.players[data.player_id].cards.dev_cards.road_building --;
+
+        //return it to the pack
+        this.game.return_dev_card('road_building');
 
         // return the purchse immediately
         var data_package = new Data_package();
