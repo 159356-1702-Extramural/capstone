@@ -25,8 +25,8 @@ function Action(){
     //action_data will vary based on action_type
     this.action_data    = [];
 
-    //boost cards kept seperate so easy to count and to return
-    this.boost_cards    = null;
+    //boost cards kept seperate so easy to count and to return : changed to [] as null kept failing length test
+    this.boost_cards    = [];
 }
 
 Action.prototype.set_action_type = function(returned_action_type){
