@@ -45,7 +45,7 @@ Games.prototype.assign_player = function(socket, data) {
 
         state_machine.game.board.set_item('build_settlement', 24, 0);
         state_machine.game.board.set_item('build_settlement', 32, 0);
-        state_machine.game.board.set_item('build_road', 24, 32);
+        state_machine.game.board.set_item('build_road', 32, 0);
         state_machine.game.board.set_item('build_road', 45, 0);
 
         state_machine.game.board.set_item('build_settlement', 17, 1);
