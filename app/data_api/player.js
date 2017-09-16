@@ -17,8 +17,8 @@ function Player(socket, data) {
     this.winner         = false;
 
     this.turn_complete  = false;
-    //hold on to turn data
-    this.turn_data      = null;
+    //hold on to turn data : null was causing errors with .length
+    this.turn_data      = [];
 
     // Players colour
     this.colour         = null;
@@ -30,7 +30,7 @@ function Player(socket, data) {
       largest_army   : false
     };
 
-    this.actions        = null;
+    this.actions        = [];
     this.cards          = new Cards();
     this.round_distribution_cards = new Cards();
 

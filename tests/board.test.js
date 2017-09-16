@@ -162,3 +162,17 @@ test("Get shore road indexs", function (t) {
   var indices = _board.get_shore_road_indexes();
   t.truthy(indices);
 });
+
+test("Getting nodes by direction", function (t){
+    /**
+     * _board.tiles[3][3] => 3rd row, 3rd hex (including water hex)
+     *      associated nodes for this tile are:  [ 31, 32, 29, 20, 19, 22 ]
+     */
+
+    t.is(_board.tiles[3][3].get_node_by_dir("bottom_right"),    31);
+    t.is(_board.tiles[3][3].get_node_by_dir("bottom_left"),     29);
+    t.is(_board.tiles[3][3].get_node_by_dir("top_left"),        20);
+    t.is(_board.tiles[3][3].get_node_by_dir("top_mid"),         19);
+    t.is(_board.tiles[3][3].get_node_by_dir("top_right"),       22);
+    t.is(_board.tiles[3][3].get_node_by_dir("bottom_mid"),      32);
+});

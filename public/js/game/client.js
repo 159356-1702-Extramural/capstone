@@ -128,7 +128,8 @@ $(document).ready(function() {
         if (data.data_type === "setup_complete" ){
             setup_phase = false;
             $('.popup').hide();
-            buildPopup('setup_complete');
+            build_popup_setup_complete();
+            //buildPopup('setup_complete');
 
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
@@ -153,9 +154,9 @@ $(document).ready(function() {
             build_popup_round_waiting_for_others();
 
         }else if ( data.data_type === 'round_turn'){
-            if (current_game.round_num == 3) {
+            if (current_game.round_num === 2) {
                 //  On the first round, we need to show the setup phase results
-                build_popup_setup_complete();
+                //build_popup_setup_complete();
                 setup_phase = false;
             } else {
                 //  First, check to see if any previous builds failed
@@ -240,7 +241,6 @@ $(document).ready(function() {
 
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
-
         update_server("game_update", data_package);
     });
 
