@@ -752,7 +752,7 @@ body {
 }
 .cards .card, .failed_card .card {
     float:left;
-    margin-left:-30px;
+    margin-left:-33px;
 }
 .card.first {
     margin-left:5px !important;
@@ -942,7 +942,22 @@ body {
 .build_give:hover, .extra_card_list:hover {
     cursor: pointer;
 }
-
+.main_card{
+    /* centers card on popup */
+    margin-left: 25%;
+}
+.set_large_image_width{
+    width: 220px;
+}
+.cardRules{
+    font-size: 80%;
+    color: darkgreen;
+    float:right;
+    cursor: pointer;
+}
+.trade_row_devs > .build_card {
+    width: 85px;
+}
 .trade_picked {
     width: 100px;
 }
@@ -1117,4 +1132,12 @@ body {
 .monopoly_avatar {
     float: left;
     width:150px;
+}
+
+.road_cell {
+    float: left;
+    margin-right:10px;
+}
+.road_building.disabled {
+    opacity: 0.4;
 }

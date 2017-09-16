@@ -198,11 +198,11 @@ Game.prototype.generate_dev_card_deck = function(){
   for(var i = 0; i < 14; i++){
     dev_cards.push('knight');
   }
-  var other_cards = ['road_building', 'year_of_plenty', 'monopoly', 'library', 'chapel', 'great_hall', 'universtiy_of_catan', 'market'];
+  var other_cards = ['year_of_plenty', 'road_building', 'monopoly', 'library', 'chapel', 'great_hall', 'universtiy_of_catan', 'market'];
   for(var j = 0; j < other_cards.length; j++){
 
-    //add the first three options twice
-    if(j < 3){
+    //add the first option twice (ignoring road_building and monopoly duplicates for now)
+    if(j < 1){
       dev_cards.push(other_cards[j]);
     }
     dev_cards.push(other_cards[j]);

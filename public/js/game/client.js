@@ -203,6 +203,11 @@ $(document).ready(function() {
             update_dev_cards(data);
             updatePanelDisplay();
 
+        }else if (data.data_type ==='return_road_building'){
+            current_game.player = data.player;
+            update_dev_cards(data);
+            updatePanelDisplay();
+
         }else if ( data.data_type === 'successful_turn'){
 
             // wipe current turn data
@@ -221,7 +226,15 @@ $(document).ready(function() {
                 return false;
             }
             data_package.data_type = "setup_phase";
-        }else{
+        } else if (current_player.road_building_used) {
+            if (current_player.free_roads == 0) {
+                data_package.data_type = "turn_complete";
+                current_player.road_building_used = false;
+            } else {
+                alert("Please place both your free roads.");
+                return false;
+            }
+        } else {
             data_package.data_type = "turn_complete";
         }
 
@@ -238,6 +251,41 @@ $(document).ready(function() {
 
     */
 
+    // Rules - click to show other cards in hand.
+    $doc.on('click', '.dev_rules ', function(e) {
+        e.preventDefault();
+        //clear the current popup
+        $('.popup').hide();
+        if($(this).hasClass('dev_year_of_plenty')){
+            build_popup_show_dev_card("year_of_plenty");
+        }
+        else if($(this).hasClass('dev_knight')){
+            build_popup_show_dev_card("knight");
+        }
+        else if($(this).hasClass('dev_monopoly')){
+            build_popup_show_dev_card("monopoly");
+        }
+        else if($(this).hasClass('dev_road_building')){
+            build_popup_show_dev_card("road_building");
+        }
+
+    });
+    $doc.on('click', '.cardRules ', function(e) {
+        e.preventDefault();
+        var show_dev_card = "none";
+        //loop through and find a current development card
+        if(current_game.player.cards.dev_cards.knight > 0){
+            show_dev_card = "knight";
+        }else if(current_game.player.cards.dev_cards.road_building > 0){
+            show_dev_card = "road_building";
+        }else if(current_game.player.cards.dev_cards.year_of_plenty > 0){
+            show_dev_card = "year_of_plenty";
+        }else if(current_game.player.cards.dev_cards.monopoly > 0){
+            show_dev_card = "monopoly";
+        }
+
+        build_popup_show_dev_card(show_dev_card);
+    });
     //  Trade - click on resource to give
     $doc.on('click', '.card_give', function(e) {
         e.preventDefault();
@@ -277,8 +325,40 @@ $(document).ready(function() {
     });
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
-        free_roads = 2;
-        alert('Place two roads for free');
+        if (!current_player.road_building_used) {
+            build_popup_use_road_building();
+        }
+    });
+    $doc.on('click', '.road_building_button', function(e) {
+        e.preventDefault();
+
+        current_player.road_building_used = true;
+        current_player.free_roads = 2;
+
+        var action = new Action();
+        action.action_type = 'road_building';
+        action.action_result = 0;
+        action.action_data = [];
+        action.action_data.push("brick");
+        action.action_data.push("brick");
+        action.action_data.push("lumber");
+        action.action_data.push("lumber");
+
+        var data_package = new Data_package();
+        data_package.data_type = 'road_building_used';
+        data_package.player_id = current_game.player.id;
+        data_package.actions.push(action);
+        update_server('game_update', data_package);
+
+        $(".road_building").addClass("disabled");
+
+        hidePopup();
+
+    });
+
+    //Monopoly - open development card rules popup
+    $doc.on('click', '.monopoly', function(e) {
+        build_popup_show_dev_card('monopoly');
     });
 
     //  Year of Plenty - clear selected resource
@@ -827,13 +907,8 @@ function can_build(node, node_to_ignore) {
     //  Use board helper method to check owner and adjacent buildings
     var tempBoard = new Board();
     tempBoard.nodes = current_game.nodes;
-    if (node.id == 13) {
-        doLog("1");
-    }
+
     var can_build_here = tempBoard.is_node_valid_build(current_player.id, node.id);
-    if (node.id == 13) {
-        doLog(can_build_here);
-    }
 
     //  TODO: Remove following checks when added to board helper is_node_valid_build
     if (can_build_here) {
@@ -1170,7 +1245,7 @@ function setupPlayer() {
     html += "            </div>";
     html += "        </div>";
     html += "            <div class='cards'>";
-    html += "                Cards:<br />";
+    html += "                Cards:<span class='cardRules'>Card Rules</span><br />";
     html += "                <div class='cardlist'><img src='../images/nocards.png' class='no_cards' /></div>";
     html += "                <div class='buy'><div class='btn btn-info buybutton disabled'>Buy Development Card</div></div>";
     html += "            </div>";
@@ -1184,6 +1259,15 @@ function setupPlayer() {
     $(".score").html(html);
 }
 
+/**
+ * Popup to show development cards full size with their game rules.
+ *
+ * @param {String} card : dev card (knight, monopoly...)
+ */
+
+function show_dev_card_info(card){
+    build_popup_show_dev_card(card);
+}
 function setup_player_scores() {
     var scores = "";
     for (var p = 0; p < current_game.players.length; p++) {
@@ -1211,7 +1295,7 @@ function update_dev_cards(data){
             card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.monopoly > 0) {
-            card_list += "<img src='images/dev_monopoly.png' class='monoploy card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_monopoly.png' class='monopoly card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.road_building > 0) {
             card_list += "<img src='images/dev_road_building.png' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
@@ -1234,11 +1318,24 @@ function update_dev_cards(data){
         }
         if (data.player.round_distribution_cards.victory_point_cards.great_hall > 0 ){
             build_popup_victory_point_received("great_hall");
-        }else{
-            console.log('update_dev_cards failed to parse the data given to it');
         }
         $(".cardlist").html(card_list);
 }
+
+function remove_base_cards_for_item(object_type) {
+    //  Get the list of cards needed
+    var cards = new Cards();
+    var card_list = cards.get_required_cards(object_type);
+
+    //  Create a reference to the players cards
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    for (var i = 0; i < card_list.length; i++) {
+        //  Remove each card
+        my_cards.remove_card(card_list[i]);
+    }
+}
+
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
