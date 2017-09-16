@@ -15,7 +15,8 @@ function Game(state_machine) {
 
     this.player_colours = ['purple', 'red', 'blue', 'green'];
 
-    this.development_cards = [];
+    //TODO: Delete this. It is never referenced. There is a development_cards in state_machine
+    //this.development_cards = [];
 
     this.dice_roll      = [];
 
@@ -367,7 +368,7 @@ Game.prototype.haveWinner = function() {
  * @param {String} card : knight, monopoly, road_building, year_of_plenty
  */
 Game.prototype.return_dev_card = function(card){
-  this.development_cards.push(card);
+  this.state_machine.development_cards.push(card);
 }
 
 /**
