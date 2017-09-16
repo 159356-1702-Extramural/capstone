@@ -190,6 +190,7 @@ StateMachine.prototype.tick = function(data) {
     * If in Play state - gameplay logic opperates on this.game
     ************************************************************/
     else if (this.state === "play") {
+        console.log(this.game.state_machine);
         //  Validate each player action
 
         // trading with the bank (4:1, 3:1, 2:1)
