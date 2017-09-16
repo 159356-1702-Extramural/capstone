@@ -15,9 +15,6 @@ function Game(state_machine) {
 
     this.player_colours = ['purple', 'red', 'blue', 'green'];
 
-    //TODO: Delete this. It is never referenced. There is a development_cards in state_machine
-    //this.development_cards = [];
-
     this.dice_roll      = [];
 
     // Holds id of player with monopoly (-1 for no one holding card);
