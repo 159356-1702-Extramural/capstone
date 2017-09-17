@@ -108,11 +108,9 @@ def buy_dev_card(desired_cap):
     # ActionChains(driver).drag_and_drop(source_element, dest_element).perform()
     # ActionChains(driver).move_to_element(source_purple).move_by_offset(-550, 346).click().perform()
     print "moved road for player 0"
-    sleep(100)
 
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player1.png":
-    print "player 1"
-    finish_testing(driver)
+
     source_purple = driver.find_element_by_id('settlement_red_open_4')
     #dest_element = driver.find_element_by_id('node_17')
     ActionChains(driver).move_to_element(source_element).move_by_offset(-550, 346).click().perform()
