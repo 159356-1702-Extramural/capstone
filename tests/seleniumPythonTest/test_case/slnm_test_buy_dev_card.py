@@ -80,7 +80,7 @@ def buy_dev_card(desired_cap):
   # when get started, place a settlement and a road
   # - look for placed elements
   print "click game start"
-  
+
   driver.implicitly_wait(10)
   start_game = driver.find_element_by_id('get_started')
   start_game.click()
@@ -94,7 +94,7 @@ def buy_dev_card(desired_cap):
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player0.png":
     print "player 0"
     source_purple = driver.find_element_by_id("settlement_purple_open_4")
-   
+
     print "found source_purple"
     # target_purple = driver.find_element_by_id("node_32")
     # print "found target_purple"
@@ -103,7 +103,7 @@ def buy_dev_card(desired_cap):
     print "moved settlement for player 0"
 
     source_purple_road = driver.find_element_by_id("road_purple_open_14")
-    ActionChains(driver).move_to_element(source_purple_road).click_and_hold().move_by_offset(-465, -20).release().perform()
+    ActionChains(driver).move_to_element(source_purple_road).click_and_hold().move_by_offset(-439, -106).release().perform()
     # dest_element = driver.find_element_by_id('node_32')
     # ActionChains(driver).drag_and_drop(source_element, dest_element).perform()
     # ActionChains(driver).move_to_element(source_purple).move_by_offset(-550, 346).click().perform()
@@ -112,7 +112,7 @@ def buy_dev_card(desired_cap):
 
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player1.png":
     print "player 1"
-    finish_testing(driver) 
+    finish_testing(driver)
     source_purple = driver.find_element_by_id('settlement_red_open_4')
     #dest_element = driver.find_element_by_id('node_17')
     ActionChains(driver).move_to_element(source_element).move_by_offset(-550, 346).click().perform()
@@ -132,7 +132,7 @@ def buy_dev_card(desired_cap):
   # elem.send_keys("Sauce Labs")
   # elem.submit()
 
-  finish_testing(driver)  
+  finish_testing(driver)
 
 def finish_testing(driver):
   print "Link to your job: https://saucelabs.com/jobs/%s" % driver.session_id
