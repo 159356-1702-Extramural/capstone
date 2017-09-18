@@ -4,6 +4,8 @@ import sys
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from sauceclient import SauceClient
 from multiprocessing import Pool
 from selenium.webdriver.common.action_chains import ActionChains
@@ -64,7 +66,7 @@ def buy_dev_card(desired_cap):
 
   # click play button
   print "click play button"
-  # play = wait.until(lambda driver: driver.find_element_by_id('play'))
+
   play = driver.find_element_by_id('play')
   play.click()
 
@@ -81,7 +83,7 @@ def buy_dev_card(desired_cap):
   # - look for placed elements
   print "click game start"
 
-  driver.implicitly_wait(10)
+  WebDriverWait(driver, 20).until(EC.presence_of_element_located(By.CLASS_NAME("//*[@class='popup'][contains(@style, 'display: block')]")))
   start_game = driver.find_element_by_id('get_started')
   start_game.click()
 
@@ -94,20 +96,34 @@ def buy_dev_card(desired_cap):
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player0.png":
     print "player 0"
     source_purple = driver.find_element_by_id("settlement_purple_open_4")
-
-    print "found source_purple"
-    # target_purple = driver.find_element_by_id("node_32")
-    # print "found target_purple"
     ActionChains(driver).move_to_element(source_purple).click_and_hold().move_by_offset(-470, 0).release().perform()
 
     print "moved settlement for player 0"
 
     source_purple_road = driver.find_element_by_id("road_purple_open_14")
     ActionChains(driver).move_to_element(source_purple_road).click_and_hold().move_by_offset(-439, -106).release().perform()
-    # dest_element = driver.find_element_by_id('node_32')
-    # ActionChains(driver).drag_and_drop(source_element, dest_element).perform()
-    # ActionChains(driver).move_to_element(source_purple).move_by_offset(-550, 346).click().perform()
+
+    # finish round
+    finish_round = driver.find_elements_by_class_name('finishturnbutton')
+    finish_round[0].click()
+
+    popup = start_game = wait.until(lambda driver: driver.find_elements_by_class_name('popup'))
+    # wait for other players to place
+    # popup = WebDriverWait(driver, 120).until(EC.visibility_of_element_located((By.Id, 'popup')))
+    # start_game = driver.find_element_by_id('get_started')
+    # start_game.click()
+
     print "moved road for player 0"
+
+    source_purple = driver.find_element_by_id("settlement_purple_open_4")
+
+    print "found source_purple"
+    ActionChains(driver).move_to_element(source_purple).click_and_hold().move_by_offset(-540, -77).release().perform()
+
+    print "moved settlement for player 0"
+
+    source_purple_road = driver.find_element_by_id("road_purple_open_14")
+    ActionChains(driver).move_to_element(source_purple_road).click_and_hold().move_by_offset(-439, -106).release().perform()
 
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player1.png":
 
