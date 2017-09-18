@@ -450,9 +450,13 @@ $(document).ready(function() {
             data_package.data_type = 'monopoly_used';
             data_package.player_id = current_game.player.id;
             data_package.actions.push(action);
+
+            // allow only one card per turn
+            dev_card_played();
+
             update_server('game_update', data_package);
             $('.popup').hide();
-        //TODO Grey out dev cards?
+
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
         }else{
