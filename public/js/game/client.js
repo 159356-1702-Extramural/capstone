@@ -150,6 +150,8 @@ $(document).ready(function() {
             alert("That's an invalid move  : " + data.player.actions[0].action_data);
 
         }else if ( data.data_type === 'wait_others'){
+            // allow players to purchase and play dev cards this round
+            reset_dev_cards_per_round()
             //  Normal round, waiting for others
             build_popup_round_waiting_for_others();
 
@@ -169,6 +171,8 @@ $(document).ready(function() {
                     //  Otherwise, we start with the dice popup
                     build_popup_round_roll_results();
                 }
+                // allow players to purchase and play dev cards this round
+                reset_dev_cards_per_round()
             }
 
         }else if (data.data_type === 'monopoly_used'){
@@ -189,12 +193,15 @@ $(document).ready(function() {
         }else if ( data.data_type === 'returned_trade_card'){
 
             // card received from bank trade
-
             current_game.player = data.player;
 
             updatePanelDisplay();
 
         }else if ( data.data_type === 'buy_dev_card'){
+
+            // keep track of how many cards are purchased
+            current_player.dev_cards.purchased++;
+
             current_game.player = data.player;
             update_dev_cards(data);
             updatePanelDisplay();
@@ -326,8 +333,15 @@ $(document).ready(function() {
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
         if (!current_player.road_building_used) {
-            build_popup_use_road_building();
+
+            //check to be sure no dev cards have been played yet
+            if(!current_player.dev_cards.played){
+                build_popup_use_road_building();
+            }else{
+                build_popup_restrict_dev_card_use('play');
+            }
         }
+
     });
     $doc.on('click', '.road_building_button', function(e) {
         e.preventDefault();
@@ -354,6 +368,9 @@ $(document).ready(function() {
 
         hidePopup();
 
+        //Development card played for the turn
+        dev_card_played();
+
     });
 
     //Monopoly - open development card rules popup
@@ -369,7 +386,14 @@ $(document).ready(function() {
 
     // Year of Plenty - open Year of Plenty window
     $doc.on('click', '.year_of_plenty', function(e) {
-        buildPopup('round_use_year_of_plenty');
+
+        //check to be sure no dev cards have been played yet
+        if(!current_player.dev_cards.played){
+            buildPopup('round_use_year_of_plenty');
+        }else{
+            build_popup_restrict_dev_card_use('play');
+        }
+
     });
 
     $doc.on('click', '.year_of_plenty_button', function(e) {
@@ -392,7 +416,9 @@ $(document).ready(function() {
             data_package.actions.push(action);
             update_server('game_update', data_package);
             hidePopup();
-        //TODO Grey out dev cards?
+
+            //Development card played for the turn
+            dev_card_played();
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
         }else{
@@ -424,9 +450,13 @@ $(document).ready(function() {
             data_package.data_type = 'monopoly_used';
             data_package.player_id = current_game.player.id;
             data_package.actions.push(action);
+
+            // allow only one card per turn
+            dev_card_played();
+
             update_server('game_update', data_package);
             $('.popup').hide();
-        //TODO Grey out dev cards?
+
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
         }else{
@@ -448,25 +478,30 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-
-        // TODO : only active in trade phase
+        // only active in trade phase
         if(current_game.round_num > 2){
 
-            // check if enough cards to buy development card
-            if(has_resources('dev_card')) {
+            // only purchase 2 cards per round
+            if(current_player.dev_cards.purchased < 2){
+                console.log("----"+current_player.dev_cards.purchased);
+                // check if enough cards to buy development card
+                if(has_resources('dev_card')) {
 
-                // remove resources from hand
-                current_game.player.cards.resource_cards.grain--;
-                current_game.player.cards.resource_cards.ore--;
-                current_game.player.cards.resource_cards.sheep--;
+                    // remove resources from hand
+                    current_game.player.cards.resource_cards.grain--;
+                    current_game.player.cards.resource_cards.ore--;
+                    current_game.player.cards.resource_cards.sheep--;
 
-                //current_game.player.cards.remove_cards("dev_card");
-                updatePanelDisplay();
-                var data_package = new Data_package();
-                data_package.data_type = "buy_dev_card";
-                data_package.player_id = current_game.player.id;
+                    //current_game.player.cards.remove_cards("dev_card");
+                    updatePanelDisplay();
+                    var data_package = new Data_package();
+                    data_package.data_type = "buy_dev_card";
+                    data_package.player_id = current_game.player.id;
 
-                update_server('game_update',data_package);
+                    update_server('game_update',data_package);
+                }
+            }else{
+                build_popup_restrict_dev_card_use('purchase');
             }
         }
     });
@@ -1324,6 +1359,16 @@ function remove_base_cards_for_item(object_type) {
     }
 }
 
+// Only one card can be played per turn
+function dev_card_played(){
+    current_player.dev_cards.played = true;
+}
+
+//At end of turn reset the dev_card.played and dev_card.purchased variables
+function reset_dev_cards_per_round(){
+    current_player.dev_cards.played = false;
+    current_player.dev_cards.purchased = 0;
+}
 function doLog(m) {
     $(".log").append(m + "<br />");
 }
