@@ -81,7 +81,6 @@ $(document).ready(function() {
       build_popup_end_results(data);
     });
 
-
     // Detect the game starting
     socket.on('build_board', function (data) {
         board = JSON.parse(data);
@@ -95,6 +94,15 @@ $(document).ready(function() {
             }
         }
         $(".board").html(_html);
+    });
+
+    // Detect someone requesting the knight or cancelling thei
+    socket.on('knight_in_use', function(data) {
+      if (data.knight_status === 'disable') {
+        $('.cardlist .knight.card').addClass('disabled');
+      } else {
+        $('.cardlist .knight.card').removeClass('disabled');
+      }
     });
 
     socket.on('update_game', function (data) {
@@ -354,6 +362,54 @@ $(document).ready(function() {
 
         hidePopup();
 
+    });
+
+    // Play the Knight card
+    $doc.on('click', '.cardlist .knight.card', function (e) {
+      e.preventDefault();
+
+      if ($(this).hasClass('disabled')) {
+        alert('Another player is currently using the knight card.');
+        return;
+      }
+
+      var data_package = new Data_package();
+      data_package.data_type = 'request_knight';
+      data_package.player_id = current_game.player.id;
+      data_package.knight_status = 'activate';
+
+      // Let server know we're thinking about playing the knight
+      update_server('game_update', data_package);
+
+      // Show the robbing options
+      build_popup_play_knight();
+    });
+    // Select the resource you want the knight to take
+    $doc.on('click', '.play_knight', function(e) {
+      e.preventDefault();
+
+      var resource = $(this).attr('data-resource');
+
+      var data_package = new Data_package();
+      data_package.data_type = 'use_knight';
+      data_package.player_id = current_game.player.id;
+      data_package.resource = resource;
+
+      update_server('game_update', data_package);
+    });
+    // Cancel playing the knight card
+    $doc.on('click', '.play_knight_cancel', function(e) {
+      e.preventDefault();
+
+      // Let server know knight can be freed up for other players
+      var data_package = new Data_package();
+      data_package.data_type = 'request_knight';
+      data_package.player_id = current_game.player.id;
+      data_package.knight_status = 'cancel';
+
+      update_server('game_update', data_package);
+
+      hidePopup();
     });
 
     //Monopoly - open development card rules popup

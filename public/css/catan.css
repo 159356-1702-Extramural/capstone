@@ -549,6 +549,11 @@ body {
     height:100px;
     overflow:hidden;
 }
+
+.cardlist .disabled {
+  opacity: .5;
+}
+
 .score .cards .buy {
     padding:5px;
 }
@@ -1140,4 +1145,18 @@ body {
 }
 .road_building.disabled {
     opacity: 0.4;
+}
+
+.knight_resource_options {
+  display: flex;
+  justify-content: space-around;
+  margin: 3em 0;
+}
+
+.knight_resource_options .play_knight {
+  cursor: pointer;
+}
+
+.play_knight_cancel {
+  float: right;
 }

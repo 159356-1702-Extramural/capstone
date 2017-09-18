@@ -201,6 +201,16 @@ StateMachine.prototype.tick = function(data) {
 
             this.buy_dev_card(data);
         }
+        else if (data.data_type === 'request_knight') {
+          // Player has indicated they're going to use knight
+          // disable the knight for all other players
+          this.knightRequest(data);
+        }
+        else if (data.data_type === 'use_knight') {
+          // Players has has chosen a resource to get with the knight
+          // update the player, reposition the robber
+          this.useKnight(data);
+        }
         else if(data.data_type === 'year_of_plenty_used'){
             logger.log('debug','year of plenty played by player ' + data.player_id);
             this.activate_year_of_plenty(data);
@@ -210,7 +220,6 @@ StateMachine.prototype.tick = function(data) {
             this.activate_road_building(data);
         }
         else if ( data.data_type === 'monopoly_used' ){
-
             this.game.monopoly = -1;
             this.activate_monopoly(data);
         }
@@ -877,7 +886,26 @@ StateMachine.prototype.activate_monopoly = function (data) {
     data_package.player.actions = [];
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
-}
+};
+
+/**
+ * Handles the request knight request from player
+ * deactivates the knight card for all other players
+ * reactivates the knight card if cancelled
+ */
+StateMachine.prototype.knightRequest = function(data) {
+  var status = (data.knight_status === 'activate') ? 'disable' : 'enable';
+  this.broadcast('knight_in_use', { knight_status : status })
+};
+
+/**
+ * Handles the us knight request - adds resources to player
+ * Moves the robber to a new location
+ */
+StateMachine.prototype.useKnight = function(data) {
+  this.game.knightMoveRobber(data.player_id);
+};
+
 
 StateMachine.prototype.setSequence = function (){
     var player_num = process.env['players'];
@@ -886,7 +914,7 @@ StateMachine.prototype.setSequence = function (){
       return [0,1,2,3,3,2,1,0];
     }
     return [0,1,1,0];
-}
+};
 
 
 module.exports = { StateMachine };

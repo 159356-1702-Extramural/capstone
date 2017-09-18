@@ -302,6 +302,52 @@ Game.prototype.moveRobber = function() {
 };
 
 /**
+ * Moves the robber after the knight card has been played
+ * @param {Number} player_id : id of the player playing the knight
+ */
+Game.prototype.knightMoveRobber = function(player_id) {
+
+  var can_use;
+  var new_robber_tile;
+  var possibleLocations = [];
+  var resourceTiles = this.board.resourceTiles;
+
+  // Remove the robber from current location
+  this.board.robberLocation.robber = false;
+
+  // Find possible locations that we could move the robber to
+  for (var i = 0; i < resourceTiles.length; i++) {
+    can_use = true;
+    for (var j = 0; j < resourceTiles.associated_nodes.length; j++) {
+      // We can't block the player that played the knight
+      if (resourceTiles.associated_nodes[j].owner === player_id) {
+        can_use = false;
+        break;
+      }
+    }
+
+    // Robber can't stay in the same place
+    if (resourceTiles[i].robber) {
+      can_use = false;
+    }
+
+    // If this is a tile we can rob add to array to pick from
+    if (can_use) {
+      possibleLocations.push(resourceTiles[i]);
+    }
+  }
+
+  // Randomly pick a new home for the robber
+  new_robber_tile = possibleLocations[Math.floor(Math.random() * possibleLocations.length)];
+  new_robber_tile.robber = true;
+
+  // Store reference to the new home of the robber
+  this.board.robberLocation = new_robber_tile;
+
+};
+
+
+/**
  * Determines the player scores
  * @return void
  */

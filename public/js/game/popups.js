@@ -611,3 +611,10 @@ function build_popup_show_dev_card(card) {
     dev_cards.push(['other_dev_cards', other_dev_cards]);
     buildPopup("round_show_dev_card", false, dev_cards);
 }
+
+/**
+ *
+ */
+function build_popup_play_knight() {
+  buildPopup("knight_options");
+}
