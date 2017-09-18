@@ -111,15 +111,16 @@ body {
     top:10px;
     left:10px;
     height:100px;
-    width:300px;
+    width:350px;
     z-index:9998;
 }
 .other_player0_cell, .other_player1_cell, .other_player2_cell, .other_player3_cell {
+    position:relative;
     float: left;
     overflow:hidden;
     background-color: white;
     border: thin solid black;
-    margin:5px;
+    margin:2px;
 }
 .other_player0_cell:hover {
     background-color: #7168CA;
@@ -144,8 +145,8 @@ body {
 }
 .other_player0_status, .other_player1_status, .other_player2_status, .other_player3_status {
     position: absolute;
-    left: 75px;
-    top: 10px;
+    left: 70px;
+    top: 5px;
 }
 .other_player_name {
     text-align: center;
