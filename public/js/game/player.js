@@ -6,4 +6,8 @@ function currentPlayer(name, id, colour) {
     this.points = 0;
     this.road_building_used = false;
     this.free_roads = 0;
+    this.dev_cards = {
+        played: false,
+        purchased: 0
+    };
 }

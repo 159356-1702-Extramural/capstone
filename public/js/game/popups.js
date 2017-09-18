@@ -611,3 +611,35 @@ function build_popup_show_dev_card(card) {
     dev_cards.push(['other_dev_cards', other_dev_cards]);
     buildPopup("round_show_dev_card", false, dev_cards);
 }
+
+other_dev_cards
+
+/***************************************************
+ *  round_restrict_dev_card_use.html
+ **************************************************/
+function build_popup_restrict_dev_card_use(card_use) {
+
+    var dev_cards = [];
+    var heading = "";
+    var content = "";
+    var other_dev_cards = "";
+
+    if(card_use === 'purchase'){
+        heading = "Only two development cards can be purchased per turn.";
+        content = "You can purchase a maximum of <b>2</b> cards in any turn and you've purchased two this turn.";
+    }else if (card_use === 'play'){
+        heading = "Only one development card can be played per turn.";
+        content = "You can play a maximum of <b>1</b> card in any turn and you have played one this turn.";
+    }
+
+    // load cards to display
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+
+    dev_cards.push(['dev_card_heading', heading]);
+    dev_cards.push(['dev_card_content', content]);
+    dev_cards.push(['other_dev_cards', other_dev_cards]);
+    buildPopup("round_restrict_dev_card_use", false, dev_cards);
+}
