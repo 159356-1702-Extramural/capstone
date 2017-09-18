@@ -318,9 +318,9 @@ Game.prototype.knightMoveRobber = function(player_id) {
   // Find possible locations that we could move the robber to
   for (var i = 0; i < resourceTiles.length; i++) {
     can_use = true;
-    for (var j = 0; j < resourceTiles.associated_nodes.length; j++) {
+    for (var j = 0; j < resourceTiles[i].associated_nodes.length; j++) {
       // We can't block the player that played the knight
-      if (resourceTiles.associated_nodes[j].owner === player_id) {
+      if (resourceTiles[i].associated_nodes[j].owner === player_id) {
         can_use = false;
         break;
       }

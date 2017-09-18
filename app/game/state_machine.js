@@ -287,7 +287,7 @@ StateMachine.prototype.tick = function(data) {
             this.game.allocateDicerollResources(diceroll);
           } else {
             this.game.moveRobber();
-            // this.game.robPlayers(); // TODO: turn back on!!
+            this.game.robPlayers();
           }
 
           this.broadcast_gamestate();
@@ -910,6 +910,10 @@ StateMachine.prototype.knightRequest = function(data) {
  */
 StateMachine.prototype.useKnight = function(data) {
   this.game.knightMoveRobber(data.player_id);
+
+  // Update player card details to reflect they have played a knight
+  this.game.players[data.player_id].cards.dev_cards.knight_played++;
+  this.game.players[data.player_id].cards.dev_cards.knight--;
 };
 
 

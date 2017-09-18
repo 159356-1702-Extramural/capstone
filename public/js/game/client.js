@@ -412,7 +412,12 @@ $(document).ready(function() {
       data_package.player_id = current_game.player.id;
       data_package.resource = resource;
 
+      current_game.player.cards.resource_cards[resource]++;
+      updatePanelDisplay();
+
       update_server('game_update', data_package);
+
+      hidePopup();
     });
     // Cancel playing the knight card
     $doc.on('click', '.play_knight_cancel', function(e) {
@@ -1410,10 +1415,13 @@ function dev_card_played(){
     current_player.dev_cards.played = true;
 }
 
-//At end of turn reset the dev_card.played and dev_card.purchased variables
+// At end of turn reset the dev_card.played and dev_card.purchased variables
+// Re-enable the knight card
 function reset_dev_cards_per_round(){
     current_player.dev_cards.played = false;
     current_player.dev_cards.purchased = 0;
+
+    $('.cardlist .knight.card').removeClass('disabled');
 }
 function doLog(m) {
     $(".log").append(m + "<br />");

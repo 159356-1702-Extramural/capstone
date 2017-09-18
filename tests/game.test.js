@@ -332,7 +332,7 @@ test("No winnner found", function (t) {
   game.board.set_item('build_settlement', 3, 2);
 
   game.calculateScores();
-  
+
   t.true(game.players[1].score.total_points === 9);
   t.true(!game.haveWinner());
 
@@ -382,5 +382,9 @@ test("Return a development card to the pack", function(t) {
   game.return_dev_card("knight");
   t.is(game.state_machine.development_cards.length, dev_card_original_length + 1);
   t.truthy(game.state_machine.development_cards[game.state_machine.development_cards.length-1], "knight");
-  
+
 });
+
+test.todo("Use knight decrements players knights cards");
+
+test.todo("Knight moves the robber to a new location");

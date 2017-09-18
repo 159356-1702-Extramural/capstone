@@ -39,11 +39,6 @@ generate = function(_board) {
         board.robberLocation = tile;
       }
 
-      // Create an array of the the resource tiles
-      if (['desert', 'water'].indexOf(tile_type) === -1) {
-        board.resourceTiles.push(tile);
-      }
-
       var add_node = true;
       var water = 0;
       // nodes from center of tile are in order;
@@ -87,6 +82,12 @@ generate = function(_board) {
         water = 0;
       }
       board.tiles[y].push(tile);
+
+      // Create an array of the the resource tiles
+      if (['desert', 'water'].indexOf(tile_type) === -1) {
+        board.resourceTiles.push(tile);
+      }
+
     }
   }
   // iterate over node_map for each node in the map and find neighbours
