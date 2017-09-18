@@ -549,8 +549,8 @@ function setupTurnFinished(){
 // Open the trading window and make only tradable cards available
 function openTrade () {
 
-    //disable trade until setup complete
-    if(current_game.round_num > 2){
+    //disable trade until setup complete and if tradebutton greyed out (logic in update panel)
+    if(current_game.round_num > 2 && !$(".tradebutton").hasClass("disabled")){
         var resource_cards = current_game.player.cards.resource_cards;
 
         //basic card values
@@ -568,34 +568,6 @@ function openTrade () {
             }
 
         });
-
-        //  add information to show only active options
-        // if(resource_cards.brick >= trade_value){
-        //     card_data.push(['brick_unavailable', '']);
-        // }else{
-        //     card_data.push(['brick_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.grain >= trade_value){
-        //     card_data.push(['grain_unavailable', '']);
-        // }else{
-        //     card_data.push(['grain_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.sheep >= trade_value){
-        //     card_data.push(['sheep_unavailable', '']);
-        // }else{
-        //     card_data.push(['sheep_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.ore >= trade_value){
-        //     card_data.push(['ore_unavailable', '']);
-        // }else{
-        //     card_data.push(['ore_unavailable', 'unavailable']);
-        // }
-        // if(resource_cards.lumber >= trade_value){
-        //     card_data.push(['lumber_unavailable', '']);
-        // }else{
-        //     card_data.push(['lumber_unavailable', 'unavailable']);
-        // }
-
         buildPopup('round_maritime_trade', false, card_data);
     }
 }
@@ -812,6 +784,9 @@ function buildNodes() {
 // Update display figuers
 function updatePanelDisplay() {
 
+  // set trade to disabled to start with
+  $(".tradebutton").addClass("disabled");
+
   // Update the resouce cards
 
   var resource_cards = current_game.player.cards.resource_cards;
@@ -830,7 +805,10 @@ function updatePanelDisplay() {
         $(".buybutton").addClass("disabled");
     }
 
-    if (current_game.round_num > 2) {
+    //currently set to 4:1 only ... add function as harbours added (TODO)
+    var current_cards = current_game.player.cards.resource_cards;
+
+    if(current_cards.lumber > 3 || current_cards.grain > 3 || current_cards.brick > 3 || current_cards.sheep > 3 || current_cards.ore > 3){
         $(".tradebutton").removeClass("disabled");
     }
   // Update the score
