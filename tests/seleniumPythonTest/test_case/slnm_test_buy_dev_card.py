@@ -79,11 +79,9 @@ def buy_dev_card(desired_cap):
   print "click player button"
   start_game = driver.find_elements_by_class_name('player_button')
   start_game[0].click()
-  # when get started, place a settlement and a road
-  # - look for placed elements
   print "click game start"
 
-  WebDriverWait(driver, 20).until(EC.presence_of_element_located(By.CLASS_NAME("//*[@class='popup'][contains(@style, 'display: block')]")))
+  driver.implicitly_wait(10)
   start_game = driver.find_element_by_id('get_started')
   start_game.click()
 
@@ -94,59 +92,92 @@ def buy_dev_card(desired_cap):
 
   print playerID[0].get_attribute("src")
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player0.png":
-    print "player 0"
-    source_purple = driver.find_element_by_id("settlement_purple_open_4")
-    ActionChains(driver).move_to_element(source_purple).click_and_hold().move_by_offset(-470, 0).release().perform()
 
-    print "moved settlement for player 0"
-
-    source_purple_road = driver.find_element_by_id("road_purple_open_14")
-    ActionChains(driver).move_to_element(source_purple_road).click_and_hold().move_by_offset(-439, -106).release().perform()
+    # place first round settlement and road
+    place_item(driver, "settlement_purple_open_4", -540, 110)
+    place_item(driver, "road_purple_open_14", -573, 29)
 
     # finish round
     finish_round = driver.find_elements_by_class_name('finishturnbutton')
     finish_round[0].click()
 
-    popup = start_game = wait.until(lambda driver: driver.find_elements_by_class_name('popup'))
-    # wait for other players to place
-    # popup = WebDriverWait(driver, 120).until(EC.visibility_of_element_located((By.Id, 'popup')))
-    # start_game = driver.find_element_by_id('get_started')
-    # start_game.click()
+    # wait for second round
+    driver.implicitly_wait(30)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
 
-    print "moved road for player 0"
-
-    source_purple = driver.find_element_by_id("settlement_purple_open_4")
-
-    print "found source_purple"
-    ActionChains(driver).move_to_element(source_purple).click_and_hold().move_by_offset(-540, -77).release().perform()
-
-    print "moved settlement for player 0"
-
-    source_purple_road = driver.find_element_by_id("road_purple_open_14")
-    ActionChains(driver).move_to_element(source_purple_road).click_and_hold().move_by_offset(-439, -106).release().perform()
+    # place second round settlement and road
+    place_item(driver, "settlement_purple_open_4", -685, -62)
+    place_item(driver, "road_purple_open_14", -658, -100)
 
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player1.png":
 
-    source_purple = driver.find_element_by_id('settlement_red_open_4')
-    #dest_element = driver.find_element_by_id('node_17')
-    ActionChains(driver).move_to_element(source_element).move_by_offset(-550, 346).click().perform()
-    print "moved settlement for player 1"
-  # #move a settlement onto the board
+    # place first round settlement and road
+    place_item(driver, "settlement_purple_open_4", -540, 110)
+    place_item(driver, "road_purple_open_14", -573, 29)
 
+    # finish round
+    finish_round = driver.find_elements_by_class_name('finishturnbutton')
+    finish_round[0].click()
+
+    # wait for second round
+    driver.implicitly_wait(30)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
+    # place second round settlement and road
+    place_item(driver, "settlement_red_open_4", -685, -62)
+    place_item(driver, "road_red_open_14", -658, -100)
+
+  if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player2.png":
+
+    # place first round settlement and road
+    place_item(driver, "settlement_purple_open_4", -689, 107)
+    place_item(driver, "road_purple_open_14", -653, 26)
+
+    # finish round
+    finish_round = driver.find_elements_by_class_name('finishturnbutton')
+    finish_round[0].click()
+
+    # wait for second round
+    driver.implicitly_wait(30)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
+    # place second round settlement and road
+    place_item(driver, "settlement_red_open_4", -685, -62)
+    place_item(driver, "road_red_open_14", -658, -100)
+
+  if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player3.png":
+
+    # place first round settlement and road
+    place_item(driver, "settlement_purple_open_4", -608, -184)
+    place_item(driver, "road_purple_open_14", -583, -220)
+
+    # finish round
+    finish_round = driver.find_elements_by_class_name('finishturnbutton')
+    finish_round[0].click()
+
+    # wait for second round
+    driver.implicitly_wait(30)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
+    # place second round settlement and road
+    place_item(driver, "settlement_red_open_4", -685, -62)
+    place_item(driver, "road_red_open_14", -658, -100)
   print "finish round"
   # #finish the round
   finish_round = driver.find_elements_by_class_name('finishturnbutton')
   finish_round[0].click()
 
-  # driver.implicitly_wait(10)
-  # driver.get("http://www.google.com")
-  # if not "Google" in driver.title:
-  #     raise Exception("Unable to load google page!")
-  # elem = driver.find_element_by_name("q")
-  # elem.send_keys("Sauce Labs")
-  # elem.submit()
-
+  driver.implicitly_wait(30)
   finish_testing(driver)
+
+def place_item(driver, item, offsetX, offsetY):
+  print item, offsetX, offsetY
+  source_item = driver.find_element_by_id(item)
+  ActionChains(driver).move_to_element(source_item).click_and_hold().move_by_offset(offsetX, offsetY).release().perform()
 
 def finish_testing(driver):
   print "Link to your job: https://saucelabs.com/jobs/%s" % driver.session_id
