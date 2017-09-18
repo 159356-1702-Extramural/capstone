@@ -52,6 +52,12 @@ app.get('/', function(req, res) {
     if(typeof playerNum === 'undefined'){setupGame = 'continue'}
     process.env['setup'] = setupGame;
 
+    // disable the robber using {url}:3000/?robber=disabled
+    var setupGame = req.query["robber"];
+    if(typeof playerNum === 'undefined'){setupGame = 'enabled'}
+    process.env['robber'] = setupGame;
+    logger.log('debug', 'Robber is '+process.env['robber']);
+
     res.sendFile(__dirname + '/views/default.html');
 });
 

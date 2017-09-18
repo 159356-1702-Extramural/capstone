@@ -190,7 +190,6 @@ StateMachine.prototype.tick = function(data) {
     * If in Play state - gameplay logic opperates on this.game
     ************************************************************/
     else if (this.state === "play") {
-        console.log(this.game.state_machine);
         //  Validate each player action
 
         // trading with the bank (4:1, 3:1, 2:1)
@@ -274,6 +273,13 @@ StateMachine.prototype.tick = function(data) {
             diceroll = this.game.rollingDice();
           } while (false); // TODO: logic to determine if a player has built yet
                           // eg. while (diceroll === 7 && no_build_flag === true)
+
+          //disable the robber for testing
+          if(diceroll === 7 && this.game.robber === 'disabled'){
+              console.log("robber disabled, changing roll to 8");
+            this.game.dice_roll = [4, 4];
+            diceroll = 8;
+          }
 
           if (diceroll !== 7) {
             this.game.allocateDicerollResources(diceroll);
