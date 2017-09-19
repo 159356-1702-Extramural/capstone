@@ -193,7 +193,6 @@ function hide_open_spots(type) {
         $(this).removeClass("expand");
     });
 }
-var test = null;
 
 //  When a building it dropped on the board
 function set_object_on_canvas(event, ui) {
@@ -404,7 +403,7 @@ function return_dependents(object_type, node) {
     for (var i = 1; i < turn_actions.length; i++) {
         var next_object_type = (turn_actions[i].action_type == "build_road" ? "road" : "settlement");
         var next_object_node = turn_actions[i].action_data;
-        if (node.id != next_object_node.id) {
+        if (node.id != next_object_node.id || next_object_type != object_type) {
             if (!has_valid_path(next_object_type, next_object_node, "")) {
                 //  No path found, so we need to return it to the pile and remove it from the canvas
                 var object_to_return = $("#" + next_object_type + "_" + current_player.colour + "_pending_" + next_object_node.id);
@@ -519,17 +518,29 @@ function remove_action_from_list(object_type, node_id){
 }
 
 function stash_node(object_type, new_node, old_node) {
+    //  First get correct array (nodes or roads)
+    var nodes_to_use = current_game.nodes;
+    if (object_type == "road") {
+        nodes_to_use = current_game.roads;
+    }
+
     new_node.id = old_node.id;
     new_node.owner = old_node.owner;
     new_node.status = old_node.status;
     if (object_type == "settlement") { new_node.building = old_node.building;  }
 
-    current_game.nodes[old_node.id].owner = -1;
-    current_game.nodes[old_node.id].status = "";
-    if (object_type == "settlement") { current_game.nodes[old_node.id].building = "";  }
+    nodes_to_use[old_node.id].owner = -1;
+    nodes_to_use[old_node.id].status = "";
+    if (object_type == "settlement") { nodes_to_use[old_node.id].building = "";  }
 }
 function restore_node(object_type, new_node, old_node) {
-    current_game.nodes[new_node.id].owner = new_node.owner;
-    current_game.nodes[new_node.id].status = new_node.status;
-    if (object_type == "settlement") { current_game.nodes[new_node.id].building = new_node.building;  }
+    //  First get correct array (nodes or roads)
+    var nodes_to_use = current_game.nodes;
+    if (object_type == "road") {
+        nodes_to_use = current_game.roads;
+    }
+
+    nodes_to_use[new_node.id].owner = new_node.owner;
+    nodes_to_use[new_node.id].status = new_node.status;
+    if (object_type == "settlement") { nodes_to_use[new_node.id].building = new_node.building;  }
 }

@@ -419,13 +419,11 @@ function build_popup_round_waiting_for_others() {
 /***************************************************
  *  round_post_results.html
  **************************************************/
-var test99 = null;
 function build_popup_failed_moves() {
     var objects = []
     var fail_count = 0;
 
     var cards = new Cards();
-    test99 = current_game.player.turn_data.actions;
 
     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
         if (current_game.player.turn_data.actions[i].action_result > 0) {
