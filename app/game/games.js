@@ -37,6 +37,7 @@ Games.prototype.assign_player = function(socket, data) {
         state_machine.game.test_mode = this.set_test_flag();
     }
 
+    // add settlements and roads, skipping setup phase for testing purposes
     if(process.env['setup'] === 'skip'){
         state_machine.state = 'play';
         state_machine.setupComplete = true;
@@ -65,6 +66,12 @@ Games.prototype.assign_player = function(socket, data) {
             state_machine.game.board.set_item('build_road', 42, 3);
         }
     }
+
+    // disable the robber for testing purposes
+    if(process.env['robber'] === 'disabled'){
+        state_machine.game.robber = 'disabled';
+    }
+
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 

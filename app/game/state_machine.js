@@ -265,6 +265,13 @@ StateMachine.prototype.tick = function(data) {
           } while (false); // TODO: logic to determine if a player has built yet
                           // eg. while (diceroll === 7 && no_build_flag === true)
 
+          //disable the robber for testing
+          if(diceroll === 7 && this.game.robber === 'disabled'){
+              console.log("robber disabled, changing roll to 8");
+            this.game.dice_roll = [4, 4];
+            diceroll = 8;
+          }
+
           if (diceroll !== 7) {
             this.game.allocateDicerollResources(diceroll);
           } else {
