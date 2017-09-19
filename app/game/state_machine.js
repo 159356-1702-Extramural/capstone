@@ -265,28 +265,40 @@ StateMachine.prototype.tick = function(data) {
 
 
           // House rule 7 only comes up once someone has created their first non-startup building
+          var player_has_built = false;
+          for (var i = 0; i < this.game.players.length; i++) {
+              if (this.game.players[i].score.total_points > 2) {
+                player_has_built = true;
+                  break;
+              }
+          }
 
           //  Next dice roll
-          var diceroll;
-
+          var diceroll = 1;
+          var diceroll_check = 1;
           do {
             diceroll = this.game.rollingDice();
-          } while (false); // TODO: logic to determine if a player has built yet
-                          // eg. while (diceroll === 7 && no_build_flag === true)
 
+            //  If not player has built, we don't allow a 7
+            if (diceroll == 7 && !player_has_built) {
+                diceroll = 1;
+
+            //  If a 7 is allowed, we reduce it by requiring two 7s in a row
+            } else if (diceroll == 7 && diceroll_check == 1) {
+                diceroll_check = this.game.rollingDice();
+                if (diceroll_check != 7) {
+                    diceroll = diceroll_check;
+                }
+            }
+            
+          } while (diceroll < 2);
+          
           if (diceroll !== 7) {
             this.game.allocateDicerollResources(diceroll);
           } else {
             this.game.moveRobber();
             this.game.robPlayers();
           }
-
-          this.broadcast_gamestate();
-
-          //  Reset player statuses
-          this.game.players.forEach(function(player) {
-            player.turn_complete = false;
-          });
 
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
