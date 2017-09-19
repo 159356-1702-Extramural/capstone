@@ -3,11 +3,11 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 0,
-        grain : 0,
-        sheep : 0,
-        lumber: 0,
-        ore   : 0
+        brick : 1,
+        grain : 1,
+        sheep : 1,
+        lumber: 1,
+        ore   : 1
     };
 
     this.dev_cards = {
@@ -68,6 +68,18 @@ Cards.prototype.count_victory_cards = function(){
  */
 Cards.prototype.add_card = function(card){
     this.add_cards(card, 1);
+}
+
+/**
+ * Add multiple cards of different types
+ * @param [String] cards : ['sheep', 'lumber'...
+ */
+Cards.prototype.add_cards_from_list = function(cards){
+    if (cards) {
+        for (var i = 0; i < cards.length; i++) {
+            this.add_card(cards[i], 1);
+        }
+    }
 }
 
 /**

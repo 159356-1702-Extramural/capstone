@@ -102,20 +102,26 @@ function setupDragDrop() {
 //  can be built on
 function show_open_spots(object_type, ignore_id) {
     //  The very first task is to see if we have the resources
-    if (has_resources(object_type)) {
+    if (has_resources(object_type, ignore_id)) {
         //  Local reference to nodes object
         var nodes = current_game.nodes;
         if (object_type == "road") {
             nodes = current_game.roads;
         }
 
-        //  If object is on the canvas, ignore the associated node
+        //  If this item is on the board, we need a little info
         var node_to_ignore = null;
-        if (ignore_id.indexOf("_pending_") > -1) {
-            ignore_id = parseInt(ignore_id.replace(object_type + "_" + current_game.player.colour + "_pending_", ""));
-            node_to_ignore = nodes[ignore_id];
-            
-            //  Does this object have dependents (i.e. If we remove this object, does it orphan other objects?)
+        var is_pending = false;
+        var ignore_index = -1;
+        if (ignore_id) {
+            var temp = ignore_id.split('_');
+            is_pending = ignore_id.indexOf("_pending_") > -1;
+            ignore_index = parseInt(temp[temp.length-1]);
+        }
+
+        //  If this item is on the board, see if it releases any dependents
+        if (is_pending) {
+            node_to_ignore = nodes[ignore_index];
             return_dependents(object_type, node_to_ignore);
         }
 
@@ -135,7 +141,7 @@ function show_open_spots(object_type, ignore_id) {
                     var node_id = parseInt($(this).attr('id').replace("node_", ""));
 
                     //  Now check to see if we can build here (if not the node we are already on)
-                    if (node_id != ignore_id) {
+                    if (node_id != ignore_index) {
                         if (can_build(nodes[node_id], node_to_ignore)) {
                             $(this).show();
                         }
@@ -162,8 +168,10 @@ function show_open_spots(object_type, ignore_id) {
             $(".roadspot:not(locked)").each(function () {
                 //  Find the road in the roads object based on the id of this object
                 var road_id = parseInt($(this).attr('id').replace("road_", ""));
-                if (can_build_road(nodes[road_id], node_to_ignore, node_to_enforce)) {
-                    $(this).show();
+                if (road_id != ignore_index) {
+                    if (can_build_road(nodes[road_id], node_to_ignore, node_to_enforce)) {
+                        $(this).show();
+                    }
                 }
             });
         }
@@ -185,6 +193,7 @@ function hide_open_spots(type) {
         $(this).removeClass("expand");
     });
 }
+var test = null;
 
 //  When a building it dropped on the board
 function set_object_on_canvas(event, ui) {
@@ -234,7 +243,8 @@ function set_object_on_canvas(event, ui) {
         object_dragged.appendTo($("body"));
 
         //  Finally, adjust the class of this object to point to this node
-        $("#" + object_dragged_id).attr("id", object_type + "_" + current_player.colour + "_pending_" + node_id);
+        var dragged_object_new_id = object_type + "_" + current_player.colour + "_pending_" + node_id;
+        $("#" + object_dragged_id).attr("id", dragged_object_new_id);
 
         //  If this is a road, we might need to adjust the angle
         if (object_type == "road") {
@@ -249,19 +259,30 @@ function set_object_on_canvas(event, ui) {
             }
         }
 
-        //  Create our action
-        create_player_action(object_type, node, null);
-        if (!current_player.road_building_used || object_type != "road" || (current_player.road_building_used && current_player.free_roads == 0)) {
-            if (current_game.round_num > 2) {
-                //  Prompt the user for more cards
-                build_popup_round_build(object_type);
-            }
+        //  Does this object already have resources tied to it? (i.e. Was it already paid for and is being moved)
+        var has_resources = false;
+        if (object_dragged.attr("data-card-list")) {
+            has_resources = object_dragged.attr("data-card-list").length > 0;
         }
 
-        //  In the case of a road building card, take away the resources directly
-        if (current_player.road_building_used && current_player.free_roads > 0 && object_type == "road") {
-            remove_base_cards_for_item("road");
-            current_player.free_roads --;
+        //  Is a road building card going to effect this action?
+        var using_road_building_now = current_player.road_building_used && current_player.free_roads > 0 && object_type == "road";
+
+        //  Create our action
+        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : null));
+        if (!has_resources) {
+            if (!current_player.road_building_used || object_type != "road" || (current_player.road_building_used && current_player.free_roads == 0)) {
+                if (current_game.round_num > 2) {
+                    //  Prompt the user for more cards
+                    build_popup_round_build(dragged_object_new_id, object_type);
+                }
+            }
+
+            //  In the case of a road building card, take away the resources directly
+            if (using_road_building_now) {
+                take_resources(dragged_object_new_id, ["lumber","brick"]);
+                current_player.free_roads --;
+            }
         }
 
         update_object_counts();
@@ -336,8 +357,13 @@ function return_object(object_to_return, object_to_return_id, last_node_id, clea
         //  Find corresponding Action in actions array to modify or remove
         remove_action_from_list(object_type, node_id);
 
-        //  Clear the node it was dropped on (if it matches the current owner)
+        //  Determine the node it was dropped on
         var last_node = nodes[last_node_id];
+
+        //  Return the resources
+        return_resources(object_to_return_id);
+        
+        //  Clear the node it was dropped on (if it matches the current owner)
         if (clear_node) {
             if (last_node.building) { last_node.building = ""; }
             last_node.owner = -1;
@@ -356,6 +382,7 @@ function return_object(object_to_return, object_to_return_id, last_node_id, clea
 
         //  Update counts
         update_object_counts();
+        updatePanelDisplay();
     } else {
         object_to_return.attr('style', '');
     }

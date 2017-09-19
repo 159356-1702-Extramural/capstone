@@ -257,7 +257,7 @@ function build_popup_monopoly_lose(data) {
 //      extra resources to win conflicts
 //          {object_type} - Object being built (road/settlement/city)
 //          {build_cards} - html list of cards
-function build_popup_round_build(object_type) {
+function build_popup_round_build(object_dragged_id, object_type) {
     //  Get the list of cards needed
     var cards = new Cards();
     var card_list = cards.get_required_cards(object_type);
@@ -265,29 +265,23 @@ function build_popup_round_build(object_type) {
 
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
-        card_html += '<div class="build_card main_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
-
-        //  Remove the right number of cards for this road/settlement/city
-        my_cards.remove_card(card_list[i]);
+        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
     }
-
-    //  Remove for this player
-    remove_base_cards_for_item(object_type);
 
     //  Add in the selectable resources based on what the player has
     var select_html = getResourceCardsHtml();
 
-    buildPopup("round_build", false, [["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
+    buildPopup("round_build", false, [["object_dragged_id", object_dragged_id], ["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
 }
 //  round_build_complete
 //      Build button in the round_build.html template
-function round_build_complete(object_type) {
+function round_build_complete(object_dragged_id, object_type) {
     //  Get html holding the cards
     var extra_cards = $(".extra_card_list").html();
-    var card_list = [];
 
     //  Create a reference to the players cards
     var my_cards = new Cards();
+    var card_list = my_cards.get_required_cards(object_type);
     my_cards.resource_cards = current_game.player.cards.resource_cards;
 
     //  Remove cards from player
@@ -306,6 +300,9 @@ function round_build_complete(object_type) {
             }
         }
     }
+
+    //  Now take the resources away
+    take_resources(object_dragged_id, card_list);
 
     //  Update the turn_action data
     turn_actions[turn_actions.length-1].boost_cards = card_list;
@@ -326,15 +323,12 @@ function round_build_abort(object_type) {
     var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
     return_object(object_to_return, object_to_return.attr("id"), object_node.id);
 
-    //  Create a reference to the players cards
-    var my_cards = new Cards();
-    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    //  We need to reset the node on the board it was dropped on
+    object_node.owner = -1;
+    object_node.status = "";
 
-    //  We need to restore the base cards for the object
-    var card_list = my_cards.get_required_cards(object_type);
-    for (var i = 0; i < card_list.length; i++) {
-        my_cards.add_card(card_list[i])
-    }
+    //  We need to restore the cards used to build this object
+    return_resources(object_to_return.attr("id"));
 
     updatePanelDisplay();
     hidePopup();
@@ -425,11 +419,13 @@ function build_popup_round_waiting_for_others() {
 /***************************************************
  *  round_post_results.html
  **************************************************/
+var test99 = null;
 function build_popup_failed_moves() {
     var objects = []
     var fail_count = 0;
 
     var cards = new Cards();
+    test99 = current_game.player.turn_data.actions;
 
     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
         if (current_game.player.turn_data.actions[i].action_result > 0) {
@@ -439,7 +435,7 @@ function build_popup_failed_moves() {
             var object_type = current_game.player.turn_data.actions[i].action_type.replace("build_", "");
 
             //  Build cards to be returned
-            var card_list = cards.get_required_cards(object_type);
+            var card_list = [];
             for (var c = 0; c < current_game.player.turn_data.actions[i].boost_cards.length; c++) {
                 card_list.push(current_game.player.turn_data.actions[i].boost_cards[c]);
             }
