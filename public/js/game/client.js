@@ -517,7 +517,7 @@ $(document).ready(function() {
         //  Clear the selected cards
         $(".extra_card_list").html("");
         //  Rebuild the list of selectable cards
-        $(".select_card_list").html(getResourceCardsHtml());
+        $(".select_card_list").html($(".build_hidden").html());
 
     });
 

@@ -561,10 +561,7 @@ StateMachine.prototype.validate_player_builds = function(data){
             var data = this.game.players[p].turn_data;
             for (var a = 0; a < data.actions.length; a++) {
                 if (data.actions[a].action_result == 0) {
-                    //  Remove the base cards
-                    this.game.players[p].cards.remove_cards(item.replace("build_",""));
-
-                    //  Remove the boost cards
+                    //  Remove the cards
                     if(data.actions[a].boost_cards !== null){
                         this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
                     }

@@ -263,6 +263,11 @@ function build_popup_round_build(object_dragged_id, object_type) {
     var card_list = cards.get_required_cards(object_type);
     var card_html = "";
 
+    //  Remove the base cards temporarily
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    my_cards.remove_boost_cards(card_list);
+
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
         card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
@@ -270,6 +275,9 @@ function build_popup_round_build(object_dragged_id, object_type) {
 
     //  Add in the selectable resources based on what the player has
     var select_html = getResourceCardsHtml();
+
+    //  Add the base cards back in
+    my_cards.add_cards_from_list(card_list);
 
     buildPopup("round_build", false, [["object_dragged_id", object_dragged_id], ["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
 }
