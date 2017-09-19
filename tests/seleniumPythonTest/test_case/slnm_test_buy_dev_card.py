@@ -24,27 +24,27 @@ desired_caps = [
         'platform':'Linux',
         'name': 'Linux - Firefox',
         'screenResolution' : '1024x768',
-        'version': '45.0',}]#,
-        # {'browserName':'firefox',
-        # 'name': 'MacOS 10.12 - Firefox',
-        # 'screenResolution' : '1024x768',
-        # 'platform':'Mac 10.12',
-        # 'version': '54.0',},
-        # {'browserName':'chrome',
-        # 'platform':'Windows 10',
-        # 'name': 'Windows 10 - Chrome',
-        # 'screenResolution' : '1280x1024',
-        # 'version': '60.0',},
-        # {'browserName':'internet explorer',
-        # 'platform':'Windows 10',
-        # 'name': 'Windows 10 - Internet Explorer',
-        # 'screenResolution' : '1280x1024',
-        # 'version': '11',},
+        'version': '45.0',},
+        {'browserName':'chrome',
+        'platform':'Windows 10',
+        'name': 'Windows 10 - Chrome',
+        'screenResolution' : '1280x1024',
+        'version': '60.0',},
+        {'browserName':'internet explorer',
+        'platform':'Windows 10',
+        'name': 'Windows 10 - Internet Explorer',
+        'screenResolution' : '1280x1024',
+        'version': '11',}]#,
         # {'browserName':'microsoftedge',
         # 'platform':'Windows 10',
         # 'name': 'Windows 10 - Microsoft Edge',
         # 'screenResolution' : '1280x1024',
-        # 'version': '15',}]
+        # 'version': '15',},
+        # {'browserName':'firefox',
+        # 'name': 'MacOS 10.12 - Firefox',
+        # 'screenResolution' : '1024x768',
+        # 'platform':'Mac 10.12',
+        # 'version': '54.0',}]
 
 def get_desired_cap(desired_cap):
   USERNAME = "sumnerfit"
@@ -61,7 +61,7 @@ def buy_dev_card(desired_cap):
 
   # load website
   print "load website"
-  driver.get("https://capstone-settlers.herokuapp.com/")
+  driver.get("https://capstone-settlers.herokuapp.com/?players=4")
   # driver.implicitly_wait(10)
 
   # click play button
@@ -81,10 +81,6 @@ def buy_dev_card(desired_cap):
   start_game[0].click()
   print "click game start"
 
-  driver.implicitly_wait(10)
-  start_game = driver.find_element_by_id('get_started')
-  start_game.click()
-
   print "find correct player actions"
   # find the correct player actions
   player =  driver.find_elements_by_class_name('player')
@@ -93,6 +89,10 @@ def buy_dev_card(desired_cap):
   print playerID[0].get_attribute("src")
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player0.png":
 
+    driver.implicitly_wait(10)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+    
     # place first round settlement and road
     place_item(driver, "settlement_purple_open_4", -540, 110)
     place_item(driver, "road_purple_open_14", -573, 29)
@@ -102,57 +102,69 @@ def buy_dev_card(desired_cap):
     finish_round[0].click()
 
     # wait for second round
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(80)
     start_game = driver.find_element_by_id('get_started')
     start_game.click()
 
     # place second round settlement and road
-    place_item(driver, "settlement_purple_open_4", -685, -62)
-    place_item(driver, "road_purple_open_14", -658, -100)
+    place_item(driver, "settlement_purple_open_3", -313, -80)
+    place_item(driver, "road_purple_open_13", -392, 228)
 
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player1.png":
 
+    driver.implicitly_wait(20)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
     # place first round settlement and road
-    place_item(driver, "settlement_purple_open_4", -540, 110)
-    place_item(driver, "road_purple_open_14", -573, 29)
+    place_item(driver, "settlement_red_open_4", -685, -62)
+    place_item(driver, "road_red_open_14", -658, -100)
 
     # finish round
     finish_round = driver.find_elements_by_class_name('finishturnbutton')
     finish_round[0].click()
 
     # wait for second round
-    driver.implicitly_wait(30)
+    driver.implicitly_wait(50)
     start_game = driver.find_element_by_id('get_started')
     start_game.click()
 
     # place second round settlement and road
-    place_item(driver, "settlement_red_open_4", -685, -62)
-    place_item(driver, "road_red_open_14", -658, -100)
-
-  if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player2.png":
-
-    # place first round settlement and road
-    place_item(driver, "settlement_purple_open_4", -689, 107)
-    place_item(driver, "road_purple_open_14", -653, 26)
-
-    # finish round
-    finish_round = driver.find_elements_by_class_name('finishturnbutton')
-    finish_round[0].click()
-
-    # wait for second round
-    driver.implicitly_wait(30)
-    start_game = driver.find_element_by_id('get_started')
-    start_game.click()
-
-    # place second round settlement and road
-    place_item(driver, "settlement_red_open_4", -685, -62)
-    place_item(driver, "road_red_open_14", -658, -100)
+    place_item(driver, "settlement_red_open_3", -610, 223)
+    place_item(driver, "road_red_open_13", -581, 147)
 
   if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player3.png":
 
+    driver.implicitly_wait(50)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
     # place first round settlement and road
-    place_item(driver, "settlement_purple_open_4", -608, -184)
-    place_item(driver, "road_purple_open_14", -583, -220)
+    place_item(driver, "settlement_green_open_4", -683, 112)
+    place_item(driver, "road_green_open_14", -653, 26)
+
+    # finish round
+    finish_round = driver.find_elements_by_class_name('finishturnbutton')
+    finish_round[0].click()
+
+    # wait for second round
+    driver.implicitly_wait(10)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
+    # place second round settlement and road
+    place_item(driver, "settlement_green_open_3", -387, 79)
+    place_item(driver, "road_green_open_13", -393, 89)
+
+  if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player2.png":
+
+    driver.implicitly_wait(30)
+    start_game = driver.find_element_by_id('get_started')
+    start_game.click()
+
+    # place first round settlement and road
+    place_item(driver, "settlement_blue_open_4", -608, -184)
+    place_item(driver, "road_blue_open_14", -583, -220)
 
     # finish round
     finish_round = driver.find_elements_by_class_name('finishturnbutton')
@@ -164,8 +176,8 @@ def buy_dev_card(desired_cap):
     start_game.click()
 
     # place second round settlement and road
-    place_item(driver, "settlement_red_open_4", -685, -62)
-    place_item(driver, "road_red_open_14", -658, -100)
+    place_item(driver, "settlement_blue_open_3", -471, -180)
+    place_item(driver, "road_blue_open_13", -498, -228)
   print "finish round"
   # #finish the round
   finish_round = driver.find_elements_by_class_name('finishturnbutton')
