@@ -937,6 +937,9 @@ body {
 .build_card_list, .extra_card_list {
     float:left;
 }
+.build_hidden {
+    display:none;
+}
 .extra_card_list {
     margin-left:65px;
 }
