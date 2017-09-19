@@ -277,20 +277,20 @@ StateMachine.prototype.tick = function(data) {
           var diceroll = 1;
           var diceroll_check = 1;
           do {
+              //    Get the initial dice roll
             diceroll = this.game.rollingDice();
 
             //  If not player has built, we don't allow a 7
             if (diceroll == 7 && !player_has_built) {
                 diceroll = 1;
 
-            //  If a 7 is allowed, we reduce it by requiring two 7s in a row
+            //  Nerf the robber just a little to prevent too frequent occurance
             } else if (diceroll == 7 && diceroll_check == 1) {
                 diceroll_check = this.game.rollingDice();
                 if (diceroll_check != 7) {
                     diceroll = diceroll_check;
                 }
             }
-            
           } while (diceroll < 2);
           
           if (diceroll !== 7) {
@@ -299,6 +299,13 @@ StateMachine.prototype.tick = function(data) {
             this.game.moveRobber();
             this.game.robPlayers();
           }
+
+          this.broadcast_gamestate();
+
+          //  Reset player statuses
+          this.game.players.forEach(function(player) {
+            player.turn_complete = false;
+          });
 
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
