@@ -19,7 +19,10 @@ function Game(state_machine) {
 
     // Holds id of player with monopoly (-1 for no one holding card);
     this.monopoly       = -1;
+
+    // set these variables via environment varaibles
     this.test_mode      = 'false';
+    this.robber         = 'enabled'
 }
 
 /**
