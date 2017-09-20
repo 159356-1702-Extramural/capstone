@@ -26,6 +26,16 @@ Games.prototype.assign_player = function(socket, data) {
     var self = this; // assign this object to a var so we can use it...
     var player = new Player(socket, data);
 
+    // add 20 of each resource to player's hand for testing
+    var addTestCards = parseInt(process.env['startWithCards']);
+    if( addTestCards !== 0) {
+        player.cards.add_cards('ore', addTestCards);
+        player.cards.add_cards('sheep',addTestCards);
+        player.cards.add_cards('brick', addTestCards);
+        player.cards.add_cards('grain', addTestCards); 
+        player.cards.add_cards('lumber', addTestCards);
+    }
+
     // Create a new game instance if we dont have available to put this player into
     if (this.games.length === 0 || this.games[this.games.length - 1].game.game_full()) {
         console.log('Creating an new game');
