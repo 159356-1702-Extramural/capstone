@@ -279,7 +279,9 @@ $(document).ready(function() {
     });
     $doc.on('click', '.cardRules ', function(e) {
         e.preventDefault();
-        var show_dev_card = "none";
+
+        // Show something if "card rules" selected
+        var show_dev_card = "knight";
         //loop through and find a current development card
         if(current_game.player.cards.dev_cards.knight > 0){
             show_dev_card = "knight";
