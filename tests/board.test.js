@@ -130,6 +130,24 @@ test("Player can't build road here - node 1 taken", function(t) {
     t.false(can);
 });
 
+test("Player has 1 length road", function(t) {
+    var road = _board.get_road(1);
+    road.owner = 0;
+    var length = _board.longest_road_for_player(0);
+    t.true(length == 1);
+});
+
+test("Player has 3 length road", function(t) {
+    var road = _board.get_road(0);
+    road.owner = 0;
+    road = _board.get_road(1);
+    road.owner = 0;
+    road = _board.get_road(2);
+    road.owner = 0;
+    var length = _board.longest_road_for_player(0);
+    t.true(length == 3);
+});
+
 test("Get a tile corner by number", function(t) {
     var point = new board.Point(2,1);
     var tile = _board.get_tile(point);
