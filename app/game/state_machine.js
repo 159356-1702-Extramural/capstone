@@ -129,10 +129,6 @@ StateMachine.prototype.tick = function(data) {
             this.game.allocateDicerollResources(diceroll);
 
             // Calculate the scores
-            for (var p=0; p< this.game.players.length; p++) {
-              var player_id = this.game.players[p].id;
-              this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
-            };
             this.game.calculateScores();
 
             this.game.round_num++;
@@ -313,6 +309,7 @@ StateMachine.prototype.tick = function(data) {
                }
             }
           }
+
           this.game.calculateScores();
 
           // End the game if we have a winner
@@ -867,10 +864,6 @@ StateMachine.prototype.buy_dev_card = function (data){
         data_package.player = this.game.players[data.player_id];
 
         //  Refreshes all player's scores, strip out to calc only one players score :- TODO
-        for (var p=0; p< this.game.players.length; p++) {
-          var player_id = this.game.players[p].id;
-          this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
-        };
         this.game.calculateScores();
         this.send_to_player('game_turn', data_package );
 

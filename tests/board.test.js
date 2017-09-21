@@ -3,6 +3,8 @@
  */
 var test = require('ava');
 
+var Game = require('../app/game/game.js');
+var Player = require('../app/data_api/player.js');
 var board = require('../public/data_api/board.js');
 var board_builder = require('../app/game/board_builder.js');
 
@@ -152,21 +154,25 @@ test("Player can't build road here - node 0 taken", function(t) {
 });
 
 test("Player has 1 length road", function(t) {
-    var road = _board.get_road(1);
-    road.owner = 0;
-    var length = _board.longest_road_for_player(0);
-    t.true(length == 1);
+    var game = new Game();
+    game.players[0] = new Player({}, { name: 'Tim' });
+    game.players[0].id = 0;
+
+    game.board.get_road(0).owner = 0;
+    var road_map = game.board.longest_roads(game.players);
+    t.true(road_map.get(0) == 1);
 });
 
 test("Player has 3 length road", function(t) {
-    var road = _board.get_road(0);
-    road.owner = 0;
-    road = _board.get_road(1);
-    road.owner = 0;
-    road = _board.get_road(2);
-    road.owner = 0;
-    var length = _board.longest_road_for_player(0);
-    t.true(length == 3);
+    var game = new Game();
+    game.players[0] = new Player({}, { name: 'Tim' });
+    game.players[0].id = 0;
+
+    game.board.get_road(0).owner = 0;
+    game.board.get_road(1).owner = 0;
+    game.board.get_road(2).owner = 0;
+    var road_map = game.board.longest_roads(game.players);
+    t.true(road_map.get(0) == 3);
 });
 
 test("Get a tile corner by number", function(t) {

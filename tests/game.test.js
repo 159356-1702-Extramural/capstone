@@ -224,11 +224,15 @@ test("Player scores correctly totalled", function(t) {
   game.players[3].id = 3;
 
   // Give player 0 some points
-  game.players[0].score.longest_road = 5;
+  game.board.set_item("build_road", 0, game.players[0].id);
+  game.board.set_item("build_road", 1, game.players[0].id);
+  game.board.set_item("build_road", 2, game.players[0].id);
+  game.board.set_item("build_road", 3, game.players[0].id);
+  game.board.set_item("build_road", 4, game.players[0].id);
+  game.board.set_item("build_road", 5, game.players[0].id);
   game.players[0].score.largest_army = false;
 
   // Give player 1 some points
-  game.players[1].score.longest_road = 0;
   game.players[1].score.largest_army = true;
   game.players[1].cards.victory_point_cards.library = 1;
   game.players[1].cards.victory_point_cards.market = 1;

@@ -141,51 +141,34 @@ Game.prototype.allocateDicerollResources = function(roll) {
 
   // Robber no resources to allocate
   if (roll === 7) return;
-
   var tiles = this.board.tiles;
-
   for (i = 0; i < tiles.length; i++) {
-
     var tiles_row = tiles[i];
-
     for (n = 0; n < tiles_row.length; n++) {
-
       // Robbed!! No resources for you
       if (tiles_row[n].robber) continue;
-
       // Find tile with token matching diceroll
       if (tiles_row[n].token == roll) {
-
         // Check the associated notes for structures
         var associated_nodes = tiles_row[n].associated_nodes;
-
-
         for (j = 0; j < associated_nodes.length; j++) {
-
           var node = this.board.nodes[associated_nodes[j]];
-
           // If we find build hand over resource cards to that player
           if (node.building !== '') {
-
             var player_id = node.owner;
-
             // settlements get 1 resource, cities 2
             var num_resources = (node.building === 'settlement') ? 1 : 2;
             var resource = tiles_row[n].type;
-
             // Send the tile resources to the player
             for (k = 0; k < num_resources; k++) {
               this.players[player_id].cards.add_card(resource);
               this.players[player_id].round_distribution_cards.add_card(resource);
             }
-
           }
         }
       }
-
     }
   }
-
 };
 
 // return a shuffled development card deck
@@ -374,28 +357,28 @@ Game.prototype.calculateScores = function() {
   }, this);
 
   // Count VP Cards and Longest Rd, Biggest Army
-/*  var player_with_longest_road;
-  var player_road_length = 0;
-  for (player of this.players) {
-    var length = this.board.longest_road_for_player(player.id);
-    if (length > player_road_length)
-      player_with_longest_road = player.id;
-      player_road_length = length;
-  };
-*/
   var player_with_longest_road = -1;
-  var player_road_length = 0;
+  var longest_road_length = 0;
+  // Find each players longest road
+  var longest_road_map = this.board.longest_roads(this.players);
   for (var p=0; p<this.players.length; p++) {
-    if (this.players[p].score.longest_road > player_road_length) {
-      player_with_longest_road = this.players[p].id;
-      player_road_length = this.players[p].score.longest_road;
+    var player = this.players[p];
+    var players_longest = longest_road_map.get(player.id);
+    if (players_longest > longest_road_length) {
+      player_with_longest_road = player.id;
+      longest_road_length = players_longest;
     }
+  }
+  for (var p=0; p<this.players.length; p++) {
+    var player = this.players[p];
+    player.score.longest_road =
+          (player_with_longest_road === player.id) ? true : false;
   }
 
   this.players.forEach(function(player) {
     player.score.victory_points = player.cards.count_victory_cards();
-    if (player.score.longest_road >= 5)
-      player.score.total_points += (player.id === player_with_longest_road) ? 2 : 0;
+    if (longest_road_length >= 5)
+      player.score.total_points += (player.score.longest_road === true) ? 2 : 0;
     player.score.total_points += (player.score.largest_army) ? 2 : 0;
     player.score.total_points += player.score.victory_points;
   });

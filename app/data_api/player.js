@@ -26,7 +26,7 @@ function Player(socket, data) {
     this.score          = {
       total_points   : 0,
       victory_points : 0,
-      longest_road   : 0,
+      longest_road   : false,
       largest_army   : false
     };
 
