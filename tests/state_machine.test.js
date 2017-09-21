@@ -86,5 +86,89 @@ test('Activate_road_building', function (t) {
     //check dev card returned to deck
     t.is(machine.development_cards.length, (dev_card_deck_length + 1));
 });
+
+test('Activate_year_of_plenty', function (t) {
+    var dev_card_deck_length = machine.development_cards.length;
+    //setup package as if it has arrived from the client
+    var action = new Action();
+    action.action_type = 'year_of_plenty';
+    action.action_result = 0;
+    action.action_data = [];
+
+    action.action_data.push('sheep');
+    action.action_data.push('grain');
+
+    var data_package = new Client_Data_package();
+    data_package.data_type = 'year_of_plenty_used';
+    data_package.player_id = 0;
+    data_package.actions.push(action);
+
+    machine.game.players[0].cards.dev_cards.year_of_plenty = 1;
+
+    machine.activate_year_of_plenty(data_package);
+
+    //check resources are given
+    t.is(machine.game.players[0].cards.resource_cards.sheep , 1);
+    t.is(machine.game.players[0].cards.resource_cards.grain , 1);
+    //check dev card removed from player hand
+    t.is(machine.game.players[0].cards.dev_cards.year_of_plenty , 0);
+    //check dev card returned to deck
+    t.is(machine.development_cards.length, (dev_card_deck_length + 1));
+});
+
+test('Test buying a Development card success', function (t) {
+    var dev_card_deck_length = machine.development_cards.length;
+    //force first card to be year_of_plenty
+    machine.development_cards[0] = 'year_of_plenty';
+
+    //setup Player 0 with enough cards
+    machine.game.players[0].cards.add_cards('grain',1);
+    machine.game.players[0].cards.add_cards('ore',1);
+    machine.game.players[0].cards.add_cards('sheep',1);;
+
+    //Start with Player 0 purchasing a dev card
+    //setup package as if it has arrived from the client
+    var data_package = new Client_Data_package();
+    data_package.data_type = 'buy_dev_card';
+    data_package.player_id = 0;
+
+    machine.buy_dev_card(data_package);
+
+    //check cards are removed from hand
+    t.is(machine.game.players[0].cards.resource_cards.sheep , 0);
+    t.is(machine.game.players[0].cards.resource_cards.grain , 0);
+    t.is(machine.game.players[0].cards.resource_cards.ore , 0);
+    //check dev card added to the players hand
+    t.is(machine.game.players[0].cards.dev_cards.year_of_plenty , 1);
+    //check dev card removed from deck
+    t.is(machine.development_cards.length, (dev_card_deck_length - 1));
+});
+
+test('Test buying a Development card failed', function (t) {
+    var dev_card_deck_length = machine.development_cards.length;
+    //force first card to be year_of_plenty
+    machine.development_cards[0] = 'year_of_plenty';
+
+    //setup Player 0 with insufficient cards
+    machine.game.players[0].cards.add_cards('grain',1);
+    machine.game.players[0].cards.add_cards('ore',1);
+
+    //Start with Player 0 purchasing a dev card
+    //setup package as if it has arrived from the client
+    var data = new Client_Data_package();
+    data.data_type = 'buy_dev_card';
+    data.player_id = 0;
+
+    machine.buy_dev_card(data);
+
+    //check cards remain in the hand
+    t.is(machine.game.players[0].cards.resource_cards.grain , 1);
+    t.is(machine.game.players[0].cards.resource_cards.ore , 1);
+    //check dev card not added to the players hand
+    t.is(machine.game.players[0].cards.dev_cards.year_of_plenty , 0);
+    //check dev card still in deck
+    t.is(machine.development_cards.length, (dev_card_deck_length));
+});
+
 test.todo("trade_with_bank function");
 

@@ -739,11 +739,12 @@ StateMachine.prototype.buy_dev_card = function (data){
     if(this.game.players[data.player_id].cards.available_cards('dev_card')){
         this.game.players[data.player_id].cards.remove_cards('dev_card');
 
-        var card = this.development_cards.pop();
+        // changed to shift as development_cards[0] needs to be removed
+        var card = this.development_cards.shift();
 
-        // TODO: Delete following two lines
-        card = 'road_building';
-        console.log('Dev card purchased: '+card);
+        // TODO: Delete following line
+        //card = 'road_building';
+        logger.log('debug','Dev card purchased: '+card);
 
         // TODO: DUPLICATE CODE Delete following 2 lines
         // this.game.players[data.player_id].cards.add_card(card);
@@ -765,7 +766,8 @@ StateMachine.prototype.buy_dev_card = function (data){
         this.send_to_player('game_turn', data_package );
 
     }else{
-        logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
+
+        console.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
         // TODO send a fail message
     }
 
