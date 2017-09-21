@@ -656,7 +656,17 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
     }
 
     //  Otherwise we keep going
-    if (object_type == "settlement") {
+    if (object_type == "road") {
+        //  No reason to be here if this is a road with no owner
+        if (node.owner == -1) {
+            return false;
+        }
+        //  Otherwise, check neighbor nodes
+        for (var i = 0; i < node.connects.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+    } else {
         //  If this is a settlement, and someone else owns it, we cannot continue on this path
         if (node.owner != player.id && node.owner > -1) {
             return false;
@@ -671,16 +681,6 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
                 has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
                 if (has_path) { break; }
             }
-        }
-    } else {
-        //  No reason to be here if this is a road with no owner
-        if (node.owner == -1) {
-            return false;
-        }
-        //  Otherwise, check neighbor nodes
-        for (var i = 0; i < node.connects.length; i++) {
-            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
-            if (has_path) { break; }
         }
     }
     return has_path;
