@@ -72,6 +72,18 @@ Cards.prototype.add_card = function(card){
 }
 
 /**
+ * Add multiple cards of different types
+ * @param [String] cards : ['sheep', 'lumber'...
+ */
+Cards.prototype.add_cards_from_list = function(cards){
+    if (cards) {
+        for (var i = 0; i < cards.length; i++) {
+            this.add_card(cards[i], 1);
+        }
+    }
+}
+
+/**
  * Add multiple cards
  * @param {String} card : 'sheep' ...
  * @param {int} qty

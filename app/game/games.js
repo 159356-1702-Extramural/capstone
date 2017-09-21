@@ -26,6 +26,16 @@ Games.prototype.assign_player = function(socket, data) {
     var self = this; // assign this object to a var so we can use it...
     var player = new Player(socket, data);
 
+    // add 20 of each resource to player's hand for testing
+    var addTestCards = parseInt(process.env['startWithCards']);
+    if( addTestCards !== 0) {
+        player.cards.add_cards('ore', addTestCards);
+        player.cards.add_cards('sheep',addTestCards);
+        player.cards.add_cards('brick', addTestCards);
+        player.cards.add_cards('grain', addTestCards); 
+        player.cards.add_cards('lumber', addTestCards);
+    }
+
     // Create a new game instance if we dont have available to put this player into
     if (this.games.length === 0 || this.games[this.games.length - 1].game.game_full()) {
         console.log('Creating an new game');
@@ -37,6 +47,7 @@ Games.prototype.assign_player = function(socket, data) {
         state_machine.game.test_mode = this.set_test_flag();
     }
 
+    // add settlements and roads, skipping setup phase for testing purposes
     if(process.env['setup'] === 'skip'){
         state_machine.state = 'play';
         state_machine.setupComplete = true;
@@ -65,6 +76,12 @@ Games.prototype.assign_player = function(socket, data) {
             state_machine.game.board.set_item('build_road', 42, 3);
         }
     }
+
+    // disable the robber for testing purposes
+    if(process.env['robber'] === 'disabled'){
+        state_machine.game.robber = 'disabled';
+    }
+
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 

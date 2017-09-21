@@ -129,6 +129,10 @@ StateMachine.prototype.tick = function(data) {
             this.game.allocateDicerollResources(diceroll);
 
             // Calculate the scores
+            for (var p=0; p< this.game.players.length; p++) {
+              var player_id = this.game.players[p].id;
+              this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
+            };
             this.game.calculateScores();
 
             this.game.round_num++;
@@ -258,6 +262,10 @@ StateMachine.prototype.tick = function(data) {
           this.game.round_num++;
 
           // Calculate the scores
+          for (var p=0; p< this.game.players.length; p++) {
+            var player_id = this.game.players[p].id;
+            this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
+          };
           this.game.calculateScores();
 
           // End the game if we have a winner
@@ -282,6 +290,13 @@ StateMachine.prototype.tick = function(data) {
             diceroll = this.game.rollingDice();
           } while (false); // TODO: logic to determine if a player has built yet
                           // eg. while (diceroll === 7 && no_build_flag === true)
+
+          //disable the robber for testing
+          if(diceroll === 7 && this.game.robber === 'disabled'){
+              console.log("robber disabled, changing roll to 8");
+            this.game.dice_roll = [4, 4];
+            diceroll = 8;
+          }
 
           if (diceroll !== 7) {
             this.game.allocateDicerollResources(diceroll);
@@ -512,6 +527,7 @@ StateMachine.prototype.validate_player_builds = function(data){
             var item        = data.actions[i].action_type; //settlement or road
             var index       = data.actions[i].action_data.id;
             this.game.board.set_item(item, index, player_id, "");
+            data.actions[i].action_result = 0;
         }
     } else {
         //  Our first pass is to do a direct check for conflicts
@@ -568,10 +584,7 @@ StateMachine.prototype.validate_player_builds = function(data){
             var data = this.game.players[p].turn_data;
             for (var a = 0; a < data.actions.length; a++) {
                 if (data.actions[a].action_result == 0) {
-                    //  Remove the base cards
-                    this.game.players[p].cards.remove_cards(item.replace("build_",""));
-
-                    //  Remove the boost cards
+                    //  Remove the cards
                     if(data.actions[a].boost_cards !== null){
                         this.game.players[p].cards.remove_boost_cards(data.actions[a].boost_cards);
                     }
@@ -595,21 +608,39 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                 if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.players[i].turn_data.actions[j].action_data.id == index) {
                     //  Conflict found
 
+                    //  Find the matching object for the current player being checked
+                    var current_player_action_index = -1;
+                    for (var k = 0; k < this.game.players[player_id].turn_data.actions.length; k++) {
+                        if (this.game.players[player_id].turn_data.actions[k].action_type == item && this.game.players[player_id].turn_data.actions[k].action_data.id == index) {
+                            current_player_action_index = k;
+                            break;
+                        }
+                    }
+
                     //  First check to see if main player used road building
-                    if (item == "build_road" && this.game.players[player_id].round_distribution_cards.dev_cards.road_building > 0) {
-                        return 0;   //  Automatic win
+                    if (this.game.players[player_id].turn_data.actions[current_player_action_index].boost_cards.length > 0) {
+                        if (item == "build_road" && this.game.players[player_id].turn_data.actions[current_player_action_index].boost_cards[0] == "road_building") {
+                            return 0;   //  Automatic win
+                        }
                     }
 
                     //  Then check to see if other player used road building
-                    if (item == "build_road" && this.game.players[i].round_distribution_cards.dev_cards.road_building > 0) {
-                        return 2;   //  Automatic Lost
+                    if (this.game.players[i].turn_data.actions[j].boost_cards.length > 0) {
+                        if (item == "build_road" && this.game.players[i].turn_data.actions[j].boost_cards[0] == "road_building") {
+                            return 2;   //  Automatic Loss
+                        }
                     }
 
                     //  Compare # of boost cards
-                    if (boost_cards.length == this.game.players[i].turn_data.actions[j].boost_cards.length) {
+                    var player_boost_card_count = 0;
+                    if (boost_cards) { player_boost_card_count = boost_cards.length; }
+                    var other_player_boost_card_count = 0;
+                    if (this.game.players[i].turn_data.actions[j].boost_cards) { other_player_boost_card_count = this.game.players[i].turn_data.actions[j].boost_cards.length; }
+                    
+                    if (player_boost_card_count == other_player_boost_card_count) {
                         return 1;   //  Tie
                     }
-                    if (boost_cards.length > this.game.players[i].turn_data.actions[j].boost_cards.length) {
+                    if (player_boost_card_count > other_player_boost_card_count) {
                         return 0;   //  Win
                     }
                     return 2;       //  Lost
@@ -747,6 +778,10 @@ StateMachine.prototype.buy_dev_card = function (data){
         data_package.player = this.game.players[data.player_id];
 
         //  Refreshes all player's scores, strip out to calc only one players score :- TODO
+        for (var p=0; p< this.game.players.length; p++) {
+          var player_id = this.game.players[p].id;
+          this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
+        };
         this.game.calculateScores();
         this.send_to_player('game_turn', data_package );
 

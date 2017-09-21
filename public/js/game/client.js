@@ -287,7 +287,9 @@ $(document).ready(function() {
     });
     $doc.on('click', '.cardRules ', function(e) {
         e.preventDefault();
-        var show_dev_card = "none";
+
+        // Show something if "card rules" selected
+        var show_dev_card = "knight";
         //loop through and find a current development card
         if(current_game.player.cards.dev_cards.knight > 0){
             show_dev_card = "knight";
@@ -625,7 +627,7 @@ $(document).ready(function() {
         //  Clear the selected cards
         $(".extra_card_list").html("");
         //  Rebuild the list of selectable cards
-        $(".select_card_list").html(getResourceCardsHtml());
+        $(".select_card_list").html($(".build_hidden").html());
 
     });
 
@@ -856,7 +858,7 @@ function buildNodes() {
                             point[1] -= (node.building == "city" ? (building_dimension / 2) : (settlement_height / 2));
 
                             //  Finally create the html based on the node properties
-                            $("body").append("<div id='node_" + node_positions[j] + "' class='node " + node_class + "' style='top:" + point[1] + "px; left:" + point[0] + "px;'></div>");
+                            $("body").append("<div id='node_" + node_positions[j] + "' class='node " + node_class + "' style='top:" + point[1] + "px; left:" + point[0] + "px;' data-card-list=''></div>");
                         } else {
                             //  The node exists on the board, update css in case it changed
                             node_on_canvas.attr("class", "node " + node_class);
@@ -1206,33 +1208,56 @@ function validateNode(neighbors, index, nodeindex) {
     return null;
 }
 
-function has_resources(object_type) {
+function has_resources(object_type, ignore_id) {
+    var success = false;
+
     //  Get the current player cards
     var my_cards = new Cards();
     my_cards.resource_cards = current_game.player.cards.resource_cards;
+
+    //  If the item is on the board, we need to temporarily add the resources for that item
+    //  back into the cards for this player
+    if (ignore_id && current_game.round_num > 2) {
+        if (ignore_id.indexOf("_pending_") > -1) {
+            var cards = $("#" + ignore_id).attr("data-card-list");
+            if (cards.length > 0) {
+                my_cards.add_cards_from_list(cards.split(","));
+            }
+        }
+    }
 
     if (object_type == "settlement") {
         //  During the setup round, assume they do
         if (current_game.round_num < 3) { return true; }
         //  Otherwise we need 1 lumber, 1 grain, 1 brick and 1 sheep
-        return my_cards.has_cards(['lumber', 'grain', 'brick', 'sheep']);
+        success = my_cards.has_cards(['lumber', 'grain', 'brick', 'sheep']);
     }
     if (object_type == "road") {
         //  During the setup round, assume they do
         if (current_game.round_num < 3) { return true; }
         //  Otherwise we need 1 lumber, 1 brick
-        return my_cards.has_cards(['lumber', 'brick']);
+        success = my_cards.has_cards(['lumber', 'brick']);
     }
     if (object_type == "city") {
         //  Otherwise we need 2 grain and 3 ore
-        return my_cards.has_cards(['grain', 'grain', 'ore', 'ore', 'ore']);
+        success = my_cards.has_cards(['grain', 'grain', 'ore', 'ore', 'ore']);
     }
     if (object_type == "dev_card") {
         //  Otherwise we need 2 grain and 3 ore
-        return my_cards.has_cards(['ore', 'grain', 'sheep']);
+        success = my_cards.has_cards(['ore', 'grain', 'sheep']);
     }
 
-    return false;
+    //  If the item is on the board, we need to remove the resources we added earlier
+    if (ignore_id) {
+        if (ignore_id.indexOf("_pending_") > -1) {
+            var cards = $("#" + ignore_id).attr("data-card-list");
+            if (cards.length > 0) {
+                my_cards.remove_boost_cards(cards.split(","));
+            }
+        }
+    }
+
+    return success;
 }
 
 function getResourceCardsHtml() {
@@ -1246,7 +1271,7 @@ function getResourceCardsHtml() {
 }
 
 function check_failed_builds() {
-    for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
+     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
         if (current_game.player.turn_data.actions[i].action_result > 0) {
             return false;
         }
@@ -1396,17 +1421,31 @@ function update_dev_cards(data){
         $(".cardlist").html(card_list);
 }
 
+//  Remove resource cards (just the base ones) from the current player
 function remove_base_cards_for_item(object_type) {
-    //  Get the list of cards needed
-    var cards = new Cards();
-    var card_list = cards.get_required_cards(object_type);
-
-    //  Create a reference to the players cards
     var my_cards = new Cards();
     my_cards.resource_cards = current_game.player.cards.resource_cards;
-    for (var i = 0; i < card_list.length; i++) {
-        //  Remove each card
-        my_cards.remove_card(card_list[i]);
+    my_cards.remove_boost_cards(my_cards.get_required_cards(object_type));
+}
+
+//  Take resources cards and tie them to the object on the canvas
+function take_resources(object_id, card_list) {
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    my_cards.remove_boost_cards(card_list);
+    $("#" + object_id).attr("data-card-list", card_list);
+}
+
+//  Restore resource cards the current object used to the current player
+function return_resources(object_id) {
+    var cards = $("#" + object_id).attr("data-card-list");
+    if (cards) {
+        if (cards.length > 0) {
+            var my_cards = new Cards();
+            my_cards.resource_cards = current_game.player.cards.resource_cards;
+            my_cards.add_cards_from_list(cards.split(","));
+        }
+        $("#" + object_id).attr("data-card-list", "");
     }
 }
 
