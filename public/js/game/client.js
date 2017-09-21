@@ -827,6 +827,7 @@ function buildNodes() {
             }
         }
     }
+    update_object_counts();
 }
 
 // Update display figuers
