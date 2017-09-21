@@ -1,6 +1,3 @@
-/********************************************
-*  Basic getters for board elements
-*********************************************/
 function Board(obj) {
   this.nodes = [];
   this.roads = [];
