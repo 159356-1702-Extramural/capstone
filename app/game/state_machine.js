@@ -636,7 +636,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                     if (boost_cards) { player_boost_card_count = boost_cards.length; }
                     var other_player_boost_card_count = 0;
                     if (this.game.players[i].turn_data.actions[j].boost_cards) { other_player_boost_card_count = this.game.players[i].turn_data.actions[j].boost_cards.length; }
-                    
+
                     if (player_boost_card_count == other_player_boost_card_count) {
                         return 1;   //  Tie
                     }
@@ -945,6 +945,9 @@ StateMachine.prototype.knightRequest = function(data) {
  */
 StateMachine.prototype.useKnight = function(data) {
   this.game.knightMoveRobber(data.player_id);
+
+  // Add the resource played to the players stash on the back end
+  this.game.players[data.player_id].cards.add_cards(data.resource, 1);
 
   // Update player card details to reflect they have played a knight
   this.game.players[data.player_id].cards.dev_cards.knight_played++;

@@ -96,7 +96,7 @@ $(document).ready(function() {
         $(".board").html(_html);
     });
 
-    // Detect someone requesting the knight or cancelling thei
+    // Detect someone requesting the knight or cancelling the knight
     socket.on('knight_in_use', function(data) {
       if (data.knight_status === 'disable') {
         $('.cardlist .knight.card').addClass('disabled');
