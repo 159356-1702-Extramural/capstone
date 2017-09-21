@@ -6,7 +6,7 @@
   "ava": {
     "files": [
       "tests/*.test.js"
-    ], 
+    ],
     "concurrency": 4
   },
   "scripts": {

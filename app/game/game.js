@@ -80,6 +80,7 @@ Game.prototype.secondRoundResources = function(player, data) {
   }
 
   // Loop over each point and give the player one resource of each type
+  // TODO: test with invalid data
   if (typeof tiles !== 'undefined') {
       for (i = 0; i < tiles.length; i++) {
         res_type = this.board.get_tile_resource_type(tiles[i]);
@@ -324,15 +325,30 @@ Game.prototype.calculateScores = function() {
   }, this);
 
   // Count VP Cards and Longest Rd, Biggest Army
+/*  var player_with_longest_road;
+  var player_road_length = 0;
+  for (player of this.players) {
+    var length = this.board.longest_road_for_player(player.id);
+    if (length > player_road_length)
+      player_with_longest_road = player.id;
+      player_road_length = length;
+  };
+*/
+  var player_with_longest_road = -1;
+  var player_road_length = 0;
+  for (var p=0; p<this.players.length; p++) {
+    if (this.players[p].score.longest_road > player_road_length) {
+      player_with_longest_road = this.players[p].id;
+      player_road_length = this.players[p].score.longest_road;
+    }
+  }
+
   this.players.forEach(function(player) {
-
     player.score.victory_points = player.cards.count_victory_cards();
-
-    player.score.total_points += (player.score.longest_road) ? 2 : 0;
+    if (player.score.longest_road >= 5)
+      player.score.total_points += (player.id === player_with_longest_road) ? 2 : 0;
     player.score.total_points += (player.score.largest_army) ? 2 : 0;
-
     player.score.total_points += player.score.victory_points;
-
   });
 
 };
