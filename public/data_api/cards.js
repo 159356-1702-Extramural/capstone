@@ -3,11 +3,11 @@
  */
 function Cards(){
     this.resource_cards = {
-        brick : 0,
-        grain : 0,
-        sheep : 0,
-        lumber: 0,
-        ore   : 0
+        brick : 2,
+        grain : 3,
+        sheep : 1,
+        lumber: 2,
+        ore   : 3
     };
 
     this.dev_cards = {
@@ -274,7 +274,7 @@ Cards.prototype.get_required_cards = function(object_type){
         card_list.push('lumber');
         card_list.push('brick');
         card_list.push('grain');
-        card_list.push('ore');
+        card_list.push('sheep');
     }
     if ( object_type == 'city' ) {
         card_list.push('grain');
