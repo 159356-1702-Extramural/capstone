@@ -123,6 +123,46 @@ test('Activate_year_of_plenty', function (t) {
     t.is(machine.development_cards.length, (dev_card_deck_length + 1));
 });
 
+test('Activate_year_of_plenty and road_building fails with wrong data_type', function (t) {
+    var dev_card_deck_length = machine.development_cards.length;
+    //setup package as if it has arrived from the client
+    var action = new Action();
+    action.action_type = 'monopoly'; //purposefully wrong
+    action.action_result = 0;
+    action.action_data = [];
+
+    var data_package = new Client_Data_package();
+    data_package.data_type = 'year_of_plenty_used';
+    data_package.player_id = 0;
+    data_package.actions.push(action);
+
+    machine.state = 'play';
+
+    machine.game.players[0].cards.dev_cards.year_of_plenty = 1;
+    machine.game.players[0].cards.dev_cards.road_building = 1;
+
+    machine.activate_year_of_plenty(data_package);
+    //machine.tick(data_package);
+
+    //check resources are not given
+    t.is(machine.game.players[0].cards.resource_cards.sheep , 0);
+    t.is(machine.game.players[0].cards.resource_cards.grain , 0);
+    //check dev card not removed from player hand
+    t.is(machine.game.players[0].cards.dev_cards.year_of_plenty , 1);
+    //check dev card not returned to deck
+    t.is(machine.development_cards.length, dev_card_deck_length);
+
+    machine.activate_road_building(data_package);
+       //check resources are not given
+    t.is(machine.game.players[0].cards.resource_cards.sheep , 0);
+    t.is(machine.game.players[0].cards.resource_cards.grain , 0);
+    //check dev card not removed from player hand
+    t.is(machine.game.players[0].cards.dev_cards.road_building , 1);
+    //check dev card not returned to deck
+    t.is(machine.development_cards.length, dev_card_deck_length);
+
+});
+
 test('Test buying a Development card success', function (t) {
     var dev_card_deck_length = machine.development_cards.length;
     //force first card to be year_of_plenty
@@ -153,6 +193,23 @@ test('Test buying a Development card success', function (t) {
     t.is(machine.development_cards.length, (dev_card_deck_length - 1));
 });
 
+test('Test buying a Development card sets monopoly user', function (t) {
+    machine.development_cards[0] = 'monopoly';
+
+    //setup Player 1 with enough cards
+    machine.game.players[1].cards.add_cards('grain',1);
+    machine.game.players[1].cards.add_cards('ore',1);
+    machine.game.players[1].cards.add_cards('sheep',1);;
+
+    //Start with Player 1 purchasing a dev card
+    //setup package as if it has arrived from the client
+    var data_package = new Client_Data_package();
+    data_package.data_type = 'buy_dev_card';
+    data_package.player_id = 1;
+    
+    machine.buy_dev_card(data_package);
+    t.is(machine.game.monopoly, 1);
+});
 test('Test buying a Development card failed', function (t) {
     var dev_card_deck_length = machine.development_cards.length;
     //force first card to be year_of_plenty

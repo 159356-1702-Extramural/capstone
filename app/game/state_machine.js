@@ -749,7 +749,7 @@ StateMachine.prototype.buy_dev_card = function (data){
         // TODO: DUPLICATE CODE Delete following 2 lines
         // this.game.players[data.player_id].cards.add_card(card);
         // this.game.players[data.player_id].round_distribution_cards.add_card(card);
-
+        console.log("-----------------"+card);
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
         }
