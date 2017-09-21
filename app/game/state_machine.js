@@ -767,7 +767,7 @@ StateMachine.prototype.buy_dev_card = function (data){
 
     }else{
 
-        console.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
+        console.log('error', 'Player '+ data.player_id + ' does not have enough resources to buy a dev card');
         // TODO send a fail message
     }
 
