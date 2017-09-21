@@ -130,6 +130,17 @@ function build_popup_round_roll_results() {
     // User the multipler to convert negative to positive for display
     var multiplier = robber_active ? -1 : 1;
 
+    // Create message if a player has used the knight
+    var knight = '';
+    if (current_game.knight_player_id !== -1) {
+      if (current_game.knight_player_id == current_game.player.id) {
+        knight = "You have played the Knight. Robber has moved!";
+      } else {
+        knight = current_game.players[current_game.knight_player_id].name +
+          " has played the knight! Robber has moved.";
+      }
+    }
+
     var popup_data = [];
     popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick * multiplier]);
     popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep * multiplier]);
@@ -174,7 +185,8 @@ function build_popup_round_roll_results() {
       ["setup_cards", card_html],
       ["robber", robber_display],
       ["has_monopoly", has_monopoly],
-      ["title", title]
+      ["title", title],
+      ["knight", knight]
     ]);
 }
 

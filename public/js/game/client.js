@@ -106,28 +106,29 @@ $(document).ready(function() {
     });
 
     socket.on('update_game', function (data) {
-        //  Update the local copy of the game data
-        current_game = new currentGame(data);
 
-        // DEBUG:
-        console.log('current_game: ', current_game);
+      //  Update the local copy of the game data
+      current_game = new currentGame(data);
 
-        turn_actions = [];
+      // DEBUG:
+      console.log('current_game: ', current_game);
 
-        //  Show all players score box
-        setup_player_scores();
+      turn_actions = [];
 
-        // Update the game state panel
-        updatePanelDisplay();
+      //  Show all players score box
+      setup_player_scores();
 
-        //  Update all nodes on the board
-        buildNodes();
+      // Update the game state panel
+      updatePanelDisplay();
 
-        //  Insert holders for all roads
-        buildRoads();
+      //  Update all nodes on the board
+      buildNodes();
 
-        //  Update drag and drop
-        setupDragDrop();
+      //  Insert holders for all roads
+      buildRoads();
+
+      //  Update drag and drop
+      setupDragDrop();
     });
 
     //  During the setup phase, each player waits until their
@@ -414,10 +415,17 @@ $(document).ready(function() {
       data_package.player_id = current_game.player.id;
       data_package.resource = resource;
 
+      update_server('game_update', data_package);
+
       current_game.player.cards.resource_cards[resource]++;
       updatePanelDisplay();
 
-      update_server('game_update', data_package);
+      current_game.player.cards.dev_cards.knight--;
+
+      // If we've used our last knight remove the card from the players stack
+      if (current_game.player.cards.dev_cards.knight === 0) {
+        $('.cardlist .knight.card').remove();
+      }
 
       hidePopup();
     });

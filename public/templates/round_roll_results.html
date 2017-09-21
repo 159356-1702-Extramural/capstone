@@ -1,20 +1,20 @@
 <div class="popup_title">Let the Round begin!</div>
 <div class="popup_subtitle">Ready...Steady...Go!</div>
 
+<div class="knight_row">
+  {knight}
+</div>
+
 <div class="dice_row">
     <div class="dice_window"><img src="images/dice.png" class="dice dice{dice1}" /></div>
     <div class="dice_window"><img src="images/dice.png" class="dice dice{dice2}" /></div>
     <div class="robber_roll" style="display:{robber};"><img src="images/robber.png"></div>
 </div>
 
-<div class="trade_title">
-        {title}
-    </div>
-    <div class="trade_row" style="height:140px;">{setup_cards}</div>
-
+<div class="trade_title">{title}</div>
+<div class="trade_row" style="height:140px;">{setup_cards}</div>
 
 <div>
     <div class="btn btn-info btn-large" onclick="$('.popup').hide(); monopoly_check();">Begin Round</div>
     <div class="btn btn-info btn-large" style="display:{has_monopoly};" onclick="$('.popup').hide(); buildPopup('round_use_monopoly');">Use Monopoly</div>
-
 </div>

@@ -213,6 +213,9 @@ StateMachine.prototype.tick = function(data) {
           // Players has has chosen a resource to get with the knight
           // update the player, reposition the robber
           this.useKnight(data);
+
+          // Add flag so we can notify other players knight has been played
+          this.game.knight_player_id = data.player_id;
         }
         else if(data.data_type === 'year_of_plenty_used'){
             logger.log('debug','year of plenty played by player ' + data.player_id);
@@ -312,6 +315,9 @@ StateMachine.prototype.tick = function(data) {
             player.turn_complete = false;
           });
 
+          // Reset the played knight flag on the game
+          this.game.knight_player_id = -1;
+
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
 
@@ -392,6 +398,7 @@ StateMachine.prototype.broadcast_gamestate = function() {
   game_state.board            = this.game.board;
   game_state.round_num        = this.game.round_num;
   game_state.dice_values      = this.game.dice_roll;
+  game_state.knight_player_id = this.game.knight_player_id;
 
   // Send each player their a game update
 
