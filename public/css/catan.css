@@ -394,7 +394,7 @@ body {
     height:50px;
     width:50px;
 }
-.node.disabled, road.disabled, .settlement.disabled {
+.node.disabled, road.disabled, .settlement.disabled, .city.disabled {
     display:none;
 }
 .node.buildspot {
@@ -403,19 +403,20 @@ body {
 }
 .node.expand {
     background-image:url(../images/city_ghost_small.png) !important;
-
+    height: 50px !important;
 }
 
-.node.settlement.locked {
-    display:block !important;
+.node.settlement.locked, .node.city.locked {
+    display:block;
 }
 .settlement, .settlement_locked {
     width:50px;
     height:42px;
 }
-.city, .city_locked {
+.city, .city.locked {
     width:50px;
     height:50px;
+    opacity: 1;
 }
 .node.settlement.purple, .settlement.purple {
     background-image: url(../images/settlement_purple_small.png);
@@ -430,16 +431,16 @@ body {
     background-image: url(../images/settlement_blue_small.png);
 }
 
-.city.purple {
+.node.city.purple, .city.purple {
     background-image: url(../images/city_purple_small.png);
 }
-.city.red {
+.node.city.red, .city.red {
     background-image: url(../images/city_red_small.png);
 }
-.city.green {
+.node.city.green, .city.green {
     background-image: url(../images/city_green_small.png);
 }
-.city.blue {
+.node.city.blue, .city.blue {
     background-image: url(../images/city_blue_small.png);
 }
 
@@ -681,8 +682,11 @@ body {
     z-index:9997;
 }
 .buildings .city {
-    position:absolute;
     left:65%;
+}
+.city {
+    position:absolute;
+    z-index:9997;    
 }
 
 .dropped {

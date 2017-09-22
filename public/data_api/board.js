@@ -1,6 +1,3 @@
-/********************************************
-*  Basic getters for board elements
-*********************************************/
 function Board(obj) {
   this.nodes = [];
   this.roads = [];
@@ -35,6 +32,9 @@ Board.prototype.set_item = function(item, index, player_id) {
     this.nodes[index].building = 'settlement';
     this.nodes[index].owner = player_id;
     this.nodes[index].status = '';
+  } else if (item === "build_city") {
+    this.nodes[index].building = 'city';
+    this.nodes[index].status = '';
   }
 };
 
@@ -45,6 +45,9 @@ Board.prototype.clear_item = function(index, object_type) {
   } else if (object_type === 'settlement') {
     this.nodes[index].building = "";
     this.nodes[index].owner = -1;
+    this.nodes[index].status = "";
+  } else if (object_type === 'city') {
+    this.nodes[index].building = "settlement";
     this.nodes[index].status = "";
    }
 };

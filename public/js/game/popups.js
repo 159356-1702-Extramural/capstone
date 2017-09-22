@@ -338,13 +338,21 @@ function round_build_complete(object_dragged_id, object_type) {
 //      Nevermind button in the round_build.html template
 function round_build_abort(object_type) {
     //  We need to return it to the pile and remove it from turn_actions
-    var object_type = (turn_actions[turn_actions.length - 1].action_type == "build_road" ? "road" : "settlement");
+    var object_type = (turn_actions[turn_actions.length - 1].action_type.replace("build_", ""));
     var object_node = turn_actions[turn_actions.length - 1].action_data;
     var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
     return_object(object_to_return, object_to_return.attr("id"), object_node.id);
 
     //  We need to reset the node on the board it was dropped on
-    object_node.owner = -1;
+    if (object_type == "city") {
+        object_node.building = "settlement";
+
+        //  Restore the settlement
+        $("#node_" + object_node.id).show();
+
+    } else {
+        object_node.owner = -1;
+    }
     object_node.status = "";
 
     //  We need to restore the cards used to build this object
@@ -627,7 +635,7 @@ function build_popup_show_dev_card(card) {
 }
 
 /**
- *
+ * Displays the knight popup
  */
 function build_popup_play_knight() {
   buildPopup("knight_options");

@@ -61,7 +61,6 @@ test("Player assigned without testing data", function(t) {
     // no environment variables set
 
     var g = new games.Games();
-    g.state_machine = new sm.StateMachine(g);
     var mockSocket = {
       emit: function() { },
       on: function() {}
@@ -69,29 +68,52 @@ test("Player assigned without testing data", function(t) {
 
     g.assign_player(mockSocket, {name: 'Tim'});
 
-    t.is(g.state_machine.state, 'setup');
-    t.is(g.state_machine.setupComplete, false);
-    t.is(g.state_machine.setupPointer, 0);
-    t.is(g.state_machine.game.round_num,1);
+    t.is(g.games[0].state, 'setup');
+    t.is(g.games[0].setupComplete, false);
+    t.is(g.games[0].setupPointer, 0);
+    t.is(g.games[0].game.round_num,1);
   });
 
-  test.failing("Player assigned with testing data", function(t) {
+test("Player assigned with testing data", function(t) {
+    // environment variables set
+    // TODO: env vars cached?? and cant be changed during testing
+    process.env.setup = 'skip';
 
-        // environment variables set
-        // TODO: env vars cached?? and cant be changed during testing
-        process.env.setup = 'skip'
+    var g = new games.Games();
+    var mockSocket = {
+      emit: function() { },
+      on: function() {}
+    };
 
-        var g = new games.Games();
-        g.state_machine = new sm.StateMachine(g);
-        var mockSocket = {
-          emit: function() { },
-          on: function() {}
-        };
+    g.assign_player(mockSocket, {name: 'Craig'});
 
-      g.assign_player(mockSocket, {name: 'Craig'});
+    t.is(process.env.setup, 'skip');
+    // TODO: test items on board to be sure
+    t.is(g.games[0].setupComplete, true);
+    t.is(g.games[0].setupPointer, 8);
+    t.is(g.games[0].game.round_num,3);
+});
 
-      t.is(process.env.setup, 'skip');
-      t.is(g.state_machine.setupComplete, true);
-      t.is(g.state_machine.setupPointer, 8);
-      t.is(g.state_machine.game.round_num,3);
+test("Player assigned with testing data", function(t) {
+    // environment variables set
+    // TODO: env vars cached?? and cant be changed during testing
+    process.env.setup = 'skip';
+    process.env.players = 4;
+    process.env.robber = 'disabled';
+
+    var g = new games.Games();
+    var mockSocket = {
+      emit: function() { },
+      on: function() {}
+    };
+
+    g.assign_player(mockSocket, {name: 'Craig'});
+
+    t.is(process.env.setup, 'skip');
+    t.is(process.env.players, '4');
+    t.is(process.env.robber, 'disabled');
+    // TODO: test items on board to be sure
+    t.is(g.games[0].setupComplete, true);
+    t.is(g.games[0].setupPointer, 8);
+    t.is(g.games[0].game.round_num,3);
 });

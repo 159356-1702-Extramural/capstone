@@ -285,14 +285,35 @@ StateMachine.prototype.tick = function(data) {
 
 
           // House rule 7 only comes up once someone has created their first non-startup building
+          var player_has_built = false;
+          for (var i = 0; i < this.game.players.length; i++) {
+              if (this.game.players[i].score.total_points > 2) {
+                player_has_built = true;
+                  break;
+              }
+          }
 
           //  Next dice roll
-          var diceroll;
-
+          var diceroll = 1;
+          var diceroll_check = 1;
           do {
+              //    Get the initial dice roll
             diceroll = this.game.rollingDice();
-          } while (false); // TODO: logic to determine if a player has built yet
-                          // eg. while (diceroll === 7 && no_build_flag === true)
+
+            //  If not player has built, we don't allow a 7
+            if (diceroll == 7 && !player_has_built) {
+                diceroll = 1;
+
+            //  Nerf the robber just a little to prevent too frequent occurance
+            /*
+            } else if (diceroll == 7 && diceroll_check == 1) {
+                diceroll_check = this.game.rollingDice();
+                if (diceroll_check != 7) {
+                    diceroll = diceroll_check;
+                }
+                */
+            }
+          } while (diceroll < 2);
 
           //disable the robber for testing
           if(diceroll === 7 && this.game.robber === 'disabled'){
@@ -680,7 +701,17 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
     }
 
     //  Otherwise we keep going
-    if (object_type == "settlement") {
+    if (object_type == "road") {
+        //  No reason to be here if this is a road with no owner
+        if (node.owner == -1) {
+            return false;
+        }
+        //  Otherwise, check neighbor nodes
+        for (var i = 0; i < node.connects.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+    } else {
         //  If this is a settlement, and someone else owns it, we cannot continue on this path
         if (node.owner != player.id && node.owner > -1) {
             return false;
@@ -695,16 +726,6 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
                 has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
                 if (has_path) { break; }
             }
-        }
-    } else {
-        //  No reason to be here if this is a road with no owner
-        if (node.owner == -1) {
-            return false;
-        }
-        //  Otherwise, check neighbor nodes
-        for (var i = 0; i < node.connects.length; i++) {
-            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
-            if (has_path) { break; }
         }
     }
     return has_path;
@@ -763,16 +784,21 @@ StateMachine.prototype.buy_dev_card = function (data){
     if(this.game.players[data.player_id].cards.available_cards('dev_card')){
         this.game.players[data.player_id].cards.remove_cards('dev_card');
 
-        var card = this.development_cards.pop();
+        // changed to shift as development_cards[0] needs to be removed
+        var card = this.development_cards.shift();
 
         // TODO: Delete following two lines
         card = 'knight';
         console.log('Dev card purchased: '+card);
 
+        // TODO: Delete following line
+        //card = 'road_building';
+        logger.log('debug','Dev card purchased: '+card);
+
         // TODO: DUPLICATE CODE Delete following 2 lines
         // this.game.players[data.player_id].cards.add_card(card);
         // this.game.players[data.player_id].round_distribution_cards.add_card(card);
-
+        console.log("-----------------"+card);
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
         }
@@ -793,7 +819,8 @@ StateMachine.prototype.buy_dev_card = function (data){
         this.send_to_player('game_turn', data_package );
 
     }else{
-        logger.log('error', 'Player '+ player.id + ' does not have enough resources to buy a dev card');
+
+        console.log('error', 'Player '+ data.player_id + ' does not have enough resources to buy a dev card');
         // TODO send a fail message
     }
 
