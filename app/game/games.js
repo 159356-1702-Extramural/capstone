@@ -81,6 +81,9 @@ Games.prototype.assign_player = function(socket, data) {
     if(process.env['robber'] === 'disabled'){
         state_machine.game.robber = 'disabled';
     }
+    if(process.env['dev_card'] !== 'disabled'){
+        state_machine.development_cards[0] = process.env['dev_card'];
+    }
 
     if(process.env['dev_card'] !== 'disabled'){
         state_machine.development_cards = [];
