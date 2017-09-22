@@ -721,13 +721,15 @@ function acceptTrade () {
         var action = new Action();
 
         // set action_type to trade ratio (four-to-one, three-to-one....)
-        action.action_type = 'four-to-one';
+        action.action_type = 'trading';
+
+        var cardsRequested = $(":first-child", sendCards).attr('class').split();
         action.action_data = {
             cards_for_the_bank : $(":first-child", sendCards).attr('class'),
             cards_from_the_bank: $(":first-child", receiveCard).attr('class'),
 
             //set cards_for_trade to trade ratio (4,3,2)
-            cards_for_trade    : 4
+            cards_for_trade    : parseInt($("#"+cardsRequested+"_trade").innerHTML)
         }
         data_package.actions.push(action);
 
