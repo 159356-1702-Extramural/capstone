@@ -368,7 +368,7 @@ async function buy_monopoly(driver,os, browser, version) {
         await driver.findElement(webdriver.By.className('finishturnbutton')).click();
         
         //test that the monopoly button is shown
-        t.truthy(driver.findElements(webdriver.By.name('useMonopoly')).size > 0);
+        t.truthy(driver.findElements(webdriver.By.name('useMonopoly')).size() > 0);
     });
 }
 /**
