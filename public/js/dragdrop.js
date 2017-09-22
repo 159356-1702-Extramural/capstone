@@ -288,17 +288,17 @@ function set_object_on_canvas(event, ui) {
         }
 
         //  Does this object already have resources tied to it? (i.e. Was it already paid for and is being moved)
-        var has_resources = false;
+        var has_resources = [];
         if (object_dragged.attr("data-card-list")) {
-            has_resources = object_dragged.attr("data-card-list").length > 0;
+            has_resources = (object_dragged.attr("data-card-list").split(","));
         }
 
         //  Is a road building card going to effect this action?
         var using_road_building_now = current_player.road_building_used && current_player.free_roads > 0 && object_type == "road";
 
         //  Create our action
-        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : null));
-        if (!has_resources) {
+        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : has_resources));
+        if (has_resources.length == 0) {
             if (!current_player.road_building_used || object_type != "road" || (current_player.road_building_used && current_player.free_roads == 0)) {
                 if (current_game.round_num > 2) {
                     //  Prompt the user for more cards
@@ -371,7 +371,7 @@ function return_object(object_to_return, object_to_return_id, last_node_id, clea
     if (last_node_id > -1) {
         //  Get the type of structure
         var object_type = (object_to_return_id.indexOf("settlement") > -1 ? "settlement" : (object_to_return_id.indexOf("road") > -1 ? "road" : "city"));
-
+        
         //  Nodes vs Roads reference
         var nodes = current_game.nodes;
         if (object_type == "road") {
@@ -548,7 +548,7 @@ function find_next_object_id(class_name) {
 
 function remove_action_from_list(object_type, node_id){
     for ( var i = 0; i < turn_actions.length; i++ ) {
-        var action_object_type = (turn_actions[i].action_type == "build_road" ? "road" : "settlement");
+        var action_object_type = (turn_actions[i].action_type.replace("build_", ""));
         if ( ( turn_actions[i].action_data.id === node_id ) && ( object_type === action_object_type ) ) {
             //  remove the action from the list
             turn_actions.splice(i,1);
