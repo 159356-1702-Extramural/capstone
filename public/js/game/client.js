@@ -676,15 +676,30 @@ function openTrade () {
         //basic card values
         var card_data = [['brick_cards',resource_cards.brick],['grain_cards',resource_cards.grain],['sheep_cards',resource_cards.sheep],['ore_cards',resource_cards.ore],['lumber_cards',resource_cards.lumber]];
 
-        // TODO: update to variable trade values once harbours are introduced.
         var trade_value = 4;
+        var trading = current_game.player.trading;
+
+        //if player has a settlement/city on 3:1 harbour
+        if(trading.three){
+            trade_value = 3;
+        }
 
 
-        $.each(resource_cards, function(k, v) {
-            if(v >= trade_value){
-                card_data.push([k+'_status', '']);
+        $.each(resource_cards, function(card_name, num_of_cards) {
+
+            //leave trade_value alone (so loop doesn't alter it)
+            var this_trade = trade_value;
+
+            //check whether 2:1 trade options exist
+            if(trading[card_name]){
+                this_trade = 2;
+            }
+
+            if(v >= this_trade){
+                card_data.push([card_name+'_status', '']);
+                card_data.push([card_name+'_tradenum', this_trade]);
             }else{
-                card_data.push([k+'_status', 'unavailable']);
+                card_data.push([card_name+'_status', 'unavailable']);
             }
 
         });
