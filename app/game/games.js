@@ -82,6 +82,10 @@ Games.prototype.assign_player = function(socket, data) {
         state_machine.game.robber = 'disabled';
     }
 
+    if(process.env['dev_card'] !== 'disabled'){
+        state_machine.development_cards[0] = process.env['dev_card'];
+    }
+    
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 
