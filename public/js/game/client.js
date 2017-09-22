@@ -789,6 +789,24 @@ function buildNodes() {
                         } else {
                             //  The node exists on the board, update css in case it changed
                             node_on_canvas.attr("class", "node " + node_class);
+                            if (node_class.indexOf("locked") > -1) {
+                                node_on_canvas.show();
+                            }
+
+                            //  If this is a city and is locked, make sure a settlement does not need to be released
+                            if (node.building == "city") {
+                                var settlement_to_return = $("#settlement_" + current_player.colour + "_locked_" + node.id);
+                                if (settlement_to_return) {
+                                    //  Append to appropriate pile and clear positioning
+                                    settlement_to_return.appendTo($(".settlementbox"));
+                                    //  Reset ID
+                                    var original_class = 'settlement_' + current_player.colour + '_open_';
+                                    settlement_to_return.attr('id', original_class + find_next_object_id(original_class));
+                                    settlement_to_return.attr('style', "");
+                                    settlement_to_return.attr('class', "settlement " + current_player.colour + " ui-draggable ui-draggable-handle");
+                                    settlement_to_return.attr('data-card-list', "");
+                                }
+                            }
 
                             //  If a companion settlement/city exists, disable it
                             var dragged_node = $("#" + node.building + "_" + current_player.colour + "_pending_" + node.id);
@@ -816,6 +834,7 @@ function buildNodes() {
             }
         }
     }
+    update_object_counts();
 }
 
 // Update display figuers

@@ -299,7 +299,7 @@ test("Check required cards are pushed", function(t) {
     t.is(settlementCards[0], 'lumber');
     t.is(settlementCards[1], 'brick');
     t.is(settlementCards[2], 'grain');
-    t.is(settlementCards[3], 'ore');
+    t.is(settlementCards[3], 'sheep');
 
     var cityCards = cards.get_required_cards('city');
     t.is(cityCards[0], 'grain');
