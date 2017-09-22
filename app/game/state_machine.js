@@ -129,6 +129,10 @@ StateMachine.prototype.tick = function(data) {
             this.game.allocateDicerollResources(diceroll);
 
             // Calculate the scores
+            for (var p=0; p< this.game.players.length; p++) {
+              var player_id = this.game.players[p].id;
+              this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
+            };
             this.game.calculateScores();
 
             this.game.round_num++;
@@ -249,6 +253,10 @@ StateMachine.prototype.tick = function(data) {
           this.game.round_num++;
 
           // Calculate the scores
+          for (var p=0; p< this.game.players.length; p++) {
+            var player_id = this.game.players[p].id;
+            this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
+          };
           this.game.calculateScores();
 
           // End the game if we have a winner
@@ -265,14 +273,35 @@ StateMachine.prototype.tick = function(data) {
 
 
           // House rule 7 only comes up once someone has created their first non-startup building
+          var player_has_built = false;
+          for (var i = 0; i < this.game.players.length; i++) {
+              if (this.game.players[i].score.total_points > 2) {
+                player_has_built = true;
+                  break;
+              }
+          }
 
           //  Next dice roll
-          var diceroll;
-
+          var diceroll = 1;
+          var diceroll_check = 1;
           do {
+              //    Get the initial dice roll
             diceroll = this.game.rollingDice();
-          } while (false); // TODO: logic to determine if a player has built yet
-                          // eg. while (diceroll === 7 && no_build_flag === true)
+
+            //  If not player has built, we don't allow a 7
+            if (diceroll == 7 && !player_has_built) {
+                diceroll = 1;
+
+            //  Nerf the robber just a little to prevent too frequent occurance
+            /*
+            } else if (diceroll == 7 && diceroll_check == 1) {
+                diceroll_check = this.game.rollingDice();
+                if (diceroll_check != 7) {
+                    diceroll = diceroll_check;
+                }
+                */
+            }
+          } while (diceroll < 2);
 
           //disable the robber for testing
           if(diceroll === 7 && this.game.robber === 'disabled'){
@@ -656,7 +685,17 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
     }
 
     //  Otherwise we keep going
-    if (object_type == "settlement") {
+    if (object_type == "road") {
+        //  No reason to be here if this is a road with no owner
+        if (node.owner == -1) {
+            return false;
+        }
+        //  Otherwise, check neighbor nodes
+        for (var i = 0; i < node.connects.length; i++) {
+            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
+            if (has_path) { break; }
+        }
+    } else {
         //  If this is a settlement, and someone else owns it, we cannot continue on this path
         if (node.owner != player.id && node.owner > -1) {
             return false;
@@ -671,16 +710,6 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
                 has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.n_nodes[i]], original_node, checked);
                 if (has_path) { break; }
             }
-        }
-    } else {
-        //  No reason to be here if this is a road with no owner
-        if (node.owner == -1) {
-            return false;
-        }
-        //  Otherwise, check neighbor nodes
-        for (var i = 0; i < node.connects.length; i++) {
-            has_path = has_path || this.has_valid_path(player, "settlement", this.game.board.nodes[node.connects[i]], original_node, checked);
-            if (has_path) { break; }
         }
     }
     return has_path;
@@ -762,6 +791,10 @@ StateMachine.prototype.buy_dev_card = function (data){
         data_package.player = this.game.players[data.player_id];
 
         //  Refreshes all player's scores, strip out to calc only one players score :- TODO
+        for (var p=0; p< this.game.players.length; p++) {
+          var player_id = this.game.players[p].id;
+          this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
+        };
         this.game.calculateScores();
         this.send_to_player('game_turn', data_package );
 

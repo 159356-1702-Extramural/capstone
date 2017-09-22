@@ -1,12 +1,8 @@
-/********************************************
-*  Basic getters for board elements
-*********************************************/
 function Board(obj) {
   this.nodes = [];
   this.roads = [];
   this.tiles = [];
   this.harbours = [];
-  this.node_tree; // TODO: to be used for longest road
   // Array of resource locations
   this.resourceTiles = [];
 
@@ -36,6 +32,9 @@ Board.prototype.set_item = function(item, index, player_id) {
     this.nodes[index].building = 'settlement';
     this.nodes[index].owner = player_id;
     this.nodes[index].status = '';
+  } else if (item === "build_city") {
+    this.nodes[index].building = 'city';
+    this.nodes[index].status = '';
   }
 };
 
@@ -46,6 +45,9 @@ Board.prototype.clear_item = function(index, object_type) {
   } else if (object_type === 'settlement') {
     this.nodes[index].building = "";
     this.nodes[index].owner = -1;
+    this.nodes[index].status = "";
+  } else if (object_type === 'city') {
+    this.nodes[index].building = "settlement";
     this.nodes[index].status = "";
    }
 };
@@ -244,8 +246,76 @@ Board.prototype.is_road_valid_build = function(player, index) {
   return true;
 }
 
-// TODO: should build a binary tree at some point for this.
-// Board.prototype.is_path_to_owned_by(start_node, end_node, owner)
+/**
+* Returns length of longest road for player
+* @param  {Integer}   player_id
+* @return {Integer} - length of the longest road this player owns
+*/
+// TODO: Inefficient, ends up doing longest roads twice, from start and end
+Board.prototype.longest_road_for_player = function(player_id) {
+  var longest_road = 0;
+  console.log("Finding longest road for player", player_id);
+  for (var r=0; r<this.roads.length; r++) {
+    if (this.roads[r].owner === player_id) {
+      // get node at each end and see if there's any owned roads attached to them
+      // determine a starting point (first road in series)
+      var node_0 = this.nodes[this.roads[r].connects[0]];
+      var node_1 = this.nodes[this.roads[r].connects[1]];
+      var owned_node_0_roads = 0;
+      var owned_node_1_roads = 0;
+
+      for (var n=0; n<node_0.n_roads.length; n++) {
+        var road = this.roads[node_0.n_roads[n]];
+        if (road.owner === player_id)
+          owned_node_0_roads += 1;
+      }
+      for (var n=0; n<node_1.n_roads.length; n++) {
+        var road = this.roads[node_1.n_roads[n]];
+        if (road.owner === player_id)
+          owned_node_1_roads += 1;
+      }
+
+      // determine direction to go if the road looks like a starting point
+      if (owned_node_0_roads === 1 && owned_node_1_roads > 1) {
+        var tmp = this.longest_road(node_1, player_id, 1, this.roads[r].id);
+        longest_road = (longest_road <= tmp ? tmp : longest_road);
+      }
+      else if (owned_node_0_roads > 1 && owned_node_1_roads === 1) {
+        var tmp = this.longest_road(node_0, player_id, 1, this.roads[r].id);
+        longest_road = (longest_road <= tmp ? tmp : longest_road);
+      }
+      // special case
+      else if (owned_node_0_roads === 1 && owned_node_1_roads === 1) {
+        longest_road = 1;
+      }
+    }
+  }
+  console.log("Longest road for player", player_id, "is", longest_road);
+  return longest_road;
+}
+
+/**
+* Returns length of longest road from the starting node
+* @param      {Obj}   node - a BuildNode object
+* @param  {Integer} length - road length so far
+* @param  {Integer}   last - the last road ID
+* @return {Integer} - length of the longest road this player owns
+*/
+Board.prototype.longest_road = function(node, player_id, length=0, last=0) {
+  var road_count = node.n_roads.length;
+  for (var r=0; r<road_count; r++) {
+    var road = this.roads[node.n_roads[r]];
+    if (road.id != last && road.owner === player_id) {
+      var next_node_id = (node.id == road.connects[0] ? road.connects[1] : road.connects[0]);
+      // get node object
+      var next_node = this.nodes[next_node_id];
+      // append road leading to this node to the count
+      var next_len = this.longest_road(next_node, player_id, length+1, road.id);
+      length = (length < next_len ? next_len : length);
+    }
+  }
+  return length;
+}
 
 /********************************************
 *  Misc

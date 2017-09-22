@@ -52,15 +52,36 @@ test("RoadNode creation", function(t) {
     t.is(road.connects[1], 5);
 });
 
+test("Test board.set_item() for player ID 0", function(t) {
+    _board.set_item("build_road", 0, 0);
+    var road = _board.get_road(0);
+    t.true(road.owner === 0);
+    _board.set_item("build_settlement", 0, 0);
+    var node = _board.get_node(0);
+    t.true(node.owner === 0);
+});
+
+test("Test board.clear_item() for player ID 0", function(t) {
+    _board.set_item("build_road", 0, 0);
+    var road = _board.get_road(0);
+    t.true(road.owner === 0);
+    _board.clear_item(0, "road");
+    t.true(road.owner === -1);
+
+    _board.set_item("build_settlement", 0, 0);
+    var node = _board.get_node(0);
+    t.true(node.owner === 0);
+    _board.clear_item(0, "settlement");
+    t.true(node.owner === -1);
+});
+
 test("Get a road from the board", function(t) {
     var road = _board.get_road(0);
-    // console.log(road);
     t.truthy(road);
 });
 
 test("Get a node from the board", function(t) {
     var node = _board.get_node(0);
-    // console.log(node);
     t.truthy(node);
 });
 
@@ -111,9 +132,9 @@ test("Player can build here - blank board", function(t) {
     t.true(can);
 });
 
-test("Player can't build here - node 1 taken", function(t) {
-    var node = _board.get_node(1);
-    node.owner = 1;
+test("Player can't build here - node 0 taken", function(t) {
+    var node = _board.get_node(0);
+    node.owner = 0;
     var can = _board.is_node_valid_build(0, 0);
     t.false(can);
 });
@@ -123,11 +144,29 @@ test("Player can build road here", function(t) {
     t.true(can);
 });
 
-test("Player can't build road here - node 1 taken", function(t) {
-    var node = _board.get_node(1);
-    node.owner = 1;
+test("Player can't build road here - node 0 taken", function(t) {
+    var node = _board.get_node(0);
+    node.owner = 0;
     var can = _board.is_road_valid_build(0, 0);
     t.false(can);
+});
+
+test("Player has 1 length road", function(t) {
+    var road = _board.get_road(1);
+    road.owner = 0;
+    var length = _board.longest_road_for_player(0);
+    t.true(length == 1);
+});
+
+test("Player has 3 length road", function(t) {
+    var road = _board.get_road(0);
+    road.owner = 0;
+    road = _board.get_road(1);
+    road.owner = 0;
+    road = _board.get_road(2);
+    road.owner = 0;
+    var length = _board.longest_road_for_player(0);
+    t.true(length == 3);
 });
 
 test("Get a tile corner by number", function(t) {
