@@ -366,6 +366,7 @@ async function buy_monopoly(driver,os, browser, version) {
         await driver.findElement(webdriver.By.className('btn-info')).click();
         await driver.findElement(webdriver.By.className('buybutton')).click();
         await driver.findElement(webdriver.By.className('finishturnbutton')).click();
+        await driver.findElement(webdriver.By.className('btn-info'))
     });
 }
 /**
