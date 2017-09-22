@@ -100,8 +100,10 @@ $(document).ready(function() {
     socket.on('knight_in_use', function(data) {
       if (data.knight_status === 'disable') {
         $('.cardlist .knight.card').addClass('disabled');
+        current_game.knight_in_use = true;
       } else {
         $('.cardlist .knight.card').removeClass('disabled');
+        current_game.knight_in_use = false;
       }
     });
 
@@ -1418,7 +1420,8 @@ function update_dev_cards(data){
             card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.knight > 0) {
-            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + "'>";
+            var disabled_class = (current_game.knight_in_use) ? ' disabled' : '';
+            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + disabled_class + "'>";
         }
         if (data.player.cards.dev_cards.monopoly > 0) {
             card_list += "<img src='images/dev_monopoly.png' class='monopoly card" + (card_list.length == 0 ? " first" : "") + "'>";
@@ -1488,6 +1491,7 @@ function reset_dev_cards_per_round(){
     current_player.dev_cards.purchased = 0;
 
     $('.cardlist .knight.card').removeClass('disabled');
+    current_game.knight_in_use = false;
 }
 function doLog(m) {
     $(".log").append(m + "<br />");

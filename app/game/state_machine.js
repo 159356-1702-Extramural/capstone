@@ -787,18 +787,13 @@ StateMachine.prototype.buy_dev_card = function (data){
         // changed to shift as development_cards[0] needs to be removed
         var card = this.development_cards.shift();
 
-        // TODO: Delete following two lines
-        card = 'knight';
+        // NOTE: Debugging ... to test dev card activate the card you want here
+        // card = 'knight';
+        // card = 'road_building';
         console.log('Dev card purchased: '+card);
-
-        // TODO: Delete following line
-        //card = 'road_building';
         logger.log('debug','Dev card purchased: '+card);
-
-        // TODO: DUPLICATE CODE Delete following 2 lines
-        // this.game.players[data.player_id].cards.add_card(card);
-        // this.game.players[data.player_id].round_distribution_cards.add_card(card);
         console.log("-----------------"+card);
+
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
         }
@@ -979,6 +974,8 @@ StateMachine.prototype.knightRequest = function(data) {
  */
 StateMachine.prototype.useKnight = function(data) {
   this.game.knightMoveRobber(data.player_id);
+
+console.log(data);
 
   // Add the resource played to the players stash on the back end
   this.game.players[data.player_id].cards.add_cards(data.resource, 1);

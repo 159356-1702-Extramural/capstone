@@ -8,4 +8,5 @@ function currentGame(game_data) {
     this.dice_values    = game_data.game_state.dice_values;
     this.player         = game_data.player;
     this.knight_player_id = game_data.game_state.knight_player_id;
+    this.knight_in_use  = false;
 }

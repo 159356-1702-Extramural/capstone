@@ -385,6 +385,66 @@ test("Return a development card to the pack", function(t) {
 
 });
 
-test.todo("Use knight decrements players knights cards");
+test("Use knight decrements players knights cards", function(t) {
 
-test.todo("Knight moves the robber to a new location");
+  var state_machine = new StateMachine.StateMachine(0);
+
+  var mockSocket = {
+    emit: function () { },
+    on: function () { }
+  };
+
+  state_machine.game.add_player(new Player(mockSocket, { name: 'John' }));
+
+  state_machine.game.players[0].cards.dev_cards.knight++;
+
+  // Confirm the the player has one knight card and no ore resource
+  t.is(state_machine.game.players[0].cards.dev_cards.knight, 1);
+  t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 0);
+  t.is(state_machine.game.players[0].cards.resource_cards.ore, 0);
+
+  // Simpulate the request
+  state_machine.game.state_machine.useKnight({
+    player_id : 0,
+    resource  : 'ore'
+  });
+
+  // Confirm the the player no longer has the knight
+  t.is(state_machine.game.players[0].cards.dev_cards.knight, 0);
+  t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 1);
+  t.is(state_machine.game.players[0].cards.resource_cards.ore, 1);
+
+});
+
+test("Knight moves the robber to a new location", function(t) {
+
+  var robber_start_idx;
+  var robber_end_idx;
+
+  var state_machine = new StateMachine.StateMachine(0);
+
+  var mockSocket = {
+    emit: function () { },
+    on: function () { }
+  };
+
+  state_machine.game.add_player(new Player(mockSocket, { name: 'John' }));
+  state_machine.game.add_player(new Player(mockSocket, { name: 'Paul' }));
+
+  state_machine.game.board.resourceTiles.forEach(function(tile, i) {
+    if (tile.robber) {
+      robber_start_idx = i;
+    }
+  }, this);
+
+  state_machine.game.knightMoveRobber(0);
+
+  state_machine.game.board.resourceTiles.forEach(function (tile, i) {
+    if (tile.robber) {
+      robber_end_idx = i;
+    }
+  }, this);
+
+  t.not(robber_start_idx, robber_end_idx);
+
+});
