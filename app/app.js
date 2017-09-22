@@ -68,6 +68,10 @@ app.get('/', function(req, res) {
     process.env['robber'] = setupGame;
     logger.log('debug', 'Robber is '+process.env['robber']);
 
+    dev_card = req.query["dev_card"];
+    if(typeof dev_card === 'undefined'){dev_card = 'disabled'}
+    process.env['dev_card'] = dev_card;
+
     res.sendFile(__dirname + '/views/default.html');
 });
 
