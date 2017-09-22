@@ -59,8 +59,20 @@ function setupDragDrop() {
         }
     });
 
+    $(".settlement.locked").droppable({
+        greedy: true,
+        accept: function (d) {
+            if (d.hasClass("city") && d.hasClass(current_player.colour)) {
+                return true;
+            }
+        },
+        drop: function (event, ui) {
+            set_object_on_canvas(event, ui);
+        }
+    });
+
     //  Setup city drag/drop
-    $(".city").draggable({
+    $(".city:not(.locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
             show_open_spots("city", event.target.id);
@@ -120,7 +132,7 @@ function show_open_spots(object_type, ignore_id) {
         }
 
         //  If this item is on the board, see if it releases any dependents
-        if (is_pending) {
+        if (is_pending && object_type != "city") {
             node_to_ignore = nodes[ignore_index];
             return_dependents(object_type, node_to_ignore);
         }
@@ -182,6 +194,10 @@ function show_open_spots(object_type, ignore_id) {
                 $(".node.settlement.locked." + current_player.colour).each(function () {
                     $(this).addClass("expand");
                 });
+
+                if (ignore_index > -1 && is_pending) {
+                    $("#node_" + ignore_index).show();
+                }
             }
         }
     }
@@ -191,6 +207,15 @@ function hide_open_spots(type) {
     $(".roadspot:not(locked)").hide();
     $(".node.settlement.locked." + current_player.colour).each(function () {
         $(this).removeClass("expand");
+    });
+
+    //  Re-hide any settlements where a city was picked up and then re-dropped
+    $(".city:not(locked)").each(function () {
+        var name = $(this).attr("id");
+        if (name.indexOf("pending") > -1) {
+            var names = name.split('_');
+            $("#node_" + names[names.length-1]).hide();
+        }
     });
 }
 
@@ -258,18 +283,23 @@ function set_object_on_canvas(event, ui) {
             }
         }
 
+        //  When placing a city, we need to hide the settlement
+        if (object_type == "city") {
+            node_on_canvas.hide();
+        }
+
         //  Does this object already have resources tied to it? (i.e. Was it already paid for and is being moved)
-        var has_resources = false;
+        var has_resources = [];
         if (object_dragged.attr("data-card-list")) {
-            has_resources = object_dragged.attr("data-card-list").length > 0;
+            has_resources = (object_dragged.attr("data-card-list").split(","));
         }
 
         //  Is a road building card going to effect this action?
         var using_road_building_now = current_player.road_building_used && current_player.free_roads > 0 && object_type == "road";
 
         //  Create our action
-        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : null));
-        if (!has_resources) {
+        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : has_resources));
+        if (has_resources.length == 0) {
             if (!current_player.road_building_used || object_type != "road" || (current_player.road_building_used && current_player.free_roads == 0)) {
                 if (current_game.round_num > 2) {
                     //  Prompt the user for more cards
@@ -316,7 +346,7 @@ function reset_node_on_board(object_dragged_id, object_type) {
 
 function create_player_action(object_type, node, boost_cards){
     var action = new Action();
-    action.action_type = (object_type == "road" ? "build_road" : "build_settlement");
+    action.action_type = (object_type == "road" ? "build_road" : (object_type == "city" ? "build_city" : "build_settlement"));
     action.action_data = node;
     action.boost_cards = boost_cards;
     turn_actions.push(action);
@@ -364,8 +394,19 @@ function return_object(object_to_return, object_to_return_id, last_node_id, clea
         
         //  Clear the node it was dropped on (if it matches the current owner)
         if (clear_node) {
-            if (last_node.building) { last_node.building = ""; }
-            last_node.owner = -1;
+            if (last_node.building) {
+                if (last_node.building == "city") {
+                    //  We return it to a settlement
+                    last_node.building = "settlement";
+                } else {
+                    last_node.building = "";
+                    last_node.owner = -1;
+                    last_node.status = "";
+                }
+            } else {
+                last_node.owner = -1;
+                last_node.status = "";
+            }
         }
 
         //  Reset class
@@ -508,7 +549,7 @@ function find_next_object_id(class_name) {
 
 function remove_action_from_list(object_type, node_id){
     for ( var i = 0; i < turn_actions.length; i++ ) {
-        var action_object_type = (turn_actions[i].action_type == "build_road" ? "road" : "settlement");
+        var action_object_type = (turn_actions[i].action_type.replace("build_", ""));
         if ( ( turn_actions[i].action_data.id === node_id ) && ( object_type === action_object_type ) ) {
             //  remove the action from the list
             turn_actions.splice(i,1);
