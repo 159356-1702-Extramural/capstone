@@ -724,10 +724,7 @@ function acceptTrade () {
         action.action_type = 'trading';
 
         var cardsRequested = $(":first-child", sendCards).attr('class').replace("trade_", "");
-        console.log(cardsRequested);
-        console.log("---------------");
-        console.log(document.getElementById(cardsRequested+"_tradenum").innerHTML);
-        console.log("---------------");
+
         action.action_data = {
             cards_for_the_bank : $(":first-child", sendCards).attr('class'),
             cards_from_the_bank: $(":first-child", receiveCard).attr('class'),

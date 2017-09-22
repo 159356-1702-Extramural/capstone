@@ -759,8 +759,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
     var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
 
     var cards_for_trade = data.actions[0].action_data.cards_for_trade;
-    console.log(cards_for_bank);
-    console.log(cards_for_trade);
+
     // check if cards available and remove cards from hand
     if(this.game.players[data.player_id].cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)){
         // add card to hand

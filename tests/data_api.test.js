@@ -218,6 +218,16 @@ test("Cards recorded properly" , function (t) {
     t.truthy(result);
 });
 
+// add cards from a list of cards
+test("Test add_cards_from_list adds cards" , function (t) {
+    var list = ["sheep", "sheep", "grain", "lumber"];
+    cards.add_cards_from_list(list);
+
+    // beforeEach starts test with  lumber ore and brick
+    t.is(cards.resource_cards.sheep, 2);
+    t.is(cards.resource_cards.grain, 1);
+    t.is(cards.resource_cards.lumber, 2);
+});
 //test that all card types can be removed
 test("Cards removed properly" , function (t) {
     cards.add_card("sheep");
@@ -294,7 +304,7 @@ test("Check required cards are pushed", function(t) {
     var roadCards = cards.get_required_cards('road');
     t.is(roadCards[0], 'lumber');
     t.is(roadCards[1], 'brick');
-    
+
     var settlementCards = cards.get_required_cards('settlement');
     t.is(settlementCards[0], 'lumber');
     t.is(settlementCards[1], 'brick');
@@ -323,6 +333,9 @@ test("Check required cards are pushed", function(t) {
     t.truthy(cards.available_cards('settlement'));
     t.truthy(cards.available_cards('road'));
     t.falsy(cards.available_cards('city'));
+
+    cards.add_cards_from_list(['ore','ore','ore', 'grain']);
+    t.truthy(cards.available_cards('city'));
 
 });
 
