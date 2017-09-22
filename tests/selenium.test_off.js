@@ -353,6 +353,21 @@ async function buy_year_of_plenty(driver,os, browser, version) {
         await driver.findElement(webdriver.By.className('year_of_plenty')).click();
     });
 }
+
+async function buy_monopoly(driver,os, browser, version) {
+    test('Buy Year of Plenty using - '+os+' | '+browser+' | '+ version+')', async t => {
+        driver.manage().window().setSize(1024, 768);
+        await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=monopoly');
+        await driver.findElement(webdriver.By.id('play')).click();
+        await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+        await driver.findElement(webdriver.By.className('player_button')).click();
+        //below code twice to pass through two modals
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+        await driver.findElement(webdriver.By.className('buybutton')).click();
+        await driver.findElement(webdriver.By.className('finishturnbutton')).click();
+    });
+}
 /**
  * Call tests here
  */
@@ -363,7 +378,7 @@ for(var os in testCapabilities){
     for(var browser in testCapabilities[os]){
         for( var i = parseInt(testCapabilities[os][browser].startVersion); i <= parseInt(testCapabilities[os][browser].endVersion); i++){
             var driver = buildDriver(os+"",browser+"", i+"");
-            buy_year_of_plenty(driver, os, browser, i);
+            buy_monopoly(driver, os, browser, i);
         }
     }
 }
