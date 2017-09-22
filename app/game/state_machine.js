@@ -204,6 +204,19 @@ StateMachine.prototype.tick = function(data) {
 
             this.buy_dev_card(data);
         }
+        else if (data.data_type === 'request_knight') {
+          // Player has indicated they're going to use knight
+          // disable the knight for all other players
+          this.knightRequest(data);
+        }
+        else if (data.data_type === 'use_knight') {
+          // Players has has chosen a resource to get with the knight
+          // update the player, reposition the robber
+          this.useKnight(data);
+
+          // Add flag so we can notify other players knight has been played
+          this.game.knight_player_id = data.player_id;
+        }
         else if(data.data_type === 'year_of_plenty_used'){
             logger.log('debug','year of plenty played by player ' + data.player_id);
             this.activate_year_of_plenty(data);
@@ -213,7 +226,6 @@ StateMachine.prototype.tick = function(data) {
             this.activate_road_building(data);
         }
         else if ( data.data_type === 'monopoly_used' ){
-
             this.game.monopoly = -1;
             this.activate_monopoly(data);
         }
@@ -324,6 +336,9 @@ StateMachine.prototype.tick = function(data) {
             player.turn_complete = false;
           });
 
+          // Reset the played knight flag on the game
+          this.game.knight_player_id = -1;
+
           var setup_data = new Data_package();
           setup_data.data_type = 'round_turn';
 
@@ -404,6 +419,7 @@ StateMachine.prototype.broadcast_gamestate = function() {
   game_state.board            = this.game.board;
   game_state.round_num        = this.game.round_num;
   game_state.dice_values      = this.game.dice_roll;
+  game_state.knight_player_id = this.game.knight_player_id;
 
   // Send each player their a game update
 
@@ -648,7 +664,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                     if (boost_cards) { player_boost_card_count = boost_cards.length; }
                     var other_player_boost_card_count = 0;
                     if (this.game.players[i].turn_data.actions[j].boost_cards) { other_player_boost_card_count = this.game.players[i].turn_data.actions[j].boost_cards.length; }
-                    
+
                     if (player_boost_card_count == other_player_boost_card_count) {
                         return 1;   //  Tie
                     }
@@ -771,14 +787,13 @@ StateMachine.prototype.buy_dev_card = function (data){
         // changed to shift as development_cards[0] needs to be removed
         var card = this.development_cards.shift();
 
-        // TODO: Delete following line
-        //card = 'road_building';
+        // NOTE: Debugging ... to test dev card activate the card you want here
+        // card = 'knight';
+        // card = 'road_building';
+        console.log('Dev card purchased: '+card);
         logger.log('debug','Dev card purchased: '+card);
-
-        // TODO: DUPLICATE CODE Delete following 2 lines
-        // this.game.players[data.player_id].cards.add_card(card);
-        // this.game.players[data.player_id].round_distribution_cards.add_card(card);
         console.log("-----------------"+card);
+
         if(card === 'monopoly'){
             this.game.monopoly = data.player_id;
         }
@@ -941,7 +956,35 @@ StateMachine.prototype.activate_monopoly = function (data) {
     data_package.player.actions = [];
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
-}
+};
+
+/**
+ * Handles the request knight request from player
+ * deactivates the knight card for all other players
+ * reactivates the knight card if cancelled
+ */
+StateMachine.prototype.knightRequest = function(data) {
+  var status = (data.knight_status === 'activate') ? 'disable' : 'enable';
+  this.broadcast('knight_in_use', { knight_status : status })
+};
+
+/**
+ * Handles the us knight request - adds resources to player
+ * Moves the robber to a new location
+ */
+StateMachine.prototype.useKnight = function(data) {
+  this.game.knightMoveRobber(data.player_id);
+
+console.log(data);
+
+  // Add the resource played to the players stash on the back end
+  this.game.players[data.player_id].cards.add_cards(data.resource, 1);
+
+  // Update player card details to reflect they have played a knight
+  this.game.players[data.player_id].cards.dev_cards.knight_played++;
+  this.game.players[data.player_id].cards.dev_cards.knight--;
+};
+
 
 StateMachine.prototype.setSequence = function (){
     var player_num = process.env['players'];
@@ -950,7 +993,7 @@ StateMachine.prototype.setSequence = function (){
       return [0,1,2,3,3,2,1,0];
     }
     return [0,1,1,0];
-}
+};
 
 
 module.exports = { StateMachine };

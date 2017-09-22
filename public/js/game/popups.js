@@ -130,6 +130,17 @@ function build_popup_round_roll_results() {
     // User the multipler to convert negative to positive for display
     var multiplier = robber_active ? -1 : 1;
 
+    // Create message if a player has used the knight
+    var knight = '';
+    if (current_game.knight_player_id !== -1) {
+      if (current_game.knight_player_id == current_game.player.id) {
+        knight = "You have played the Knight. Robber has moved!";
+      } else {
+        knight = current_game.players[current_game.knight_player_id].name +
+          " has played the knight! Robber has moved.";
+      }
+    }
+
     var popup_data = [];
     popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick * multiplier]);
     popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep * multiplier]);
@@ -174,7 +185,8 @@ function build_popup_round_roll_results() {
       ["setup_cards", card_html],
       ["robber", robber_display],
       ["has_monopoly", has_monopoly],
-      ["title", title]
+      ["title", title],
+      ["knight", knight]
     ]);
 }
 
@@ -337,12 +349,12 @@ function round_build_abort(object_type) {
 
         //  Restore the settlement
         $("#node_" + object_node.id).show();
-        
+
     } else {
         object_node.owner = -1;
     }
     object_node.status = "";
-    
+
     //  We need to restore the cards used to build this object
     return_resources(object_to_return.attr("id"));
 
@@ -620,6 +632,13 @@ function build_popup_show_dev_card(card) {
     dev_cards.push(['dev_card_rules', dev_cards_rules]);
     dev_cards.push(['other_dev_cards', other_dev_cards]);
     buildPopup("round_show_dev_card", false, dev_cards);
+}
+
+/**
+ * Displays the knight popup
+ */
+function build_popup_play_knight() {
+  buildPopup("knight_options");
 }
 
 /***************************************************

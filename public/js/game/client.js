@@ -81,7 +81,6 @@ $(document).ready(function() {
       build_popup_end_results(data);
     });
 
-
     // Detect the game starting
     socket.on('build_board', function (data) {
         board = JSON.parse(data);
@@ -97,29 +96,41 @@ $(document).ready(function() {
         $(".board").html(_html);
     });
 
+    // Detect someone requesting the knight or cancelling the knight
+    socket.on('knight_in_use', function(data) {
+      if (data.knight_status === 'disable') {
+        $('.cardlist .knight.card').addClass('disabled');
+        current_game.knight_in_use = true;
+      } else {
+        $('.cardlist .knight.card').removeClass('disabled');
+        current_game.knight_in_use = false;
+      }
+    });
+
     socket.on('update_game', function (data) {
-        //  Update the local copy of the game data
-        current_game = new currentGame(data);
 
-        // DEBUG:
-        console.log('current_game: ', current_game);
+      //  Update the local copy of the game data
+      current_game = new currentGame(data);
 
-        turn_actions = [];
+      // DEBUG:
+      console.log('current_game: ', current_game);
 
-        //  Show all players score box
-        setup_player_scores();
+      turn_actions = [];
 
-        // Update the game state panel
-        updatePanelDisplay();
+      //  Show all players score box
+      setup_player_scores();
 
-        //  Update all nodes on the board
-        buildNodes();
+      // Update the game state panel
+      updatePanelDisplay();
 
-        //  Insert holders for all roads
-        buildRoads();
+      //  Update all nodes on the board
+      buildNodes();
 
-        //  Update drag and drop
-        setupDragDrop();
+      //  Insert holders for all roads
+      buildRoads();
+
+      //  Update drag and drop
+      setupDragDrop();
     });
 
     //  During the setup phase, each player waits until their
@@ -375,6 +386,66 @@ $(document).ready(function() {
 
     });
 
+    // Play the Knight card
+    $doc.on('click', '.cardlist .knight.card', function (e) {
+      e.preventDefault();
+
+      if ($(this).hasClass('disabled')) {
+        alert('Another player is currently using the knight card.');
+        return;
+      }
+
+      var data_package = new Data_package();
+      data_package.data_type = 'request_knight';
+      data_package.player_id = current_game.player.id;
+      data_package.knight_status = 'activate';
+
+      // Let server know we're thinking about playing the knight
+      update_server('game_update', data_package);
+
+      // Show the robbing options
+      build_popup_play_knight();
+    });
+    // Select the resource you want the knight to take
+    $doc.on('click', '.play_knight', function(e) {
+      e.preventDefault();
+
+      var resource = $(this).attr('data-resource');
+
+      var data_package = new Data_package();
+      data_package.data_type = 'use_knight';
+      data_package.player_id = current_game.player.id;
+      data_package.resource = resource;
+
+      update_server('game_update', data_package);
+
+      current_game.player.cards.resource_cards[resource]++;
+      updatePanelDisplay();
+
+      current_game.player.cards.dev_cards.knight--;
+
+      // If we've used our last knight remove the card from the players stack
+      if (current_game.player.cards.dev_cards.knight === 0) {
+        $('.cardlist .knight.card').remove();
+      }
+
+      hidePopup();
+    });
+    // Cancel playing the knight card
+    $doc.on('click', '.play_knight_cancel', function(e) {
+      e.preventDefault();
+
+      // Let server know knight can be freed up for other players
+      var data_package = new Data_package();
+      data_package.data_type = 'request_knight';
+      data_package.player_id = current_game.player.id;
+      data_package.knight_status = 'cancel';
+
+      update_server('game_update', data_package);
+
+      hidePopup();
+    });
+
     //Monopoly - open development card rules popup
     $doc.on('click', '.monopoly', function(e) {
         build_popup_show_dev_card('monopoly');
@@ -464,6 +535,18 @@ $(document).ready(function() {
         }else{
             console.log('Monopoly button click sent wrong click information');
         }
+    });
+
+    // Play the Knight card
+    $doc.on('click', '.cardlist .knight.card', function(e) {
+      e.preventDefault();
+
+      var data_package = new Data_package();
+      data_package.data_type = "play_knight";
+      data_package.player_id = current_game.player.id;
+
+      update_server('game_update', data_package);
+
     });
 
     //  Development Card -
@@ -1337,7 +1420,8 @@ function update_dev_cards(data){
             card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.knight > 0) {
-            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + "'>";
+            var disabled_class = (current_game.knight_in_use) ? ' disabled' : '';
+            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + disabled_class + "'>";
         }
         if (data.player.cards.dev_cards.monopoly > 0) {
             card_list += "<img src='images/dev_monopoly.png' class='monopoly card" + (card_list.length == 0 ? " first" : "") + "'>";
@@ -1400,10 +1484,14 @@ function dev_card_played(){
     current_player.dev_cards.played = true;
 }
 
-//At end of turn reset the dev_card.played and dev_card.purchased variables
+// At end of turn reset the dev_card.played and dev_card.purchased variables
+// Re-enable the knight card
 function reset_dev_cards_per_round(){
     current_player.dev_cards.played = false;
     current_player.dev_cards.purchased = 0;
+
+    $('.cardlist .knight.card').removeClass('disabled');
+    current_game.knight_in_use = false;
 }
 function doLog(m) {
     $(".log").append(m + "<br />");
