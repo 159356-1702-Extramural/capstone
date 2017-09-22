@@ -695,7 +695,7 @@ function openTrade () {
                 this_trade = 2;
             }
 
-            if(v >= this_trade){
+            if(num_of_cards >= this_trade){
                 card_data.push([card_name+'_status', '']);
                 card_data.push([card_name+'_tradenum', this_trade]);
             }else{
@@ -722,14 +722,18 @@ function acceptTrade () {
 
         // set action_type to trade ratio (four-to-one, three-to-one....)
         action.action_type = 'trading';
-
-        var cardsRequested = $(":first-child", sendCards).attr('class').split();
+        
+        var cardsRequested = $(":first-child", sendCards).attr('class').replace("trade_", "");
+        console.log(cardsRequested);    
+        console.log("---------------");
+        console.log(document.getElementById(cardsRequested+"_tradenum").innerHTML);
+        console.log("---------------");
         action.action_data = {
             cards_for_the_bank : $(":first-child", sendCards).attr('class'),
             cards_from_the_bank: $(":first-child", receiveCard).attr('class'),
 
             //set cards_for_trade to trade ratio (4,3,2)
-            cards_for_trade    : parseInt($("#"+cardsRequested+"_trade").innerHTML)
+            cards_for_trade    : document.getElementById(cardsRequested+"_tradenum").innerHTML
         }
         data_package.actions.push(action);
 
