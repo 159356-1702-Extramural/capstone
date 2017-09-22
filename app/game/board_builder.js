@@ -15,14 +15,25 @@ generate = function(_board) {
     // even # row is moved over by tile_width/2
 
     //  TODO:   Replace Temporary harbor generation when main method ready
+    var harbor_list = [];
+    harbor_list.push("bottom_right.3to1.1.0");
+    harbor_list.push("bottom_left.sheep.2.5");
+    harbor_list.push("bottom_left.3to1.12.25");
+    harbor_list.push("right.ore.7.15");
+    harbor_list.push("left.3to1.37.35");
+    harbor_list.push("right.grain.28.38");
+    harbor_list.push("top_left.brick.46.45");
+    harbor_list.push("top_right.3to1.47.49");
+    harbor_list.push("top_left.lumber.50.51");
+    
     _board = [
-        ["z0",  "z0",  "h.bottom_right.3to1.1.0",  "z0",  "h.bottom_left.sheep.2.5",  "z0",  "z0"],
-        ["z0",  "z0",  "e11", "b12", "d9",  "h.bottom_left.3to1.12.25",  "z0"],
-        ["z0",  "h.right.ore.7.15",  "a4",  "c6",  "a5",  "b10", "z0"],
-        ["z0",  "f0",  "e3",  "d11", "e4",  "d8",  "h.left.3to1.37.35"],
-        ["z0",  "h.right.grain.28.38",  "a8",  "b10", "b9",  "c3",  "z0"],
-        ["z0",  "z0",  "c5",  "d2",  "e6",  "h.top_left.brick.46.45",  "z0"],
-        ["z0",  "z0",  "h.top_right.3to1.47.49",  "z0",  "h.top_left.lumber.50.51",  "z0",  "z0"]
+        ["z0",  "z0",  "h0",  "z0",  "h1",  "z0",  "z0"],
+        ["z0",  "z0",  "e11", "b12", "d9",  "h2",  "z0"],
+        ["z0",  "h3",  "a4",  "c6",  "a5",  "b10", "z0"],
+        ["z0",  "f0",  "e3",  "d11", "e4",  "d8",  "h4"],
+        ["z0",  "h5",  "a8",  "b10", "b9",  "c3",  "z0"],
+        ["z0",  "z0",  "c5",  "d2",  "e6",  "h6",  "z0"],
+        ["z0",  "z0",  "h7",  "z0",  "h8",  "z0",  "z0"]
     ];
     //  TODO:   End of temporary harbor generation
 
@@ -51,11 +62,11 @@ generate = function(_board) {
         var tile_harbor = "";
         var tile_harbor_direction = "";
         if (tile_detail.substring(0,1) == "h") {
-            var harbor_details = tile_detail.split('.');
-            tile_harbor = harbor_details[2];
-            tile_harbor_direction = harbor_details[1];
+            var harbor_details = harbor_list[tile_detail.substring(1,2)].split('.');
+            tile_harbor = harbor_details[1];
+            tile_harbor_direction = harbor_details[0];
+            harbors.push([tile_harbor, harbor_details[2]]);
             harbors.push([tile_harbor, harbor_details[3]]);
-            harbors.push([tile_harbor, harbor_details[4]]);
             _board[y][x] = "z0";
         }
         //  TODO:   End of temporary harbor stuff

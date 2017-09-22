@@ -586,14 +586,14 @@ StateMachine.prototype.validate_player_builds = function(data){
                         this.game.board.set_item(item, index, player_id);
 
                         //  Set harbor if needed
-                        set_harbor(i, data);
+                        this.set_harbor(i, data);
                     }
                 } else {
                     data.actions[i].action_result = 0;
                     this.game.board.set_item(item, index, player_id);
 
                     //  Set harbor if needed
-                    set_harbor(i, data);
+                    this.set_harbor(i, data);
                 }
             }
         }
