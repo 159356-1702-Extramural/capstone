@@ -722,9 +722,9 @@ function acceptTrade () {
 
         // set action_type to trade ratio (four-to-one, three-to-one....)
         action.action_type = 'trading';
-        
+
         var cardsRequested = $(":first-child", sendCards).attr('class').replace("trade_", "");
-        console.log(cardsRequested);    
+        console.log(cardsRequested);
         console.log("---------------");
         console.log(document.getElementById(cardsRequested+"_tradenum").innerHTML);
         console.log("---------------");

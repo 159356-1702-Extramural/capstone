@@ -16,16 +16,16 @@ generate = function(_board) {
 
     //  TODO:   Replace Temporary harbor generation when main method ready
     var harbor_list = [];
-    harbor_list.push("bottom_right.3to1.1.0");
+    harbor_list.push("bottom_right.three.1.0");
     harbor_list.push("bottom_left.sheep.2.5");
-    harbor_list.push("bottom_left.3to1.12.25");
+    harbor_list.push("bottom_left.three.12.25");
     harbor_list.push("right.ore.7.15");
-    harbor_list.push("left.3to1.37.35");
+    harbor_list.push("left.three.37.35");
     harbor_list.push("right.grain.28.38");
     harbor_list.push("top_left.brick.46.45");
-    harbor_list.push("top_right.3to1.47.49");
+    harbor_list.push("top_right.three.47.49");
     harbor_list.push("top_left.lumber.50.51");
-    
+
     _board = [
         ["z0",  "z0",  "h0",  "z0",  "h1",  "z0",  "z0"],
         ["z0",  "z0",  "e11", "b12", "d9",  "h2",  "z0"],
@@ -47,7 +47,7 @@ generate = function(_board) {
         ["z0",  "z0",  "z0",  "z0",  "z0",  "z0",  "z0"]
     ];
 
-    
+
 }
   var board = new Board.Board();
   var harbors = [];
@@ -98,7 +98,7 @@ generate = function(_board) {
           // if x,y is out of array bounds we can't index the _board with it to check type
           if ((tile_nodes[i].n_tiles[w].x >= 0 && tile_nodes[i].n_tiles[w].x < _board[0].length) &&
               (tile_nodes[i].n_tiles[w].y >= 0 && tile_nodes[i].n_tiles[w].y < _board.length)) {
-            
+
             var check_tile = _board[tile_nodes[i].n_tiles[w].y][tile_nodes[i].n_tiles[w].x];
             if (check_tile.substring(0,1) == "z" || check_tile.substring(0,1) == "h") {
               water += 1;
