@@ -14,7 +14,7 @@ var comprehensiveTest = false;
 var assert = require('assert');
 var SauceLabs = require("saucelabs");
 var username = "sumnerfit";
-var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4"; 
+var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4";
 var saucelabs = new SauceLabs({
   username: username,
   password: accessKey
@@ -24,6 +24,7 @@ var test = require('ava');
 var webdriver = require('selenium-webdriver');
 var drivers = [];
 
+webdriver.promise.USE_PROMISE_MANAGER = false;
 /**
  * Create browser / platforms to test against here
  * function formated driver_browser_os
@@ -31,170 +32,270 @@ var drivers = [];
  * Note: version number coresponds to browser version number
  *
  * TODO: break down functions below to one function with an input array of platform/browers/version
+ *
+ * https://saucelabs.com/platforms
+ *
  */
 
- function comprehensivePlatforms(){
-    var driver_fx_xp = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'firefox',
-        'platform':'Windows XP',
-        'version': '42.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
+ //Super quick tests
+ var superQuickTests = {
+    'Windows 10' : {
+        'firefox' : {
+            startVersion : 55,
+            endVersion : 55
+        },
+        'MicrosoftEdge' : { //testing two versions here
+            startVersion: 14,
+            endVersion: 14
+        }
+    }
+ }
 
-    var driver_fx_7 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'firefox',
-        'platform':'Windows 7',
-        'version': '49.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
+ // Quick tests hold multiple of 4 tests at any time for testing in parallel
+ var quickTests = {
+    'Windows 10' : {
+        'firefox' : {
+            startVersion : 55,
+            endVersion : 55
+        },
+        'chrome' : {
+            startVersion : 60,
+            endVersion : 60
+        },
+        'internet explorer' : {
+            startVersion : 11,
+            endVersion : 11
+        },
+        'MicrosoftEdge' : { //testing two versions here
+            startVersion: 14,
+            endVersion: 15
+        },
+    },
+    'Windows 8.1' : {
+        'firefox' : {
+            startVersion : 55,
+            endVersion : 55
+        },
+        'internet explorer' : {
+            startVersion : 11,
+            endVersion : 11
+        }
+    },
+    'Linux': {
+        'firefox' : {
+            startVersion : 45,
+            endVersion : 45
+        },
+        'chrome' : {
+            startVersion : 48,
+            endVersion : 48
+        }
+    },
+    'Mac 10.12' : {
+        'firefox' : {
+            startVersion : 45,
+            endVersion : 45
+        },
+        'chrome' : {
+            startVersion : 60,
+            endVersion : 60
+        },
+        'safari' : {
+            startVersion : 10,
+            endVersion : 10
+        }
+    }
+ }
 
-    var driver_fx_8 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'firefox',
-        'platform':'Windows 8',
-        'version': '50.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-      .build();
+ var comprehensiveTests = {
+    'Windows 10' : {
+        'firefox' : {
+            startVersion : 4,
+            endVersion : 55
+        },
+        'chrome' : {
+            startVersion : 26,
+            endVersion : 60
+        },
+        'ie' : {
+            startVersion : 11,
+            endVersion : 11
+        },
+        'edge' : {
+            startVersion: 13,
+            endVersion: 15
+        }
+    },
+    'Windows 8.1' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 55
+        },
+        chrome : {
+            startVersion : 26,
+            endVersion : 60
+        },
+        ie : {
+            startVersion : 11,
+            endVersion : 11
+        }
+    },
+    'Windows 8' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 55
+        },
+        chrome : {
+            startVersion : 26,
+            endVersion : 60
+        },
+        ie : {
+            startVersion : 10,
+            endVersion : 10
+        }
+    },
+    'Windows 7' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 55
+        },
+        chrome : {
+            startVersion : 26,
+            endVersion : 60
+        },
+        ie : {
+            startVersion : 8,
+            endVersion : 11
+        },
+        opera : {
+            startVersion : 11,
+            endVersion : 12
+        },
+        safari : {
+            startVersion : 5,
+            endVersion : 5
+        }
+    },
+    'Windows XP' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 45
+        },
+        chrome : {
+            startVersion : 26,
+            endVersion : 49
+        },
+        ie : {
+            startVersion : 6,
+            endVersion : 8
+        },
+        opera : {
+            startVersion : 11,
+            endVersion : 12
+        }
+    },
+    'Mac 10.12' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 45
+        },
+        chrome : {
+            startVersion : 27,
+            endVersion : 60
+        },
+        safari : {
+            startVersion : 10,
+            endVersion : 10
+        }
+    },
+    'Mac 10.11' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 45
+        },
+        chrome : {
+            startVersion : 27,
+            endVersion : 60
+        },
+        safari : {
+            startVersion : 9,
+            endVersion : 10
+        }
+    },
+    'Mac 10.10' : {
+        chrome : {
+            startVersion : 37,
+            endVersion : 60
+        },
+        safari : {
+            startVersion : 8,
+            endVersion : 8
+        }
+    },
+    'Mac 10.9' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 55
+        },
+        chrome : {
+            startVersion : 31,
+            endVersion : 60
+        },
+        safari : {
+            startVersion : 7,
+            endVersion : 7
+        }
+    },
+    'Mac 10.8' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 48
+        },
+        chrome : {
+            startVersion : 27,
+            endVersion : 49
+        },
+        safari : {
+            startVersion : 6,
+            endVersion : 6
+        }
+    },
+    'Linux' : {
+        firefox : {
+            startVersion : 4,
+            endVersion : 45
+        },
+        chrome : {
+            startVersion : 26,
+            endVersion : 48
+        },
+        opera : {
+            startVersion : 12,
+            endVersion : 12
+        }
+    }
+ }
 
-    var driver_chr_xp = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'chrome',
-        'platform':'Windows XP',
-        'version': '45.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_chr_7 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'chrome',
-        'platform':'Windows 7',
-        'version': '50.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_chr_8 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'chrome',
-        'platform':'Windows 8',
-        'version': '55.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_chr_Mac = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'chrome',
-        'platform':'Mac 10.12',
-        'version': '56.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_chr_Linux = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'chrome',
-        'platform':'Linux',
-        'version': '48.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_sf_7 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'safari',
-        'platform':'Windows 7',
-        'version': '5',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_sf_Mac = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'safari',
-        'platform':'Mac 10.12',
-        'version': '10',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_ie_xp = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'internet explorer',
-        'platform':'Windows XP',
-        'version': '8.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_ie_7 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'internet explorer',
-        'platform':'Windows 7',
-        'version': '9.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    var driver_ie_8 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'internet explorer',
-        'platform':'Windows 8',
-        'version': '10',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    return [driver_chr_xp, driver_chr_7, driver_chr_Linux, driver_chr_Mac,
-      driver_fx_xp, driver_fx_7, driver_fx_8,
-      driver_ie_xp, driver_ie_7, driver_ie_8,
-      driver_sf_7, driver_sf_Mac];
-
-}
-function quickPlatforms(){
-  var driver_fx_10 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'firefox',
-        'platform':'Windows 10',
-        'version': '54.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-  var driver_fx_Mac = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'firefox',
-        'name': 'MacOS 10.12 - Firefox',
-        'platform':'Mac 10.12',
-        'version': '54.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-  var driver_fx_Linux = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'firefox',
-        'platform':'Linux',
-        'version': '45.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-  var driver_chr_10 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'chrome',
-        'platform':'Windows 10',
-        'version': '60.0',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-  var driver_ie_10 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'internet explorer',
-        'platform':'Windows 10',
-        'version': '11',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-  var driver_edge_10 = new webdriver.Builder()
-    .withCapabilities({
-        'browserName':'microsoftedge',
-        'platform':'Windows 10',
-        'version': '15',})
-    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-    .build();
-
-    return [driver_fx_Linux,driver_fx_Mac,driver_fx_10, driver_chr_10, driver_ie_10, driver_edge_10];
+/**
+ * each driver built here
+ * @param {Sting} os : 'Windows 10', 'Windows 8.1', 'Linux', 'Mac 10.12'
+ * @param {Sring} browser : 'firefox', 'chrome'...
+ * @param {int} version : browser version number
+ *
+ * @return {Object} : driver object
+ */
+function buildDriver(os, browser, version) {
+    var driver = new webdriver.Builder()
+        .withCapabilities({
+            'browserName':browser,
+            'platform':os,
+            'version': version,})
+        .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
+        .build();
+    driver.getSession().then(function (sessionid){
+        driver.sessionID = sessionid.id_;
+    });
+    return driver;
 }
 
 /**
@@ -202,37 +303,69 @@ function quickPlatforms(){
  * Write functions for each test here and call them in the section below
  */
 
-function frontPageLoads(browserDriver){
-  test('Front game page exists (todo:add browser/os here)', async t => {
+function frontPageLoads(browserDriver, os, browser, version){
+  test('Front game page exists - '+os+' | '+browser+' | '+ version+')', async t => {
       let driver = browserDriver;
       await driver.get('http://capstone-settlers.herokuapp.com/');
       t.is(await driver.getTitle(), "Settlers of Massey");
       await driver.quit();
   });
 }
+function setupSequence(browserDriver, os, browser, version){
+    test('Setup through to game start - '+os+' | '+browser+' | '+ version+')', async t => {
 
-/**
- * Drivers and platform/browser combos enabled here
- */
-
-if(comprehensiveTest){
-  //create drivers using both the quick tests and the outlier tests
-  drivers = quickPlatforms().concat(comprehensivePlatforms());
-}else{
-  drivers = quickPlatforms();
+      let driver = browserDriver;
+      t.truthy(await runSetup(driver, os+"|"+browser));
+      
+      saucelabs.updateJob(driver.sessionID, {
+        name: title,
+        passed: passed
+      }, done);
+    });
 }
 
+async function runSetup(driver, keyword) {
+    driver.manage().window().setSize(1024, 768);
+    await driver.get('http://capstone-settlers.herokuapp.com/');
+    await driver.findElement(webdriver.By.id('play')).click();
+    await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(keyword);
+    await driver.findElement(webdriver.By.className('player_button')).click();
+
+    // await driver.wait(webdriver.until.elementLocated(webdriver.By.id('get_started')),20000);
+    // await driver.findElement(webdriver.By.id('get_started')).click();
+
+    await driver.actions().mouseDown('settlement_purple_open_4').mouseMove('node_21').mouseUp().perform();
+    await driver.wait(webdriver.until.titleIs("Settlers of Massey"), 10000);
+    
+}
+
+async function buy_year_of_plenty(driver,os, browser, version) {
+    test('Buy Year of Plenty using - '+os+' | '+browser+' | '+ version+')', async t => {
+        driver.manage().window().setSize(1024, 768);
+        await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=year_of_plenty');
+        await driver.findElement(webdriver.By.id('play')).click();
+        await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+        await driver.findElement(webdriver.By.className('player_button')).click();
+        //below code twice to pass through two modals
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+        await driver.findElement(webdriver.By.className('buybutton')).click();
+        await driver.findElement(webdriver.By.className('year_of_plenty')).click();
+    });
+}
 /**
  * Call tests here
  */
 
-for(var i = 0; i < drivers.length; i++){
-//  var concurrentDrivers = 0;
-//  while(concurrentDrivers > 5){
-//    saucelabs.getJobs(function(err,jobs){
-//      concurrentDrivers = jobs.length;
-//    })
-//   }
-  frontPageLoads(drivers[i]);
+var testCapabilities = superQuickTests;
+
+for(var os in testCapabilities){
+    for(var browser in testCapabilities[os]){
+        for( var i = parseInt(testCapabilities[os][browser].startVersion); i <= parseInt(testCapabilities[os][browser].endVersion); i++){
+            var driver = buildDriver(os+"",browser+"", i+"");
+            buy_year_of_plenty(driver, os, browser, i);
+        }
+    }
 }
+
 
