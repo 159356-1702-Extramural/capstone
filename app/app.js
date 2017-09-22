@@ -59,13 +59,13 @@ app.get('/', function(req, res) {
 
     // skip setup phase using {url}:3000/?setup=skip
     setupGame = req.query["setup"];
-    if(typeof playerNum === 'undefined'){setupGame = 'continue'}
+    if(typeof setupGame === 'undefined'){setupGame = 'continue'}
     process.env['setup'] = setupGame;
 
     // disable the robber using {url}:3000/?robber=disabled
     robber = req.query["robber"];
-    if(typeof playerNum === 'undefined'){setupGame = 'enabled'}
-    process.env['robber'] = setupGame;
+    if(typeof robber === 'undefined'){robber = 'enabled'}
+    process.env['robber'] = robber;
     logger.log('debug', 'Robber is '+process.env['robber']);
 
     dev_card = req.query["dev_card"];
