@@ -10,4 +10,5 @@ function currentPlayer(name, id, colour) {
         played: false,
         purchased: 0
     };
+    this.trading = { sheep:false, ore:false, lumber:false, brick:false, grain:false, three:false };
 }

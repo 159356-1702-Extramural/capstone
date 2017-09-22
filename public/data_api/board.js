@@ -344,6 +344,7 @@ function BuildNode(n_tiles) {
   this.building = "";       //
   this.owner = -1;
   this.status = "";         //  Client state while player is interacting with board
+  this.harbor = "";         //  sheep, ore, lumber, brick, grain or 3to1
 }
 
 function TileNode(type, robber, token, asso) {
@@ -351,6 +352,8 @@ function TileNode(type, robber, token, asso) {
   this.robber = robber;
   this.token = token;
   this.associated_nodes = asso;
+  this.harbor = "";             //  sheep, ore, lumber, brick, grain, 3to1
+  this.harbor_direction = "";   //  top_right, top_left, left, right, bottom_left, bottom_right
 }
 
 TileNode.prototype.get_node_by_corner_num = function(corner_number) {

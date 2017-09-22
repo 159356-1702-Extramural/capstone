@@ -554,8 +554,11 @@ StateMachine.prototype.validate_player_builds = function(data){
             var player_id   = data.player_id;
             var item        = data.actions[i].action_type; //settlement or road
             var index       = data.actions[i].action_data.id;
-            this.game.board.set_item(item, index, player_id, "");
+            this.game.board.set_item(item, index, player_id);
             data.actions[i].action_result = 0;
+
+            //  Set harbor if needed
+            this.set_harbor(i, data);
         }
     } else {
         //  Our first pass is to do a direct check for conflicts
@@ -581,10 +584,16 @@ StateMachine.prototype.validate_player_builds = function(data){
 
                     if (won_conflict == 0) {
                         this.game.board.set_item(item, index, player_id);
+
+                        //  Set harbor if needed
+                        this.set_harbor(i, data);
                     }
                 } else {
                     data.actions[i].action_result = 0;
                     this.game.board.set_item(item, index, player_id);
+
+                    //  Set harbor if needed
+                    this.set_harbor(i, data);
                 }
             }
         }
@@ -620,6 +629,14 @@ StateMachine.prototype.validate_player_builds = function(data){
             }
         }
 
+    }
+}
+
+StateMachine.prototype.set_harbor = function(index, data) {
+    if (data.actions[index].action_data.harbor) {
+        if (data.actions[index].action_data.harbor.length > 0) {
+            this.game.players[data.player_id].trading[data.actions[index].action_data.harbor] = true;
+        }
     }
 }
 
