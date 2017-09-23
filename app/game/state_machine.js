@@ -268,7 +268,6 @@ StateMachine.prototype.tick = function(data) {
           }
           for (var p=0; p< this.game.players.length; p++) {
             var player_id = this.game.players[p].id;
-            this.game.players[p].score.longest_road = this.game.board.longest_road_for_player(player_id);
 
             if(this.game.players[p].score.largest_army){
                 //this player already has largest army

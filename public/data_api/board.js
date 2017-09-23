@@ -274,6 +274,8 @@ Board.prototype.longest_roads = function(players) {
         if (owned_roads === 1) {
           start_node = node;
           break;
+        } else {
+          start_node = -1;
         }
       }
 
