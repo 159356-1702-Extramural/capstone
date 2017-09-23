@@ -390,17 +390,16 @@ async function trade4to1(driver,os, browser, version) {
 
         //test that the monopoly button is shown
         t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), '11');
-        saucelabs.updateJob(driver.sessionID, {
-            name: title,
-            passed: passed
-          }, done);
+        t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), '6');
+
+        driver.quit();
     });
 }
 /**
  * Call tests here
  */
 
-var testCapabilities = superQuickTests;
+var testCapabilities = quickTests;
 
 for(var os in testCapabilities){
     for(var browser in testCapabilities[os]){
