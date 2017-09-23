@@ -37,8 +37,8 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
  *
  */
 
- //Super quick tests
- var superQuickTests = {
+//Super quick tests
+var superQuickTests = {
     'Windows 10' : {
         'firefox' : {
             startVersion : 55,
@@ -49,10 +49,10 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
             endVersion: 14
         }
     }
- }
+}
 
  // Quick tests hold multiple of 4 tests at any time for testing in parallel
- var quickTests = {
+var quickTests = {
     'Windows 10' : {
         'firefox' : {
             startVersion : 55,
@@ -107,7 +107,7 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
     }
  }
 
- var comprehensiveTests = {
+var comprehensiveTests = {
     'Windows 10' : {
         'firefox' : {
             startVersion : 4,
@@ -274,7 +274,7 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
             endVersion : 12
         }
     }
- }
+}
 
 /**
  * each driver built here
@@ -301,7 +301,7 @@ function buildDriver(os, browser, version, test_info) {
 
 /**
  * Execute tests here
- * Write functions for each test here and call them in the section below
+ * Write functions for each test here and call them in the section at the bottom of the page
  */
 
 function frontPageLoads(browserDriver, os, browser, version){
@@ -312,18 +312,18 @@ function frontPageLoads(browserDriver, os, browser, version){
       await driver.quit();
   });
 }
-function setupSequence(browserDriver, os, browser, version){
-    test('Setup through to game start - '+os+' | '+browser+' | '+ version+')', async t => {
+// function setupSequence(browserDriver, os, browser, version){
+//     test('Setup through to game start - '+os+' | '+browser+' | '+ version+')', async t => {
 
-      let driver = browserDriver;
-      t.truthy(await runSetup(driver, os+"|"+browser));
+//       let driver = browserDriver;
+//       t.truthy(await runSetup(driver, os+"|"+browser));
 
-      saucelabs.updateJob(driver.sessionID, {
-        name: title,
-        passed: passed
-      }, done);
-    });
-}
+//       saucelabs.updateJob(driver.sessionID, {
+//         name: title,
+//         passed: passed
+//       }, done);
+//     });
+// }
 
 async function runSetup(driver, keyword) {
     driver.manage().window().setSize(1024, 768);
@@ -338,21 +338,6 @@ async function runSetup(driver, keyword) {
     await driver.actions().mouseDown('settlement_purple_open_4').mouseMove('node_21').mouseUp().perform();
     await driver.wait(webdriver.until.titleIs("Settlers of Massey"), 10000);
 
-}
-
-async function buy_year_of_plenty(driver,os, browser, version) {
-    test('Buy Year of Plenty using - '+os+' | '+browser+' | '+ version+')', async t => {
-        driver.manage().window().setSize(1024, 768);
-        await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=year_of_plenty');
-        await driver.findElement(webdriver.By.id('play')).click();
-        await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
-        await driver.findElement(webdriver.By.className('player_button')).click();
-        //below code twice to pass through two modals
-        await driver.findElement(webdriver.By.className('btn-info')).click();
-        await driver.findElement(webdriver.By.className('btn-info')).click();
-        await driver.findElement(webdriver.By.className('buybutton')).click();
-        await driver.findElement(webdriver.By.className('year_of_plenty')).click();
-    });
 }
 
 async function buy_monopoly(title, driver,os, browser, version) {
@@ -370,7 +355,6 @@ async function buy_monopoly(title, driver,os, browser, version) {
 
             await driver.findElement(webdriver.By.className('buybutton')).click();
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
-            driver.sleep(10000);
             await driver.findElement(webdriver.By.id('useMonopoly')).click();
 
             t.truthy(true);
@@ -415,21 +399,115 @@ async function trade4to1(title, driver,os, browser, version) {
             // saucelabs.updateJob(driver.sessionID, {
             //     name: title,
             //     passed: true
-            //     }, true);
+            //     }, done);
         }
         catch(err){
             console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
             // saucelabs.updateJob(driver.sessionID, {
             //     name: title,
             //     passed: false,
-            //     }, true);
+            //     }, done);
         }
         finally{
             driver.quit();
-            
-        }        
+
+        }
     });
 }
+
+async function buy_year_of_plenty(title, driver,os, browser, version) {
+    test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
+        try{
+            driver.manage().window().setSize(1024, 768);
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true&dev_card=year_of_plenty');
+            await driver.findElement(webdriver.By.id('play')).click();
+            await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+            await driver.findElement(webdriver.By.className('player_button')).click();
+            //below code twice to pass through two modals
+            driver.sleep(2000);
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            driver.sleep(500)
+
+            await driver.findElement(webdriver.By.className('buybutton')).click();
+
+            //get initial values to test against (they will be different based on resources distributed)
+            var startGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
+            var startBrick = await driver.findElement(webdriver.By.className('brickcount')).getText();
+
+            await driver.findElement(webdriver.By.className('year_of_plenty')).click();
+            await driver.findElement(webdriver.By.xpath('//div[@data-resource="brick" and @class="year_receive"]')).click();
+            await driver.findElement(webdriver.By.xpath('//div[@data-resource="grain" and @class="year_receive"]')).click();
+            await driver.findElement(webdriver.By.className('year_of_plenty_button')).click();
+
+            //test that the monopoly button is shown
+            t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), ((parseInt(startGrain))+1)+"");
+            t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick))+1)+"");
+
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: true
+            //     }, done);
+        }
+        catch(err){
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: false,
+            //     }, done);
+        }
+        finally{
+            driver.quit();
+
+        }
+    });
+}
+async function buy_road_building(title, driver,os, browser, version) {
+    test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
+        try{
+            driver.manage().window().setSize(1024, 768);
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true&dev_card=road_building');
+            await driver.findElement(webdriver.By.id('play')).click();
+            await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+            await driver.findElement(webdriver.By.className('player_button')).click();
+            //below code twice to pass through two modals
+            driver.sleep(2000);
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            driver.sleep(500)
+
+            //get initial values to test against (they will be different based on resources distributed)
+            var startLumber = await driver.findElement(webdriver.By.className('lumbercount')).getText();
+            var startBrick = await driver.findElement(webdriver.By.className('brickcount')).getText();
+
+            await driver.findElement(webdriver.By.className('buybutton')).click();
+
+            await driver.findElement(webdriver.By.className('road_building')).click();
+            await driver.findElement(webdriver.By.className('road_building_button')).click();
+
+            //test that the monopoly button is shown
+            t.is(await driver.findElement(webdriver.By.className('lumbercount')).getText(), ((parseInt(startLumber))+2)+"");
+            t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick))+2)+"");
+
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: true
+            //     }, done);
+        }
+        catch(err){
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: false,
+            //     }, done);
+        }
+        finally{
+            driver.quit();
+
+        }
+    });
+}
+
 /**
  * Call tests here
  */
@@ -437,18 +515,37 @@ async function trade4to1(title, driver,os, browser, version) {
 var testCapabilities = superQuickTests;
 
 // add descriptive string here and the test to the if-else statements below
-var testTitles = ['Purchase Monopoly', 'Trading 4:1'];
+var testTitles = ['Play Road Building', 'Purchase Monopoly', 'Trading 4:1', 'Play Year of Plenty'];
+
 for(var j = 0; j < testTitles.length; j++){
     for(var os in testCapabilities){
         for(var browser in testCapabilities[os]){
-            for( var i = parseInt(testCapabilities[os][browser].startVersion); i <= parseInt(testCapabilities[os][browser].endVersion); i++){
-                var driver = buildDriver(os+"",browser+"", i+"", testTitles[j]+" - ");
+            for( var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(testCapabilities[os][browser].endVersion); version++){
+
                 if(testTitles[j] === 'Trading 4:1'){
-                    //trade4to1(testTitles[j], driver, os, browser, i);
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    //trade4to1(testTitles[j], driver, os, browser, version);
+
                 }else if(testTitles[j] === 'Purchase Monopoly'){
-                    buy_monopoly(testTitles[j], driver, os+"",browser+"", i+"", testTitles[j]+" - ");
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    //buy_monopoly(testTitles[j], driver, os, browser, version);
+
+                }else if(testTitles[j] === 'Play Year of Plenty'){
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    //buy_year_of_plenty(testTitles[j], driver, os,browser, version);
+                }else if(testTitles[j] === 'Play Road Building'){
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    buy_road_building(testTitles[j], driver, os,browser, version);
                 }
-                
+
             }
         }
     }
