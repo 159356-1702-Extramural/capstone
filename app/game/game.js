@@ -384,7 +384,8 @@ Game.prototype.calculateScores = function() {
       skip_update = true;
       this.longest_road = last_longest;
       this.longest_road_id = last_player;
-      console.log("Players have same length road");
+      console.log("Players", player.id, "and", this.longest_road_id, "have same length longest road");
+      console.log("Longest Road bonus unchanged");
       break;
     }
   }
@@ -393,7 +394,6 @@ Game.prototype.calculateScores = function() {
     for (var p=0; p<this.players.length; p++) {
       var player = this.players[p];
       if (this.longest_road >= 5) {
-        console.log("New player with longest road found:", player.id);
         player.score.longest_road =
             (this.longest_road_id === player.id) ? true : false;
       }
