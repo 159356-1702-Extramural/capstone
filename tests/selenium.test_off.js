@@ -359,7 +359,7 @@ async function buy_monopoly(title, driver,os, browser, version) {
     test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
         try{
             driver.manage().window().setSize(1024, 768);
-            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=monoploy');
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=monopoly');
             await driver.findElement(webdriver.By.id('play')).click();
             await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
             await driver.findElement(webdriver.By.className('player_button')).click();
@@ -367,22 +367,21 @@ async function buy_monopoly(title, driver,os, browser, version) {
             driver.sleep(2000);
             await driver.findElement(webdriver.By.className('btn-info')).click();
             await driver.findElement(webdriver.By.className('btn-info')).click();
-            driver.sleep(500)
+
             await driver.findElement(webdriver.By.className('buybutton')).click();
-            driver.sleep(500)
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
 
             //test that the monopoly button is shown
-            var buttons = await driver.findElements(webdriver.By.className('btn-info')).getText();
-
-            await driver.findElement(webdriver.By.name('useMonopoly')).click();
+            //var buttons = await driver.findElements(webdriver.By.className('btn-info')).getText();
+            await driver.findElement(webdriver.By.xpath('//div[@class="btn-info" and @id="useMonopoly"]')).click();
+            //await driver.findElement(webdriver.By.className('btn-info')).click();
         
             //console.log(await driver.findElements(webdriver.By.xpath('//div[@name="useMonopoly"]')).size());
             t.truthy(true);
         }
         catch (err) {
             console.log('FAILED: ' + title + '  - '+os+' | '+browser+' | '+ version);
-            t.falsy(true);
+            console.log(err);
         }
         finally {
             driver.quit();
@@ -413,8 +412,8 @@ async function trade4to1(title, driver,os, browser, version) {
             await driver.findElement(webdriver.By.className('btn-info')).click();
 
             //test that the monopoly button is shown
-            t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), ((parseInt(startGrain)+1)+""));
-            t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick)-4)+""));
+            t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), ((parseInt(startGrain))+1)+"");
+            t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick))-4)+"");
 
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
             // saucelabs.updateJob(driver.sessionID, {
