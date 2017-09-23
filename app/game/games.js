@@ -83,8 +83,12 @@ Games.prototype.assign_player = function(socket, data) {
     }
 
     if(process.env['dev_card'] !== 'disabled'){
-        state_machine.development_cards[0] = process.env['dev_card'];
+        state_machine.development_cards = [];
+        for(var i = 0; i < 30; i++){
+            state_machine.development_cards.push(process.env['dev_card']);
+        }
     }
+
     
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
