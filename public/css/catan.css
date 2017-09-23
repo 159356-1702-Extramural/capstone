@@ -689,7 +689,7 @@ body {
 }
 .city {
     position:absolute;
-    z-index:9997;    
+    z-index:9997;
 }
 
 .dropped {
@@ -1122,6 +1122,15 @@ body {
 .trading_card_3 {
     left:45px;
     z-index:3;
+}
+.trade-info {
+    position: absolute;
+    z-index: 200;
+    color: white;
+    background-color: rgba(0, 0, 0,0.6);
+    padding: 2px;
+    margin: 88px 0 0 2px;
+    width:65px;
 }
 
 .fail_row {
