@@ -359,26 +359,38 @@ Game.prototype.calculateScores = function() {
   // Count VP Cards and Longest Rd, Biggest Army
   var player_with_longest_road = -1;
   var longest_road_length = 0;
+  var player_with_last_longest = -1;
+  var last_longest_road = 0;
   // Find each players longest road
   var longest_road_map = this.board.longest_roads(this.players);
   for (var p=0; p<this.players.length; p++) {
     var player = this.players[p];
-    var players_longest = longest_road_map.get(player.id);
-    if (players_longest > longest_road_length) {
+    // get the last player road length and id
+    if (player.score.longest_road === true) {
+      player_with_last_longest = player.id;
+      last_longest_road = player.score.road_length;
+    }
+    // find the current longest road
+    player.score.road_length = longest_road_map.get(player.id);
+    if (player.score.road_length > longest_road_length) {
       player_with_longest_road = player.id;
-      longest_road_length = players_longest;
+      longest_road_length = player.score.road_length;
     }
   }
+
   for (var p=0; p<this.players.length; p++) {
     var player = this.players[p];
-    player.score.longest_road =
+    if (longest_road_length >= 5 &&
+        last_longest_road !== longest_road_length &&
+        player_with_last_longest !== player_with_longest_road) {
+      player.score.longest_road =
           (player_with_longest_road === player.id) ? true : false;
+    }
   }
 
   this.players.forEach(function(player) {
     player.score.victory_points = player.cards.count_victory_cards();
-    if (longest_road_length >= 5)
-      player.score.total_points += (player.score.longest_road === true) ? 2 : 0;
+    player.score.total_points += (player.score.longest_road === true) ? 2 : 0;
     player.score.total_points += (player.score.largest_army) ? 2 : 0;
     player.score.total_points += player.score.victory_points;
   });
