@@ -10,11 +10,12 @@ function Game(state_machine) {
     this.WIN_SCORE      = 10;
 
     this.players        = [];
-
     this.round_num      = 1;
 
-    this.player_colours = ['purple', 'red', 'blue', 'green'];
+    this.longest_road = 0;
+    this.longest_road_id = -1;
 
+    this.player_colours = ['purple', 'red', 'blue', 'green'];
     this.dice_roll      = [];
 
     // Holds id of player with monopoly (-1 for no one holding card);
@@ -357,34 +358,45 @@ Game.prototype.calculateScores = function() {
   }, this);
 
   // Count VP Cards and Longest Rd, Biggest Army
-  var player_with_longest_road = -1;
-  var longest_road_length = 0;
-  var player_with_last_longest = -1;
-  var last_longest_road = 0;
   // Find each players longest road
   var longest_road_map = this.board.longest_roads(this.players);
+  var last_longest = this.longest_road;
+  var last_player = this.longest_road_id;
+  // find actual longest road
   for (var p=0; p<this.players.length; p++) {
     var player = this.players[p];
-    // get the last player road length and id
-    if (player.score.longest_road === true) {
-      player_with_last_longest = player.id;
-      last_longest_road = player.score.road_length;
-    }
-    // find the current longest road
+    // update the players data
     player.score.road_length = longest_road_map.get(player.id);
-    if (player.score.road_length > longest_road_length) {
-      player_with_longest_road = player.id;
-      longest_road_length = player.score.road_length;
+    // only change game data IF a new longest road is found
+    // is changed to first found longest road only.
+    if (player.score.road_length > this.longest_road) {
+      this.longest_road_id = player.id;
+      this.longest_road = player.score.road_length;
     }
   }
 
+  // figure out if two players have the same length road on this turn
+  // and skip road score update if true, and reset game data for longest
+  var skip_update = false;
   for (var p=0; p<this.players.length; p++) {
     var player = this.players[p];
-    if (longest_road_length >= 5 &&
-        last_longest_road !== longest_road_length &&
-        player_with_last_longest !== player_with_longest_road) {
-      player.score.longest_road =
-          (player_with_longest_road === player.id) ? true : false;
+    if (player.score.road_length === this.longest_road && player.id !== this.longest_road_id) {
+      skip_update = true;
+      this.longest_road = last_longest;
+      this.longest_road_id = last_player;
+      console.log("Players have same length road");
+      break;
+    }
+  }
+
+  if (skip_update === false) {
+    for (var p=0; p<this.players.length; p++) {
+      var player = this.players[p];
+      if (this.longest_road >= 5) {
+        console.log("New player with longest road found:", player.id);
+        player.score.longest_road =
+            (this.longest_road_id === player.id) ? true : false;
+      }
     }
   }
 
