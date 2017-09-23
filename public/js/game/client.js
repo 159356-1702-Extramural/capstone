@@ -1030,31 +1030,35 @@ function getNodeCSS(node) {
 
 //  This method determines if a node can be built on by the current player
 function can_build(node, node_to_ignore) {
-    var success = false;
+    var success = true;
 
     //  If we have a node_to_ignore, temporarily hide it's owner/building properties
-    var temp_node = new BuildNode();
+    var temp_node_building = "";
+    var temp_node_owner = -1;
     if (node_to_ignore) {
-        temp_node.building = node_to_ignore.building;
-        temp_node.owner = node_to_ignore.owner;
+        temp_node_building = node_to_ignore.building;
+        temp_node_owner = node_to_ignore.owner;
         node_to_ignore.building = "";
         node_to_ignore.owner = -1;
     }
 
-    //  Use board helper method to check owner and adjacent buildings
-    var tempBoard = new Board();
-    tempBoard.nodes = current_game.nodes;
+    //  Make sure this is a valid spot to build
+    if (node.owner === -1) {
+        for (var n = 0; n < node.n_nodes.length; n++) {
+            if (current_game.nodes[node.n_nodes[n]].owner > -1) {
+                success = false;
+                break;
+            }
+        }
+    } else {
+        success = false;
+    }
 
-    var can_build_here = tempBoard.is_node_valid_build(current_player.id, node.id);
-
-    //  TODO: Remove following checks when added to board helper is_node_valid_build
-    if (can_build_here) {
-        //  If this is the setup round, we can build here
-      if (current_game.round_num < 3) {
-            success = true;
-        } else {
-            //  Finally, if it is a normal round, are we connected by a road?
-            for (var i=0; i<node.n_roads.length; i++) {
+    //  Now make sure we are connected by a road
+    if (success) {
+        if (current_game.round_num > 2) {
+            success = false;
+            for (var i = 0; i < node.n_roads.length; i++) {
                 if (current_game.roads[node.n_roads[i]].owner == current_player.id) {
                     success = true;
                     break;
@@ -1065,8 +1069,8 @@ function can_build(node, node_to_ignore) {
 
     //  If we have a node_to_ignore, restore it
     if (node_to_ignore) {
-        node_to_ignore.building = temp_node.building;
-        node_to_ignore.owner = temp_node.owner;
+        node_to_ignore.building = temp_node_building;
+        node_to_ignore.owner = temp_node_owner;
     }
 
     return success;
@@ -1178,12 +1182,12 @@ function getRoadPosition(road) {
 
 //  Some simple logic to see if a road can be built
 function can_build_road(road, road_to_ignore, node_to_enforce) {
-    var success = false;
+    var success = true;
 
     //  If we have a road_to_ignore, temporarily hide it's owner property
-    var temp_node = new RoadNode();
+    var temp_node_owner = -1;
     if (road_to_ignore) {
-        temp_node.owner = road_to_ignore.owner;
+        temp_node_owner = road_to_ignore.owner;
         road_to_ignore.owner = -1;
     }
 
@@ -1225,7 +1229,7 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
     }
     //  If we have a road_to_ignore, restore it
     if (road_to_ignore) {
-        road_to_ignore.owner = temp_node.owner;
+        road_to_ignore.owner = temp_node_owner;
     }
     return success;
 }
