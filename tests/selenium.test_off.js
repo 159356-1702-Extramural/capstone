@@ -284,10 +284,11 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
  *
  * @return {Object} : driver object
  */
-function buildDriver(os, browser, version) {
+function buildDriver(os, browser, version, test_info) {
     var driver = new webdriver.Builder()
         .withCapabilities({
             'browserName':browser,
+            'name' : test_info + os + " | " + browser + " | " + version,
             'platform':os,
             'version': version,})
         .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
@@ -316,7 +317,7 @@ function setupSequence(browserDriver, os, browser, version){
 
       let driver = browserDriver;
       t.truthy(await runSetup(driver, os+"|"+browser));
-      
+
       saucelabs.updateJob(driver.sessionID, {
         name: title,
         passed: passed
@@ -336,7 +337,7 @@ async function runSetup(driver, keyword) {
 
     await driver.actions().mouseDown('settlement_purple_open_4').mouseMove('node_21').mouseUp().perform();
     await driver.wait(webdriver.until.titleIs("Settlers of Massey"), 10000);
-    
+
 }
 
 async function buy_year_of_plenty(driver,os, browser, version) {
@@ -366,22 +367,46 @@ async function buy_monopoly(driver,os, browser, version) {
         await driver.findElement(webdriver.By.className('btn-info')).click();
         await driver.findElement(webdriver.By.className('buybutton')).click();
         await driver.findElement(webdriver.By.className('finishturnbutton')).click();
-        
+
         //test that the monopoly button is shown
         t.truthy(driver.findElements(webdriver.By.name('useMonopoly')).size() > 0);
+    });
+}
+
+async function trade4to1(driver,os, browser, version) {
+    test('Trade a card 4:1 - '+os+' | '+browser+' | '+ version+')', async t => {
+        driver.manage().window().setSize(1024, 768);
+        await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=monopoly');
+        await driver.findElement(webdriver.By.id('play')).click();
+        await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+        await driver.findElement(webdriver.By.className('player_button')).click();
+        //below code twice to pass through two modals
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+        await driver.findElement(webdriver.By.className('tradebutton')).click();
+        await driver.findElement(webdriver.By.xpath('//div[@data-resource="brick" and @class="card_give"]')).click();
+        await driver.findElement(webdriver.By.xpath('//div[@data-resource="grain" and @class="card_receive"]')).click();
+        await driver.findElement(webdriver.By.className('btn-info')).click();
+
+        //test that the monopoly button is shown
+        t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), '11');
+        saucelabs.updateJob(driver.sessionID, {
+            name: title,
+            passed: passed
+          }, done);
     });
 }
 /**
  * Call tests here
  */
 
-var testCapabilities = quickTests;
+var testCapabilities = superQuickTests;
 
 for(var os in testCapabilities){
     for(var browser in testCapabilities[os]){
         for( var i = parseInt(testCapabilities[os][browser].startVersion); i <= parseInt(testCapabilities[os][browser].endVersion); i++){
-            var driver = buildDriver(os+"",browser+"", i+"");
-            buy_monopoly(driver, os, browser, i);
+            var driver = buildDriver(os+"",browser+"", i+"", "Trading 4:1 - ");
+            trade4to1(driver, os, browser, i);
         }
     }
 }
