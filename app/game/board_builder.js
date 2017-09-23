@@ -13,7 +13,31 @@ generate = function(_board) {
   if (!_board) {
     // Standard layout (as seen in the manual)
     // even # row is moved over by tile_width/2
+
+    //  TODO:   Replace Temporary harbor generation when main method ready
+    var harbor_list = [];
+    harbor_list.push("bottom_right.3to1.1.0");
+    harbor_list.push("bottom_left.sheep.2.5");
+    harbor_list.push("bottom_left.3to1.12.25");
+    harbor_list.push("right.ore.7.15");
+    harbor_list.push("left.3to1.37.35");
+    harbor_list.push("right.grain.28.38");
+    harbor_list.push("top_left.brick.46.45");
+    harbor_list.push("top_right.3to1.47.49");
+    harbor_list.push("top_left.lumber.50.51");
+    
     _board = [
+        ["z0",  "z0",  "h0",  "z0",  "h1",  "z0",  "z0"],
+        ["z0",  "z0",  "e11", "b12", "d9",  "h2",  "z0"],
+        ["z0",  "h3",  "a4",  "c6",  "a5",  "b10", "z0"],
+        ["z0",  "f0",  "e3",  "d11", "e4",  "d8",  "h4"],
+        ["z0",  "h5",  "a8",  "b10", "b9",  "c3",  "z0"],
+        ["z0",  "z0",  "c5",  "d2",  "e6",  "h6",  "z0"],
+        ["z0",  "z0",  "h7",  "z0",  "h8",  "z0",  "z0"]
+    ];
+    //  TODO:   End of temporary harbor generation
+
+    _board2 = [
         ["z0",  "z0",  "z0",  "z0",  "z0",  "z0",  "z0"],
         ["z0",  "z0",  "e11", "b12", "d9",  "z0",  "z0"],
         ["z0",  "z0",  "a4",  "c6",  "a5",  "b10", "z0"],
@@ -22,17 +46,41 @@ generate = function(_board) {
         ["z0",  "z0",  "c5",  "d2",  "e6",  "z0",  "z0"],
         ["z0",  "z0",  "z0",  "z0",  "z0",  "z0",  "z0"]
     ];
-  }
+
+    
+}
   var board = new Board.Board();
+  var harbors = [];
+
   // iterate over the input board_array
   for (var y=0; y<_board.length; y++) {
     board.tiles.push([]);
     for (var x=0; x<_board[y].length; x++) {
+
+        //  TODO:   Remove, temporary harbor generation
+        var tile_detail = _board[y][x];
+        var tile_harbor = "";
+        var tile_harbor_direction = "";
+        if (tile_detail.substring(0,1) == "h") {
+            var harbor_details = harbor_list[tile_detail.substring(1,2)].split('.');
+            tile_harbor = harbor_details[1];
+            tile_harbor_direction = harbor_details[0];
+            harbors.push([tile_harbor, harbor_details[2]]);
+            harbors.push([tile_harbor, harbor_details[3]]);
+            _board[y][x] = "z0";
+        }
+        //  TODO:   End of temporary harbor stuff
+
       // insert tile_node from info
       var tile_info = _board[y][x].match(/([A-Za-z]+)([0-9]+)/);
       var tile_type = setup_tile_resource(tile_info[1]);
 
       var tile = new Board.TileNode(tile_type, (tile_type === "desert"), parseInt(tile_info[2]), []);
+
+      //    TODO:   Remove temporary harbor stuff
+        tile.harbor = tile_harbor;
+        tile.harbor_direction = tile_harbor_direction;
+      //    TODO:   End of temporary harbor stuff
 
       // Store reference to robber location
       if (tile_type === 'desert') {
@@ -50,7 +98,9 @@ generate = function(_board) {
           // if x,y is out of array bounds we can't index the _board with it to check type
           if ((tile_nodes[i].n_tiles[w].x >= 0 && tile_nodes[i].n_tiles[w].x < _board[0].length) &&
               (tile_nodes[i].n_tiles[w].y >= 0 && tile_nodes[i].n_tiles[w].y < _board.length)) {
-            if (_board[tile_nodes[i].n_tiles[w].y][tile_nodes[i].n_tiles[w].x] == "z0") {
+            
+            var check_tile = _board[tile_nodes[i].n_tiles[w].y][tile_nodes[i].n_tiles[w].x];
+            if (check_tile.substring(0,1) == "z" || check_tile.substring(0,1) == "h") {
               water += 1;
             }
           } else {
@@ -96,6 +146,13 @@ generate = function(_board) {
   }
 
   // console.log(board);
+
+  //    TODO:   Delete Temporary Harbor generation
+  //    Set each of the nodes that are harbors
+  for (var i = 0; i < harbors.length; i++) {
+      board.nodes[harbors[i][1]].harbor = harbors[i][0];
+  }
+  //    TODO:   End of temporary harbor stuff
 
   return board;
 };

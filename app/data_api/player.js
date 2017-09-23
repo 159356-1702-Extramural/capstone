@@ -34,6 +34,7 @@ function Player(socket, data) {
     this.cards          = new Cards();
     this.round_distribution_cards = new Cards();
 
+    this.trading = { sheep:false, ore:false, lumber:false, brick:false, grain:false, three:false };
 }
 
 module.exports = Player;

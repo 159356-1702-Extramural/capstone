@@ -795,9 +795,9 @@ function buildTile(theTile, row, col) {
         var newTile = "<div class='hex";
 
         if (theTile.type == "water" || theTile.type == "harbor") {
-            newTile += "_" + theTile.type;
-            if (theTile.type == "harbor") {
-                //newTile += " " + theTile.harborAlign;
+            newTile += "_" + (theTile.harbor.length > 0 ? "harbor" : "water");
+            if (theTile.harbor.length > 0) {
+                newTile += " " + theTile.harbor_direction;
             }
         } else {
             newTile += " " + theTile.type;
@@ -810,8 +810,8 @@ function buildTile(theTile, row, col) {
             $(".robber").css("top", (point[1] - 120) + "px");
             $(".robber").show();
         }
-        if (theTile.type == "harbor") {
-            //newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
+        if (theTile.harbor.length > 0) {
+            newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
         }
 
         //  Set node placeholders
@@ -1114,7 +1114,9 @@ function getRoadAngle(road) {
 }
 
 //  This method determines the coordinates where a road is to be drawn
+var test = null;
 function getRoadPosition(road) {
+    test = road;
     var node1_left = parseInt($("#node_" + road.connects[0]).css("left").replace("px", ""));
     var node1_top = parseInt($("#node_" + road.connects[0]).css("top").replace("px", ""));
     var node2_left = parseInt($("#node_" + road.connects[1]).css("left").replace("px", ""));

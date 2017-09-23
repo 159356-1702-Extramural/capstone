@@ -342,6 +342,9 @@ body {
 .left {
     background-image:url(../images/harbor_left.png);
 }
+.left.half {
+    left:70px;
+}
 .right {
     background-image:url(../images/harbor_right.png);
 }
