@@ -128,7 +128,7 @@ function show_open_spots(object_type, ignore_id) {
         if (ignore_id) {
             var temp = ignore_id.split('_');
             is_pending = ignore_id.indexOf("_pending_") > -1;
-            ignore_index = parseInt(temp[temp.length-1]);
+            if (is_pending) { ignore_index = parseInt(temp[temp.length-1]); }
         }
 
         //  If this item is on the board, see if it releases any dependents
