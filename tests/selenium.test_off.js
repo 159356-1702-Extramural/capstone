@@ -370,13 +370,9 @@ async function buy_monopoly(title, driver,os, browser, version) {
 
             await driver.findElement(webdriver.By.className('buybutton')).click();
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
+            driver.sleep(10000);
+            await driver.findElement(webdriver.By.id('useMonopoly')).click();
 
-            //test that the monopoly button is shown
-            //var buttons = await driver.findElements(webdriver.By.className('btn-info')).getText();
-            await driver.findElement(webdriver.By.xpath('//div[@class="btn-info" and @id="useMonopoly"]')).click();
-            //await driver.findElement(webdriver.By.className('btn-info')).click();
-        
-            //console.log(await driver.findElements(webdriver.By.xpath('//div[@name="useMonopoly"]')).size());
             t.truthy(true);
         }
         catch (err) {
@@ -448,7 +444,7 @@ for(var j = 0; j < testTitles.length; j++){
             for( var i = parseInt(testCapabilities[os][browser].startVersion); i <= parseInt(testCapabilities[os][browser].endVersion); i++){
                 var driver = buildDriver(os+"",browser+"", i+"", testTitles[j]+" - ");
                 if(testTitles[j] === 'Trading 4:1'){
-                    trade4to1(testTitles[j], driver, os, browser, i);
+                    //trade4to1(testTitles[j], driver, os, browser, i);
                 }else if(testTitles[j] === 'Purchase Monopoly'){
                     buy_monopoly(testTitles[j], driver, os+"",browser+"", i+"", testTitles[j]+" - ");
                 }
