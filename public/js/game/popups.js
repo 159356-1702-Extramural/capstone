@@ -132,7 +132,7 @@ function build_popup_round_roll_results() {
 
     // Create message if a player has used the knight
     var knight = '';
-    if (current_game.knight_player_id !== -1) {
+    if (typeof current_game.knight_player_id !== 'undefined' && current_game.knight_player_id !== -1) {
       if (current_game.knight_player_id == current_game.player.id) {
         knight = "You have played the Knight. Robber has moved!";
       } else {

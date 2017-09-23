@@ -954,7 +954,21 @@ function updatePanelDisplay() {
   var score = current_game.player.score;
   var $bonuses_box = $('.bonuses');
 
-  $bonuses_box.find('.armycount').text(score.largest_army ? 2 : 0);
+  //if there is a change to largest army
+  var army_count = document.getElementsByClassName('armycount');
+
+  if ( parseInt(army_count[0].innerHTML) === 0 && score.largest_army){
+    alert("You have just received largest army");
+    $bonuses_box.find('.armycount').text(2);
+  }else if (parseInt(army_count[0].innerHTML) === 2 && !score.largest_army) {
+    alert("You have just lost the largest army");
+    $bonuses_box.find('.armycount').text(0);
+  }else{
+      //we just leave it as it is
+      console.log('there is no change to the army');
+  }
+
+  
   $bonuses_box.find('.longroadcount').text(score.longest_road ? 2 : 0);
   $bonuses_box.find('.victorycount').text(score.total_points);
 
