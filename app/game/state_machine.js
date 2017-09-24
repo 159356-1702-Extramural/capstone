@@ -261,54 +261,6 @@ StateMachine.prototype.tick = function(data) {
           this.game.round_num++;
 
           // Calculate the scores
-          var largest_army = {
-              player_id: -1,
-              knights_played: 0,
-              current_owner : -1 //check if a change of largest army owner
-          }
-          for (var p=0; p< this.game.players.length; p++) {
-            var player_id = this.game.players[p].id;
-
-            if(this.game.players[p].score.largest_army){
-                //this player already has largest army
-                largest_army.current_owner = p;
-            }
-
-            var played_knights = this.game.players[p].cards.dev_cards.knight_played;
-            // Only look if player has played 3 or more knights
-            if(played_knights > 2 && played_knights > largest_army.knights_played){
-                largest_army.player_id = player_id;
-                largest_army.knights_played = played_knights;
-            
-            // if there are two players with the same score
-            }else if(played_knights >  2 && played_knights === largest_army.knights_played){
-                
-                // is the current owner one of these?
-                if(this.game.players[largest_army.current_owner].cards.dev_cards.knight_played === largest_army.knights_played){
-                    largest_army.player_id = largest_army.current_owner;
-                }else{
-                    //two new players have largest army.. neither gets it.
-                    largest_army.player_id = -1;
-                }
-
-                //keep largest_army.knights_played value as someone may still have a higher value
-            }
-          };
-
-          // check if we have someone eligable for largest army
-          if(largest_army.player_id >= 0 && largest_army.knights_played > 2){
-
-            //if player doesn't already has largest_army, add player
-            if(!this.game.players[largest_army.player_id].score.largest_army){
-               this.game.players[largest_army.player_id].score.largest_army = true;
-
-               //if someone already has the largest army, remove it from thier hand.
-               if(largest_army.current_owner !== -1){
-                this.game.players[largest_army.current_owner].score.largest_army = false;
-               }
-            }
-          }
-
           this.game.calculateScores();
 
           // End the game if we have a winner
