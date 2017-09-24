@@ -345,13 +345,11 @@ StateMachine.prototype.tick = function(data) {
                 diceroll = 1;
 
             //  Nerf the robber just a little to prevent too frequent occurance
-            /*
             } else if (diceroll == 7 && diceroll_check == 1) {
                 diceroll_check = this.game.rollingDice();
                 if (diceroll_check != 7) {
                     diceroll = diceroll_check;
                 }
-                */
             }
           } while (diceroll < 2);
 
