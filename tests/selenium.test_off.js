@@ -547,29 +547,89 @@ async function popups_display_and_close(title, driver,os, browser, version) {
             t.is(await driver.findElement(webdriver.By.className('popup_title')).getText(), "Road Building");
             
             // check can we close the popup window
-            t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
+            await driver.findElement(webdriver.By.className('road_building_button')).click();
+            //t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
 
             //complete the round
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
 
-            //test that the monopoly button is shown
-            // t.is(await driver.findElement(webdriver.By.className('lumbercount')).getText(), ((parseInt(startLumber))+2)+"");
-            // t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick))+2)+"");
-
-            saucelabs.updateJob(driver.sessionID, {
-                name: title,
-                passed: true
-                }, done);
+            driver.quit();
         }
         catch(err){
-            console.log('FAILED: ' + title + ' - '+ os + ' | ' + browser + ' | '+ version);
-            // saucelabs.updateJob(driver.sessionID, {
-            //     name: title,
-            //     passed: false,
-            //     }, done);
+            console.log("FAILED " + title + " - "+ os +" | " + browser + " | " + version);
+            driver.quit();
         }
         finally{
+            //shift relevant pieces in here during refactor
+
+        }
+    });
+}
+async function startup_and_setup(title, driver,os, browser, version) {
+    test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
+        try{
+            driver.manage().window().setSize(1024, 768);
+
+            // road building set here to stop victory point cards interfering with the test.
+            await driver.get('http://capstone-settlers.herokuapp.com/');
+            await driver.findElement(webdriver.By.id('play')).click();
+            await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+            await driver.findElement(webdriver.By.className('player_button')).click();
+
+            // test that player numbers correctly listed (currently 2)
+        //    t.is(await driver.findElement(webdriver.By.className('total')).getText(), "2");
+            await driver.wait(webdriver.until.elementLocated(webdriver.By.id('get_started')),20000);
+            await driver.findElement(webdriver.By.id('get_started')).click();
+            // driver.sleep(3000);
+            // await driver.findElement(webdriver.By.xpath("//div[@class='popup_inner]/h1"));
+            //players starts turn
+            // await driver.findElement(webdriver.By.id('get_started')).click();
+
+            //get appropriate player
+            var player = await driver.findElement(webdriver.By.xpath("//img[@src='images/player0.png']"));
+
+            if( player === 'http://capstone-settlers.herokuapp.com/images/player0.png' ){
+                //player places settlement
+                var settlement = driver.findElement(webdriver.By.id('settlement_purple_open_4'));
+                var target = driver.findElement(webdriver.By.id("node_21"));
+                await driver.actions().
+                    mouseDown(settlement).
+                    mouseMove(target).
+                    mouseUp().
+                    perform();
+
+                //player places road
+                await driver.actions().
+                    mouseDown('#road_purple_open_14').
+                    mouseMove('#node_21').
+                    mouseUp().
+                    perform();
+
+                    t.truthy(true);
+
+            }else if ( player === 'http://capstone-settlers.herokuapp.com/images/player1.png'){
+
+            }else if ( player === 'http://capstone-settlers.herokuapp.com/images/player2.png'){
+
+            }else if ( player === 'http://capstone-settlers.herokuapp.com/images/player0.png'){
+
+            }else{
+                // failed 
+            }
+
+            //player places settlement
+            
+            //complete the round
+            await driver.findElement(webdriver.By.className('finishturnbutton')).click();
+
             driver.quit();
+        }
+        catch(err){
+            console.log("FAILED " + title + " - "+ os +" | " + browser + " | " + version);
+            driver.quit();
+        }
+        finally{
+            //shift relevant pieces in here during refactor
 
         }
     });
@@ -578,10 +638,10 @@ async function popups_display_and_close(title, driver,os, browser, version) {
  * Call tests here
  */
 
-var testCapabilities = superQuickTests;
+var testCapabilities = quickTests;
 
 // add descriptive string here and the test to the if-else statements below
-var testTitles = ['Popups display and close','Play Road Building', 'Purchase Monopoly', 'Trading 4:1', 'Play Year of Plenty'];
+var testTitles = ['Start up and Setup complete','Popups display and close','Play Road Building', 'Purchase Monopoly', 'Trading 4:1', 'Play Year of Plenty'];
 
 for(var j = 0; j < testTitles.length; j++){
     for(var os in testCapabilities){
@@ -620,9 +680,16 @@ for(var j = 0; j < testTitles.length; j++){
                 }else if(testTitles[j] === 'Popups display and close'){
 
                     // initialise driver inside for loop otherwise can be created too early and time out
+                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    //popups_display_and_close(testTitles[j], driver, os,browser, version);
+
+                }else if(testTitles[j] === 'Start up and Setup complete'){
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
                     var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
-                    popups_display_and_close(testTitles[j], driver, os,browser, version);
+                    startup_and_setup(testTitles[j], driver, os,browser, version);
                 }
+                
 
             }
         }
