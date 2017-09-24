@@ -421,6 +421,11 @@ body {
     height:50px;
     opacity: 1;
 }
+
+.settlement:hover, .city:hover, .road:hover {
+    cursor: crosshair;
+}
+
 .node.settlement.purple, .settlement.purple {
     background-image: url(../images/settlement_purple_small.png);
 }
