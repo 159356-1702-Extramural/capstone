@@ -31,7 +31,7 @@ test.beforeEach(t => {
 
 });
 test("A statemachine when created also creates an empty game", function(t) {
-    
+
     t.is(machine.id, 0);
     t.truthy(machine.game);
 });
@@ -54,7 +54,7 @@ test("Monopoly", function(t) {
     data_package.data_type = 'monopoly_used';
     data_package.player_id = 0;
     data_package.actions.push(action);
-    
+
     //machine.activate_monopoly(data_package);
     machine.state = 'play';
     machine.tick(data_package);
@@ -178,7 +178,7 @@ test('Test buying a Development card success', function (t) {
     var data_package = new Client_Data_package();
     data_package.data_type = 'buy_dev_card';
     data_package.player_id = 0;
-    
+
     //machine.buy_dev_card(data_package);
     machine.state = 'play';
     machine.tick(data_package);
@@ -206,7 +206,7 @@ test('Test buying a Development card sets monopoly user', function (t) {
     var data_package = new Client_Data_package();
     data_package.data_type = 'buy_dev_card';
     data_package.player_id = 1;
-    
+
     machine.buy_dev_card(data_package);
     t.is(machine.game.monopoly, 1);
 });
@@ -302,12 +302,12 @@ test('Trade 4:1 with the bank fails', function (t) {
 
 test.todo("has_valid_path");
 test.todo("wins_conflict");
-test.todo("validate_player_builds");    
+test.todo("validate_player_builds");
 
 test('Game start sequence finishes', function (t) {
     //setupPointer set to setupSequence.length
     machine.setupPointer = machine.setupSequence.length;
-    
+
     machine.game_start_sequence();
 
     t.truthy(machine.setupComplete);
@@ -322,18 +322,4 @@ test.todo("broadcast")
 test.todo("broadcast_end")
 test.todo("broadcast_game_state")
 test.todo("tick");
-
-test.failing('Next state', function (t) {
-
-    //need to test tick and add this to it.
-    machine.state = 'setup'
-    machine.next_state();
-    t.is(machine.state, 'setup');
-
-    machine.setupComplete = true;
-    machine.next_state();
-    t.is(machine.state, 'play');
-
-});
-
-
+test.todo('Next state');
