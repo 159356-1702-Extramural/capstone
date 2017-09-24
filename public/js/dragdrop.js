@@ -237,7 +237,7 @@ function set_object_on_canvas(event, ui) {
     }
 
     //  Double check that resources are available
-    var can_build_this = has_resources(object_type, object_dragged);
+    var can_build_this = has_resources(object_type, object_dragged_id);
 
     //  Grab the node/road based on the drop target
     var node_id = parseInt(node_on_canvas.attr("id").replace("road_", "").replace("node_", ""));

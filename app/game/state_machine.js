@@ -696,8 +696,9 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                 if (!conflict) {
                     //  If both players are building a settlement, check for adjacent
                     for (var s = 0; s < this.game.board.nodes[index].n_nodes.length; s ++) {
-                        if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.board.nodes[index].n_nodes[s].id == this.game.players[i].turn_data.actions[j].action_data.id) {
+                        if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.board.nodes[index].n_nodes[s] == this.game.players[i].turn_data.actions[j].action_data.id) {
                             conflict = true;
+                            break;
                         }
                     }
                 }

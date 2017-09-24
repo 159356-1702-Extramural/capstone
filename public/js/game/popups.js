@@ -529,13 +529,16 @@ function build_popup_failed_moves() {
 //  This method will return any failed objects to the players piles
 function build_popup_failed_done() {
     var turn_actions = current_game.player.turn_data.actions;
-
+    
     for (var i = 0; i < turn_actions.length; i++) {
         if (turn_actions[i].action_result > 0) {
             //  Return the item to the pile
-            var object_type = (turn_actions[i].action_type == "build_road" ? "road" : "settlement");
+            var object_type = turn_actions[i].action_type.replace("build_", "");
             var object_node = turn_actions[i].action_data;
             var object_to_return = $("#" + object_type + "_" + current_player.colour + "_locked_" + object_node.id);
+            if (object_to_return.length == 0) {
+                object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
+            }
             return_object(object_to_return, object_to_return.attr("id"), object_node.id);
         }
     }
