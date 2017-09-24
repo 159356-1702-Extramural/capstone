@@ -606,6 +606,7 @@ function build_popup_end_results(data) {
   var results_html = '';
 
   data.players.forEach(function(player) {
+      var total_settlements = player.score.settlements + player.score.cities;
       results_html += '<div class="player_row">' +
                         '<div class="player_icon"><img src="images/player'+player.id+'.png" /></div>' +
                         '<div class="player_name">' +
@@ -613,7 +614,7 @@ function build_popup_end_results(data) {
                           '<span class="player_score">'+player.score.total_points+' Victory Points!</span>' +
                         '</div>' +
                         '<div class="player_score_details">' +
-                          '<div class="player_score_detail"><img src="images/settlement_'+player.colour+'_small.png" /><br />x 2</div>' +
+                          '<div class="player_score_detail"><img src="images/settlement_'+player.colour+'_small.png" /><br />x '+total_settlements+'</div>' +
                           '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x '+player.score.victory_points+'</div>' +
                           '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (player.score.longest_road ? 2 : 0) + '</div>' +
                           '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (player.score.largest_army ? 2 : 0) + '</div>' +

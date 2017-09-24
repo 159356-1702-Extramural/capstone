@@ -439,14 +439,22 @@ Game.prototype.calculateScores = function() {
 
   // Reset the score since we're recalculating it
   this.players.forEach(function (player) {
+    player.score.settlements = 0;
+    player.score.cities = 0;
     player.score.total_points = 0;
   }, this);
 
   // Count the buildings score
   this.board.nodes.forEach(function(node) {
     if (node.owner > -1) {
-      // Score 1 point for each stellement and 2 points for each city
-      this.players[node.owner].score.total_points += (node.building === 'settlement') ? 1 : 2;
+      // Score 1 point for each settlement and 2 points for each city
+      if (node.building === 'settlement') {
+        this.players[node.owner].score.settlements += 1;
+        this.players[node.owner].score.total_points += 1;
+      } else {
+        this.players[node.owner].score.cities += 1;
+        this.players[node.owner].score.total_points += 2;
+      }
     }
   }, this);
 

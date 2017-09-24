@@ -59,23 +59,19 @@ StateMachine.prototype.next_state = function() {
             this.state = "play";
             this.tick();
         }
-
     } else if (this.state === "trade") {
         console.log('state_machine: in "trade" state'); // TODO: remove later
         logger.log('debug', 'state_machine: in "trade" state');
-        // if (conditions to switch state)
-        // eg: if (this.trade_complete) this.state = "play"
-
-        // TODO: just passing to the play state as no trade logic yet
-        //this.state = "play";
-
+        if (round_complete) {
+            this.state = "play";
+        }
     } else if (this.state === "play") {
         console.log('state_machine: in "play" state'); // TODO: remove later
         logger.log('debug', 'state_machine: in "play" state');
-        // if (conditions to switch state)
-        // eg: if (this.game.is_won()) this.state = "end_game"
-        //     else if (this.round_finished) this.state = "trade"
-
+        // End the game if we have a winner
+        if (this.game.haveWinner()) {
+          this.state = "end_game";
+        }
     } else if (this.state === "end_game") {
         console.log('state_machine: in "end_game" state'); // TODO: remove later
         logger.log('debug', 'state_machine: in "end_game" state');
@@ -94,8 +90,7 @@ StateMachine.prototype.tick = function(data) {
     /************************************************************
     * If in Setup state - game setup logic operates on this.game
     ************************************************************/
-    if (this.state === "setup") {
-
+    if (this.state === "setup" && data) {
         //  Set the piece
         this.validate_player_builds(data);
 
@@ -106,15 +101,14 @@ StateMachine.prototype.tick = function(data) {
         //distribute resources from the second round settlement placement
 
         //second round resources was running 1 too many times so needed to add the extra check
-        if(this.setupPointer > this.setupSequence.length / 2 && this.setupPointer <= this.setupSequence.length ){
+        if (this.setupPointer > this.setupSequence.length / 2 && this.setupPointer <= this.setupSequence.length ){
             console.log("setupPointer: "+ this.setupPointer + " | setupSeq ID: "+ this.setupSequence[this.setupPointer]+ "| data.player_id: "+ data.player_id );
             this.game.secondRoundResources(this.game.players[data.player_id], data);
         }
 
         // increment round number once
-        if(this.setupPointer === this.setupSequence.length / 2){
+        if (this.setupPointer === this.setupSequence.length / 2)
             this.game.round_num++;
-        }
 
         if (this.setupPointer === this.setupSequence.length) {
             console.log("final player setup");
@@ -130,7 +124,6 @@ StateMachine.prototype.tick = function(data) {
 
             // Calculate the scores
             this.game.calculateScores();
-
             this.game.round_num++;
 
             //  Update the interface
@@ -149,8 +142,6 @@ StateMachine.prototype.tick = function(data) {
             this.game.players.forEach(function(player) {
                 player.turn_complete = false;
             });
-
-
             this.game_start_sequence();
 
         } else {
@@ -169,27 +160,21 @@ StateMachine.prototype.tick = function(data) {
         return true;
     }
 
-
     /************************************************************
     * If in Trade state - trade logic operates on this.game
     ************************************************************/
-    else if (this.state === "trade") {
-
-
+    else if (this.state === "trade" && data) {
         var round_complete = this.game.players.every(function(player) {
             return player.turn_complete === true;
         });
-        if(round_complete){
-            this.next_state();
-        }
-
+        this.next_state();
         return true;
     }
 
     /************************************************************
     * If in Play state - gameplay logic opperates on this.game
     ************************************************************/
-    else if (this.state === "play") {
+    else if (this.state === "play" && data) {
         //  Validate each player action
 
         // trading with the bank (4:1, 3:1, 2:1)
@@ -254,27 +239,17 @@ StateMachine.prototype.tick = function(data) {
           });
 
         if (round_complete) {
-
           this.validate_player_builds(data);
-
           // Advance the round
           this.game.round_num++;
-
           // Calculate the scores
           this.game.calculateScores();
-
-          // End the game if we have a winner
-          if (this.game.haveWinner()) {
-            this.broadcast_end();
-            return;
-          }
 
           // Resource distribution for next round
           for (var i = 0; i < this.game.players.length; i++) {
             // Reset round distribution cards
             this.game.players[i].round_distribution_cards = new Cards();
           }
-
 
           // House rule 7 only comes up once someone has created their first non-startup building
           var player_has_built = false;
@@ -368,7 +343,6 @@ StateMachine.prototype.tick = function(data) {
             }
         }
       }
-
       this.next_state();
       return true;
     }
@@ -376,9 +350,14 @@ StateMachine.prototype.tick = function(data) {
     /************************************************************
     * If in end_game state - gameplay logic opperates on this.game
     ************************************************************/
-    else if (this.state === "end_game") {
+    else if (this.state === "end_game" && data) {
+      this.broadcast_gamestate();
+      this.broadcast_end();
+      this.next_state();
       return true;
     }
+    this.next_state();
+    console.log("Game tick received no data");
     return false;
 };
 
