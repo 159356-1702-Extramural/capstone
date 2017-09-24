@@ -337,32 +337,12 @@ Game.prototype.knightMoveRobber = function(player_id) {
 
 };
 
-
-/**
- * Determines the player scores
- * @return void
- */
-Game.prototype.calculateScores = function() {
-
-  // Reset the score since we're recalculating it
-  this.players.forEach(function (player) {
-    player.score.total_points = 0;
-  }, this);
-
-  // Count the buildings score
-  this.board.nodes.forEach(function(node) {
-    if (node.owner > -1) {
-      // Score 1 point for each stellement and 2 points for each city
-      this.players[node.owner].score.total_points += (node.building === 'settlement') ? 1 : 2;
-    }
-  }, this);
-
-  // Count VP Cards and Longest Rd, Biggest Army
-  // Find each players longest road
+Game.prototype.modifyPlayerWithRoadBonus = function() {
   var longest_road_map = this.board.longest_roads(this.players);
   var last_longest = this.longest_road;
   var last_player = this.longest_road_id;
-  // find actual longest road
+  var do_longest_road = false;
+  // check to see if players build any roads, otherwise skip checks
   for (var p=0; p<this.players.length; p++) {
     var player = this.players[p];
     // update the players data
@@ -399,6 +379,80 @@ Game.prototype.calculateScores = function() {
       }
     }
   }
+}
+
+Game.prototype.modifyPlayerWithArmyBonus = function() {
+  var largest_army = {
+      player_id: -1,
+      knights_played: 0,
+      current_owner : -1 //check if a change of largest army owner
+  }
+  // first loop through gets last player with highest knights played + current bonus
+  for (var p=0; p< this.players.length; p++) {
+    var player_id = this.players[p].id;
+    if(this.players[p].score.largest_army)
+        largest_army.current_owner = p;
+    var knights_played = this.players[p].cards.dev_cards.knight_played;
+    // Only look if player has played 3 or more knights
+    if(knights_played >= 3 && knights_played > largest_army.knights_played) {
+        largest_army.player_id = player_id;
+        largest_army.knights_played = knights_played;
+    }
+  };
+
+  for (var p=0; p< this.players.length; p++) {
+    var player_id = this.players[p].id;
+    var knights_played = this.players[p].cards.dev_cards.knight_played;
+    // if true then no player is awarded a bonus and no bonus is in play
+    if (player_id !== largest_army.player_id &&
+        knights_played === largest_army.knights_played &&
+        largest_army.current_owner === -1) {
+      largest_army.player_id = -1;
+      break;
+    }
+    // if true then the last player in the loop gets the bonus
+    else if (player_id !== largest_army.player_id &&
+        knights_played === largest_army.knights_played &&
+        player_id !== largest_army.current_owner) {
+      largest_army.player_id = player_id;
+    }
+  }
+
+  // check if we have someone eligable for largest army
+  if(largest_army.player_id >= 0 && largest_army.knights_played >= 3) {
+    //if player doesn't already has largest_army, add player
+    if(!this.players[largest_army.player_id].score.largest_army) {
+       this.players[largest_army.player_id].score.largest_army = true;
+       //if someone already has the largest army, remove it from their hand.
+       if(largest_army.current_owner !== -1){
+        this.players[largest_army.current_owner].score.largest_army = false;
+       }
+    }
+  }
+}
+
+/**
+ * Determines the player scores
+ * @return void
+ */
+Game.prototype.calculateScores = function() {
+
+  // Reset the score since we're recalculating it
+  this.players.forEach(function (player) {
+    player.score.total_points = 0;
+  }, this);
+
+  // Count the buildings score
+  this.board.nodes.forEach(function(node) {
+    if (node.owner > -1) {
+      // Score 1 point for each stellement and 2 points for each city
+      this.players[node.owner].score.total_points += (node.building === 'settlement') ? 1 : 2;
+    }
+  }, this);
+
+  // Count VP Cards and Longest Rd, Biggest Army
+  this.modifyPlayerWithRoadBonus();
+  this.modifyPlayerWithArmyBonus();
 
   this.players.forEach(function(player) {
     player.score.victory_points = player.cards.count_victory_cards();
