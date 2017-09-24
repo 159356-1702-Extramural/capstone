@@ -713,6 +713,10 @@ body {
     z-index:9997;
 }
 
+.settlement:hover, .city:hover, .road:hover {
+    cursor: crosshair;
+}
+
 .dropped {
     z-index: 0;
     display:none;

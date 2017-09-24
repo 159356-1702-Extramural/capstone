@@ -1225,7 +1225,11 @@ function can_build_road(road, road_to_ignore, node_to_enforce) {
                 //  No adjacent buildings, do we have an adjacent road? Check roads of connected nodes
                 success = has_adjacent_road(road.connects[0]) || has_adjacent_road(road.connects[1]);
             }
+        } else {
+            success = false;
         }
+    } else {
+        success = false;
     }
     //  If we have a road_to_ignore, restore it
     if (road_to_ignore) {
