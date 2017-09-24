@@ -200,6 +200,8 @@ function show_open_spots(object_type, ignore_id) {
                 }
             }
         }
+    } else {
+        build_popup_no_resources(object_type);
     }
 }
 function hide_open_spots(type) {
@@ -234,12 +236,15 @@ function set_object_on_canvas(event, ui) {
         nodes = current_game.roads;
     }
 
+    //  Double check that resources are available
+    var can_build_this = has_resources(object_type, object_dragged);
+
     //  Grab the node/road based on the drop target
     var node_id = parseInt(node_on_canvas.attr("id").replace("road_", "").replace("node_", ""));
     var node = nodes[node_id];
     
     //  Make sure it is not already owned
-    if ((node.owner > -1 && object_type != "city") || (object_type == "city" && node.owner != current_game.player.id)) {
+    if (!can_build_this || (node.owner > -1 && object_type != "city") || (object_type == "city" && node.owner != current_game.player.id)) {
         //  This piece should not be placed, return it to its pile
         return_object(object_dragged, object_dragged_id, node_id, false);
         
@@ -288,19 +293,19 @@ function set_object_on_canvas(event, ui) {
             node_on_canvas.hide();
         }
 
-        //  Does this object already have resources tied to it? (i.e. Was it already paid for and is being moved)
-        var has_resources = [];
+        //  Get resources from previous object if available
+        var resource_list = [];
         if (object_dragged.attr("data-card-list")) {
-            has_resources = (object_dragged.attr("data-card-list").split(","));
+            resource_list = (object_dragged.attr("data-card-list").split(","));
         }
-
+    
         //  Is a road building card going to effect this action?
         var using_road_building_now = current_player.road_building_used && current_player.free_roads > 0 && object_type == "road";
 
         //  Create our action
-        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : has_resources));
-        if (has_resources.length == 0) {
-            if (!current_player.road_building_used || object_type != "road" || (current_player.road_building_used && current_player.free_roads == 0)) {
+        create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : resource_list));
+        if (resource_list.length == 0) {
+            if (!current_player.road_building_used || (object_type != "road" && object_type != "city") || (current_player.road_building_used && current_player.free_roads == 0)) {
                 if (current_game.round_num > 2) {
                     //  Prompt the user for more cards
                     build_popup_round_build(dragged_object_new_id, object_type);
@@ -311,6 +316,8 @@ function set_object_on_canvas(event, ui) {
             if (using_road_building_now) {
                 take_resources(dragged_object_new_id, ["lumber","brick"]);
                 current_player.free_roads --;
+            } else if (object_type == "city") {
+                take_resources(dragged_object_new_id, ["ore","ore","ore","grain","grain"]);
             }
         }
 

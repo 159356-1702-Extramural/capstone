@@ -691,16 +691,12 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
             for (var j = 0; j < this.game.players[i].turn_data.actions.length; j++) {
                 //  Building something in same spot?
                 var conflict = (this.game.players[i].turn_data.actions[j].action_type == item && this.game.players[i].turn_data.actions[j].action_data.id == index);
-                var conflict_index = -1;
+                var conflict_index = j;
+
                 if (!conflict) {
                     //  If both players are building a settlement, check for adjacent
-                    if (this.game.players[i].turn_data.actions[j].action_type == item && item == "build_settlement") {
-                        var adjacent_nodes = "";
-                        for (var s = 0; s < this.game.board.nodes[index].n_nodes.length; s ++) {
-                            adjacent_nodes += this.game.board.nodes[index].n_nodes[s] + ",";
-                        }
-                        if (adjacent_nodes.indexOf(this.game.players[i].turn_data.actions[j].action_data.id + ",") > -1) {
-                            conflict_index = this.game.players[i].turn_data.actions[j].action_data.id;
+                    for (var s = 0; s < this.game.board.nodes[index].n_nodes.length; s ++) {
+                        if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.board.nodes[index].n_nodes[s].id == this.game.players[i].turn_data.actions[j].action_data.id) {
                             conflict = true;
                         }
                     }
