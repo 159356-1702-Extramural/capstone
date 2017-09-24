@@ -1,13 +1,17 @@
 //  Generic method to build a popup from a template
 //   popupClass: name of the html file without the extention
 //   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
-function buildPopup(popupClass, useLarge, customData) {
+function buildPopup(popupClass, useLarge, useRight, customData) {
     $.get("templates/" + popupClass + ".html", function(data) {
 
         //  In a few cases, we need a larger popup
         $(".popup_inner").removeClass("popup_inner_large");
+        $(".popup_inner").removeClass("popup_inner_right");
         if (useLarge) {
             $(".popup_inner").addClass("popup_inner_large");
+        }
+        if (useRight) {
+            $(".popup_inner").addClass("popup_inner_right");
         }
 
         //  Now load and update the template
@@ -32,7 +36,7 @@ function hidePopup() {
  *  start_up.html
  **************************************************/
 function build_popup_start(section) {
-    buildPopup(section, false);
+    buildPopup(section, false, false);
 }
 
 /***************************************************
@@ -43,7 +47,7 @@ function build_popup_start(section) {
  *  start_menu.html
  **************************************************/
 function build_popup_start_menu() {
-    buildPopup("start_menu", false);
+    buildPopup("start_menu", false, false);
 }
 
 /***************************************************
@@ -59,7 +63,7 @@ function build_popup_start_menu() {
  *  waiting_for_players.html
  **************************************************/
 function build_popup_waiting_for_players(data) {
-    buildPopup("waiting_for_players", false, data);
+    buildPopup("waiting_for_players", false, false, data);
 }
 
 /***************************************************
@@ -68,10 +72,10 @@ function build_popup_waiting_for_players(data) {
 function build_popup_setup_phase_your_turn(setup_round) {
     if(setup_round === 1){
         //TODO: Place First Settlement
-        buildPopup("setup_phase_your_turn", false);
+        buildPopup("setup_phase_your_turn", false, false);
     }else{
         //TODO: Place Second Settlement
-        buildPopup("setup_phase_your_turn", false);
+        buildPopup("setup_phase_your_turn", false, false);
     }
 }
 
@@ -79,7 +83,7 @@ function build_popup_setup_phase_your_turn(setup_round) {
  *  waiting_for_turn.html
  **************************************************/
 function build_popup_waiting_for_turn() {
-    buildPopup("waiting_for_turn", false);
+    buildPopup("waiting_for_turn", false, true);
 }
 
 /***************************************************
@@ -107,7 +111,7 @@ function build_popup_setup_complete() {
     }
 
     //  Build the popup
-    buildPopup("setup_complete", false, [["setup_cards", card_html]]);
+    buildPopup("setup_complete", false, false, [["setup_cards", card_html]]);
 
 }
 
@@ -123,9 +127,16 @@ function build_popup_round_roll_results() {
 
     var robber_active = current_game.dice_values[0] + current_game.dice_values[1] === 7;
 
-    var title = robber_active ?
-          "Robbed! Resources stolen this round:" :
-          "Resources received this round:";
+    var title = robber_active ? "Robbed! Resources stolen this round:" : "Resources received this round:";
+    $(".dice_row .robber_roll").hide();
+    if (robber_active) {
+        $(".dice_row .robber_roll").show();
+    }
+
+    //  Show the dice in the score area
+    $("#score_dice_1").attr("class", "dice dice" + current_game.dice_values[0]);
+    $("#score_dice_2").attr("class", "dice dice" + current_game.dice_values[1]);
+    $(".score .dice_row").show();
 
     // User the multipler to convert negative to positive for display
     var multiplier = robber_active ? -1 : 1;
@@ -179,7 +190,7 @@ function build_popup_round_roll_results() {
 
 
     //  Build the popup
-    buildPopup("round_roll_results", false, [
+    buildPopup("round_roll_results", false, false, [
       ["dice1", current_game.dice_values[0]],
       ["dice2", current_game.dice_values[1]],
       ["setup_cards", card_html],
@@ -194,7 +205,7 @@ function build_popup_round_roll_results() {
  *  round_use_monopoly.html
  **************************************************/
 function build_popup_use_monopoly() {
-    buildPopup('round_use_monopoly', false);
+    buildPopup('round_use_monopoly', false, false);
 }
 function build_popup_monopoly_win(data) {
     //  Who played the card?
@@ -231,7 +242,7 @@ function build_popup_monopoly_win(data) {
     }
 
     //  Build the popup
-    buildPopup("round_monopoly_win", false, popup_data);
+    buildPopup("round_monopoly_win", false, false, popup_data);
 }
 
 function build_popup_monopoly_lose(data) {
@@ -255,12 +266,33 @@ function build_popup_monopoly_lose(data) {
     }
 
     //  Build the popup
-    buildPopup("round_monopoly_lose", false, [
+    buildPopup("round_monopoly_lose", false, false, [
         ["player_id", current_player.id],
         ["monopoly_player_name", monopoly_played_by],
         ["stolen_cards", stolen_cards]
       ]);
 }
+
+/***************************************************
+ *  round_build_no_resources.html
+ **************************************************/
+//  build_popup_no_resources
+//      Shows information on what it takes to build an object when you do not have enough
+function build_popup_no_resources(object_type) {
+    //  Get the list of cards needed
+    var cards = new Cards();
+    var card_list = cards.get_required_cards(object_type);
+    var card_html = "";
+
+    //  Create the HTML and remove the initial cards
+    for (var i = 0; i < card_list.length; i++) {
+        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+    }
+    
+    buildPopup("round_build_no_resources", false, false, [["build_cards", card_html],["object_type", object_type]]);
+}
+
+
 /***************************************************
  *  round_build.html
  **************************************************/
@@ -291,7 +323,7 @@ function build_popup_round_build(object_dragged_id, object_type) {
     //  Add the base cards back in
     my_cards.add_cards_from_list(card_list);
 
-    buildPopup("round_build", false, [["object_dragged_id", object_dragged_id], ["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
+    buildPopup("round_build", false, false, [["object_dragged_id", object_dragged_id], ["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
 }
 //  round_build_complete
 //      Build button in the round_build.html template
@@ -366,21 +398,21 @@ function round_build_abort(object_type) {
  *  round_use_card.html
  **************************************************/
 function build_popup_round_use_card() {
-    buildPopup("round_use_card", false);
+    buildPopup("round_use_card", false, false);
 }
 
 /***************************************************
  *  round_use_year_of_plenty.html
  **************************************************/
 function build_popup_round_use_year_of_plenty() {
-    buildPopup("round_use_year_of_plenty", false);
+    buildPopup("round_use_year_of_plenty", false, false);
 }
 
 /***************************************************
  *  build_popup_use_road_building.html
  **************************************************/
 function build_popup_use_road_building() {
-    buildPopup("round_use_road_building", false);
+    buildPopup("round_use_road_building", false, false);
 }
 
 /***************************************************
@@ -420,28 +452,28 @@ function build_popup_victory_point_received(card) {
  *  round_domestic_trade.html
  **************************************************/
 function build_popup_round_domestic_trade() {
-    buildPopup("round_domestic_trade", false);
+    buildPopup("round_domestic_trade", false, false);
 }
 
 /***************************************************
  *  round_maritime_trade.html
  **************************************************/
 function build_popup_round_maritime_trade() {
-    buildPopup("round_maritime_trade", false);
+    buildPopup("round_maritime_trade", false, false);
 }
 
 /***************************************************
  *  round_domestic_trade.html
  **************************************************/
 function build_popup_round_domestic_trade() {
-    buildPopup("round_domestic_trade", false);
+    buildPopup("round_domestic_trade", false, false);
 }
 
 /***************************************************
  *  round_waiting_others.html
  **************************************************/
 function build_popup_round_waiting_for_others() {
-    buildPopup("round_waiting_others", false);
+    buildPopup("round_waiting_others", false, false);
 }
 
 /***************************************************
@@ -491,19 +523,22 @@ function build_popup_failed_moves() {
     }
 
     //  Build it
-    buildPopup("round_post_results", false, popup_details);
+    buildPopup("round_post_results", false, false, popup_details);
 }
 
 //  This method will return any failed objects to the players piles
 function build_popup_failed_done() {
     var turn_actions = current_game.player.turn_data.actions;
-
+    
     for (var i = 0; i < turn_actions.length; i++) {
         if (turn_actions[i].action_result > 0) {
             //  Return the item to the pile
-            var object_type = (turn_actions[i].action_type == "build_road" ? "road" : "settlement");
+            var object_type = turn_actions[i].action_type.replace("build_", "");
             var object_node = turn_actions[i].action_data;
             var object_to_return = $("#" + object_type + "_" + current_player.colour + "_locked_" + object_node.id);
+            if (object_to_return.length == 0) {
+                object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
+            }
             return_object(object_to_return, object_to_return.attr("id"), object_node.id);
         }
     }
@@ -559,7 +594,7 @@ function build_popup_player_detail(id) {
     }
     popup_data.push(["cards", knight_html + victory_html]);
 
-    buildPopup("player_detail", false, popup_data);
+    buildPopup("player_detail", false, false, popup_data);
 }
 
  /***************************************************
@@ -586,7 +621,7 @@ function build_popup_end_results(data) {
                       '</div>';
   }, this);
 
-  buildPopup("end_results", false, [['results_html', results_html], ['winner_name', winner_name]]);
+  buildPopup("end_results", false, false, [['results_html', results_html], ['winner_name', winner_name]]);
 }
 
 /***************************************************
@@ -638,7 +673,7 @@ function build_popup_show_dev_card(card) {
  * Displays the knight popup
  */
 function build_popup_play_knight() {
-  buildPopup("knight_options");
+  buildPopup("knight_options", false, false);
 }
 
 /***************************************************
@@ -668,5 +703,5 @@ function build_popup_restrict_dev_card_use(card_use) {
     dev_cards.push(['dev_card_heading', heading]);
     dev_cards.push(['dev_card_content', content]);
     dev_cards.push(['other_dev_cards', other_dev_cards]);
-    buildPopup("round_restrict_dev_card_use", false, dev_cards);
+    buildPopup("round_restrict_dev_card_use", false, false, dev_cards);
 }

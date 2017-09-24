@@ -140,7 +140,6 @@ $(document).ready(function() {
             setup_phase = false;
             $('.popup').hide();
             build_popup_setup_complete();
-            //buildPopup('setup_complete');
 
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
@@ -462,7 +461,7 @@ $(document).ready(function() {
 
         //check to be sure no dev cards have been played yet
         if(!current_player.dev_cards.played){
-            buildPopup('round_use_year_of_plenty');
+            buildPopup('round_use_year_of_plenty', false, false);
         }else{
             build_popup_restrict_dev_card_use('play');
         }
@@ -703,7 +702,7 @@ function openTrade () {
             }
 
         });
-        buildPopup('round_maritime_trade', false, card_data);
+        buildPopup('round_maritime_trade', false, false, card_data);
     }
 }
 
@@ -1378,6 +1377,11 @@ function setupPlayer() {
     html += "            <div class='playername'>" + current_player.name;
     html += "               <div class='playerbutton'>";
     html += "                   <div class='btn btn-info finishturnbutton'>Finish Turn</div>";
+    html += "               </div>";
+    html += "               <div class='dice_row'>";
+    html += "                   <div class='dice_window'><img id='score_dice_1' src='images/dice_score.png' class='dice dice1' /></div>";
+    html += "                   <div class='dice_window'><img id='score_dice_2' src='images/dice_score.png' class='dice dice1' /></div>";
+    html += "                   <div class='robber_roll' style='display:block;'><img src='images/robber.png' width='15'></div>";
     html += "               </div>";
     html += "            </div>";
     html += "        </div>";
