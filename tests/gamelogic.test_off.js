@@ -304,13 +304,35 @@ function buildDriver(os, browser, version, test_info) {
  * Write functions for each test here and call them in the section at the bottom of the page
  */
 
-async function popups_display_and_close(title, driver,os, browser, version) {
+function frontPageLoads(browserDriver, os, browser, version){
+  test('Front game page exists - '+os+' | '+browser+' | '+ version+')', async t => {
+      let driver = browserDriver;
+      await driver.get('http://capstone-settlers.herokuapp.com/');
+      t.is(await driver.getTitle(), "Settlers of Massey");
+      await driver.quit();
+  });
+}
+
+async function runSetup(driver, keyword) {
+    driver.manage().window().setSize(1024, 768);
+    await driver.get('http://capstone-settlers.herokuapp.com/');
+    await driver.findElement(webdriver.By.id('play')).click();
+    await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(keyword);
+    await driver.findElement(webdriver.By.className('player_button')).click();
+
+    // await driver.wait(webdriver.until.elementLocated(webdriver.By.id('get_started')),20000);
+    // await driver.findElement(webdriver.By.id('get_started')).click();
+
+    await driver.actions().mouseDown('settlement_purple_open_4').mouseMove('node_21').mouseUp().perform();
+    await driver.wait(webdriver.until.titleIs("Settlers of Massey"), 10000);
+
+}
+
+async function buy_monopoly(title, driver,os, browser, version) {
     test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
         try{
             driver.manage().window().setSize(1024, 768);
-
-            // road building set here to stop victory point cards interfering with the test.
-            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true&dev_card=road_building');
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&dev_card=monopoly');
             await driver.findElement(webdriver.By.id('play')).click();
             await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
             await driver.findElement(webdriver.By.className('player_button')).click();
@@ -319,123 +341,165 @@ async function popups_display_and_close(title, driver,os, browser, version) {
             await driver.findElement(webdriver.By.className('btn-info')).click();
             await driver.findElement(webdriver.By.className('btn-info')).click();
 
-            //get initial values to test against (they will be different based on resources distributed)
-            var startOre = await driver.findElement(webdriver.By.className('orecount')).getText();
-            var startSheep = await driver.findElement(webdriver.By.className('sheepcount')).getText();
-            var startGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
-
-            // click "Buy Development Card" button
             await driver.findElement(webdriver.By.className('buybutton')).click();
-
-            // get returned values
-            var finishOre = await driver.findElement(webdriver.By.className('orecount')).getText();
-            var finishSheep = await driver.findElement(webdriver.By.className('sheepcount')).getText();
-            var finishGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
-
-            // test cards removed when Buy Dev Card clicked
-            t.is(parseInt(finishSheep), parseInt(startSheep)-1);
-            t.is(parseInt(finishGrain), parseInt(startGrain)-1);
-            t.is(parseInt(finishOre), parseInt(startOre)-1);
-            //t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), ((parseInt(startGrain))-1)+"");
-            //t.is(await driver.findElement(webdriver.By.className('orecount')).getText(), ((parseInt(startOre))-1)+"");
-
-            // check card returned
-            t.is(await driver.findElement(webdriver.By.className('cardlist')).findElements(webdriver.By.className('card')).then(function(elements){
-                return elements.length;
-            }) , 1);
-
-            // check in game popup works
-            await driver.findElement(webdriver.By.className('road_building')).click();
-            t.is(await driver.findElement(webdriver.By.className('popup_title')).getText(), "Road Building");
-
-            // check can we close the popup window
-            await driver.findElement(webdriver.By.className('road_building_button')).click();
-            //t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
-
-            //complete the round
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
+            await driver.findElement(webdriver.By.xpath("//div[@class='popup_inner]"));
+            await driver.findElement(webdriver.By.id('useMonopoly')).click();
 
-            driver.quit();
+            t.truthy(true);
         }
-        catch(err){
-            console.log("FAILED " + title + " - "+ os +" | " + browser + " | " + version);
-            driver.quit();
+        catch (err) {
+            console.log('FAILED: ' + title + '  - '+os+' | '+browser+' | '+ version);
+            console.log(err);
         }
-        finally{
-            //shift relevant pieces in here during refactor
+        finally {
             driver.quit();
         }
     });
 }
-async function startup_and_setup(title, driver,os, browser, version) {
+
+async function trade4to1(title, driver,os, browser, version) {
     test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
         try{
             driver.manage().window().setSize(1024, 768);
-
-            // road building set here to stop victory point cards interfering with the test.
-            await driver.get('http://capstone-settlers.herokuapp.com/');
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true');
             await driver.findElement(webdriver.By.id('play')).click();
             await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
             await driver.findElement(webdriver.By.className('player_button')).click();
+            //below code twice to pass through two modals
+            driver.sleep(2000);
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            driver.sleep(500)
+            //get initial values to test against (they will be different based on resources distributed)
+            var startGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
+            var startBrick = await driver.findElement(webdriver.By.className('brickcount')).getText();
 
-            // test that player numbers correctly listed (currently 2)
-        //    t.is(await driver.findElement(webdriver.By.className('total')).getText(), "2");
-            await driver.wait(webdriver.until.elementLocated(webdriver.By.id('get_started')),20000);
-            await driver.findElement(webdriver.By.id('get_started')).click();
-            // driver.sleep(3000);
-            // await driver.findElement(webdriver.By.xpath("//div[@class='popup_inner]/h1"));
-            //players starts turn
-            // await driver.findElement(webdriver.By.id('get_started')).click();
+            await driver.findElement(webdriver.By.className('tradebutton')).click();
+            await driver.findElement(webdriver.By.xpath('//div[@data-resource="brick" and @class="card_give"]')).click();
+            await driver.findElement(webdriver.By.xpath('//div[@data-resource="grain" and @class="card_receive"]')).click();
+            await driver.findElement(webdriver.By.className('btn-info')).click();
 
-            //get appropriate player
-            var player = await driver.findElement(webdriver.By.xpath("//img[@src='images/player0.png']"));
+            var finishGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
+            var finishBrick = await driver.findElement(webdriver.By.className('brickcount')).getText();
 
-            if( player === 'http://capstone-settlers.herokuapp.com/images/player0.png' ){
-                //player places settlement
-                var settlement = driver.findElement(webdriver.By.id('settlement_purple_open_4'));
-                var target = driver.findElement(webdriver.By.id("node_21"));
-                await driver.actions().
-                    mouseDown('settlement_purple_open_4').
-                    mouseMove('node_21').
-                    mouseUp().
-                    perform();
+            //test that the monopoly button is shown
+            t.is( parseInt(finishGrain) , parseInt(startGrain)+1);
+            t.is( parseInt(finishBrick) , parseInt(startBrick)-4);
 
-                //player places road
-                await driver.actions().
-                    mouseDown('#road_purple_open_14').
-                    mouseMove('#node_21').
-                    mouseUp().
-                    perform();
-
-                    t.truthy(true);
-
-            }else if ( player === 'http://capstone-settlers.herokuapp.com/images/player1.png'){
-
-            }else if ( player === 'http://capstone-settlers.herokuapp.com/images/player2.png'){
-
-            }else if ( player === 'http://capstone-settlers.herokuapp.com/images/player0.png'){
-
-            }else{
-                // failed
-            }
-
-            //player places settlement
-
-            //complete the round
             await driver.findElement(webdriver.By.className('finishturnbutton')).click();
-
-            driver.quit();
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: true
+            //     }, done);
         }
         catch(err){
-            console.log("FAILED " + title + " - "+ os +" | " + browser + " | " + version);
-            driver.quit();
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: false,
+            //     }, done);
         }
         finally{
-            //shift relevant pieces in here during refactor
+            driver.quit();
 
         }
     });
 }
+
+async function buy_year_of_plenty(title, driver,os, browser, version) {
+    test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
+        try{
+            driver.manage().window().setSize(1024, 768);
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true&dev_card=year_of_plenty');
+            await driver.findElement(webdriver.By.id('play')).click();
+            await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+            await driver.findElement(webdriver.By.className('player_button')).click();
+            //below code twice to pass through two modals
+            driver.sleep(2000);
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            driver.sleep(500)
+
+            await driver.findElement(webdriver.By.className('buybutton')).click();
+
+            //get initial values to test against (they will be different based on resources distributed)
+            var startGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
+            var startBrick = await driver.findElement(webdriver.By.className('brickcount')).getText();
+
+            await driver.findElement(webdriver.By.className('year_of_plenty')).click();
+            await driver.findElement(webdriver.By.xpath('//div[@data-resource="brick" and @class="year_receive"]')).click();
+            await driver.findElement(webdriver.By.xpath('//div[@data-resource="grain" and @class="year_receive"]')).click();
+            await driver.findElement(webdriver.By.className('year_of_plenty_button')).click();
+
+            //test that the monopoly button is shown
+            t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), ((parseInt(startGrain))+1)+"");
+            t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick))+1)+"");
+
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: true
+            //     }, done);
+        }
+        catch(err){
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: false,
+            //     }, done);
+        }
+        finally{
+            driver.quit();
+
+        }
+    });
+}
+async function buy_road_building(title, driver,os, browser, version) {
+    test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
+        try{
+            driver.manage().window().setSize(1024, 768);
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true&dev_card=road_building');
+            await driver.findElement(webdriver.By.id('play')).click();
+            await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
+            await driver.findElement(webdriver.By.className('player_button')).click();
+            //below code twice to pass through two modals
+            driver.sleep(2000);
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            await driver.findElement(webdriver.By.className('btn-info')).click();
+            driver.sleep(500)
+
+            //get initial values to test against (they will be different based on resources distributed)
+            var startLumber = await driver.findElement(webdriver.By.className('lumbercount')).getText();
+            var startBrick = await driver.findElement(webdriver.By.className('brickcount')).getText();
+
+            await driver.findElement(webdriver.By.className('buybutton')).click();
+
+            await driver.findElement(webdriver.By.className('road_building')).click();
+            await driver.findElement(webdriver.By.className('road_building_button')).click();
+
+            //test that the monopoly button is shown
+            t.is(await driver.findElement(webdriver.By.className('lumbercount')).getText(), ((parseInt(startLumber))+2)+"");
+            t.is(await driver.findElement(webdriver.By.className('brickcount')).getText(), ((parseInt(startBrick))+2)+"");
+
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: true
+            //     }, done);
+        }
+        catch(err){
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
+            // saucelabs.updateJob(driver.sessionID, {
+            //     name: title,
+            //     passed: false,
+            //     }, done);
+        }
+        finally{
+            driver.quit();
+
+        }
+    });
+}
+
 /**
  * Call tests here
  */
@@ -450,19 +514,36 @@ for(var j = 0; j < testTitles.length; j++){
         for(var browser in testCapabilities[os]){
             for( var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(testCapabilities[os][browser].endVersion); version++){
 
-                if(testTitles[j] === 'Popups display and close'){
+                if(testTitles[j] === 'Trading 4:1'){
 
                     // initialise driver inside for loop otherwise can be created too early and time out
                     var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
-                    popups_display_and_close(testTitles[j], driver, os,browser, version);
+                    trade4to1(testTitles[j], driver, os, browser, version);
 
-                }else if(testTitles[j] === 'Start up and Setup complete'){
+                }else if(testTitles[j] === 'Purchase Monopoly'){
 
                     // initialise driver inside for loop otherwise can be created too early and time out
                     //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
-                    //startup_and_setup(testTitles[j], driver, os,browser, version);
-                }
+                    //buy_monopoly(testTitles[j], driver, os, browser, version);
 
+                }else if(testTitles[j] === 'Play Year of Plenty'){
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    //buy_year_of_plenty(testTitles[j], driver, os,browser, version);
+
+                }else if(testTitles[j] === 'Play Road Building'){
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    buy_road_building(testTitles[j], driver, os,browser, version);
+
+                }else if(testTitles[j] === 'Play Road Building'){
+
+                    // initialise driver inside for loop otherwise can be created too early and time out
+                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
+                    //buy_road_building(testTitles[j], driver, os,browser, version);
+                }
 
             }
         }
