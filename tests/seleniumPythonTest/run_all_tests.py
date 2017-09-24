@@ -1,13 +1,12 @@
 __author__ = 'QSG'
 import unittest
-import HTMLTestRunner
 import os,sys, time
 
 # Directory for locating test cases
 test_dir=os.path.split(os.path.realpath(sys.argv[0]))[0]
 test_case_dir= os.path.join(test_dir ,'test_case')
 test_reports_dir= os.path.join(test_dir, 'selenium_test_reports')
-print test_reports_dir
+print(test_reports_dir)
 def creatsuite():
     testunit=unittest.TestSuite()
     #Define discover selenium py test files to find py test cases.
@@ -20,7 +19,7 @@ def creatsuite():
         # print test_suite,'\n'
         for test_case in test_suite:
             testunit.addTests(test_case)
-            print testunit
+            print(testunit)
     return testunit
 alltestnames = creatsuite()
 now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))
@@ -39,4 +38,4 @@ runner =HTMLTestRunner.HTMLTestRunner(
 
 #Running the test cases.
 runner.run(alltestnames)
-print "Selenium test finished."
+print("Selenium test finished.")
