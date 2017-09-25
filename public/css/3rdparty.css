@@ -235,8 +235,8 @@ fieldset[disabled] .btn-info:active,
 .btn-info.disabled.active,
 .btn-info[disabled].active,
 fieldset[disabled] .btn-info.active {
-  background-color: #5bc0de;
-  border-color: #46b8da;
+  background-color: #9c9090;
+  border-color: #565252;
 }
 .btn-info .badge {
   color: #5bc0de;
