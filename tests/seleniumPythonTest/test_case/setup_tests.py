@@ -311,6 +311,7 @@ def buy_dev_card(desired_cap):
             place_item(driver, "settlement_red_open_3", -610, 223)
             place_item(driver, "road_red_open_13", -581, 147)
 
+## for use with 4 player testing once game is advanced
         # if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player2.png":
 
             # driver.implicitly_wait(30)
