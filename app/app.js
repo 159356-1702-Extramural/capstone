@@ -39,6 +39,7 @@ app.get('/', function(req, res) {
     var playerNum;
     var setupGame;
     var robber;
+    var dev_card;
     //start with testing set to false
     process.env['testing'] = 'false';
 

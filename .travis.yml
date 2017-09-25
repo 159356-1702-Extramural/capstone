@@ -2,6 +2,8 @@ language: node_js
 node_js:
   - "stable"
 before_install:
+  - export PATH=$HOME/.local/bin:$PATH
+  - pip install selenium sauceclient --user `whoami`
   - sudo chmod ugo+x ./scripts/nightly.sh
 install:
   - npm install selenium selenium-webdriver geckodriver saucelabs
