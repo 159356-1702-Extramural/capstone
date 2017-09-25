@@ -7,8 +7,6 @@ from selenium import webdriver
 from sauceclient import SauceClient
 import time
 
-
-# it's best to remove the hardcoded defaults and always get these values
 # from environment variables
 USERNAME = "sumnerfit"
 ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
@@ -53,6 +51,7 @@ class SettlerSeleniumTest(unittest.TestCase):
         self.driver_player2=webdriver.Firefox()
 
 
+    #Test set players name, initialize the board for both players
     def test_game_start(self):
         success=True
         wd=self.driver
@@ -62,7 +61,7 @@ class SettlerSeleniumTest(unittest.TestCase):
         wd.implicitly_wait(1)
         wd.find_element_by_id("txt_player1").click()
         wd.find_element_by_id("txt_player1").send_keys("Player1")
-        wd.find_element_by_xpath("//div[@class='popup_inner']/div[3]/div/i").click()
+        wd.find_element_by_css_selector("span.player_text").click()
         wd.implicitly_wait(1)
         driver_player2=self.driver_player2
         handle_assist=driver_player2.current_window_handle
@@ -87,6 +86,9 @@ class SettlerSeleniumTest(unittest.TestCase):
         # wd.find_element_by_class_name("btn btn-info").click()
         self.assertTrue(success)
 
+    #http://capstone-settlers.herokuapp.com/?startWithCards=20?fixedDice=true
+    def test_game_drag_object_to_hex(self):
+
 
 
     def tearDown(self):
@@ -103,8 +105,8 @@ class SettlerSeleniumTest(unittest.TestCase):
         #     self.driver.quit()
         #     self.driver_player2.quit()
         #Comment this fragment of codes when test on saucelab.
-        self.driver.quit()
-        self.driver_player2.quit()
+        # self.driver.quit()
+        # self.driver_player2.quit()
 
 if __name__ == '__main__':
     unittest.main()
