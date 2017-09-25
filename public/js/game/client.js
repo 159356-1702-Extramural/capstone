@@ -306,7 +306,7 @@ $(document).ready(function() {
         build_popup_show_dev_card(show_dev_card);
     });
     //  Trade - click on resource to give
-    $doc.on('click', '.card_give', function(e) {
+    $doc.on('mousedown', '.card_give', function(e) {
         e.preventDefault();
 
         //  TODO: validate # of given resource
