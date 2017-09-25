@@ -15,5 +15,5 @@ if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
         npm test "tests/gamelogic.test_cron.js"
 
     else
-        npm test;
+        npm test
 fi
