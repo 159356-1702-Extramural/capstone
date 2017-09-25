@@ -7,12 +7,14 @@ set -ev
 #    + returns 'push' when pushing to remote branch
 #    + returns 'cron' when called by the travis cron job trigger
 
-if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
-        npm test;
-        echo "running selenium headless browser tests";
+if [ "${TRAVIS_EVENT_TYPE}" = "push" ]; then
         pip install selenium && pip install sauceclient
-        python tests/seleniumPythonTest/run_all_tests.py;
-        
-    else      
+        python3 ../tests/seleniumPythonTest/test_case/setup_tests.py
+        wait
+        npm test "tests/selenium.test_cron.js"
+        wait
+        npm test "tests/gamelogic.test_cron.js"
+
+    else
         npm test;
 fi

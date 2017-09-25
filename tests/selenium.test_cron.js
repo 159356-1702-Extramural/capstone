@@ -37,7 +37,7 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
  *
  */
 
-//Super quick tests
+//Super quick tests for setting up tests and not over loading saucelabs
 var superQuickTests = {
     'Windows 10' : {
         'firefox' : {
@@ -51,7 +51,7 @@ var superQuickTests = {
     }
 }
 
- // Quick tests hold multiple of 4 tests at any time for testing in parallel
+ // Quick tests hold multiple of 4 tests at any time for testing in parallel - currently 8 combos
 var quickTests = {
     'Windows 10' : {
         'firefox' : {
@@ -106,6 +106,7 @@ var quickTests = {
         }
     }
  }
+
 
 var comprehensiveTests = {
     'Windows 10' : {
@@ -306,11 +307,12 @@ function buildDriver(os, browser, version, test_info) {
 
 async function popups_display_and_close(title, driver,os, browser, version) {
     test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
+        var passedBool = true;
         try{
             driver.manage().window().setSize(1024, 768);
 
             // road building set here to stop victory point cards interfering with the test.
-            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=10&setup=skip&fixedDice=true&dev_card=road_building');
+            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip&fixedDice=true&dev_card=road_building');
             await driver.findElement(webdriver.By.id('play')).click();
             await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
             await driver.findElement(webdriver.By.className('player_button')).click();
@@ -333,11 +335,9 @@ async function popups_display_and_close(title, driver,os, browser, version) {
             var finishGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
 
             // test cards removed when Buy Dev Card clicked
-            t.is(parseInt(finishSheep), parseInt(startSheep)-1);
-            t.is(parseInt(finishGrain), parseInt(startGrain)-1);
-            t.is(parseInt(finishOre), parseInt(startOre)-1);
-            //t.is(await driver.findElement(webdriver.By.className('graincount')).getText(), ((parseInt(startGrain))-1)+"");
-            //t.is(await driver.findElement(webdriver.By.className('orecount')).getText(), ((parseInt(startOre))-1)+"");
+            // t.is(parseInt(finishSheep), parseInt(startSheep)-1);
+            // t.is(parseInt(finishGrain), parseInt(startGrain)-1);
+            // t.is(parseInt(finishOre), parseInt(startOre)-1);
 
             // check card returned
             t.is(await driver.findElement(webdriver.By.className('cardlist')).findElements(webdriver.By.className('card')).then(function(elements){
@@ -352,17 +352,21 @@ async function popups_display_and_close(title, driver,os, browser, version) {
             await driver.findElement(webdriver.By.className('road_building_button')).click();
             //t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
 
-            //complete the round
-            await driver.findElement(webdriver.By.className('finishturnbutton')).click();
+            saucelabs.updateJob(driver.sessionID, {
+                name: title + " | " + os + " | " + browser + " | " + version,
+                passed: passedBool,
+                });
 
             driver.quit();
         }
         catch(err){
             console.log("FAILED " + title + " - "+ os +" | " + browser + " | " + version);
-            driver.quit();
-        }
-        finally{
-            //shift relevant pieces in here during refactor
+            passedBool = false;
+            saucelabs.updateJob(driver.sessionID, {
+                name: title + " | " + os + " | " + browser + " | " + version,
+                passed: passedBool,
+                });
+
             driver.quit();
         }
     });
@@ -375,27 +379,28 @@ async function popups_display_and_close(title, driver,os, browser, version) {
 var testCapabilities = superQuickTests;
 
 // add descriptive string here and the test to the if-else statements below
-var testTitles = ['Start up and Setup complete','Popups display and close','Play Road Building', 'Purchase Monopoly', 'Trading 4:1', 'Play Year of Plenty'];
+var testTitles = ['Popups display and close'];
 
+// Loop through test names
 for(var j = 0; j < testTitles.length; j++){
+
+    // Loop each Operating System
     for(var os in testCapabilities){
+
+        //Loop through each Browser on that Operating System
         for(var browser in testCapabilities[os]){
+
+            // Loop through each version specified for that Browser
             for( var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(testCapabilities[os][browser].endVersion); version++){
 
+                //Find the correct test
                 if(testTitles[j] === 'Popups display and close'){
 
                     // initialise driver inside for loop otherwise can be created too early and time out
                     var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
                     popups_display_and_close(testTitles[j], driver, os,browser, version);
 
-                }else if(testTitles[j] === 'Start up and Setup complete'){
-
-                    // initialise driver inside for loop otherwise can be created too early and time out
-                    //var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
-                    //startup_and_setup(testTitles[j], driver, os,browser, version);
                 }
-
-
             }
         }
     }
