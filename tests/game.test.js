@@ -160,24 +160,16 @@ test("Player with 6 resources gets 1 card robbed", function(t) {
 
 test("Player with 9 cards get 4 cards robbed", function(t) {
   var game = new Game();
-
+  var cards = ["brick", "lumber", "grain", "sheep", "ore", "brick", "brick", "lumber", "grain"];
   game.players[0] = new Player({}, { name: 'Tim' });
   game.players[0].id = 0;
 
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("lumber");
-  game.players[0].cards.add_card("grain");
-  game.players[0].cards.add_card("sheep");
-  game.players[0].cards.add_card("ore");
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("lumber");
-  game.players[0].cards.add_card("grain");
-
+  for (var i=0; i<cards.length; i++) {
+    game.players[0].cards.add_card(cards[i]);
+  }
   var start_cards = game.players[0].cards.count_cards();
 
   game.robPlayers();
-
   var end_cards = game.players[0].cards.count_cards();
   var round_cards = game.players[0].round_distribution_cards.count_cards();
 
@@ -187,16 +179,14 @@ test("Player with 9 cards get 4 cards robbed", function(t) {
 
 test("Player gets longest_road bonus", function(t) {
   var game = new Game();
+  var player0_roads = [0, 1, 2, 3, 4, 5];
   game.players[0] = new Player({}, { name: 'John' });
   game.players[0].id = 0;
 
   // Give player 0 some roads
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
+  for (var i=0; i<player0_roads.length; i++) {
+    game.board.set_item("build_road", player0_roads[i], game.players[0].id);
+  }
 
   game.modifyPlayerWithRoadBonus();
   t.true(game.players[0].score.longest_road);
@@ -205,26 +195,21 @@ test("Player gets longest_road bonus", function(t) {
 
 test("No players recieve road bonus in same turn if same length longest roads", function(t) {
   var game = new Game();
+  var player0_roads = [0, 1, 2, 3, 4, 5];
+  var player1_roads = [8, 9, 10, 11, 12, 13];
   game.players[0] = new Player({}, { name: 'John' });
   game.players[0].id = 0;
   game.players[1] = new Player({}, { name: 'Paul' });
   game.players[1].id = 1;
 
   // Give player 0 some roads
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
-
-  // Give player 0 some roads
-  game.board.set_item("build_road", 8, game.players[1].id);
-  game.board.set_item("build_road", 9, game.players[1].id);
-  game.board.set_item("build_road", 10, game.players[1].id);
-  game.board.set_item("build_road", 11, game.players[1].id);
-  game.board.set_item("build_road", 12, game.players[1].id);
-  game.board.set_item("build_road", 13, game.players[1].id);
+  for (var i=0; i<player0_roads.length; i++) {
+    game.board.set_item("build_road", player0_roads[i], game.players[0].id);
+  }
+  // Give player 1 some roads
+  for (var i=0; i<player1_roads.length; i++) {
+    game.board.set_item("build_road", player1_roads[i], game.players[1].id);
+  }
 
   game.modifyPlayerWithRoadBonus();
   t.false(game.players[0].score.longest_road);
@@ -235,34 +220,45 @@ test("No players recieve road bonus in same turn if same length longest roads", 
 
 test("Player 0 retains longest road in next turn after player 1 matches length", function(t) {
   var game = new Game();
+  var player0_roads = [0, 1, 2, 3, 4, 5];
+  var player1_roads = [8, 9, 10, 11, 12, 13];
   game.players[0] = new Player({}, { name: 'John' });
   game.players[0].id = 0;
   game.players[1] = new Player({}, { name: 'Paul' });
   game.players[1].id = 1;
 
   // Give player 0 some roads
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
+  for (var i=0; i<player0_roads.length; i++) {
+    game.board.set_item("build_road", player0_roads[i], game.players[0].id);
+  }
   // effectively turn over
   game.modifyPlayerWithRoadBonus();
-
-  // Give player 0 some roads
-  game.board.set_item("build_road", 8, game.players[1].id);
-  game.board.set_item("build_road", 9, game.players[1].id);
-  game.board.set_item("build_road", 10, game.players[1].id);
-  game.board.set_item("build_road", 11, game.players[1].id);
-  game.board.set_item("build_road", 12, game.players[1].id);
-  game.board.set_item("build_road", 13, game.players[1].id);
+  // Give player 1 some roads
+  for (var i=0; i<player1_roads.length; i++) {
+    game.board.set_item("build_road", player1_roads[i], game.players[1].id);
+  }
 
   game.modifyPlayerWithRoadBonus();
   t.true(game.players[0].score.longest_road);
   t.true(game.players[0].score.road_length === 5);
   t.false(game.players[1].score.longest_road);
   t.true(game.players[1].score.road_length === 5);
+});
+
+test("Player gets road of 15 long in complex loop", function(t) {
+  var game = new Game();
+  var complex = [ 29, 17, 13, 5, 1, 0, 2, 10, 12, 14, 26, 28, 15, 16, 21, 31 ];
+  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0].id = 0;
+
+  // Build complex road
+  for (var i=0; i<complex.length; i++) {
+    game.board.set_item("build_road", complex[i], game.players[0].id);
+  }
+
+  game.modifyPlayerWithRoadBonus();
+  t.true(game.players[0].score.longest_road);
+  t.true(game.players[0].score.road_length === 15);
 });
 
 test("Player receives largest army bonus", function(t) {
@@ -306,8 +302,6 @@ test("New player gets largest army after previous player", function(t) {
   game.players[1].cards.dev_cards.knight_played = 3;
   game.modifyPlayerWithArmyBonus();
 
-  console.log("PLAYER 0\n", game.players[0].score);
-  console.log("PLAYER 1\n", game.players[1].score);
   t.false(game.players[0].score.largest_army);
   t.true(game.players[1].score.largest_army);
 });

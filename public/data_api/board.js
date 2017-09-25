@@ -257,35 +257,17 @@ Board.prototype.longest_roads = function(players) {
   for (var i=0; i<players.length; i++) {
     player_map.set(players[i].id, 0);
   }
+  // iterate through roads to find only owned roads
   for (var r=0; r<this.roads.length; r++) {
     if (this.roads[r].owner !== -1) {
       var player_id = this.roads[r].owner;
-      // determine a starting point - node with only one road to it.
-      // TODO: this won't work with a looped road
-      var start_node = -1;
-      for (var i=0; i<this.roads[r].connects.length; i++) {
-        var node = this.nodes[this.roads[r].connects[i]];
-        var owned_roads = 0;
-        for (var n=0; n<node.n_roads.length; n++) {
-          var road = this.roads[node.n_roads[n]];
-          if (road.owner === player_id)
-            owned_roads += 1;
-        }
-        if (owned_roads === 1) {
-          start_node = node;
-          break;
-        } else {
-          start_node = -1;
-        }
-      }
-
-      if (start_node !== -1) {
-        var tmp = this.longest_road_for_player(start_node, player_id);
-        var longest_road = player_map.get(player_id);
-        // update the map with the players longest road
-        longest_road = (longest_road <= tmp ? tmp : longest_road);
-        player_map.set(player_id, longest_road);
-      }
+      var start_node = this.nodes[this.roads[r].connects[0]];
+      var tmp = this.longest_road_for_player(start_node, player_id);
+      // get players last longest road
+      var longest_road = player_map.get(player_id);
+      // update the map with the players longest road from comparison
+      longest_road = (longest_road <= tmp ? tmp : longest_road);
+      player_map.set(player_id, longest_road);
     }
   }
   console.log("Longest road for each player:\n", player_map);
@@ -299,20 +281,21 @@ Board.prototype.longest_roads = function(players) {
 * @param  {Integer}   last - the last road ID
 * @return {Integer} - length of the longest road this player owns
 */
-Board.prototype.longest_road_for_player = function(node, player_id, last=-1) {
+Board.prototype.longest_road_for_player = function(node, player_id, checked=[]) {
   var lengths = [];
   var length = 0;
   // for each road at this node
   for (var r=0; r<node.n_roads.length; r++) {
     var road = this.roads[node.n_roads[r]];
     // check if not the last road, and is owned by player
-    if (road.id != last && road.owner === player_id) {
+    if (checked.indexOf(road.id) === -1 && road.owner === player_id) {
+      checked.push(road.id);
       // fetch the node opposite to current
       var next_node_id = node.id === road.connects[0] ? road.connects[1] : road.connects[0];
       // get node object
       var next_node = this.nodes[next_node_id];
       // and pass to recursion to get next length
-      length = this.longest_road_for_player(next_node, player_id, road.id);
+      length = this.longest_road_for_player(next_node, player_id, checked);
       // add current road to total
       length += 1;
     }
