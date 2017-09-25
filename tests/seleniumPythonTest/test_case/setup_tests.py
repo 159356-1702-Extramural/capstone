@@ -62,38 +62,38 @@ def get_desired_cap(desired_cap):
 
 def buy_dev_card(desired_cap):
     try:
-        print("set driver")
+        print "set driver"
         driver = get_desired_cap(desired_cap)
         # wait=WebDriverWait(driver,10)
 
         # load website
-        print("load website")
+        print "load website"
         driver.get("https://capstone-settlers.herokuapp.com/?players=2")
         # driver.implicitly_wait(10)
 
         # click play button
-        print("click play button")
+        print "click play button"
 
         play = driver.find_element_by_id('play')
         play.click()
 
-        print("add name")
+        print "add name"
         # add name to input
         playerInput = driver.find_element_by_id('txt_player1')
         playerInput.send_keys("player 1")
 
         # click
-        print("click player button")
+        print "click player button"
         start_game = driver.find_elements_by_class_name('player_button')
         start_game[0].click()
-        print("click game start")
+        print "click game start"
 
-        print("find correct player actions")
+        print "find correct player actions"
         # find the correct player actions
         player =  driver.find_elements_by_class_name('player')
         playerID = player[0].find_elements_by_tag_name('img')
 
-        print(playerID[0].get_attribute("src"))
+        print playerID[0].get_attribute("src")
         if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player0.png":
 
             driver.implicitly_wait(10)
@@ -164,9 +164,9 @@ def buy_dev_card(desired_cap):
             # place_item(driver, "road_blue_open_13", -498, -228)
 
         # if playerID[0].get_attribute("src") == "https://capstone-settlers.herokuapp.com/images/player3.png":
-            # print("waiting..."
+            # print "waiting..."
             # driver.implicitly_wait(50)
-            # print('finished waining...'
+            # print 'finished waining...'
             # start_game = driver.find_element_by_id('get_started')
             # start_game.click()
 
@@ -188,22 +188,22 @@ def buy_dev_card(desired_cap):
             # place_item(driver, "road_green_open_13", -393, 89)
 
 
-        print("finish round")
+        print "finish round"
         #finish the round
         finish_round = driver.find_elements_by_class_name('finishturnbutton')
         finish_round[0].click()
-        print("send to finish_testing")
+        print "send to finish_testing"
         finish_testing(True, driver)
     except:
         finish_testing(False, driver)
 
 def place_item(driver, item, offsetX, offsetY):
-    print(item, offsetX, offsetY)
+    print item, offsetX, offsetY
     source_item = driver.find_element_by_id(item)
     ActionChains(driver).move_to_element(source_item).click_and_hold().move_by_offset(offsetX, offsetY).release().perform()
 
 def finish_testing(success, driver):
-    print("Success - " + success)
+    print "Success - " + success
 
     #send result back to saucelab to update the tests
     sauce_client = SauceClient("YOUR_SAUCE_USERNAME", "YOUR_SAUCE_ACCESSKEY")
@@ -220,10 +220,10 @@ def finish_testing(success, driver):
 
     #write results to file
 
-    print(len(test_results))
-    print(len(desired_caps))
+    print len(test_results)
+    print len(desired_caps)
     if len(test_results) == len(desired_caps):
-        print('sending data...')
+        print 'sending data...'
         webhook_url = 'https://hooks.slack.com/services/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'
         message = ""
         for result in test_results:
