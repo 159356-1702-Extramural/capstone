@@ -622,7 +622,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
                 var conflict = (this.game.players[i].turn_data.actions[j].action_type == item && this.game.players[i].turn_data.actions[j].action_data.id == index);
                 var conflict_index = j;
 
-                if (!conflict) {
+                if (!conflict && item == "build_settlement") {
                     //  If both players are building a settlement, check for adjacent
                     for (var s = 0; s < this.game.board.nodes[index].n_nodes.length; s ++) {
                         if (this.game.players[i].turn_data.actions[j].action_type == item && this.game.board.nodes[index].n_nodes[s] == this.game.players[i].turn_data.actions[j].action_data.id) {
