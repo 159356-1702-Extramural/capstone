@@ -3,7 +3,7 @@ node_js:
   - "stable"
 before_install:
   - export PATH=$HOME/.local/bin:$PATH
-  - pip install -r requirements.txt --user `whoami`
+  - pip install selenium --user `whoami`
   - composer --prefer-source install
   - sudo chmod ugo+x ./scripts/nightly.sh
 install:
