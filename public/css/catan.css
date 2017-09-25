@@ -140,15 +140,15 @@ body {
 
 .other_players {
     position:absolute;
-    top:10px;
-    left:10px;
-    height:100px;
-    width:350px;
+    top:5px;
+    left:5px;
+    height:350px;
+    width:110px;
     z-index:9998;
 }
 .other_player0_cell, .other_player1_cell, .other_player2_cell, .other_player3_cell {
     position:relative;
-    float: left;
+    width:90px;
     overflow:hidden;
     background-color: white;
     border: thin solid black;
@@ -726,7 +726,7 @@ body {
     margin: 10px 15px 0px 15px;
     height:auto;
 }
-.settlementbox, .citybox, .roadbox {
+.settlementbox, .citybox, .roadbox, .infobox {
     display:inline-block;
     width:42%;
     height:42px;
@@ -734,7 +734,7 @@ body {
     padding:5px;
     background-color:white;
 }
-.settlementbox_disable, .citybox_disable, .roadbox_disable {
+.settlementbox_disable, .citybox_disable, .roadbox_disable, .infobox_disable {
     position:absolute;
     width:102px;
     height:58px;
@@ -742,6 +742,14 @@ body {
     background:silver;
     z-index:9998;
     display:none;
+}
+.infobox {
+    position: relative;
+    top:-8px;
+}
+.infobox:hover {
+    cursor: pointer;
+    background-color:#aaaaaa;
 }
 .settlementbox_disable {
     top:360px;
@@ -1266,4 +1274,27 @@ body {
 
 .play_knight_cancel {
   float: right;
+}
+
+
+.done_prompt {
+    position:absolute;
+    top:40px;
+    left:750px;
+    width:250px;
+    height:80px;
+    border:thin solid black;
+    background-color:white;
+    border-radius: 10px;
+    z-index:9995;
+    padding:10px;
+    display:none;
+}
+.done_text {
+    float:left;
+    width:70%;
+}
+.done_arrow {
+    float:right;
+    padding:10px;
 }

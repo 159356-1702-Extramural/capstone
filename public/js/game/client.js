@@ -237,6 +237,9 @@ $(document).ready(function() {
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
 
+        //  Hide the reminder
+        $(".done_prompt").hide();
+
         var data_package = new Data_package();
         if(current_game.round_num < 3){
             if (turn_actions.length != 2) {
@@ -319,7 +322,7 @@ $(document).ready(function() {
     });
 
     //  Trade - click on resource to receive
-    $doc.on('click', '.card_receive', function(e) {
+    $doc.on('mousedown', '.card_receive', function(e) {
         e.preventDefault();
 
         //  TODO: validate # of given resource
@@ -329,7 +332,7 @@ $(document).ready(function() {
     });
 
     //  Year of Plenty - click on resource to receive
-    $doc.on('click', '.year_receive', function(e) {
+    $doc.on('mousedown', '.year_receive', function(e) {
         e.preventDefault();
 
         //  TODO: validate # of given resource
@@ -408,7 +411,7 @@ $(document).ready(function() {
       build_popup_play_knight();
     });
     // Select the resource you want the knight to take
-    $doc.on('click', '.play_knight', function(e) {
+    $doc.on('mousedown', '.play_knight', function(e) {
       e.preventDefault();
 
       var resource = $(this).attr('data-resource');
@@ -453,7 +456,7 @@ $(document).ready(function() {
     });
 
     //  Year of Plenty - clear selected resource
-    $doc.on('click', '.year_box_card', function(e) {
+    $doc.on('mousedown', '.year_box_card', function(e) {
         e.preventDefault();
         $(this).html("");
     });
@@ -501,7 +504,7 @@ $(document).ready(function() {
     });
 
     //  Monopoly -
-    $doc.on('click', '.monopoly_receive', function(e) {
+    $doc.on('mousedown', '.monopoly_receive', function(e) {
         e.preventDefault();
 
         //  TODO: validate # of given resource
@@ -593,7 +596,7 @@ $(document).ready(function() {
     });
 
     //  Player Trading - Add Give Card
-    $doc.on('click', '.trade_card_give', function(e) {
+    $doc.on('mousedown', '.trade_card_give', function(e) {
         e.preventDefault();
 
         //  TODO: validate # of given resource
@@ -603,7 +606,7 @@ $(document).ready(function() {
     });
 
     //  Player Trading - Add Want Card
-    $doc.on('click', '.trade_card_want', function(e) {
+    $doc.on('mousedown', '.trade_card_want', function(e) {
         e.preventDefault();
 
         var resource = $(this).attr('data-resource');
@@ -612,7 +615,7 @@ $(document).ready(function() {
     });
 
     //  Build - Add Extra resource
-    $doc.on('click', '.build_give', function(e) {
+    $doc.on('mousedown', '.build_give', function(e) {
         e.preventDefault();
 
         var resource = $(this).attr('data-resource');
@@ -632,7 +635,7 @@ $(document).ready(function() {
     });
 
     //  Build - Remove resources
-    $doc.on('click', '.extra_card_list', function(e) {
+    $doc.on('mousedown', '.extra_card_list', function(e) {
         e.preventDefault();
 
         //  Clear the selected cards
@@ -1428,6 +1431,8 @@ function setupPlayer() {
         html += "                <div id='road_" + current_player.colour + "_open_" + i + "' class='road " + current_player.colour + " angle30' ></div>";
     }
     html += "            </div>";
+    html += "            <div class='infobox_disable'></div>";
+    html += "            <div class='infobox' onclick='build_popup_no_resources();'><img src='images/help.png' style='height:40px;' /></div>";
     html += "        </div>";
     html += "            <div class='cards'>";
     html += "                Cards:<span class='cardRules'>Card Rules</span><br />";
