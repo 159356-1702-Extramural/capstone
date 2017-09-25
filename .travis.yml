@@ -4,7 +4,6 @@ node_js:
 before_install:
   - export PATH=$HOME/.local/bin:$PATH
   - pip install selenium --user `whoami`
-  - composer --prefer-source install
   - sudo chmod ugo+x ./scripts/nightly.sh
 install:
   - npm install selenium selenium-webdriver geckodriver saucelabs
