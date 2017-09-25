@@ -310,9 +310,11 @@ $(document).ready(function() {
         e.preventDefault();
 
         //  TODO: validate # of given resource
-        var resource = $(this).attr('data-resource');
-        var image = $(".card_receive[data-resource='" + resource + "']").html();
-        $('.trade_give_box').html(image);
+        if ($(this).attr("class").indexOf("unavailable") == -1) {
+            var resource = $(this).attr('data-resource');
+            var image = $(".card_receive[data-resource='" + resource + "']").html();
+            $('.trade_give_box').html(image);
+        }
 
     });
 
@@ -696,11 +698,11 @@ function openTrade () {
 
             if(num_of_cards >= this_trade){
                 card_data.push([card_name+'_status', '']);
-                card_data.push([card_name+'_tradenum', this_trade]);
             }else{
                 card_data.push([card_name+'_status', 'unavailable']);
             }
-
+            card_data.push([card_name+'_tradenum', this_trade]);
+            
         });
         buildPopup('round_maritime_trade', false, false, card_data);
     }
@@ -737,7 +739,7 @@ function acceptTrade () {
         hidePopup();
     }else{
         // hide trade window
-        $('.popup').hide();
+        hidePopup();
 
         //display an error window
         alert("cant trade with that many cards");
@@ -944,7 +946,6 @@ function updatePanelDisplay() {
   $(".tradebutton").addClass("disabled");
 
   // Update the resouce cards
-
   var resource_cards = current_game.player.cards.resource_cards;
   var $resource_box = $('.resources');
   $resource_box.find('.brickcount').text(resource_cards.brick);
@@ -961,12 +962,22 @@ function updatePanelDisplay() {
         $(".buybutton").addClass("disabled");
     }
 
-    //currently set to 4:1 only ... add function as harbours added (TODO)
+    //  Determine if a trade can be made
     var current_cards = current_game.player.cards.resource_cards;
-
-    if(current_cards.lumber > 3 || current_cards.grain > 3 || current_cards.brick > 3 || current_cards.sheep > 3 || current_cards.ore > 3){
+    var current_trading = current_game.player.trading;
+    var base_trade_ratio = (current_trading.three ? 3 : 4);
+    var can_trade = (current_cards.lumber >= base_trade_ratio || current_cards.grain >= base_trade_ratio || current_cards.brick >= base_trade_ratio || current_cards.sheep >= base_trade_ratio || current_cards.ore >= base_trade_ratio);
+    
+    //  Now check the specific ports
+    can_trade = can_trade || (current_trading.sheep && current_cards.sheep > 1);
+    can_trade = can_trade || (current_trading.ore && current_cards.ore > 1);
+    can_trade = can_trade || (current_trading.lumber && current_cards.lumber > 1);
+    can_trade = can_trade || (current_trading.brick && current_cards.brick > 1);
+    can_trade = can_trade || (current_trading.grain && current_cards.grain > 1);
+    if (can_trade) {
         $(".tradebutton").removeClass("disabled");
     }
+
   // Update the score
   var score = current_game.player.score;
   var $bonuses_box = $('.bonuses');

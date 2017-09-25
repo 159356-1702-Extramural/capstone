@@ -481,6 +481,10 @@ body {
     height: 50px !important;
 }
 
+.city:hover, .road:hover, .settlement:hover {
+    cursor: move;
+}
+
 .node.settlement.locked, .node.city.locked {
     display:block;
 }
@@ -492,10 +496,6 @@ body {
     width:50px;
     height:50px;
     opacity: 1;
-}
-
-.settlement:hover, .city:hover, .road:hover {
-    cursor: move;
 }
 
 .node.settlement.purple, .settlement.purple {
@@ -770,7 +770,7 @@ body {
 }
 
 .settlement:hover, .city:hover, .road:hover {
-    cursor: crosshair;
+    cursor: move;
 }
 
 .dropped {
