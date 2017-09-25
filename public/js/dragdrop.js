@@ -321,6 +321,11 @@ function set_object_on_canvas(event, ui) {
             }
         }
 
+        //  If we are in the setup phase, show a message when we have both elements on the canvas
+        if (current_game.round_num < 3 && turn_actions.length == 2) {
+            $(".done_prompt").show();
+        }
+
         update_object_counts();
         updatePanelDisplay();
     }

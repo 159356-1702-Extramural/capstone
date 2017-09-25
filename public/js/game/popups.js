@@ -278,18 +278,8 @@ function build_popup_monopoly_lose(data) {
  **************************************************/
 //  build_popup_no_resources
 //      Shows information on what it takes to build an object when you do not have enough
-function build_popup_no_resources(object_type) {
-    //  Get the list of cards needed
-    var cards = new Cards();
-    var card_list = cards.get_required_cards(object_type);
-    var card_html = "";
-
-    //  Create the HTML and remove the initial cards
-    for (var i = 0; i < card_list.length; i++) {
-        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
-    }
-    
-    buildPopup("round_build_no_resources", false, false, [["build_cards", card_html],["object_type", object_type]]);
+function build_popup_no_resources() {
+    buildPopup("round_build_no_resources", false, false, [["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],["normal_round_display", (current_game.round_num < 3 ? "none" : "block")]]);
 }
 
 
@@ -473,7 +463,7 @@ function build_popup_round_domestic_trade() {
  *  round_waiting_others.html
  **************************************************/
 function build_popup_round_waiting_for_others() {
-    buildPopup("round_waiting_others", false, false);
+    buildPopup("round_waiting_others", false, true);
 }
 
 /***************************************************
