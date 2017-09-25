@@ -332,7 +332,6 @@ function buy_monopoly(title, driver,os, browser, version) {
         }
         catch (err) {
             console.log('FAILED: ' + title + '  - '+os+' | '+browser+' | '+ version);
-            console.log(err);
             passedBool = false;
             saucelabs.updateJob(driver.sessionID, {
                 name: title + " | " + os + " | " + browser + " | " + version,
@@ -382,7 +381,7 @@ function trade4to1(title, driver,os, browser, version) {
                 });
         }
         catch(err){
-            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version + "  -  " + err);
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
             passedBool = false;
             saucelabs.updateJob(driver.sessionID, {
                 name: title + " | " + os + " | " + browser + " | " + version,
@@ -438,7 +437,7 @@ function buy_year_of_plenty(title, driver,os, browser, version) {
                 });
         }
         catch(err){
-            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version + "  -  " + err);
+            console.log('FAILED: Trade a card 4:1 - '+os+' | '+browser+' | '+ version);
             passedBool = false;
             saucelabs.updateJob(driver.sessionID, {
                 name: title + " | " + os + " | " + browser + " | " + version,
