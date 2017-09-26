@@ -212,7 +212,7 @@ body {
 
 .board {
     position:absolute;
-    background-image:url(../images/water.png);
+    background-image:url(../images/water.jpg);
     height:812px;
     width:888px;
     z-index:100;
