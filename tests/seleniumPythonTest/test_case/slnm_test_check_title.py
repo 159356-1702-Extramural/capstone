@@ -4,20 +4,13 @@ import sys
 import new
 import unittest
 from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
 from sauceclient import SauceClient
+import browserList
 
-# it's best to remove the hardcoded defaults and always get these values
-# from environment variables
 USERNAME = "sumnerfit"
 ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
 sauce = SauceClient(USERNAME, ACCESS_KEY)
-browsers = [{"platform": "Mac OS X 10.9",
-             "browserName": "chrome",
-             "version": "31"},
-            {"platform": "Windows 8.1",
-             "browserName": "internet explorer",
-             "version": "11"}]
+browsers =browserList.browsers()
 
 def on_platforms(platforms):
     def decorator(base_class):
@@ -40,7 +33,7 @@ class SauceSampleTest(unittest.TestCase):
         )
         self.driver.implicitly_wait(30)
 
-    def test_tutorial(self):
+    def test_check_title(self):
         driver=self.driver
         driver.get("https://capstone-settlers.herokuapp.com/")
         self.assertIn('Settlers of Massey', driver.title)
