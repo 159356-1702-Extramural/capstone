@@ -623,7 +623,7 @@ $(document).ready(function() {
         if (resource_count > 0) {
             var card_list = $(".extra_card_list");
             var next_z = card_list.html().length + 1;
-            var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.png"></div>';
+            var new_card = '<div class="extra_card" style="z-index:' + (600 + next_z) + ';"><img src="images/card_' + resource + '_small.jpg"></div>';
             card_list.append(new_card);
 
             //  Remove resource and disable as needed
@@ -1349,7 +1349,7 @@ function getResourceCardsHtml() {
     var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
     for (var i = 0; i < resource_list.length; i++) {
         var resource_count = current_game.player.cards.resource_cards[resource_list[i]];
-        html += "<img class='build_give trade_" + resource_list[i] + (resource_count < 1 ? " disabled" : "") + "' data-resource='" + resource_list[i] + "' data-count='" + resource_count + "' src='images/card_" + resource_list[i] + "_small.png'>";
+        html += "<img class='build_give trade_" + resource_list[i] + (resource_count < 1 ? " disabled" : "") + "' data-resource='" + resource_list[i] + "' data-count='" + resource_count + "' src='images/card_" + resource_list[i] + "_small.jpg'>";
     }
     return html;
 }
@@ -1479,20 +1479,20 @@ function update_dev_cards(data){
 
     var card_list = "";
         if (data.player.cards.dev_cards.year_of_plenty > 0) {
-            card_list += "<img src='images/dev_year_of_plenty.png' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_year_of_plenty.jpg' class='year_of_plenty card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.knight > 0) {
             var disabled_class = (current_game.knight_in_use) ? ' disabled' : '';
-            card_list += "<img src='images/dev_knight.png' class='knight card" + (card_list.length == 0 ? " first" : "") + disabled_class + "'>";
+            card_list += "<img src='images/dev_knight.jpg' class='knight card" + (card_list.length == 0 ? " first" : "") + disabled_class + "'>";
         }
         if (data.player.cards.dev_cards.monopoly > 0) {
-            card_list += "<img src='images/dev_monopoly.png' class='monopoly card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_monopoly.jpg' class='monopoly card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (data.player.cards.dev_cards.road_building > 0) {
-            card_list += "<img src='images/dev_road_building.png' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
+            card_list += "<img src='images/dev_road_building.jpg' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (card_list === ""){
-            card_list += "<img src='../images/nocards.png' class='no_cards' />";
+            card_list += "<img src='../images/nocards.jpg' class='no_cards' />";
         }
         //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
         if (data.player.round_distribution_cards.victory_point_cards.chapel > 0 ){
