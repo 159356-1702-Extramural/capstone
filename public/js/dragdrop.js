@@ -39,7 +39,9 @@ function setupDragDrop() {
     $(".settlement:not(.locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
-            show_open_spots("settlement", event.target.id);
+            if (action_in_progress.length == 0) {
+                show_open_spots("settlement", event.target.id);
+            }
         },
         drag: function () {
         },
@@ -75,7 +77,9 @@ function setupDragDrop() {
     $(".city:not(.locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
-            show_open_spots("city", event.target.id);
+            if (action_in_progress.length == 0) {
+                show_open_spots("city", event.target.id);
+            }
         },
         drag: function () {
         },
@@ -88,7 +92,9 @@ function setupDragDrop() {
     $(".road:not(.roadspot, .locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
-            show_open_spots("road", event.target.id);
+            if (action_in_progress.length == 0) {
+                show_open_spots("road", event.target.id);
+            }
         },
         drag: function () {
         },
