@@ -27,7 +27,7 @@ def on_platforms(platforms):
 
 @on_platforms(browsers) #Comment this line when do the test locally
 class SettlerSeleniumTest(unittest.TestCase):
-    testLocal=True
+    testLocal=False
     def setUp(self):
 
         if not self.testLocal:
