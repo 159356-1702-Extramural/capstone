@@ -3,6 +3,7 @@ var socket = io();
 
 //server data is the round data from the server
 var server_data = [];
+var action_in_progress = "";
 
 var building_dimension = 50;
 
@@ -138,10 +139,11 @@ $(document).ready(function() {
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             setup_phase = false;
-            $('.popup').hide();
+            hidePopup();
             build_popup_setup_complete();
 
         }else if(data.data_type === 'setup_phase'){
+            clear_action_in_progress();
             if (data.player !== 0) {
                 //  Popup for instructions on 1st or 2nd placement
                 build_popup_setup_phase_your_turn(data.player);
@@ -236,6 +238,12 @@ $(document).ready(function() {
     }
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
+
+        if (action_in_progress.length > 0) {
+            //  Looks like they shouldnt be here, lock it down
+            set_action_in_progress();
+            return false;
+        }
 
         //  Hide the reminder
         $(".done_prompt").hide();
@@ -567,6 +575,13 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
+
+        if (action_in_progress.length > 0) {
+            //  Looks like they shouldnt be here, lock it down
+            set_action_in_progress();
+            return false;
+        }
+
         // only active in trade phase
         if(current_game.round_num > 2){
 
@@ -672,6 +687,12 @@ function setupTurnFinished(){
 
 // Open the trading window and make only tradable cards available
 function openTrade () {
+
+    if (action_in_progress.length > 0) {
+        //  Looks like they shouldnt be here, lock it down
+        set_action_in_progress();
+        return false;
+    }
 
     //disable trade until setup complete and if tradebutton greyed out (logic in update panel)
     if(current_game.round_num > 2 && !$(".tradebutton").hasClass("disabled")){
@@ -945,9 +966,16 @@ function buildNodes() {
 // Update display figuers
 function updatePanelDisplay() {
 
-  // set trade to disabled to start with
+  // Disable buttons to begin with
   $(".tradebutton").addClass("disabled");
+  $(".buybutton").addClass("disabled");
+  $(".finishturnbutton").addClass("disabled");
 
+  //    If we are beyond setup, or if setup has 2 items placed, show finish button
+    if (current_game.round_num > 2 || turn_actions.length == 2) {
+        $(".finishturnbutton").removeClass("disabled");
+    }
+  
   // Update the resouce cards
   var resource_cards = current_game.player.cards.resource_cards;
   var $resource_box = $('.resources');
@@ -961,8 +989,6 @@ function updatePanelDisplay() {
     cards.resource_cards = current_game.player.cards.resource_cards;
     if (cards.available_cards("dev_card")) {
         $(".buybutton").removeClass("disabled");
-    } else {
-        $(".buybutton").addClass("disabled");
     }
 
     //  Determine if a trade can be made
@@ -1390,7 +1416,7 @@ function setupPlayer() {
     html += "            <div class='player'><img src='images/player" + current_player.id + ".png' /></div>";
     html += "            <div class='playername'>" + current_player.name;
     html += "               <div class='playerbutton'>";
-    html += "                   <div class='btn btn-info finishturnbutton'>Finish Turn</div>";
+    html += "                   <div class='btn btn-info finishturnbutton disabled'>Finish Turn</div>";
     html += "               </div>";
     html += "               <div class='dice_row'>";
     html += "                   <div class='dice_window'><img id='score_dice_1' src='images/dice_score.png' class='dice dice1' /></div>";
@@ -1555,6 +1581,23 @@ function reset_dev_cards_per_round(){
     $('.cardlist .knight.card').removeClass('disabled');
     current_game.knight_in_use = false;
 }
+
+//  Lock down interface when exclusive action is taking place
+function set_action_in_progress(a) {
+    if (a) {
+        action_in_progress = a;
+    } else if (action_in_progress.length == 0) {
+        action_in_progress = "unknown";
+    }
+    $(".finishturnbutton").addClass("disabled");
+    $(".tradebutton").addClass("disabled");
+    $(".buybutton").addClass("disabled");
+}
+function clear_action_in_progress() {
+    action_in_progress = "";
+    updatePanelDisplay();
+}
+
 function doLog(m) {
     $(".log").append(m + "<br />");
 }

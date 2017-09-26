@@ -3,6 +3,17 @@
 //   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
 function buildPopup(popupClass, useLarge, useRight, customData) {
     $.get("templates/" + popupClass + ".html", function(data) {
+        //  If an action is already in progress, see if it is this action and needs to be updated
+        if (action_in_progress.length > 0) {
+            if (action_in_progress != popupClass || data.indexOf("allow_reload") == -1) {
+                return false;
+            }
+        }
+
+        //  Now check to see if this is exclusive
+        if (data.indexOf("action_in_progress") > -1) {
+            set_action_in_progress(popupClass);
+        }
 
         //  In a few cases, we need a larger popup
         $(".popup_inner").removeClass("popup_inner_large");
@@ -28,7 +39,9 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
 }
 function hidePopup() {
     $('.popup').fadeOut(400, function() {
-
+        if (action_in_progress.length > 0) {
+            clear_action_in_progress();
+        }
     });
 }
 
@@ -70,13 +83,7 @@ function build_popup_waiting_for_players(data) {
  *  setup_phase_your_turn.html
  **************************************************/
 function build_popup_setup_phase_your_turn(setup_round) {
-    if(setup_round === 1){
-        //TODO: Place First Settlement
-        buildPopup("setup_phase_your_turn", false, false);
-    }else{
-        //TODO: Place Second Settlement
-        buildPopup("setup_phase_your_turn", false, false);
-    }
+    buildPopup("setup_phase_your_turn", false, false);
 }
 
 /***************************************************
@@ -279,7 +286,9 @@ function build_popup_monopoly_lose(data) {
 //  build_popup_no_resources
 //      Shows information on what it takes to build an object when you do not have enough
 function build_popup_no_resources() {
-    buildPopup("round_build_no_resources", false, false, [["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],["normal_round_display", (current_game.round_num < 3 ? "none" : "block")]]);
+    if (!action_in_progress) {
+        buildPopup("round_build_no_resources", false, false, [["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],["normal_round_display", (current_game.round_num < 3 ? "none" : "block")]]);
+    }
 }
 
 
