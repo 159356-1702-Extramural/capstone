@@ -9,7 +9,6 @@ import time
 from selenium.webdriver.common.action_chains import ActionChains
 import browserList
 
-
 USERNAME = "sumnerfit"
 ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
 sauce = SauceClient(USERNAME, ACCESS_KEY)
@@ -29,21 +28,7 @@ def on_platforms(platforms):
 @on_platforms(browsers) #Comment this line when do the test locally
 class SettlerSeleniumTest(unittest.TestCase):
     testLocal=False
-
-    def dragDrop(self,wd,dragObj,tarObj):
-        dragger=wd.find_element_by_id(dragObj)
-        target=wd.find_element_by_id(tarObj)
-        print target.get_attribute('style')
-        action=ActionChains(wd)
-        # action.move_to_element(dragger).perform()
-        wd.implicitly_wait(80)
-        action.click_and_hold(dragger).move_by_offset(10, 10) #When draging a element, move the element to the position beside it first.
-        wd.implicitly_wait(80)
-        action.click_and_hold(dragger).move_to_element(target).release().perform()
-        wd.implicitly_wait(80)
-        time.sleep(5)
     def setUp(self):
-
         if not self.testLocal:
             self.desired_capabilities['name'] = self.id()
             sauce_url = "http://%s:%s@ondemand.saucelabs.com:80/wd/hub"
@@ -61,41 +46,47 @@ class SettlerSeleniumTest(unittest.TestCase):
             self.driver_player2=webdriver.Firefox()
 
 
-    def test_game_start(self):
+    def test_dev_card(self):
         success=True
         wd=self.driver
-        handle_main=wd.current_window_handle
-        wd.get("https://capstone-settlers.herokuapp.com/?test=true")
+        wd.get("https://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip")
         wd.find_element_by_id("play").click()
         wd.implicitly_wait(1)
         wd.find_element_by_id("txt_player1").click()
-        wd.find_element_by_id("txt_player1").send_keys("Player1")
+        wd.find_element_by_id("txt_player1").clear()
+        wd.find_element_by_id("txt_player1").send_keys("1")
         wd.find_element_by_css_selector("span.player_text").click()
         wd.implicitly_wait(1)
+        handle_main=wd.current_window_handle
+
+        #Player2 start
         driver_player2=self.driver_player2
-        handle_assist=driver_player2.current_window_handle
-        driver_player2.get("https://capstone-settlers.herokuapp.com/?test=true")
-        driver_player2.find_element_by_xpath("//div[@class='popup_inner']//div[.='Play']").click()
+        driver_player2.get("https://capstone-settlers.herokuapp.com/?fixedDice=true&setup=skip")
+        driver_player2.find_element_by_id("play").click()
         driver_player2.implicitly_wait(1)
-        driver_player2.find_element_by_id('txt_player1').click()
-        driver_player2.find_element_by_id('txt_player1').send_keys("Player2")
+        driver_player2.find_element_by_id("txt_player1").click()
+        driver_player2.find_element_by_id("txt_player1").clear()
+        driver_player2.find_element_by_id("txt_player1").send_keys("2")
         driver_player2.find_element_by_css_selector("span.player_text").click()
         time.sleep(5)
-        # driver_player2.implicitly_wait(40)
-        # wd.refresh()
+
+        #Player1 trade
         wd.switch_to_window(handle_main)
-        # wd.implicitly_wait(20)
-        get_start=wd.find_element_by_css_selector("div.btn.btn-info")
-        # print wd.find_element_by_css_selector("div.btn.btn-info").text
-        get_start.click()
-        wd.implicitly_wait(80)
 
-        #Ddrag a village to a hex
-        self.dragDrop(wd,"settlement_purple_open_4","node_24")
-
-        #Move a road
-        self.dragDrop(wd,"road_purple_open_14","road_37")
-
+        wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
+        wd.implicitly_wait(1)
+        time.sleep(2)
+        wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
+        wd.implicitly_wait(1)
+        time.sleep(2)
+        wd.find_element_by_xpath("//div[@class='buy']//div[.='Buy Development Card']").click()
+        wd.implicitly_wait(1)
+        time.sleep(2)
+        wd.find_element_by_xpath("//div[@class='cardlist']/img").click()
+        wd.implicitly_wait(10)
+        time.sleep(2)
+        wd.find_element_by_css_selector("img.play_knight").click()
+        time.sleep(3)
         self.assertTrue(success)
 
     def tearDown(self):

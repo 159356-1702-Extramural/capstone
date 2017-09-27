@@ -24,6 +24,7 @@ def on_platforms(platforms):
 
 @on_platforms(browsers)
 class SauceSampleTest(unittest.TestCase):
+
     def setUp(self):
         self.desired_capabilities['name'] = self.id()
         sauce_url = "http://%s:%s@ondemand.saucelabs.com:80/wd/hub"
