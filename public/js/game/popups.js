@@ -3,18 +3,6 @@
 //   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
 function buildPopup(popupClass, useLarge, useRight, customData) {
     $.get("templates/" + popupClass + ".html", function(data) {
-        //  If an action is already in progress, see if it is this action and needs to be updated
-        if (action_in_progress.length > 0) {
-            if (action_in_progress != popupClass || data.indexOf("allow_reload") == -1) {
-                return false;
-            }
-        }
-
-        //  Now check to see if this is exclusive
-        if (data.indexOf("action_in_progress") > -1) {
-            set_action_in_progress(popupClass);
-        }
-
         //  In a few cases, we need a larger popup
         $(".popup_inner").removeClass("popup_inner_large");
         $(".popup_inner").removeClass("popup_inner_right");
@@ -39,17 +27,19 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
 }
 function hidePopup() {
     $('.popup').fadeOut(400, function() {
-        if (action_in_progress.length > 0) {
-            clear_action_in_progress();
-        }
     });
+
+    action_in_progress = false;
+    allowed_actions.can_build = true;
+    allowed_actions.can_finish = true;
+    updatePanelDisplay();
 }
 
 /***************************************************
  *  start_up.html
  **************************************************/
-function build_popup_start(section) {
-    buildPopup(section, false, false);
+function build_popup_start(section, isLarge) {
+    buildPopup(section, isLarge, false);
 }
 
 /***************************************************
@@ -323,6 +313,7 @@ function build_popup_round_build(object_dragged_id, object_type) {
     my_cards.add_cards_from_list(card_list);
 
     buildPopup("round_build", false, false, [["object_dragged_id", object_dragged_id], ["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
+    action_in_progress = true;
 }
 //  round_build_complete
 //      Build button in the round_build.html template
@@ -359,6 +350,8 @@ function round_build_complete(object_dragged_id, object_type) {
     turn_actions[turn_actions.length-1].boost_cards = card_list;
 
     //  Update our counts
+    allowed_actions.can_finish = true;
+    allowed_actions.can_build = true;
     update_object_counts();
     updatePanelDisplay();
 
@@ -389,6 +382,8 @@ function round_build_abort(object_type) {
     //  We need to restore the cards used to build this object
     return_resources(object_to_return.attr("id"));
 
+    allowed_actions.can_finish = true;
+    allowed_actions.can_build = true;
     updatePanelDisplay();
     hidePopup();
 }
@@ -444,7 +439,7 @@ function build_popup_victory_point_received(card) {
 
     }
     vp_cards.push(['other_vp_cards',other_vp_cards]);
-    buildPopup("victory_point_received", false, vp_cards);
+    buildPopup("victory_point_received", false, false, vp_cards);
 }
 
 /***************************************************
@@ -464,8 +459,8 @@ function build_popup_round_maritime_trade() {
 /***************************************************
  *  round_domestic_trade.html
  **************************************************/
-function build_popup_round_domestic_trade() {
-    buildPopup("round_domestic_trade", false, false);
+function build_popup_largest_army(won) {
+    buildPopup("round_largest_army", false, false, [["result", won]]);
 }
 
 /***************************************************

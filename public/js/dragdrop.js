@@ -39,7 +39,7 @@ function setupDragDrop() {
     $(".settlement:not(.locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
-            if (action_in_progress.length == 0) {
+            if (allowed_actions["can_build"]) {
                 show_open_spots("settlement", event.target.id);
             }
         },
@@ -77,7 +77,7 @@ function setupDragDrop() {
     $(".city:not(.locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
-            if (action_in_progress.length == 0) {
+            if (allowed_actions["can_build"]) {
                 show_open_spots("city", event.target.id);
             }
         },
@@ -92,7 +92,7 @@ function setupDragDrop() {
     $(".road:not(.roadspot, .locked)").draggable({
         revert: 'invalid',
         start: function (event, ui) {
-            if (action_in_progress.length == 0) {
+            if (allowed_actions["can_build"]) {
                 show_open_spots("road", event.target.id);
             }
         },
@@ -314,6 +314,7 @@ function set_object_on_canvas(event, ui) {
             if (!current_player.road_building_used || (object_type != "road" && object_type != "city") || (current_player.road_building_used && current_player.free_roads == 0)) {
                 if (current_game.round_num > 2) {
                     //  Prompt the user for more cards
+                    set_allowed_actions(false, false, false, false);
                     build_popup_round_build(dragged_object_new_id, object_type);
                 }
             }
@@ -328,8 +329,10 @@ function set_object_on_canvas(event, ui) {
         }
 
         //  If we are in the setup phase, show a message when we have both elements on the canvas
+        allowed_actions.can_finish = false;
         if (current_game.round_num < 3 && turn_actions.length == 2) {
             $(".done_prompt").show();
+            allowed_actions.can_finish = true;
         }
 
         update_object_counts();
