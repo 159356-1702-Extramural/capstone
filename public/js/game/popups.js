@@ -26,13 +26,12 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     });
 }
 function hidePopup() {
-    $('.popup').fadeOut(400, function() {
-    });
-
     action_in_progress = false;
     allowed_actions.can_build = true;
     allowed_actions.can_finish = (current_game.round_num > 2);
     updatePanelDisplay();
+
+    $('.popup').hide();
 }
 
 /***************************************************
