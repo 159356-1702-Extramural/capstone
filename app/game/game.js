@@ -517,7 +517,7 @@ Game.prototype.return_dev_card = function(card){
 
 Game.prototype.set_player_number = function (){
   var player_num = process.env['players'];
-  if(typeof player_num === 'undefined'){player_num = 2;}
+  if(typeof player_num === 'undefined'){player_num = 4;}
   if(parseInt(player_num) === 4){
     this.state_machine.setupSequence = [0,1,2,3,3,2,1,0];
     this.state_machine.setupSequence = this.randomise_startup_array(4);
