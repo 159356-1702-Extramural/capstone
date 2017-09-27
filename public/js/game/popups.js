@@ -31,7 +31,7 @@ function hidePopup() {
 
     action_in_progress = false;
     allowed_actions.can_build = true;
-    allowed_actions.can_finish = true;
+    allowed_actions.can_finish = (current_game.round_num > 2);
     updatePanelDisplay();
 }
 

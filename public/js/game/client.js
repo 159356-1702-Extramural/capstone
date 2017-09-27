@@ -47,7 +47,6 @@ $(document).ready(function() {
         ];
         build_popup_waiting_for_players(popupData);
 
-        doLog("2");
         set_allowed_actions(false, false, false, false);
         updatePanelDisplay();
     });
@@ -57,7 +56,6 @@ $(document).ready(function() {
         //  Start the game with the waiting popups
         build_popup_waiting_for_turn();
 
-        doLog("3");
         set_allowed_actions(false, false, false, false);
         updatePanelDisplay();
     });
@@ -147,12 +145,10 @@ $(document).ready(function() {
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
                 //  Popup for instructions on 1st or 2nd placement
-                doLog("5");
                 set_allowed_actions(true, false, false, false);
                 build_popup_setup_phase_your_turn(data.player);
             } else {
                 //  Waiting for others to finish setup placement
-                doLog("6");
                 set_allowed_actions(false, false, false, false);
                 build_popup_waiting_for_turn();
             }
@@ -191,7 +187,6 @@ $(document).ready(function() {
                 // allow players to purchase and play dev cards this round
                 reset_dev_cards_per_round()
 
-                doLog("4");
                 set_allowed_actions(true, false, false, true);
                 updatePanelDisplay();
             }
@@ -279,7 +274,6 @@ $(document).ready(function() {
         data_package.actions = turn_actions;
         update_server("game_update", data_package);
 
-        doLog("7");
         set_allowed_actions(false, false, false, false);
         updatePanelDisplay();
     });
