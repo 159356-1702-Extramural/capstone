@@ -73,6 +73,19 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
 
 });
 
+test("Reset turn status for all players", function(t) {
+  var game = new Game();
+  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0].id = 0;
+  game.players[0].turn_complete = true;
+  game.players[1] = new Player({}, { name: 'Tim #2' });
+  game.players[1].id = 1;
+  game.players[1].turn_complete = true;
+  game.reset_player_turns();
+  t.is(game.players[0].turn_complete, false);
+  t.is(game.players[1].turn_complete, false);
+});
+
 test.todo("Confirm the robber prevents a tile from give up its resources");
 
 test("Robber moves", function(t) {

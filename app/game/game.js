@@ -56,6 +56,12 @@ Game.prototype.add_player = function(player) {
     return true;
 };
 
+Game.prototype.reset_player_turns = function() {
+  this.players.forEach(function(player) {
+    player.turn_complete = false;
+  });
+}
+
 /**
 * Parse the board to JSON string
 * @return {String} JSON - this.board parsed to a JSON string
