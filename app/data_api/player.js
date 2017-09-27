@@ -11,6 +11,7 @@ var Cards = require('../../public/data_api/cards.js');
 function Player(socket, data) {
     this.id             = null;
     this.name           = data.name;
+    this.game_id        = data.game_id;
     this.game_name      = data.game_name;
     this.socket         = socket;
 

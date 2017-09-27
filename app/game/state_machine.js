@@ -920,3 +920,4 @@ StateMachine.prototype.setSequence = function() {
 module.exports = {
   StateMachine
 };
+

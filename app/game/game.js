@@ -132,7 +132,6 @@ Game.prototype.rollingDice = function() {
     this.dice_roll = [dice1, dice2];
   }
 
-
   return dice1 + dice2;
 };
 
@@ -219,17 +218,13 @@ Game.prototype.generate_dev_card_deck = function(){
  * @return void
  */
 Game.prototype.robPlayers = function() {
-
   var i;
   var j;
   var player;
   var num_cards;
-
   var player_cards;
   var num_to_steal;
-
   var resource;
-
   var shuffler = new Shuffler();
 
   // Work out what happens to each player
@@ -323,12 +318,10 @@ Game.prototype.knightMoveRobber = function(player_id) {
         break;
       }
     }
-
     // Robber can't stay in the same place
     if (resourceTiles[i].robber) {
       can_use = false;
     }
-
     // If this is a tile we can rob add to array to pick from
     if (can_use) {
       possibleLocations.push(resourceTiles[i]);
@@ -341,7 +334,6 @@ Game.prototype.knightMoveRobber = function(player_id) {
 
   // Store reference to the new home of the robber
   this.board.robberLocation = new_robber_tile;
-
 };
 
 Game.prototype.modifyPlayerWithRoadBonus = function() {
@@ -443,7 +435,6 @@ Game.prototype.modifyPlayerWithArmyBonus = function() {
  * @return void
  */
 Game.prototype.calculateScores = function() {
-
   // Reset the score since we're recalculating it
   this.players.forEach(function (player) {
     player.score.settlements = 0;
@@ -483,7 +474,6 @@ Game.prototype.calculateScores = function() {
  * @return {Boolean}
  */
 Game.prototype.haveWinner = function() {
-
   var winners = [];
   var highest_score = 0;
 

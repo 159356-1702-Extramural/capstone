@@ -89,7 +89,7 @@ io.on('connection', function(socket) {
 
     socket.on('new_game', function() {
         logger.log('info', 'New game creation requested');
-        games.create_new_game(socket);
+        games.new_game(socket);
     });
 
     socket.on('join_request', function(data) {
