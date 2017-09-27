@@ -32,7 +32,7 @@ Games.prototype.assign_player = function(socket, data) {
         player.cards.add_cards('ore', addTestCards);
         player.cards.add_cards('sheep',addTestCards);
         player.cards.add_cards('brick', addTestCards);
-        player.cards.add_cards('grain', addTestCards); 
+        player.cards.add_cards('grain', addTestCards);
         player.cards.add_cards('lumber', addTestCards);
     }
 
@@ -42,7 +42,7 @@ Games.prototype.assign_player = function(socket, data) {
         this.games.push(new sm.StateMachine());
     }
     var state_machine = this.games[this.games.length-1];
-
+    state_machine.game.max_players    = state_machine.game.set_player_number();
     if(state_machine.game.test_mode === 'false'){
         state_machine.game.test_mode = this.set_test_flag();
     }
@@ -95,7 +95,7 @@ Games.prototype.assign_player = function(socket, data) {
         }
     }
 
-    
+
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 

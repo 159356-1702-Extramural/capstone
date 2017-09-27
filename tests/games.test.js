@@ -53,7 +53,7 @@ test("Player can be assigned to a game", function(t) {
 
   // HACK: cuurent game maxsiz it 2, when this is changed to 4 this test
   // will ned to be changed
-  t.is(g.games.length, 3);
+  t.is(g.games.length, 2);
 });
 
 test("Player assigned without testing data", function(t) {

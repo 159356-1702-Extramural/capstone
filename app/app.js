@@ -55,7 +55,7 @@ app.get('/', function(req, res) {
 
     //set environment variable for 4 players if {url}:3000/?players=4 is queried  --> {url}:3000/?test=true&players=4
     playerNum = req.query["players"];
-    if(typeof playerNum === 'undefined'){playerNum = 2}
+    if(typeof playerNum === 'undefined'){playerNum = 4}
     process.env['players'] = parseInt(playerNum);
 
     // skip setup phase using {url}:3000/?setup=skip
