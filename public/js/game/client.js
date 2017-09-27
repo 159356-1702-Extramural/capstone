@@ -1492,7 +1492,7 @@ function update_dev_cards(data){
             card_list += "<img src='images/dev_road_building.jpg' class='road_building card" + (card_list.length == 0 ? " first" : "") + "'>";
         }
         if (card_list === ""){
-            card_list += "<img src='../images/nocards.jpg' class='no_cards' />";
+            card_list += "<img src='../images/nocards.png' class='no_cards' />";
         }
         //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
         if (data.player.round_distribution_cards.victory_point_cards.chapel > 0 ){
