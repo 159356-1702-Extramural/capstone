@@ -106,7 +106,7 @@ function build_popup_setup_complete() {
     var card_html = "";
     for (var i = 0; i < popup_data.length; i++) {
         for (var j = 0; j < popup_data[i][1]; j++) {
-            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
         }
     }
 
@@ -165,7 +165,7 @@ function build_popup_round_roll_results() {
     for (var i = 0; i < popup_data.length; i++) {
         for (var j = 0; j < popup_data[i][1]; j++) {
             if (card_count < 16) {
-                card_html += '<div class="build_card" style="z-index:' + (500 + card_count) + ';"><img src="images/card_' + popup_data[i][0] + '_small.png"></div>';
+                card_html += '<div class="build_card" style="z-index:' + (500 + card_count) + ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
             }
             card_count ++;
         }
@@ -228,7 +228,7 @@ function build_popup_monopoly_win(data) {
 
             // length - 2 used to get second to last item which is total stolen
             for (var i = 0; i < data.player.actions[0].action_data[j]; i++) {
-                stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + (data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1]) + '_small.png"></div>';
+                stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + (data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1]) + '_small.jpg"></div>';
             }
             if (stolen_cards.length == 0) {
                 stolen_cards = "Nothing! " + current_game.players[monopoly_played_by].name + " tried to steal " + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + ", but they didn't have any!";
@@ -259,7 +259,7 @@ function build_popup_monopoly_lose(data) {
     //  Get the list of cards
     var stolen_cards = "";
     for (var i = 0; i < data.player.actions[0].action_data[current_game.player.id]; i++) {
-        stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + '_small.png"></div>';
+        stolen_cards += '<div class="failed_card" style="z-index:' + (500) + ';"><img class="card" src="images/card_' + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + '_small.jpg"></div>';
     }
     if (stolen_cards.length == 0) {
         stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] + ", but you didn't have any!";
@@ -304,7 +304,7 @@ function build_popup_round_build(object_dragged_id, object_type) {
 
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
-        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.png"></div>';
+        card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[i] + '" src="images/card_' + card_list[i] + '_small.jpg"></div>';
     }
 
     //  Add in the selectable resources based on what the player has
@@ -409,29 +409,29 @@ function build_popup_use_road_building() {
  *  round_use_year_of_plenty.html
  **************************************************/
 function build_popup_victory_point_received(card) {
-    var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="vp_' + card + ' set_large_image_width" src="images/dev_victory_' + card + '_large.png"></div>';
+    var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="vp_' + card + ' set_large_image_width" src="images/dev_victory_' + card + '_large.jpg"></div>';
 
     var vp_cards = [['vp_card',vp_html]];
 
     // add cards they already have to bottom of window
     var other_vp_cards = [];
     if(this.current_game.player.cards.victory_point_cards.library == 1 && card !== 'library'){
-        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_library" src="images/dev_victory_library.png"></div>'
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_library" src="images/dev_victory_library.jpg"></div>'
     }
     if(this.current_game.player.cards.victory_point_cards.market == 1 && card !== 'market'){
-        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_market" src="images/dev_victory_market.png"></div>'
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_market" src="images/dev_victory_market.jpg"></div>'
 
     }
     if(this.current_game.player.cards.victory_point_cards.chapel == 1 && card !== 'chapel'){
-        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_chapel" src="images/dev_victory_chapel.png"></div>'
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_chapel" src="images/dev_victory_chapel.jpg"></div>'
 
     }
     if(this.current_game.player.cards.victory_point_cards.great_hall == 1 && card !== 'great_hall'){
-        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.png"></div>'
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.jpg"></div>'
 
     }
     if(this.current_game.player.cards.victory_point_cards.universtiy_of_catan == 1 && card !== 'university_of_catan'){
-        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.png"></div>'
+        other_vp_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.jpg"></div>'
 
     }
     vp_cards.push(['other_vp_cards',other_vp_cards]);
@@ -490,7 +490,7 @@ function build_popup_failed_moves() {
 
             //  Now the html
             for (var c = 0; c < card_list.length; c++) {
-                card_html += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + card_list[c] + '_small.png"></div>';
+                card_html += '<div class="failed_card" style="z-index:' + (500 + c) + ';"><img class="card" src="images/card_' + card_list[c] + '_small.jpg"></div>';
             }
 
             var failure = [object_type + "_" + current_game.player.colour + ".png", card_html];
@@ -572,14 +572,14 @@ function build_popup_player_detail(id) {
 
     //  TODO: Build list of Knights
     var knight_html = "";
-    //<div class="player_score_token"><img src="images/dev_knight_small.png" width="50" /></div>
+    //<div class="player_score_token"><img src="images/dev_knight_small.jpg" width="50" /></div>
 
     //  Victory Points
     var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
     var victory_html = "";
     for (var i = 0; i < victories.length; i++) {
         if (current_game.players[id].victory_points[victories[i]] > 0) {
-            victory_html += '<div class="player_score_token"><img src="images/dev_victory_' + victories[i] + '.png" width="75" /></div>';
+            victory_html += '<div class="player_score_token"><img src="images/dev_victory_' + victories[i] + '.jpg" width="75" /></div>';
         }
     }
     popup_data.push(["cards", knight_html + victory_html]);
@@ -620,7 +620,7 @@ function build_popup_end_results(data) {
  **************************************************/
 function build_popup_show_dev_card(card) {
 
-    var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="dev_' + card + ' set_large_image_width" src="images/dev_' + card + '_large.png"></div>';
+    var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="dev_' + card + ' set_large_image_width" src="images/dev_' + card + '_large.jpg"></div>';
     var dev_cards_rules = "";
     var other_dev_cards = "";
     if(card === "knight"){
@@ -636,23 +636,23 @@ function build_popup_show_dev_card(card) {
     //Use this if we want to only show a players current cards
 
     // if (current_game.player.cards.dev_cards.year_of_plenty > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
     // }
     // if (current_game.player.cards.dev_cards.knight > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
     // }
     // if (current_game.player.cards.dev_cards.monopoly > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
     // }
     // if (current_game.player.cards.dev_cards.road_building > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
     // }
 
     //use this to show all cards
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
 
     var dev_cards = [['dev_card', dev_card]];
     dev_cards.push(['dev_card_rules', dev_cards_rules]);
@@ -686,10 +686,10 @@ function build_popup_restrict_dev_card_use(card_use) {
     }
 
     // load cards to display
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.png"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.png"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.png"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.png"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
+    other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
 
     dev_cards.push(['dev_card_heading', heading]);
     dev_cards.push(['dev_card_content', content]);

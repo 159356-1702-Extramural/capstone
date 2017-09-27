@@ -3,6 +3,10 @@ body {
   font-family: 'Raleway', sans-serif;
 }
 
+img {
+    border-radius: 6px;
+}
+
 .hide {
     display: none;
 }
