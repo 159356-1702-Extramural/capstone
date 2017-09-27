@@ -7,8 +7,8 @@ from selenium import webdriver
 from sauceclient import SauceClient
 import browserList
 
-USERNAME = "sumnerfit"
-ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
+USERNAME = browserList.sauceName()
+ACCESS_KEY =browserList.sauceKey()
 sauce = SauceClient(USERNAME, ACCESS_KEY)
 browsers =browserList.browsers()
 

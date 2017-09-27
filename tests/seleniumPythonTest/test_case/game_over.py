@@ -1,4 +1,5 @@
 __author__ = 'QSG'
+#This test works fine on local but has error on saucelabs
 import os
 import sys
 import new
@@ -8,11 +9,13 @@ from sauceclient import SauceClient
 import time
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 import browserList
 
 
-USERNAME = "sumnerfit"
-ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
+USERNAME = browserList.sauceName()
+ACCESS_KEY =browserList.sauceKey()
 sauce = SauceClient(USERNAME, ACCESS_KEY)
 browsers = browserList.browsers()
 
@@ -42,23 +45,24 @@ class SettlerSeleniumTest(unittest.TestCase):
         action.click_and_hold(dragger).move_by_offset(10, 10) #When draging a element, move the element to the position beside it first.
         # wd.implicitly_wait(80)
         action.click_and_hold(dragger).move_to_element(target).release().perform()
-        wd.implicitly_wait(80)
-        time.sleep(3)
-        # wait=WebDriverWait(wd,80)
+        time.sleep(1)
         if (dragObj[:4]=='road'):
             # element=wait.until(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build road']"))
             # element.click()
-            wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build road']").click()
+            WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build road']"))).click()
+            # wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build road']").click()
 
 
         elif(dragObj[:4]=='sett'):
             # element=wait.until(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build settlement']")
             # element.click()
-            wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build settlement']").click()
+            WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build settlement']"))).click()
+            # wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build settlement']").click()
         else:
             # element=wait.until(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build city']"))
             # element.click()
-            wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build city']").click()
+            WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build city']"))).click()
+            # wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Build city']").click()
         # wd.implicitly_wait(80)
         time.sleep(2)
 
@@ -86,71 +90,70 @@ class SettlerSeleniumTest(unittest.TestCase):
     def test_game_start(self):
         success=True
         wd=self.driver
-        wd.get("https://capstone-settlers.herokuapp.com/?startWithCards=20&setup=skip")
-        wd.find_element_by_id("play").click()
-        wd.implicitly_wait(1)
-        wd.find_element_by_id("txt_player1").click()
+        wd.get("https://capstone-settlers.herokuapp.com/?startWithCards=20&setup=skip&players=2")
+        wd.find_element_by_css_selector("span.start_text").click()
+        time.sleep(1)
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_id("txt_player1"))).click()
         wd.find_element_by_id("txt_player1").clear()
         wd.find_element_by_id("txt_player1").send_keys("Player1")
         wd.find_element_by_css_selector("span.player_text").click()
-        wd.implicitly_wait(1)
+        time.sleep(2)
         handle_main=wd.current_window_handle
 
         #Player2 start
         driver_player2=self.driver_player2
-        driver_player2.get("https://capstone-settlers.herokuapp.com/?startWithCards=20&setup=skip")
-        driver_player2.find_element_by_id("play").click()
-        driver_player2.implicitly_wait(1)
-        driver_player2.find_element_by_id("txt_player1").click()
+        driver_player2.get("https://capstone-settlers.herokuapp.com/?startWithCards=20&setup=skip&players=2")
+        driver_player2.find_element_by_css_selector("span.start_text").click()
+        time.sleep(1)
+        # driver_player2.find_element_by_id("play").click()
+        # driver_player2.implicitly_wait(1)
+        WebDriverWait(driver_player2,80).until(EC.visibility_of(driver_player2.find_element_by_id("txt_player1"))).click()
+        # driver_player2.find_element_by_id("txt_player1").click()
         driver_player2.find_element_by_id("txt_player1").clear()
         driver_player2.find_element_by_id("txt_player1").send_keys("Player2")
         driver_player2.find_element_by_css_selector("span.player_text").click()
-        time.sleep(5)
+        time.sleep(2)
 
         #Player1 begin round
         wd.switch_to_window(handle_main)
         wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
-        wd.implicitly_wait(1)
         time.sleep(2)
         wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
-        wd.implicitly_wait(1)
         time.sleep(2)
 
         #Player1 drag and drop settlement and road
-        # self.dragDrop(wd,"road_purple_open_14","road_21")
-        # self.dragDrop(wd,"settlement_purple_open_4","node_13")
-        # self.dragDrop(wd,"road_purple_open_13","road_16")
-        # self.dragDrop(wd,"road_purple_open_12","road_8")
-        # self.dragDrop(wd,"settlement_purple_open_3","node_5")
-        # self.dragDrop(wd,"road_purple_open_11","road_37")
-        # self.dragDrop(wd,"road_purple_open_10","road_48")
-        # self.dragDrop(wd,"settlement_purple_open_2","node_34")
-        # self.dragDrop(wd,"road_purple_open_9","road_50")
-        # self.dragDrop(wd,"road_purple_open_8","road_61")
-        # self.dragDrop(wd,"settlement_purple_open_1","node_44")
-        # self.dragDrop(wd,"road_purple_open_7","road_63")
-        # self.dragDrop(wd,"road_purple_open_6","road_70")
-        # self.dragDrop(wd,"settlement_purple_open_0","node_53")
-        # self.dragDrop(wd,"city_purple_open_3","node_24")
+        self.dragDrop(wd,"road_purple_open_14","road_21")
+        self.dragDrop(wd,"settlement_purple_open_4","node_13")
+        self.dragDrop(wd,"road_purple_open_13","road_16")
+        self.dragDrop(wd,"road_purple_open_12","road_8")
+        self.dragDrop(wd,"settlement_purple_open_3","node_5")
+        self.dragDrop(wd,"road_purple_open_11","road_37")
+        self.dragDrop(wd,"road_purple_open_10","road_48")
+        self.dragDrop(wd,"settlement_purple_open_2","node_34")
+        self.dragDrop(wd,"road_purple_open_9","road_50")
+        self.dragDrop(wd,"road_purple_open_8","road_61")
+        self.dragDrop(wd,"settlement_purple_open_1","node_44")
+        self.dragDrop(wd,"road_purple_open_7","road_63")
+        self.dragDrop(wd,"road_purple_open_6","road_70")
+        self.dragDrop(wd,"settlement_purple_open_0","node_53")
+        self.dragDrop(wd,"city_purple_open_3","node_24")
 
         #Player finish turn
         # wait=WebDriverWait(wd,80)
         # element=wait.until(wd.find_element_by_xpath("//div[@class='playerbutton']//div[.='Finish Turn']"))
         # element.click()
-        wd.implicitly_wait(80)
-        wd.find_element_by_xpath("//div[@class='playerbutton']//div[.='Finish Turn']").click()
-        # wd.implicitly_wait(1)
-        time.sleep(2)
+        # wd.implicitly_wait(80)
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_xpath("//div[@class='playerbutton']//div[.='Finish Turn']"))).click()
+        wd.implicitly_wait(10)
+        time.sleep(10)
 
         #Player2 begin round
-        driver_player2.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
-        driver_player2.implicitly_wait(80)
+        WebDriverWait(driver_player2,80).until(EC.visibility_of(driver_player2.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']"))).click()
+        # .click()
+        # driver_player2.implicitly_wait(80)
         time.sleep(2)
         driver_player2.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
-        driver_player2.implicitly_wait(80)
-        time.sleep(2)
-        driver_player2.find_element_by_xpath("//div[@class='playerbutton']//div[.='Finish Turn']").click()
-        driver_player2.implicitly_wait(80)
+        WebDriverWait(driver_player2,80).until(EC.visibility_of(driver_player2.find_element_by_xpath("//div[@class='playerbutton']//div[.='Finish Turn']"))).click()
         time.sleep(2)
 
         #Player1 begin round and game over
@@ -158,12 +161,10 @@ class SettlerSeleniumTest(unittest.TestCase):
         # wait= WebDriverWait(wd,10)
         # element=wait.until(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']"))
         # element.click()
-        wd.implicitly_wait(80)
-        wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']").click()
-        wd.implicitly_wait(80)
-        time.sleep(2)
-        wd.find_element_by_xpath("//div[@class='end_row']/div[2]/div[1]/img").click()
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_xpath("//div[@class='popup_inner']//div[.='Begin Round']"))).click()
         time.sleep(5)
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_xpath("//div[@class='end_row']/div[2]/div[1]/img"))).click()
+        time.sleep(2)
         self.assertTrue(success)
 
     def tearDown(self):

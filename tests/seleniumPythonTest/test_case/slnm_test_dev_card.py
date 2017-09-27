@@ -7,10 +7,13 @@ from selenium import webdriver
 from sauceclient import SauceClient
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 import browserList
 
-USERNAME = "sumnerfit"
-ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
+USERNAME = browserList.sauceName()
+ACCESS_KEY =browserList.sauceKey()
 sauce = SauceClient(USERNAME, ACCESS_KEY)
 browsers = browserList.browsers()
 
@@ -49,7 +52,7 @@ class SettlerSeleniumTest(unittest.TestCase):
     def test_dev_card(self):
         success=True
         wd=self.driver
-        wd.get("https://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip")
+        wd.get("https://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip&players=2")
         wd.find_element_by_id("play").click()
         wd.implicitly_wait(1)
         wd.find_element_by_id("txt_player1").click()
@@ -61,7 +64,7 @@ class SettlerSeleniumTest(unittest.TestCase):
 
         #Player2 start
         driver_player2=self.driver_player2
-        driver_player2.get("https://capstone-settlers.herokuapp.com/?fixedDice=true&setup=skip")
+        driver_player2.get("https://capstone-settlers.herokuapp.com/?fixedDice=true&setup=skip&players=2")
         driver_player2.find_element_by_id("play").click()
         driver_player2.implicitly_wait(1)
         driver_player2.find_element_by_id("txt_player1").click()
@@ -83,9 +86,9 @@ class SettlerSeleniumTest(unittest.TestCase):
         wd.implicitly_wait(1)
         time.sleep(2)
         wd.find_element_by_xpath("//div[@class='cardlist']/img").click()
-        wd.implicitly_wait(10)
-        time.sleep(2)
-        wd.find_element_by_css_selector("img.play_knight").click()
+
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_css_selector("img.play_knight")))
+
         time.sleep(3)
         self.assertTrue(success)
 

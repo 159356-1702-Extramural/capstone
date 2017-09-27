@@ -17,3 +17,9 @@ def browsers():
     #         {"platform": "Windows 10",
     #         "browserName": "microsoftedge"}
     # ]
+
+def sauceName():
+    return 'fishinsea'
+
+def sauceKey():
+    return '61e702ad-a02a-4f5d-af26-70a3d30784f3'

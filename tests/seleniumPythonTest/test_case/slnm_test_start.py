@@ -7,11 +7,14 @@ from selenium import webdriver
 from sauceclient import SauceClient
 import time
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 import browserList
 
 
-USERNAME = "sumnerfit"
-ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
+USERNAME = "fishinsea"
+ACCESS_KEY = "61e702ad-a02a-4f5d-af26-70a3d30784f3"
 sauce = SauceClient(USERNAME, ACCESS_KEY)
 browsers = browserList.browsers()
 
@@ -65,19 +68,21 @@ class SettlerSeleniumTest(unittest.TestCase):
         success=True
         wd=self.driver
         handle_main=wd.current_window_handle
-        wd.get("https://capstone-settlers.herokuapp.com/?test=true")
+        wd.get("https://capstone-settlers.herokuapp.com/?test=true&players=2")
         wd.find_element_by_id("play").click()
-        wd.implicitly_wait(1)
-        wd.find_element_by_id("txt_player1").click()
+        # wd.implicitly_wait(1)
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_id("txt_player1"))).click()
+        # wd.find_element_by_id("txt_player1").click()
         wd.find_element_by_id("txt_player1").send_keys("Player1")
         wd.find_element_by_css_selector("span.player_text").click()
-        wd.implicitly_wait(1)
+        time.sleep(2)
         driver_player2=self.driver_player2
-        handle_assist=driver_player2.current_window_handle
-        driver_player2.get("https://capstone-settlers.herokuapp.com/?test=true")
+        # handle_assist=driver_player2.current_window_handle
+        driver_player2.get("https://capstone-settlers.herokuapp.com/?test=true&players=2")
         driver_player2.find_element_by_xpath("//div[@class='popup_inner']//div[.='Play']").click()
-        driver_player2.implicitly_wait(1)
-        driver_player2.find_element_by_id('txt_player1').click()
+        # driver_player2.implicitly_wait(1)
+        WebDriverWait(wd,80).until(EC.visibility_of(driver_player2.find_element_by_id("txt_player1"))).click()
+        # driver_player2.find_element_by_id('txt_player1').click()
         driver_player2.find_element_by_id('txt_player1').send_keys("Player2")
         driver_player2.find_element_by_css_selector("span.player_text").click()
         time.sleep(5)
@@ -88,9 +93,11 @@ class SettlerSeleniumTest(unittest.TestCase):
         get_start=wd.find_element_by_css_selector("div.btn.btn-info")
         # print wd.find_element_by_css_selector("div.btn.btn-info").text
         get_start.click()
-        wd.implicitly_wait(80)
-
+        # wd.implicitly_wait(80)
+        time.sleep(2)
         #Ddrag a village to a hex
+        WebDriverWait(wd,80).until(EC.visibility_of(wd.find_element_by_id("settlement_purple_open_4")))
+
         self.dragDrop(wd,"settlement_purple_open_4","node_24")
 
         #Move a road
