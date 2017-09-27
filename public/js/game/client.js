@@ -546,7 +546,6 @@ $(document).ready(function() {
             dev_card_played();
 
             update_server('game_update', data_package);
-            hidePopup();
 
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
@@ -1380,7 +1379,6 @@ function check_failed_builds() {
 
 // Checked every time "begin Round" clicked to manage monopoly actions
 function monopoly_check(){
-    hidePopup();
     if(monopoly_played !== null){
         build_popup_monopoly_lose(monopoly_played);
         //  Update cards
@@ -1388,6 +1386,7 @@ function monopoly_check(){
         monopoly_played = null;
     }else{
         monopoly_not_used();
+        hidePopup();
     }
 
 }
