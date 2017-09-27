@@ -39,7 +39,7 @@ Games.prototype.assign_player = function(socket, data) {
     // Create a new game instance if we dont have available to put this player into
     if (this.games.length === 0 || this.games[this.games.length - 1].game.game_full()) {
         console.log('Creating an new game');
-        this.games.push(new sm.StateMachine());
+        this.games.push(new sm.StateMachine(this.games.length));
     }
     var state_machine = this.games[this.games.length-1];
     state_machine.game.max_players    = state_machine.game.set_player_number();

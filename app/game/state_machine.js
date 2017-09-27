@@ -1,3 +1,4 @@
+// TODO: remove console.log lines
 /*
  * The state_machine is the core of the server side for each game.
  *
@@ -49,31 +50,31 @@ function StateMachine(id) {
 StateMachine.prototype.next_state = function() {
   // TODO: checks on game conditions to determine state
   if (this.state === "setup") {
-    console.log('state_machine: in "setup" state'); // TODO: remove later
-    logger.log('debug', 'state_machine: in "setup" state');
+    console.log('state_machine #'+this.id+' in "setup" state');
+    logger.log('debug', 'state_machine #'+this.id+' in "setup" state');
     // if (conditions to switch state)
     if (this.setupComplete === true) {
-      console.log('state_machine: setup state successfully completed'); // TODO: remove later
-      logger.log('debug', 'state_machine: setup state successfully completed');
+      console.log('state_machine #'+this.id+' setup state successfully completed');
+      logger.log('debug', 'state_machine #'+this.id+' setup state successfully completed');
       this.state = "play";
       this.tick();
     }
   } else if (this.state === "trade") {
-    console.log('state_machine: in "trade" state'); // TODO: remove later
-    logger.log('debug', 'state_machine: in "trade" state');
+    console.log('state_machine #'+this.id+' in "trade" state');
+    logger.log('debug', 'state_machine #'+this.id+' in "trade" state');
     if (round_complete) {
       this.state = "play";
     }
   } else if (this.state === "play") {
-    console.log('state_machine: in "play" state'); // TODO: remove later
-    logger.log('debug', 'state_machine: in "play" state');
+    console.log('state_machine #'+this.id+' in "play" state');
+    logger.log('debug', 'state_machine #'+this.id+' in "play" state');
     // End the game if we have a winner
     if (this.game.haveWinner()) {
       this.state = "end_game";
     }
   } else if (this.state === "end_game") {
-    console.log('state_machine: in "end_game" state'); // TODO: remove later
-    logger.log('debug', 'state_machine: in "end_game" state');
+    console.log('state_machine #'+this.id+' in "end_game" state');
+    logger.log('debug', 'state_machine #'+this.id+' in "end_game" state');
     // if (conditions to switch state)
   }
 };
@@ -112,9 +113,7 @@ StateMachine.prototype.tick = function(data) {
 
     if (this.setupPointer === this.setupSequence.length) {
       console.log("final player setup");
-      //  Do the initial dice roll
       var diceroll;
-
       // We can't start with a 7 as that would mean starting with robber
       do {
         diceroll = this.game.rollingDice();
@@ -126,35 +125,20 @@ StateMachine.prototype.tick = function(data) {
       this.game.calculateScores();
       this.game.round_num++;
 
-      //  Update the interface
-      this.broadcast_gamestate();
-
       //  Notify each player
       var setup_data = new Data_package();
       setup_data.data_type = 'round_turn';
       this.broadcast('game_turn', setup_data);
-
-      //  Move our state to play
-      this.state = "play";
-
-      // For now: increment round number and reset the player turn
-      // completion status
-      this.game.players.forEach(function(player) {
-        player.turn_complete = false;
-      });
-      this.game_start_sequence();
-
     } else {
       //call start sequence again from here - startSequence will find the next player to have a turn
-      this.game_start_sequence();
-      this.broadcast_gamestate();
-
-      // For now: increment round number and reset the player turn
-      // completion status
-      this.game.players.forEach(function(player) {
-        player.turn_complete = false;
-      });
     }
+    this.broadcast_gamestate();
+    this.game_start_sequence();
+    // reset the player turn completion status
+    this.game.players.forEach(function(player) {
+      player.turn_complete = false;
+    });
+    this.next_state();
     return true;
   }
 
