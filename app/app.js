@@ -28,12 +28,8 @@ var games     = new gm.Games();
 // Define static files directory
 app.use(express.static('public'));
 
-// boolean test flag for headless browser testing
-
-
 // Serve static page
 app.get('/', function(req, res) {
-
     var testing;
     var startWithCards;
     var playerNum;
@@ -73,6 +69,7 @@ app.get('/', function(req, res) {
     if(typeof dev_card === 'undefined'){dev_card = 'disabled'}
     process.env['dev_card'] = dev_card;
 
+    // TODO: Change this to display lobby page
     res.sendFile(__dirname + '/views/default.html');
 });
 
@@ -84,6 +81,16 @@ app.get('/prototype', function(req, res) {
 // Handle new socket connection
 io.on('connection', function(socket) {
     logger.log('info', 'A client has connected...');
+
+    socket.on('display_lobby', function() {
+        logger.log('info', 'Lobby requested');
+        games.send_lobby_data(socket);
+    });
+
+    socket.on('new_game', function() {
+        logger.log('info', 'New game creation requested');
+        games.create_new_game(socket);
+    });
 
     socket.on('join_request', function(data) {
         logger.log('info', 'Join Request');

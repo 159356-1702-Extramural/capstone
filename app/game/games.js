@@ -21,7 +21,9 @@ function Games() {
  *
  * @param {obj} socket
  * @param {obj} data
- */
+*/
+
+// TODO: Rework this function to
 Games.prototype.assign_player = function(socket, data) {
     var self = this; // assign this object to a var so we can use it...
     var player = new Player(socket, data);
@@ -95,7 +97,6 @@ Games.prototype.assign_player = function(socket, data) {
         }
     }
 
-
     console.log('Number of games = ' + this.games.length);
     this.games[this.games.length - 1].game.add_player(player);
 
@@ -131,6 +132,7 @@ Games.prototype.assign_player = function(socket, data) {
 
     // Start the game if we have all the players
     if (state_machine.game.game_full()) {
+        logger.log('info', 'Game #'+state_machine.id+" started");
         state_machine.broadcast('game_start', {});
         //  Create the board and send it to the clients
         state_machine.broadcast('build_board', state_machine.game.buildBoard());
@@ -151,6 +153,28 @@ Games.prototype.hard_reset = function() {
     this.games = [];
     console.log('Games have been reset.');
 };
+
+Games.prototype.send_lobby_data = function(socket) {
+  console.log("Lobby data requested");
+  var games = [];
+  for (var i=0; i<this.games.length; i++) {
+    var game_data = {
+      game_id : i,
+      game_name : this.games[i].name,
+      player_names : [],
+      max_players : this.games[i].max_players,
+    };
+    for (var x=0; x<this.games[i].players.length; x++) {
+      game_data.player_names = this.games[i].players[x].name;
+    }
+    games.push(game_data);
+  }
+  console.log("Current lobby data = \n", games);
+  socket.emit(games);
+}
+
+Games.prototype.create_new_game = function(socket) {
+}
 
 /********************************************************/
 /* General purpose functions for Games and StateMachine */

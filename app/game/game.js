@@ -3,6 +3,7 @@ var board_builder   = require('./board_builder.js');
 var Shuffler        = require('../helpers/shuffler.js');
 
 function Game(state_machine) {
+    this.name = '';
     this.state_machine  = state_machine;
     this.board          = board_builder.generate();
 
