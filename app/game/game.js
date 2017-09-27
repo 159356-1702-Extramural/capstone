@@ -6,7 +6,7 @@ function Game(state_machine) {
     this.state_machine  = state_machine;
     this.board          = board_builder.generate();
 
-    this.max_players    = this.set_player_number();
+    this.max_players    = 4;
     this.WIN_SCORE      = 10;
 
     this.players        = [];
