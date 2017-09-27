@@ -520,7 +520,7 @@ Game.prototype.set_player_number = function (){
   if(typeof player_num === 'undefined'){player_num = 4;}
   if(parseInt(player_num) === 4){
     this.state_machine.setupSequence = [0,1,2,3,3,2,1,0];
-    //this.state_machine.setupSequence = this.randomise_startup_array(4);
+    this.state_machine.setupSequence = this.randomise_startup_array(4);
     return 4;
   }
   return 2;
@@ -543,8 +543,8 @@ Game.prototype.randomise_startup_array = function (number_of_players){
   var shuffled_array = shuffler.shuffle(straight_array);
 
   // add in the mirrored second half
-  for (var j = 0; j < number_of_players; j++){
-    shuffled_array.push(shuffled_array[j]);
+  for (var j = number_of_players; j > 0; j--){
+    shuffled_array.push(shuffled_array[j - 1]);
   }
   return shuffled_array;
 }
