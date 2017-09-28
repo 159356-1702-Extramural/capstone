@@ -37,10 +37,7 @@ Game.prototype.game_full = function () {
  * @return {Bool} - true if successful
  */
 Game.prototype.add_player = function (player) {
-  console.log('adding player');
-  // Store the player id
   player.id = this.players.length;
-  // Assign a color to this player
   player.colour = this.player_colours[player.id];
   //  Send the player details
   player.socket.emit('player_id', {
@@ -48,9 +45,9 @@ Game.prototype.add_player = function (player) {
     id: player.id,
     colour: player.colour
   });
-  // Add player to the game
   this.players.push(player);
   console.log('Player number ' + (this.players.length) + ' has been added');
+  logger.log("debug", 'Player number ' + (this.players.length) + ' has been added');
   return true;
 };
 
@@ -81,7 +78,6 @@ Game.prototype.secondRoundResources = function (player, data) {
 
   // find the settlement action
   for (i = 0; i < data.actions.length; i++) {
-
     if (data.actions[i].action_type === 'build_settlement') {
       tiles = data.actions[i].action_data.n_tiles;
     }
@@ -107,9 +103,6 @@ Game.prototype.secondRoundResources = function (player, data) {
 Game.prototype.rollingDice = function () {
   var dice1 = Math.ceil(Math.random() * 6);
   var dice2 = Math.ceil(Math.random() * 6);
-
-  // Store the individual dice rolls for diplsay in reound completion
-  // modal when the next turn starts
   this.dice_roll = [dice1, dice2];
 
   // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
@@ -124,10 +117,8 @@ Game.prototype.rollingDice = function () {
       dice1 = 4;
     }
     dice2 = 4;
-
     this.dice_roll = [dice1, dice2];
   }
-
   return dice1 + dice2;
 };
 
@@ -176,7 +167,6 @@ Game.prototype.allocateDicerollResources = function (roll) {
 
 // return a shuffled development card deck
 Game.prototype.generate_dev_card_deck = function () {
-
   /**
    * create a way to generate / return cards
    * 14 Knights
@@ -274,18 +264,14 @@ Game.prototype.robPlayers = function () {
  * @return void
  */
 Game.prototype.moveRobber = function () {
-
   var new_robber_tile;
-
   // Remove the robber from current location
   this.board.robberLocation.robber = false;
-
   // Find a random resource tile for the robber, make sure the robber
   // goes to a new location
   do {
     new_robber_tile = this.board.resourceTiles[Math.floor(Math.random() * this.board.resourceTiles.length)];
   } while (new_robber_tile == this.board.robberLocation);
-
   new_robber_tile.robber = true;
 
   // Store reference to the new home of the robber
@@ -297,7 +283,6 @@ Game.prototype.moveRobber = function () {
  * @param {Number} player_id : id of the player playing the knight
  */
 Game.prototype.knightMoveRobber = function (player_id) {
-
   var can_use;
   var new_robber_tile;
   var possibleLocations = [];
@@ -325,7 +310,6 @@ Game.prototype.knightMoveRobber = function (player_id) {
       possibleLocations.push(resourceTiles[i]);
     }
   }
-
   // Randomly pick a new home for the robber
   new_robber_tile = possibleLocations[Math.floor(Math.random() * possibleLocations.length)];
   new_robber_tile.robber = true;
@@ -474,17 +458,12 @@ Game.prototype.calculateScores = function () {
 Game.prototype.haveWinner = function () {
   var winners = [];
   var highest_score = 0;
-
   this.players.forEach(function (player) {
-
     if (player.score.total_points >= this.WIN_SCORE) {
-
       if (player.score.total_points < highest_score) return;
       if (player.score.total_points > highest_score) winners = [];
-
       winners.push(player);
     }
-
   }, this);
 
   if (winners.length === 1) {
@@ -516,10 +495,8 @@ Game.prototype.randomise_startup_array = function () {
   for (var i = 0; i < this.max_players; i++) {
     straight_array.push(i);
   }
-
   // Shuffle the first half
   var shuffled_array = shuffler.shuffle(straight_array);
-
   // add in the mirrored second half
   for (var j = this.max_players; j > 0; j--) {
     shuffled_array.push(shuffled_array[j - 1]);
