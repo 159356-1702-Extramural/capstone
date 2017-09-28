@@ -134,6 +134,31 @@ Games.prototype.parse_env = function (state_machine) {
     state_machine.setupComplete = true;
     state_machine.setupPointer = 8;
     state_machine.game.round_num = 3;
+
+    var node_road_pairs = [
+      [7, 9],
+      [22, 29],
+      [37, 36],
+      [44, 63],
+      [13, 21],
+      [53, 70],
+      [39, 56],
+      [46, 62]
+    ];
+
+    var used = [];
+    var rand = Math.floor(Math.random() * node_road_pairs.length);
+    for (var p = 0; p < state_machine.game.max_players; p++) {
+      for (var x = 0; x < 2; x++) {
+        do {
+          rand = Math.floor(Math.random() * node_road_pairs.length);
+        } while (used.indexOf(rand) !== -1);
+        used.push(rand);
+        var pair = node_road_pairs[rand];
+        state_machine.game.board.set_item('build_settlement', pair[0], p);
+        state_machine.game.board.set_item('build_road', pair[1], p);
+      }
+    }
   }
 
   // disable the robber for testing purposes
