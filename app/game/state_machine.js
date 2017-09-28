@@ -472,6 +472,8 @@ StateMachine.prototype.validate_player_builds = function(data) {
     //  Our first pass is to do a direct check for conflicts
     for (var p = 0; p < this.game.players.length; p++) {
       var data = this.game.players[p].turn_data;
+      if (typeof data.actions === "undefined")
+        break;
       for (var i = 0; i < data.actions.length; i++) {
         var player_id = data.player_id;
         var item = data.actions[i].action_type; //settlement or road
@@ -504,6 +506,8 @@ StateMachine.prototype.validate_player_builds = function(data) {
     //  Now we do a 2nd pass to see if any failed settlements/roads caused any orphans
     for (var p = 0; p < this.game.players.length; p++) {
       var data = this.game.players[p].turn_data;
+      if (typeof data.actions === "undefined")
+        break;
       for (var i = 0; i < data.actions.length; i++) {
         if (data.actions[i].action_result == 0) {
           var object_type = data.actions[i].action_type.replace("build_", "");
@@ -521,6 +525,8 @@ StateMachine.prototype.validate_player_builds = function(data) {
     //  Finally, a pass to remove cards from successful builds
     for (var p = 0; p < this.game.players.length; p++) {
       var data = this.game.players[p].turn_data;
+      if (typeof data.actions === "undefined")
+        break;
       for (var a = 0; a < data.actions.length; a++) {
         if (data.actions[a].action_result == 0) {
           //  Remove the cards

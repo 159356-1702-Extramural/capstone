@@ -104,7 +104,7 @@ Games.prototype.send_lobby_data = function(socket) {
     }
     games.push(game_data);
   }
-  console.log("Current lobby data = \n", games);
+  //console.log("Current lobby data = \n", games);
   socket.emit("lobby_data", games);
 };
 
@@ -131,30 +131,9 @@ Games.prototype.new_game = function(socket, data, game_size) {
 Games.prototype.parse_env = function(state_machine) {
   // add settlements and roads, skipping setup phase for testing purposes
   if(process.env['setup'] === 'skip'){
-    state_machine.state = 'play';
     state_machine.setupComplete = true;
     state_machine.setupPointer = 8;
     state_machine.game.round_num = 3;
-
-    state_machine.game.board.set_item('build_settlement', 24, 0);
-    state_machine.game.board.set_item('build_settlement', 32, 0);
-    state_machine.game.board.set_item('build_road', 32, 0);
-    state_machine.game.board.set_item('build_road', 45, 0);
-    state_machine.game.board.set_item('build_settlement', 17, 1);
-    state_machine.game.board.set_item('build_settlement', 42, 1);
-    state_machine.game.board.set_item('build_road', 26, 1);
-    state_machine.game.board.set_item('build_road', 58, 1);
-
-    if(parseInt(process.env['players']) === 4){
-      state_machine.game.board.set_item('build_settlement', 10, 2);
-      state_machine.game.board.set_item('build_settlement', 8, 2);
-      state_machine.game.board.set_item('build_road', 15, 2);
-      state_machine.game.board.set_item('build_road', 13, 2);
-      state_machine.game.board.set_item('build_settlement', 43, 3);
-      state_machine.game.board.set_item('build_settlement', 30, 3);
-      state_machine.game.board.set_item('build_road', 50, 3);
-      state_machine.game.board.set_item('build_road', 42, 3);
-    }
   }
 
   // disable the robber for testing purposes
