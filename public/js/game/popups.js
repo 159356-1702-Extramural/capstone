@@ -698,7 +698,9 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         '</div>' +
         '<div class="player_score_details">' +
         '<div class="player_score_detail"><img src="images/settlement_' + player.colour +
-        '_small.png" /><br />x ' + total_settlements + '</div>' +
+        '_small.png" /><br />x ' + player.score.settlements + '</div>' +
+        '<div class="player_score_detail"><img src="images/city_' + player.colour +
+        '_small.png" /><br />x ' + player.score.cities + '</div>' +
         '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x ' +
         player.score.victory_points + '</div>' +
         '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (
