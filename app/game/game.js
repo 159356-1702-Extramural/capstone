@@ -1,68 +1,72 @@
-var logger          = require('winston');
-var board_builder   = require('./board_builder.js');
-var Shuffler        = require('../helpers/shuffler.js');
+var logger = require('winston');
+var board_builder = require('./board_builder.js');
+var Shuffler = require('../helpers/shuffler.js');
 
 function Game() {
-    this.name = '';
-    this.board          = board_builder.generate();
-    this.max_players    = 4;
-    this.WIN_SCORE      = 10;
-    this.players        = [];
-    this.round_num      = 1;
-    this.longest_road = 0;
-    this.longest_road_id = -1;
-    this.player_colours = ['purple', 'red', 'blue', 'green'];
-    this.dice_roll      = [];
-    // Holds id of player with monopoly (-1 for no one holding card);
-    this.monopoly       = -1;
-    // Indicates if a player has played the knight this round
-    this.knight_player_id = -1;
-    // set these variables via environment varaibles
-    this.test_mode      = 'false';
-    this.robber         = 'enabled';
-    this.development_cards = this.generate_dev_card_deck();
+  this.name = '';
+  this.board = board_builder.generate();
+  this.max_players = 4;
+  this.WIN_SCORE = 10;
+  this.players = [];
+  this.round_num = 1;
+  this.longest_road = 0;
+  this.longest_road_id = -1;
+  this.player_colours = ['purple', 'red', 'blue', 'green'];
+  this.dice_roll = [];
+  // Holds id of player with monopoly (-1 for no one holding card);
+  this.monopoly = -1;
+  // Indicates if a player has played the knight this round
+  this.knight_player_id = -1;
+  // set these variables via environment varaibles
+  this.test_mode = 'false';
+  this.robber = 'enabled';
+  this.development_cards = this.generate_dev_card_deck();
 }
 
 /**
-* Returns bool if the game contains max players
-* @return {Bool} (this.players.length === this.max_players)
-*/
-Game.prototype.game_full = function() {
-    return (this.players.length === this.max_players);
+ * Returns bool if the game contains max players
+ * @return {Bool} (this.players.length === this.max_players)
+ */
+Game.prototype.game_full = function () {
+  return (this.players.length === this.max_players);
 };
 
 /**
-* Add the player object to this game
-* @param {Player} player
-* @return {Bool} - true if successful
-*/
-Game.prototype.add_player = function(player) {
-    console.log('adding player');
-    // Store the player id
-    player.id = this.players.length;
-    // Assign a color to this player
-    player.colour = this.player_colours[player.id];
-    //  Send the player details
-    player.socket.emit('player_id', { name : player.name, id : player.id, colour : player.colour });
-    // Add player to the game
-    this.players.push(player);
-    console.log('Player number ' + (this.players.length) + ' has been added');
-    return true;
+ * Add the player object to this game
+ * @param {Player} player
+ * @return {Bool} - true if successful
+ */
+Game.prototype.add_player = function (player) {
+  console.log('adding player');
+  // Store the player id
+  player.id = this.players.length;
+  // Assign a color to this player
+  player.colour = this.player_colours[player.id];
+  //  Send the player details
+  player.socket.emit('player_id', {
+    name: player.name,
+    id: player.id,
+    colour: player.colour
+  });
+  // Add player to the game
+  this.players.push(player);
+  console.log('Player number ' + (this.players.length) + ' has been added');
+  return true;
 };
 
-Game.prototype.reset_player_turns = function() {
-  this.players.forEach(function(player) {
+Game.prototype.reset_player_turns = function () {
+  this.players.forEach(function (player) {
     player.turn_complete = false;
   });
 }
 
 /**
-* Parse the board to JSON string
-* @return {String} JSON - this.board parsed to a JSON string
-*/
+ * Parse the board to JSON string
+ * @return {String} JSON - this.board parsed to a JSON string
+ */
 Game.prototype.buildBoard = function () {
-    jsonData = JSON.stringify(this.board);
-    return jsonData;
+  jsonData = JSON.stringify(this.board);
+  return jsonData;
 };
 
 /**
@@ -70,7 +74,7 @@ Game.prototype.buildBoard = function () {
  *  @param player : player object
  *  @param data   : Data package item
  */
-Game.prototype.secondRoundResources = function(player, data) {
+Game.prototype.secondRoundResources = function (player, data) {
   var tiles;
   var i;
   var res_type;
@@ -86,22 +90,21 @@ Game.prototype.secondRoundResources = function(player, data) {
   // Loop over each point and give the player one resource of each type
   // TODO: test with invalid data
   if (typeof tiles !== 'undefined') {
-      for (i = 0; i < tiles.length; i++) {
-        res_type = this.board.get_tile_resource_type(tiles[i]);
-        player.cards.add_card(res_type);
-      }
+    for (i = 0; i < tiles.length; i++) {
+      res_type = this.board.get_tile_resource_type(tiles[i]);
+      player.cards.add_card(res_type);
+    }
   } else {
-      console.log("secondRoundResources(): tiles undefined, possible invalid data");
-      logger.log('debug', "secondRoundResources(): tiles undefined, possible invalid data");
+    console.log("secondRoundResources(): tiles undefined, possible invalid data");
+    logger.log('debug', "secondRoundResources(): tiles undefined, possible invalid data");
   }
 };
-
 
 /**
  * Rolling two dices, and return the sum of the two dices number.
  * @return {Number} sum of the two dice
  */
-Game.prototype.rollingDice = function() {
+Game.prototype.rollingDice = function () {
   var dice1 = Math.ceil(Math.random() * 6);
   var dice2 = Math.ceil(Math.random() * 6);
 
@@ -110,14 +113,14 @@ Game.prototype.rollingDice = function() {
   this.dice_roll = [dice1, dice2];
 
   // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
-  if(this.test_mode === 'true'){
+  if (this.test_mode === 'true') {
     console.log("Fixed dice rolls enabled");
     logger.log("Fixed dice rolls enabled");
-    var dice1array = [1,2,3,4,5,6];
+    var dice1array = [1, 2, 3, 4, 5, 6];
     dice1 = dice1array[this.round_num % dice1array.length];
 
     //to stop 7 being the first number and causing infinite loop
-    if(this.round_num === 2){
+    if (this.round_num === 2) {
       dice1 = 4;
     }
     dice2 = 4;
@@ -133,7 +136,7 @@ Game.prototype.rollingDice = function() {
  * @param roll {numner} : between 2 and 12
  * @return void
  */
-Game.prototype.allocateDicerollResources = function(roll) {
+Game.prototype.allocateDicerollResources = function (roll) {
   var i;
   var j;
   var k;
@@ -172,7 +175,7 @@ Game.prototype.allocateDicerollResources = function(roll) {
 };
 
 // return a shuffled development card deck
-Game.prototype.generate_dev_card_deck = function(){
+Game.prototype.generate_dev_card_deck = function () {
 
   /**
    * create a way to generate / return cards
@@ -189,14 +192,16 @@ Game.prototype.generate_dev_card_deck = function(){
    *      + Market
    */
   var dev_cards = [];
-  for(var i = 0; i < 14; i++){
+  for (var i = 0; i < 14; i++) {
     dev_cards.push('knight');
   }
-  var other_cards = ['year_of_plenty', 'road_building', 'monopoly', 'library', 'chapel', 'great_hall', 'universtiy_of_catan', 'market'];
-  for(var j = 0; j < other_cards.length; j++){
+  var other_cards = ['year_of_plenty', 'road_building', 'monopoly', 'library', 'chapel', 'great_hall',
+    'universtiy_of_catan', 'market'
+  ];
+  for (var j = 0; j < other_cards.length; j++) {
 
     //add the first option twice (ignoring road_building and monopoly duplicates for now)
-    if(j < 1){
+    if (j < 1) {
       dev_cards.push(other_cards[j]);
     }
     dev_cards.push(other_cards[j]);
@@ -210,7 +215,7 @@ Game.prototype.generate_dev_card_deck = function(){
  * Steal resources from each player
  * @return void
  */
-Game.prototype.robPlayers = function() {
+Game.prototype.robPlayers = function () {
   var i;
   var j;
   var player;
@@ -230,7 +235,7 @@ Game.prototype.robPlayers = function() {
     if (num_cards > 7) {
       // if players have > 7 cards steal half their cards,
       // in players favour if odd number of cards
-      num_to_steal = Math.floor(num_cards/2);
+      num_to_steal = Math.floor(num_cards / 2);
     } else if (num_cards > 0) {
       // if players have <= 7 cards steal one random resource
       num_to_steal = 1;
@@ -268,7 +273,7 @@ Game.prototype.robPlayers = function() {
  * Moves the robber to a new location
  * @return void
  */
-Game.prototype.moveRobber = function() {
+Game.prototype.moveRobber = function () {
 
   var new_robber_tile;
 
@@ -291,7 +296,7 @@ Game.prototype.moveRobber = function() {
  * Moves the robber after the knight card has been played
  * @param {Number} player_id : id of the player playing the knight
  */
-Game.prototype.knightMoveRobber = function(player_id) {
+Game.prototype.knightMoveRobber = function (player_id) {
 
   var can_use;
   var new_robber_tile;
@@ -329,13 +334,13 @@ Game.prototype.knightMoveRobber = function(player_id) {
   this.board.robberLocation = new_robber_tile;
 };
 
-Game.prototype.modifyPlayerWithRoadBonus = function() {
+Game.prototype.modifyPlayerWithRoadBonus = function () {
   var longest_road_map = this.board.longest_roads(this.players);
   var last_longest = this.longest_road;
   var last_player = this.longest_road_id;
   var do_longest_road = false;
   // check to see if players build any roads, otherwise skip checks
-  for (var p=0; p<this.players.length; p++) {
+  for (var p = 0; p < this.players.length; p++) {
     var player = this.players[p];
     // update the players data
     player.score.road_length = longest_road_map.get(player.id);
@@ -350,7 +355,7 @@ Game.prototype.modifyPlayerWithRoadBonus = function() {
   // figure out if two players have the same length road on this turn
   // and skip road score update if true, and reset game data for longest
   var skip_update = false;
-  for (var p=0; p<this.players.length; p++) {
+  for (var p = 0; p < this.players.length; p++) {
     var player = this.players[p];
     if (player.score.road_length === this.longest_road && player.id !== this.longest_road_id) {
       skip_update = true;
@@ -362,63 +367,63 @@ Game.prototype.modifyPlayerWithRoadBonus = function() {
   }
 
   if (skip_update === false) {
-    for (var p=0; p<this.players.length; p++) {
+    for (var p = 0; p < this.players.length; p++) {
       var player = this.players[p];
       if (this.longest_road >= 5) {
         console.log("New player with longest road found:", player.id);
         player.score.longest_road =
-            (this.longest_road_id === player.id) ? true : false;
+          (this.longest_road_id === player.id) ? true : false;
       }
     }
   }
 }
 
-Game.prototype.modifyPlayerWithArmyBonus = function() {
+Game.prototype.modifyPlayerWithArmyBonus = function () {
   var largest_army = {
-      player_id: -1,
-      knights_played: 0,
-      current_owner : -1 //check if a change of largest army owner
+    player_id: -1,
+    knights_played: 0,
+    current_owner: -1 //check if a change of largest army owner
   }
   // first loop through gets last player with highest knights played + current bonus
-  for (var p=0; p< this.players.length; p++) {
+  for (var p = 0; p < this.players.length; p++) {
     var player_id = this.players[p].id;
-    if(this.players[p].score.largest_army)
-        largest_army.current_owner = p;
+    if (this.players[p].score.largest_army)
+      largest_army.current_owner = p;
     var knights_played = this.players[p].cards.dev_cards.knight_played;
     // Only look if player has played 3 or more knights
-    if(knights_played >= 3 && knights_played > largest_army.knights_played) {
-        largest_army.player_id = player_id;
-        largest_army.knights_played = knights_played;
+    if (knights_played >= 3 && knights_played > largest_army.knights_played) {
+      largest_army.player_id = player_id;
+      largest_army.knights_played = knights_played;
     }
   };
 
-  for (var p=0; p< this.players.length; p++) {
+  for (var p = 0; p < this.players.length; p++) {
     var player_id = this.players[p].id;
     var knights_played = this.players[p].cards.dev_cards.knight_played;
     // if true then no player is awarded a bonus and no bonus is in play
     if (player_id !== largest_army.player_id &&
-        knights_played === largest_army.knights_played &&
-        largest_army.current_owner === -1) {
+      knights_played === largest_army.knights_played &&
+      largest_army.current_owner === -1) {
       largest_army.player_id = -1;
       break;
     }
     // if true then the last player in the loop gets the bonus
     else if (player_id !== largest_army.player_id &&
-        knights_played === largest_army.knights_played &&
-        player_id !== largest_army.current_owner) {
+      knights_played === largest_army.knights_played &&
+      player_id !== largest_army.current_owner) {
       largest_army.player_id = player_id;
     }
   }
 
   // check if we have someone eligable for largest army
-  if(largest_army.player_id >= 0 && largest_army.knights_played >= 3) {
+  if (largest_army.player_id >= 0 && largest_army.knights_played >= 3) {
     //if player doesn't already has largest_army, add player
-    if(!this.players[largest_army.player_id].score.largest_army) {
-       this.players[largest_army.player_id].score.largest_army = true;
-       //if someone already has the largest army, remove it from their hand.
-       if(largest_army.current_owner !== -1){
+    if (!this.players[largest_army.player_id].score.largest_army) {
+      this.players[largest_army.player_id].score.largest_army = true;
+      //if someone already has the largest army, remove it from their hand.
+      if (largest_army.current_owner !== -1) {
         this.players[largest_army.current_owner].score.largest_army = false;
-       }
+      }
     }
   }
 }
@@ -427,7 +432,7 @@ Game.prototype.modifyPlayerWithArmyBonus = function() {
  * Determines the player scores
  * @return void
  */
-Game.prototype.calculateScores = function() {
+Game.prototype.calculateScores = function () {
   // Reset the score since we're recalculating it
   this.players.forEach(function (player) {
     player.score.settlements = 0;
@@ -436,7 +441,7 @@ Game.prototype.calculateScores = function() {
   }, this);
 
   // Count the buildings score
-  this.board.nodes.forEach(function(node) {
+  this.board.nodes.forEach(function (node) {
     if (node.owner > -1) {
       // Score 1 point for each settlement and 2 points for each city
       if (node.building === 'settlement') {
@@ -453,7 +458,7 @@ Game.prototype.calculateScores = function() {
   this.modifyPlayerWithRoadBonus();
   this.modifyPlayerWithArmyBonus();
 
-  this.players.forEach(function(player) {
+  this.players.forEach(function (player) {
     player.score.victory_points = player.cards.count_victory_cards();
     player.score.total_points += (player.score.longest_road === true) ? 2 : 0;
     player.score.total_points += (player.score.largest_army) ? 2 : 0;
@@ -466,11 +471,11 @@ Game.prototype.calculateScores = function() {
  * Check if we have a winner
  * @return {Boolean}
  */
-Game.prototype.haveWinner = function() {
+Game.prototype.haveWinner = function () {
   var winners = [];
   var highest_score = 0;
 
-  this.players.forEach(function(player) {
+  this.players.forEach(function (player) {
 
     if (player.score.total_points >= this.WIN_SCORE) {
 
@@ -496,7 +501,7 @@ Game.prototype.haveWinner = function() {
  * Return a dev card to the pack after it has been used
  * @param {String} card : knight, monopoly, road_building, year_of_plenty
  */
-Game.prototype.return_dev_card = function(card){
+Game.prototype.return_dev_card = function (card) {
   this.development_cards.push(card);
 }
 
@@ -504,11 +509,11 @@ Game.prototype.return_dev_card = function(card){
  * @return {Array} : Array holding a shuffled first round order and a mirrored second round
  *                      i.e [1,2,3,0,0,3,2,1]
  */
-Game.prototype.randomise_startup_array = function(){
+Game.prototype.randomise_startup_array = function () {
   var shuffler = new Shuffler()
   var straight_array = [];
   //Create the first half of the array
-  for ( var i = 0; i < this.max_players; i++){
+  for (var i = 0; i < this.max_players; i++) {
     straight_array.push(i);
   }
 
@@ -516,7 +521,7 @@ Game.prototype.randomise_startup_array = function(){
   var shuffled_array = shuffler.shuffle(straight_array);
 
   // add in the mirrored second half
-  for (var j = this.max_players; j > 0; j--){
+  for (var j = this.max_players; j > 0; j--) {
     shuffled_array.push(shuffled_array[j - 1]);
   }
   return shuffled_array;

@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Settlers of Massey</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Settlers of Massey</title>
 
-    <link href="css/catan.css" rel="stylesheet" />
-    <link href="css/3rdparty.css" rel="stylesheet" />
-    <link href="css/jquery-ui.css" rel="stylesheet" />
+  <link href="css/catan.css" rel="stylesheet" />
+  <link href="css/3rdparty.css" rel="stylesheet" />
+  <link href="css/jquery-ui.css" rel="stylesheet" />
 
-    <script src="js/jquery.min.js"></script>
-    <script src="js/jquery-ui.js"></script>
-    <script src="js/dragdrop.js"></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="data_api/data_package.js"></script>
-    <script src="data_api/action.js"></script>
-    <script src="data_api/board.js"></script>
-    <script src="data_api/cards.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/dragdrop.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="data_api/data_package.js"></script>
+  <script src="data_api/action.js"></script>
+  <script src="data_api/board.js"></script>
+  <script src="data_api/cards.js"></script>
 </head>
 
 <body class="noselect">
 
-    <div class="log"></div>
+  <div class="log"></div>
 
-    <div class="done_prompt">
-        <div class="done_text">Are you done setting your pieces?  Click <b>Finish Turn</b> to continue.</div>
-        <div class="done_arrow"><i class="fa fa-arrow-right fa-3x"></i></div>
-    </div>
+  <div class="done_prompt">
+    <div class="done_text">Are you done setting your pieces? Click <b>Finish Turn</b> to continue.</div>
+    <div class="done_arrow"><i class="fa fa-arrow-right fa-3x"></i></div>
+  </div>
 
-    <div class="popup" style="display: none;">
-        <div class="popup_inner"></div>
-    </div>
+  <div class="popup" style="display: none;">
+    <div class="popup_inner"></div>
+  </div>
 
-    <div class="other_players"></div>
+  <div class="other_players"></div>
 
-    <div class="board" style="top:30px; left:30px;"></div>
-    <div class="robber"></div>
-    <div class="score"></div>
+  <div class="board" style="top:30px; left:30px;"></div>
+  <div class="robber"></div>
+  <div class="score"></div>
 
-    <script src="js/game/game.js"></script>
-    <script src="js/game/player.js"></script>
-    <script src="js/game/client.js"></script>
-    <script src="js/game/popups.js"></script>
-    
+  <script src="js/game/game.js"></script>
+  <script src="js/game/player.js"></script>
+  <script src="js/game/client.js"></script>
+  <script src="js/game/popups.js"></script>
+
 </body>
+
 </html>

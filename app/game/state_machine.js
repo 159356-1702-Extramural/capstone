@@ -41,7 +41,7 @@ function StateMachine(id, game_size) {
  * or a return of false on check_win_condition() would skip the
  * game_end state
  */
-StateMachine.prototype.next_state = function() {
+StateMachine.prototype.next_state = function () {
   // TODO: checks on game conditions to determine state
   if (this.state === "setup") {
     console.log('state_machine #' + this.id + ' in "setup" state');
@@ -80,7 +80,7 @@ StateMachine.prototype.next_state = function() {
  *       which means that tracking how many player requests have
  *       come in is of use per state
  ****************************************************************/
-StateMachine.prototype.tick = function(data) {
+StateMachine.prototype.tick = function (data) {
   /************************************************************
    * If in Setup state - game setup logic operates on this.game
    ************************************************************/
@@ -136,7 +136,7 @@ StateMachine.prototype.tick = function(data) {
    * If in Trade state - trade logic operates on this.game
    ************************************************************/
   else if (this.state === "trade" && data) {
-    this.game.players.every(function(player) {
+    this.game.players.every(function (player) {
       return player.turn_complete === true;
     });
     this.next_state();
@@ -194,7 +194,7 @@ StateMachine.prototype.tick = function(data) {
       this.game.players[data.player_id].turn_complete = true;
       this.game.players[data.player_id].turn_data = data;
       // Determine if all players have indicated their round is complete
-      var round_complete = this.game.players.every(function(player) {
+      var round_complete = this.game.players.every(function (player) {
         return player.turn_complete === true;
       });
 
@@ -249,7 +249,7 @@ StateMachine.prototype.tick = function(data) {
         }
 
         this.broadcast_gamestate();
-        this.game.players.forEach(function(player) {
+        this.game.players.forEach(function (player) {
           player.turn_complete = false;
         });
 
@@ -315,7 +315,7 @@ StateMachine.prototype.tick = function(data) {
  to all the players contains all data to render the current state
  of the game in the browser
 ******************************************************************/
-StateMachine.prototype.broadcast_gamestate = function() {
+StateMachine.prototype.broadcast_gamestate = function () {
 
   var player;
   var data_package;
@@ -323,7 +323,7 @@ StateMachine.prototype.broadcast_gamestate = function() {
   // Set up the game state
   var game_state = new Game_state();
 
-  var players = this.game.players.map(function(player, idx) {
+  var players = this.game.players.map(function (player, idx) {
     return {
       id: idx,
       name: player.name,
@@ -356,7 +356,7 @@ StateMachine.prototype.broadcast_gamestate = function() {
 /**
  * The game is over and we have a winner!
  */
-StateMachine.prototype.broadcast_end = function() {
+StateMachine.prototype.broadcast_end = function () {
 
   var player;
   var end_game_data = {
@@ -377,15 +377,15 @@ StateMachine.prototype.broadcast_end = function() {
 };
 
 /// Messages all players in a game
-StateMachine.prototype.broadcast = function(event_name, data) {
+StateMachine.prototype.broadcast = function (event_name, data) {
   console.log('Broadcasting event: ' + event_name);
-  this.game.players.forEach(function(player) {
+  this.game.players.forEach(function (player) {
     player.socket.emit(event_name, data);
   });
 };
 
 /// Messages individual player in a game
-StateMachine.prototype.send_to_player = function(event_name, data) {
+StateMachine.prototype.send_to_player = function (event_name, data) {
 
   var player = this.game.players[data.player.id];
 
@@ -406,7 +406,7 @@ StateMachine.prototype.send_to_player = function(event_name, data) {
 /***************************************************************
  * Start Sequence
  ***************************************************************/
-StateMachine.prototype.game_start_sequence = function(initiatingGame) {
+StateMachine.prototype.game_start_sequence = function (initiatingGame) {
   logger.log('debug', 'game_start_sequence function called.');
   //Create data package for setup phase
   var setup_data = new Data_package();
@@ -439,7 +439,7 @@ StateMachine.prototype.game_start_sequence = function(initiatingGame) {
     logger.log('debug', 'Setup phase completed');
     setup_data.data_type = 'setup_complete';
     this.broadcast('game_turn', setup_data);
-    this.game.players.forEach(function(player) {
+    this.game.players.forEach(function (player) {
       player.turn_complete = false;
     });
 
@@ -453,7 +453,7 @@ StateMachine.prototype.game_start_sequence = function(initiatingGame) {
 /***************************************************************
  * Validate player builds/actions
  ***************************************************************/
-StateMachine.prototype.validate_player_builds = function(data) {
+StateMachine.prototype.validate_player_builds = function (data) {
   console.log('validate_player_builds called');
   logger.log('debug', 'validate_player_builds function called.');
   if (this.game.round_num < 3) {
@@ -539,7 +539,7 @@ StateMachine.prototype.validate_player_builds = function(data) {
   }
 };
 
-StateMachine.prototype.set_harbor = function(index, data) {
+StateMachine.prototype.set_harbor = function (index, data) {
   if (data.actions[index].action_data.harbor) {
     if (data.actions[index].action_data.harbor.length > 0) {
       this.game.players[data.player_id].trading[data.actions[index].action_data.harbor] = true;
@@ -550,7 +550,7 @@ StateMachine.prototype.set_harbor = function(index, data) {
 /***************************************************************
  * Determine if there is a conflict and who wins the conflict
  ***************************************************************/
-StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_cards) {
+StateMachine.prototype.wins_conflict = function (player_id, item, index, boost_cards) {
   for (var i = 0; i < this.game.players.length; i++) {
     //  Ignore this player
     if (this.game.players[i].id != player_id) {
@@ -626,7 +626,7 @@ StateMachine.prototype.wins_conflict = function(player_id, item, index, boost_ca
 /***************************************************************
  * Check a road/settlement to see if it connects up with another from this player
  ***************************************************************/
-StateMachine.prototype.has_valid_path = function(player, object_type, node, original_node, checked) {
+StateMachine.prototype.has_valid_path = function (player, object_type, node, original_node, checked) {
   var has_path = false;
 
   //  Make sure we have not already checked this node/road
@@ -680,7 +680,7 @@ StateMachine.prototype.has_valid_path = function(player, object_type, node, orig
   return has_path;
 };
 
-StateMachine.prototype.trade_with_bank = function(data) {
+StateMachine.prototype.trade_with_bank = function (data) {
   logger.log('debug', "trade action with bank, player: " + data.player_id);
 
   //var player = this.game.players[data.player_id];
@@ -725,7 +725,7 @@ StateMachine.prototype.trade_with_bank = function(data) {
   }
 };
 
-StateMachine.prototype.buy_dev_card = function(data) {
+StateMachine.prototype.buy_dev_card = function (data) {
   //check if player has available cards
   if (this.game.players[data.player_id].cards.available_cards('dev_card')) {
     this.game.players[data.player_id].cards.remove_cards('dev_card');
@@ -760,7 +760,7 @@ StateMachine.prototype.buy_dev_card = function(data) {
 
 };
 
-StateMachine.prototype.activate_year_of_plenty = function(data) {
+StateMachine.prototype.activate_year_of_plenty = function (data) {
   //request sent immediately so action will always be first but check to be sure
   if (data.actions[0].action_type === 'year_of_plenty') {
     var requested_cards = data.actions[0].action_data;
@@ -784,7 +784,7 @@ StateMachine.prototype.activate_year_of_plenty = function(data) {
   }
 };
 
-StateMachine.prototype.activate_road_building = function(data) {
+StateMachine.prototype.activate_road_building = function (data) {
   //request sent immediately so action will always be first but check to be sure
   if (data.actions[0].action_type === 'road_building') {
     var requested_cards = data.actions[0].action_data;
@@ -815,7 +815,7 @@ StateMachine.prototype.activate_road_building = function(data) {
  * Monopoly havs been played
  * @param {data_package} data : received data from the player with the monopoly card holding card to take
  */
-StateMachine.prototype.activate_monopoly = function(data) {
+StateMachine.prototype.activate_monopoly = function (data) {
   var data_package = new Data_package();
   data_package.data_type = 'monopoly_used';
 
@@ -889,7 +889,7 @@ StateMachine.prototype.activate_monopoly = function(data) {
  * deactivates the knight card for all other players
  * reactivates the knight card if cancelled
  */
-StateMachine.prototype.knightRequest = function(data) {
+StateMachine.prototype.knightRequest = function (data) {
   var status = (data.knight_status === 'activate') ? 'disable' : 'enable';
   this.broadcast('knight_in_use', {
     knight_status: status
@@ -900,7 +900,7 @@ StateMachine.prototype.knightRequest = function(data) {
  * Handles the us knight request - adds resources to player
  * Moves the robber to a new location
  */
-StateMachine.prototype.useKnight = function(data) {
+StateMachine.prototype.useKnight = function (data) {
   this.game.knightMoveRobber(data.player_id);
 
   console.log(data);
@@ -914,4 +914,3 @@ StateMachine.prototype.useKnight = function(data) {
 module.exports = {
   StateMachine
 };
-
