@@ -21,6 +21,7 @@ function Games() {
 
 // TODO: Rework this function to
 Games.prototype.assign_player = function(socket, data) {
+    self = this;
     if (this.games[data.game_id].game.game_full()) {
         console.log('Player tried to join full game');
         // TODO: send something over socket
@@ -120,6 +121,8 @@ Games.prototype.new_game = function(socket, data, game_size) {
   this.games.push(state_machine);
 
   state_machine.game.max_players = game_size;
+  state_machine.setupSequence = state_machine.game.randomise_startup_array();
+
   if(state_machine.game.test_mode === 'false'){
     state_machine.game.test_mode = this.set_test_flag();
   }
@@ -161,16 +164,16 @@ Games.prototype.parse_env = function(state_machine) {
     state_machine.game.robber = 'disabled';
   }
   if(process.env['dev_card'] !== 'disabled'){
-    state_machine.development_cards = [];
+    state_machine.game.development_cards = [];
     for(var i = 0; i < 30; i++){
-      state_machine.development_cards.push(process.env['dev_card']);
+      state_machine.game.development_cards.push(process.env['dev_card']);
     }
   }
 
   if(process.env['dev_card'] !== 'disabled'){
-    state_machine.development_cards = [];
+    state_machine.game.development_cards = [];
     for(var i = 0; i < 30; i++){
-      state_machine.development_cards.push(process.env['dev_card']);
+      state_machine.game.development_cards.push(process.env['dev_card']);
     }
   }
 };

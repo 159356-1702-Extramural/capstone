@@ -22,20 +22,20 @@ test.beforeEach(t => {
 });
 
 test("Create new game with player", function(t) {
-  g.new_game(mocket, player);
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
   t.is(g.games[0].game.name, "TEST");
 });
 
 test("Reset games to clean state", function(t) {
-  g.new_game(mocket, player);
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
   g.hard_reset();
   t.is(g.games.length, 0);
 });
 
 test("New players can be assigned to a game except when game is full", function(t) {
-  g.new_game(mocket, player);
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
 
   g.assign_player(mocket, { name: 'Paul', game_id: 0 });
@@ -48,7 +48,7 @@ test("New players can be assigned to a game except when game is full", function(
 });
 
 test("Player assigned without testing data", function(t) {
-  g.new_game(mocket, player);
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
 
   t.is(g.games[0].state, 'setup');
@@ -61,7 +61,7 @@ test("Player assigned with testing data", function(t) {
   // environment variables set
   process.env.setup = 'skip';
 
-  g.new_game(mocket, player);
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
 
   t.is(process.env.setup, 'skip');
@@ -77,7 +77,7 @@ test("Player assigned with testing data", function(t) {
   process.env.players = 4;
   process.env.robber = 'disabled';
 
-  g.new_game(mocket, player);
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
 
   t.is(process.env.setup, 'skip');

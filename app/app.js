@@ -88,7 +88,7 @@ io.on('connection', function(socket) {
     });
 
     socket.on('new_game', function(player, game_detail) {
-        logger.log('info', 'New game creation requested');
+        logger.log('info', 'New game creation with players = '+game_detail);
         games.new_game(socket, player, game_detail);
     });
 

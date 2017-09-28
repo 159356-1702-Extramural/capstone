@@ -27,13 +27,12 @@ var Cards = require('../../public/data_api/cards.js');
  */
 function StateMachine(id, game_size) {
   this.id = id;
-  this.game = new Game(this);
+  this.game = new Game();
   this.game.max_players = game_size;
   this.state = "setup"; // starting state, states are ref by string for readability
   this.setupComplete = false;
-  this.setupSequence = this.setSequence();
+  this.setupSequence = [];
   this.setupPointer = 0;
-  this.development_cards = this.game.generate_dev_card_deck();
 }
 
 /*
@@ -725,7 +724,7 @@ StateMachine.prototype.buy_dev_card = function(data) {
   if (this.game.players[data.player_id].cards.available_cards('dev_card')) {
     this.game.players[data.player_id].cards.remove_cards('dev_card');
     // changed to shift as development_cards[0] needs to be removed
-    var card = this.development_cards.shift();
+    var card = this.game.development_cards.shift();
 
     // NOTE: Debugging ... to test dev card activate the card you want here
     // card = 'knight';
@@ -904,10 +903,6 @@ StateMachine.prototype.useKnight = function(data) {
   // Update player card details to reflect they have played a knight
   this.game.players[data.player_id].cards.dev_cards.knight_played++;
   this.game.players[data.player_id].cards.dev_cards.knight--;
-};
-
-StateMachine.prototype.setSequence = function() {
-  return this.game.set_player_number(this.game.max_players);
 };
 
 module.exports = {

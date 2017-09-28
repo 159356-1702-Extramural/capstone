@@ -2,32 +2,25 @@ var logger          = require('winston');
 var board_builder   = require('./board_builder.js');
 var Shuffler        = require('../helpers/shuffler.js');
 
-function Game(state_machine) {
+function Game() {
     this.name = '';
-    this.state_machine  = state_machine;
     this.board          = board_builder.generate();
-
     this.max_players    = 4;
     this.WIN_SCORE      = 10;
-
     this.players        = [];
     this.round_num      = 1;
-
     this.longest_road = 0;
     this.longest_road_id = -1;
-
     this.player_colours = ['purple', 'red', 'blue', 'green'];
     this.dice_roll      = [];
-
     // Holds id of player with monopoly (-1 for no one holding card);
     this.monopoly       = -1;
-
     // Indicates if a player has played the knight this round
     this.knight_player_id = -1;
-
     // set these variables via environment varaibles
     this.test_mode      = 'false';
     this.robber         = 'enabled';
+    this.development_cards = this.generate_dev_card_deck();
 }
 
 /**
@@ -504,37 +497,18 @@ Game.prototype.haveWinner = function() {
  * @param {String} card : knight, monopoly, road_building, year_of_plenty
  */
 Game.prototype.return_dev_card = function(card){
-  this.state_machine.development_cards.push(card);
+  this.development_cards.push(card);
 }
 
 /**
- * Check whether 4 player tests are required and set max players and setupSequence
- * @return {int} number of players : currently 2 or 4
- */
-
-Game.prototype.set_player_number = function (game_size){
-  var sequence = [];
-  for (var i = 0; i < game_size; i++) {
-    sequence.push(i);
-  }
-  for (var i = game_size - 1; i >= 0; i--) {
-    sequence.push(i);
-  }
-  this.state_machine.setupSequence = sequence;
-  this.state_machine.setupSequence = this.randomise_startup_array(game_size);
-  return this.state_machine.setupSequence;
-}
-
-/**
- * @param {int} number_of_players : integer with the number of players in the game
  * @return {Array} : Array holding a shuffled first round order and a mirrored second round
  *                      i.e [1,2,3,0,0,3,2,1]
  */
-Game.prototype.randomise_startup_array = function (number_of_players){
+Game.prototype.randomise_startup_array = function(){
   var shuffler = new Shuffler()
   var straight_array = [];
   //Create the first half of the array
-  for ( var i = 0; i < number_of_players; i++){
+  for ( var i = 0; i < this.max_players; i++){
     straight_array.push(i);
   }
 
@@ -542,7 +516,7 @@ Game.prototype.randomise_startup_array = function (number_of_players){
   var shuffled_array = shuffler.shuffle(straight_array);
 
   // add in the mirrored second half
-  for (var j = number_of_players; j > 0; j--){
+  for (var j = this.max_players; j > 0; j--){
     shuffled_array.push(shuffled_array[j - 1]);
   }
   return shuffled_array;
