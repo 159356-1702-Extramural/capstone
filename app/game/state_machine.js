@@ -25,14 +25,14 @@ var Cards = require('../../public/data_api/cards.js');
  * The state machine contains the Game and operates on it per current state logic
  * @param {Integer} id
  */
-function StateMachine(id) {
+function StateMachine(id, game_size) {
   this.id = id;
-  this.game = new Game(this);
+  this.game = new Game();
+  this.game.max_players = game_size;
   this.state = "setup"; // starting state, states are ref by string for readability
   this.setupComplete = false;
-  this.setupSequence = this.setSequence();
+  this.setupSequence = [];
   this.setupPointer = 0;
-  this.development_cards = this.game.generate_dev_card_deck();
 }
 
 /*
@@ -472,6 +472,8 @@ StateMachine.prototype.validate_player_builds = function(data) {
     //  Our first pass is to do a direct check for conflicts
     for (var p = 0; p < this.game.players.length; p++) {
       var data = this.game.players[p].turn_data;
+      if (typeof data.actions === "undefined")
+        break;
       for (var i = 0; i < data.actions.length; i++) {
         var player_id = data.player_id;
         var item = data.actions[i].action_type; //settlement or road
@@ -504,6 +506,8 @@ StateMachine.prototype.validate_player_builds = function(data) {
     //  Now we do a 2nd pass to see if any failed settlements/roads caused any orphans
     for (var p = 0; p < this.game.players.length; p++) {
       var data = this.game.players[p].turn_data;
+      if (typeof data.actions === "undefined")
+        break;
       for (var i = 0; i < data.actions.length; i++) {
         if (data.actions[i].action_result == 0) {
           var object_type = data.actions[i].action_type.replace("build_", "");
@@ -521,6 +525,8 @@ StateMachine.prototype.validate_player_builds = function(data) {
     //  Finally, a pass to remove cards from successful builds
     for (var p = 0; p < this.game.players.length; p++) {
       var data = this.game.players[p].turn_data;
+      if (typeof data.actions === "undefined")
+        break;
       for (var a = 0; a < data.actions.length; a++) {
         if (data.actions[a].action_result == 0) {
           //  Remove the cards
@@ -724,7 +730,7 @@ StateMachine.prototype.buy_dev_card = function(data) {
   if (this.game.players[data.player_id].cards.available_cards('dev_card')) {
     this.game.players[data.player_id].cards.remove_cards('dev_card');
     // changed to shift as development_cards[0] needs to be removed
-    var card = this.development_cards.shift();
+    var card = this.game.development_cards.shift();
 
     // NOTE: Debugging ... to test dev card activate the card you want here
     // card = 'knight';
@@ -905,18 +911,7 @@ StateMachine.prototype.useKnight = function(data) {
   this.game.players[data.player_id].cards.dev_cards.knight--;
 };
 
-StateMachine.prototype.setSequence = function() {
-  this.game.set_player_number();
-  var player_num = process.env['players'];
-  if (typeof player_num === 'undefined') {
-    player_num = 2;
-  }
-  if (parseInt(player_num) === 4) {
-    return [0, 1, 2, 3, 3, 2, 1, 0];
-  }
-  return [0, 1, 1, 0];
-};
-
 module.exports = {
   StateMachine
 };
+

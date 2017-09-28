@@ -133,7 +133,7 @@ body {
     height:30px;
     margin:3px;
 }
-.player_setup_box {
+.player_setup_box, .game_setup_box {
     margin:0 7%;
     border:thin solid green;
     border-radius: 15px;
@@ -142,7 +142,11 @@ body {
     padding:10px;
     margin:20px 10px 10px 10px;
 }
-.player_setup_row {
+.game_setup_box {
+    height:auto;
+    margin:5px 10px 20px 10px;
+}
+.player_setup_row, .game_setup_row {
     height:40px;
     width:90%;
     margin-left:5%;
@@ -155,20 +159,68 @@ body {
     font-weight:bold;
     padding:5px;
 }
-.player_name_row {
+.game_title {
+    clear:both;
+    font-size:24px;
+    padding:5px;
+}
+.game_title {
+    clear:both;
+    font-size:18px;
+    font-weight:bold;
+    padding:5px;
+}
+
+.game_list_box {
+    clear:both;
+    overflow:auto;
+    padding:5px;
+    background-color:silver;
+}
+.game_list_row {
+    clear:both;
+    padding:5px;
+    height:23px;
+}
+.game_list_row:hover {
+    background-color:#187DC0;
+    cursor: pointer;
+}
+.game_list_row_title {
+    float:left;
+    width:33%;
+    font-weight:bold;
+    font-size:18px;
+}
+.game_list_row_spots {
+    float:left;
+    width:20%;
+}
+.game_list_row_players {
+    float:left;
+    width:33%;
+}
+
+.player_name_row, .game_name_row {
     width:100%;
     height:60px;
 }
-.player_name_cell {
+.player_name_cell, .game_name_cell {
     float:left;
     width:60%;
     margin-top:5px;
 }
-.player_start_cell {
+.game_name_cell {
+    width:50%;
+}
+.player_start_cell, .game_start_cell {
     float:left;
     margin-left:15px;
 }
-.player_input {
+.game_start_cell {
+    margin-top:10px;
+}
+.player_input, .game_input {
     width:65%;
     margin-left:25%;
     height:40px;
@@ -176,6 +228,10 @@ body {
     background-color: #9DD67D;
     border:thin solid #444;
     padding:5px 10px;
+}
+.game_input {
+    width:85%;
+    margin-left:20px;
 }
 .player_button {
     width:150px; margin-top:10px; text-align:center;

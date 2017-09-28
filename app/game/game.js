@@ -2,31 +2,25 @@ var logger          = require('winston');
 var board_builder   = require('./board_builder.js');
 var Shuffler        = require('../helpers/shuffler.js');
 
-function Game(state_machine) {
-    this.state_machine  = state_machine;
+function Game() {
+    this.name = '';
     this.board          = board_builder.generate();
-
     this.max_players    = 4;
     this.WIN_SCORE      = 10;
-
     this.players        = [];
     this.round_num      = 1;
-
     this.longest_road = 0;
     this.longest_road_id = -1;
-
     this.player_colours = ['purple', 'red', 'blue', 'green'];
     this.dice_roll      = [];
-
     // Holds id of player with monopoly (-1 for no one holding card);
     this.monopoly       = -1;
-
     // Indicates if a player has played the knight this round
     this.knight_player_id = -1;
-
     // set these variables via environment varaibles
     this.test_mode      = 'false';
     this.robber         = 'enabled';
+    this.development_cards = this.generate_dev_card_deck();
 }
 
 /**
@@ -131,7 +125,6 @@ Game.prototype.rollingDice = function() {
     this.dice_roll = [dice1, dice2];
   }
 
-
   return dice1 + dice2;
 };
 
@@ -218,17 +211,13 @@ Game.prototype.generate_dev_card_deck = function(){
  * @return void
  */
 Game.prototype.robPlayers = function() {
-
   var i;
   var j;
   var player;
   var num_cards;
-
   var player_cards;
   var num_to_steal;
-
   var resource;
-
   var shuffler = new Shuffler();
 
   // Work out what happens to each player
@@ -322,12 +311,10 @@ Game.prototype.knightMoveRobber = function(player_id) {
         break;
       }
     }
-
     // Robber can't stay in the same place
     if (resourceTiles[i].robber) {
       can_use = false;
     }
-
     // If this is a tile we can rob add to array to pick from
     if (can_use) {
       possibleLocations.push(resourceTiles[i]);
@@ -340,7 +327,6 @@ Game.prototype.knightMoveRobber = function(player_id) {
 
   // Store reference to the new home of the robber
   this.board.robberLocation = new_robber_tile;
-
 };
 
 Game.prototype.modifyPlayerWithRoadBonus = function() {
@@ -442,7 +428,6 @@ Game.prototype.modifyPlayerWithArmyBonus = function() {
  * @return void
  */
 Game.prototype.calculateScores = function() {
-
   // Reset the score since we're recalculating it
   this.players.forEach(function (player) {
     player.score.settlements = 0;
@@ -482,7 +467,6 @@ Game.prototype.calculateScores = function() {
  * @return {Boolean}
  */
 Game.prototype.haveWinner = function() {
-
   var winners = [];
   var highest_score = 0;
 
@@ -513,35 +497,18 @@ Game.prototype.haveWinner = function() {
  * @param {String} card : knight, monopoly, road_building, year_of_plenty
  */
 Game.prototype.return_dev_card = function(card){
-  this.state_machine.development_cards.push(card);
+  this.development_cards.push(card);
 }
 
 /**
- * Check whether 4 player tests are required and set max players and setupSequence
- * @return {int} number of players : currently 2 or 4
- */
-
-Game.prototype.set_player_number = function (){
-  var player_num = process.env['players'];
-  if(typeof player_num === 'undefined'){player_num = 4;}
-  if(parseInt(player_num) === 4){
-    this.state_machine.setupSequence = [0,1,2,3,3,2,1,0];
-    this.state_machine.setupSequence = this.randomise_startup_array(4);
-    return 4;
-  }
-  return 2;
-}
-
-/**
- * @param {int} number_of_players : integer with the number of players in the game
  * @return {Array} : Array holding a shuffled first round order and a mirrored second round
  *                      i.e [1,2,3,0,0,3,2,1]
  */
-Game.prototype.randomise_startup_array = function (number_of_players){
+Game.prototype.randomise_startup_array = function(){
   var shuffler = new Shuffler()
   var straight_array = [];
   //Create the first half of the array
-  for ( var i = 0; i < number_of_players; i++){
+  for ( var i = 0; i < this.max_players; i++){
     straight_array.push(i);
   }
 
@@ -549,7 +516,7 @@ Game.prototype.randomise_startup_array = function (number_of_players){
   var shuffled_array = shuffler.shuffle(straight_array);
 
   // add in the mirrored second half
-  for (var j = number_of_players; j > 0; j--){
+  for (var j = this.max_players; j > 0; j--){
     shuffled_array.push(shuffled_array[j - 1]);
   }
   return shuffled_array;
