@@ -235,7 +235,7 @@ StateMachine.prototype.tick = function (data) {
         } while (diceroll < 2);
 
         // disable the robber for testing
-        if (this.game.robber === 'disabled') {
+        if (this.game.robber === 'disabled' && diceroll === 7) {
           console.log("robber disabled, changing roll to 8");
           this.game.dice_roll = [4, 4];
           diceroll = 8;
