@@ -59,6 +59,25 @@ function build_popup_start_menu() {
 /***************************************************
  *  start_players.html
  **************************************************/
+var test = null;
+function build_popup_lobby(game_list) {
+    //  Format list of games
+    test = game_list;
+
+    var show_join = (game_list.length > 0 ? "block" : "none");
+    var game_list_html = "";
+
+    for (var g = 0; g < game_list.length; g++) {
+        game_list_html += "<div class='game_list_row' onclick='join_game(" + game_list[g].game_id + ");'>";
+        game_list_html += "    <div class='game_list_row_title'>" + game_list[g].game_name + "</div>";
+        game_list_html += "    <div class='game_list_row_spots'>" + game_list[g].player_count + " of " + game_list[g].max_players + "</div>";
+        game_list_html += "    <div class='game_list_row_players'><b>In game:</b> " + game_list[g].player_names + "</div>";
+        game_list_html += "</div>";
+
+    }
+    
+    buildPopup("start_lobby", false, false, [["join_game_display", show_join], ["player", current_player.name], ["list_of_games", game_list_html]]);
+}
 
 
 /***************************************************
@@ -97,14 +116,6 @@ function build_popup_setup_complete() {
     popup_data.push(["ore", current_game.player.cards.resource_cards.ore - current_game.player.round_distribution_cards.resource_cards.ore]);
     popup_data.push(["lumber", current_game.player.cards.resource_cards.lumber - current_game.player.round_distribution_cards.resource_cards.lumber]);
     popup_data.push(["grain", current_game.player.cards.resource_cards.grain - current_game.player.round_distribution_cards.resource_cards.grain]);
-
-    //  Build the html to show the cards in the popup
-    var card_html = "";
-    for (var i = 0; i < popup_data.length; i++) {
-        for (var j = 0; j < popup_data[i][1]; j++) {
-            card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
-        }
-    }
 
     //  Build the html to show the cards in the popup
     var card_html = "";

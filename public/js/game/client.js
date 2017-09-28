@@ -13,7 +13,7 @@ var building_dimension = 50;
 
 // records whether player has had monopoly played on them
 var monopoly_played = null;
-
+var test = null;
 $(document).ready(function() {
 
     var $doc = $(document);
@@ -31,6 +31,14 @@ $(document).ready(function() {
         setTimeout("set_player_focus()", 250);
     });
 
+    //  Build lobby
+    socket.on('lobby_data', function (data) {
+        build_popup_lobby(data);
+    });
+    socket.on('game_full', function () {
+        $(".game_error").html("The game is full, please choose another");
+    });
+    
     //  Create local player after join
     socket.on('player_id', function (data) {
         current_player = new currentPlayer(data.name, data.id, data.colour);
@@ -140,6 +148,7 @@ $(document).ready(function() {
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             setup_phase = false;
+            test = data;
             build_popup_setup_complete();
 
         }else if(data.data_type === 'setup_phase'){
@@ -1578,22 +1587,35 @@ function set_player_focus() {
 function player_input_on_enter(e) {
     var key = e.keyCode || e.which;
     if (key == 13) {
-        setTimeout("join_game()", 500);
+        setTimeout("show_games()", 500);
         return false;
     }
     return true;
 }
-// Request to join a game
-function join_game() {
+//  Start a new game
+function start_new_game(game_size) {
+    var name = $('#txt_game1').val();
+    if (name == '') {
+        $(".game_error").html("Please enter a name for your game");
+        return;
+    }
+    
+    socket.emit('new_game', {name: current_player.name, game_name: name}, game_size);
+}
+//  Show game list or new game option
+function show_games() {
     var name = $('#txt_player1').val();
     if (name == '') {
         $(".player_error").html("Please enter your name");
         return;
     }
 
-    socket.emit('join_request', {
-        name: name
-    });
+    current_player = new currentPlayer(name, -1, '');
+    socket.emit('display_lobby');
+}
+//  Join an existing game
+function join_game(game_id) {
+    socket.emit('join_request', {name: current_player.name, game_id: game_id});
 }
 
 //  Adjust what is allowed or not (build, buy, trade, finish round)

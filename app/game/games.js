@@ -95,29 +95,31 @@ Games.prototype.send_lobby_data = function(socket) {
     var game_data = {
       game_id : i,
       game_name : this.games[i].game.name,
-      player_names : [],
+      player_names : "",
+      player_count : 0,
       max_players : this.games[i].game.max_players,
     };
-    for (var x=0; x<this.games[i].players.length; x++) {
-      game_data.player_names = this.games[i].game.players[x].name;
+    for (var x=0; x<this.games[i].game.players.length; x++) {
+      game_data.player_names += this.games[i].game.players[x].name + " ";
+      game_data.player_count ++;
     }
     games.push(game_data);
   }
   console.log("Current lobby data = \n", games);
-  socket.emit(games);
+  socket.emit("lobby_data", games);
 };
 
-Games.prototype.new_game = function(socket, data) {
+Games.prototype.new_game = function(socket, data, game_size) {
   var player = new Player(socket, data);
   console.log('Creating an new game');
 
-  var state_machine = new sm.StateMachine(this.games.length);
+  var state_machine = new sm.StateMachine(this.games.length, game_size);
   player.game_id = this.games.length;
   state_machine.game.name = player.game_name;
   this.parse_env(state_machine);
   this.games.push(state_machine);
 
-  state_machine.game.max_players = state_machine.game.set_player_number();
+  state_machine.game.max_players = game_size;
   if(state_machine.game.test_mode === 'false'){
     state_machine.game.test_mode = this.set_test_flag();
   }

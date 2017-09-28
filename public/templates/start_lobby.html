@@ -1,0 +1,28 @@
+<div class="game_title">Start a New Game</div>
+<div class="game_setup_box">
+    <div>
+        <div class="game_subtitle">Game Description:</div>
+        <div class="game_name_row">
+            <div class="game_name_cell">
+                <input type="text" id="txt_game1" value="{player}'s Game" class="game_input" onkeypress="game_input_on_enter(event);" />
+            </div>
+            <div class="game_start_cell">
+                <div class="btn btn-info game_button" onclick="start_new_game(2);"><span class="player_text">2 Player</span></div>
+                <div class="btn btn-info game_button" onclick="start_new_game(3);"><span class="player_text">3 Player</span></div>
+                <div class="btn btn-info game_button" onclick="start_new_game(4);"><span class="player_text">4 Player</span></div>
+            </div>
+        </div>
+        <div class="game_error"></div>
+    </div>
+</div>
+
+<div style="display:{join_game_display};">
+    <div class="game_title">Join a Game Already in Progress</div>
+    <div class="game_setup_box">
+        <div class="game_list_box">{list_of_games}</div>
+    </div>
+</div>
+
+<div class="player_setup_row">
+    <div class="btn btn-default player_button js-start-toggle" data-target="menu"><span class="player_text">Main Menu</span></div>
+</div>

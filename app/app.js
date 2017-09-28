@@ -87,9 +87,9 @@ io.on('connection', function(socket) {
         games.send_lobby_data(socket);
     });
 
-    socket.on('new_game', function() {
+    socket.on('new_game', function(player, game_detail) {
         logger.log('info', 'New game creation requested');
-        games.new_game(socket);
+        games.new_game(socket, player, game_detail);
     });
 
     socket.on('join_request', function(data) {

@@ -25,9 +25,10 @@ var Cards = require('../../public/data_api/cards.js');
  * The state machine contains the Game and operates on it per current state logic
  * @param {Integer} id
  */
-function StateMachine(id) {
+function StateMachine(id, game_size) {
   this.id = id;
   this.game = new Game(this);
+  this.game.max_players = game_size;
   this.state = "setup"; // starting state, states are ref by string for readability
   this.setupComplete = false;
   this.setupSequence = this.setSequence();
@@ -906,15 +907,7 @@ StateMachine.prototype.useKnight = function(data) {
 };
 
 StateMachine.prototype.setSequence = function() {
-  this.game.set_player_number();
-  var player_num = process.env['players'];
-  if (typeof player_num === 'undefined') {
-    player_num = 2;
-  }
-  if (parseInt(player_num) === 4) {
-    return [0, 1, 2, 3, 3, 2, 1, 0];
-  }
-  return [0, 1, 1, 0];
+  return this.game.set_player_number(this.game.max_players);
 };
 
 module.exports = {

@@ -512,15 +512,17 @@ Game.prototype.return_dev_card = function(card){
  * @return {int} number of players : currently 2 or 4
  */
 
-Game.prototype.set_player_number = function (){
-  var player_num = process.env['players'];
-  if(typeof player_num === 'undefined'){player_num = 4;}
-  if(parseInt(player_num) === 4){
-    this.state_machine.setupSequence = [0,1,2,3,3,2,1,0];
-    this.state_machine.setupSequence = this.randomise_startup_array(4);
-    return 4;
+Game.prototype.set_player_number = function (game_size){
+  var sequence = [];
+  for (var i = 0; i < game_size; i++) {
+    sequence.push(i);
   }
-  return 2;
+  for (var i = game_size - 1; i >= 0; i--) {
+    sequence.push(i);
+  }
+  this.state_machine.setupSequence = sequence;
+  this.state_machine.setupSequence = this.randomise_startup_array(game_size);
+  return this.state_machine.setupSequence;
 }
 
 /**
