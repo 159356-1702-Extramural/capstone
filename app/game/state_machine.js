@@ -789,6 +789,7 @@ StateMachine.prototype.buy_dev_card = function (data){
         // NOTE: Debugging ... to test dev card activate the card you want here
         // card = 'knight';
         // card = 'road_building';
+        //card = 'chapel';
         console.log('Dev card purchased: '+card);
         logger.log('debug','Dev card purchased: '+card);
         console.log("-----------------"+card);

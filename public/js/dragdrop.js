@@ -330,8 +330,12 @@ function set_object_on_canvas(event, ui) {
 
         //  If we are in the setup phase, show a message when we have both elements on the canvas
         allowed_actions.can_finish = false;
-        if (current_game.round_num < 3 && turn_actions.length == 2) {
-            $(".done_prompt").show();
+        if (current_game.round_num < 3) {
+            if (turn_actions.length == 2) {
+                allowed_actions.can_finish = true;
+                $(".done_prompt").show();
+            }
+        } else {
             allowed_actions.can_finish = true;
         }
 

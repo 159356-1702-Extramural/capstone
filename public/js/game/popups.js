@@ -106,6 +106,25 @@ function build_popup_setup_complete() {
         }
     }
 
+    //  Build the html to show the cards in the popup
+    var card_html = "";
+    var card_count = 0;
+    for (var i = 0; i < popup_data.length; i++) {
+        for (var j = 0; j < popup_data[i][1]; j++) {
+            if (card_count < 16) {
+                card_html += '<div class="build_card" style="z-index:' + (500 + card_count) + ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
+            }
+            card_count ++;
+        }
+    }
+    if (card_count > 15) {
+        card_html += "<br /><div class='player-row' style='width:99%; clear:both;'>+ " + (card_count - 16) + " more cards</div>";
+    }
+
+    if (card_html.length == 0) {
+        card_html += 'Nothing for you!';
+    }
+
     //  Build the popup
     buildPopup("setup_complete", false, false, [["setup_cards", card_html]]);
 
@@ -167,7 +186,7 @@ function build_popup_round_roll_results() {
         }
     }
     if (card_count > 15) {
-        card_html += "<br /><div class='player-row' style='width:99%;'>+ " + (card_count - 16) + " more cards</div>";
+        card_html += "<br /><div class='player-row' style='width:99%; clear:both;'>+ " + (card_count - 16) + " more cards</div>";
     }
 
 
