@@ -96,13 +96,11 @@ Games.prototype.send_lobby_data = function(socket) {
     var game_data = {
       game_id : i,
       game_name : this.games[i].game.name,
-      player_names : "",
-      player_count : 0,
+      player_names : [],
       max_players : this.games[i].game.max_players,
     };
     for (var x=0; x<this.games[i].game.players.length; x++) {
-      game_data.player_names += this.games[i].game.players[x].name + " ";
-      game_data.player_count ++;
+      game_data.player_names.push(this.games[i].game.players[x].name);
     }
     games.push(game_data);
   }

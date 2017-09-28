@@ -41,33 +41,27 @@ app.get('/', function(req, res) {
 
     //set environment variable if {url}:3000/?fixedDice=true is queried
     testing = req.query["fixedDice"];
-    if(typeof testing === 'undefined'){testing = 'false';}
-    process.env['testing'] = testing;
+    process.env['testing'] = (typeof testing === 'undefined') ? false : testing;
 
     //set environment variable if {url}:3000/?startWithCards=true is queried
     startWithCards = req.query["startWithCards"];
-    if(typeof startWithCards === 'undefined'){startWithCards = 0;}
-    process.env['startWithCards'] = parseInt(startWithCards);
+    process.env['startWithCards'] = (typeof startWithCards === 'undefined') ? 0 : startWithCards;
 
     //set environment variable for 4 players if {url}:3000/?players=4 is queried  --> {url}:3000/?test=true&players=4
     playerNum = req.query["players"];
-    if(typeof playerNum === 'undefined'){playerNum = 4}
-    process.env['players'] = parseInt(playerNum);
+    process.env['players'] = (typeof playerNum === 'undefined') ? 4 : playerNum;
 
     // skip setup phase using {url}:3000/?setup=skip
     setupGame = req.query["setup"];
-    if(typeof setupGame === 'undefined'){setupGame = 'continue'}
-    process.env['setup'] = setupGame;
+    process.env['setup'] = (typeof setupGame === 'undefined') ? "continue" : setupGame;
 
     // disable the robber using {url}:3000/?robber=disabled
     robber = req.query["robber"];
-    if(typeof robber === 'undefined'){robber = 'enabled'}
-    process.env['robber'] = robber;
+    process.env['robber'] = (typeof robber === 'undefined') ? "enabled" : robber;
     logger.log('debug', 'Robber is '+process.env['robber']);
 
     dev_card = req.query["dev_card"];
-    if(typeof dev_card === 'undefined'){dev_card = 'disabled'}
-    process.env['dev_card'] = dev_card;
+    process.env['dev_card'] = (typeof dev_card === 'undefined') ? "disabled" : dev_card;
 
     // TODO: Change this to display lobby page
     res.sendFile(__dirname + '/views/default.html');
