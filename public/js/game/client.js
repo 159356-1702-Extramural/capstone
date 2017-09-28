@@ -4,6 +4,11 @@ var socket = io();
 //server data is the round data from the server
 var server_data = [];
 
+//  Flag to control when building is appropriate
+var action_in_progress = false;
+var allowed_actions = {can_build:false};
+
+//  Default width/height of settlement/city
 var building_dimension = 50;
 
 // records whether player has had monopoly played on them
@@ -20,43 +25,39 @@ $(document).ready(function() {
     $doc.on('click', '.js-start-toggle', function(e) {
         e.preventDefault();
         var active_class = $(this).attr('data-target');
-        build_popup_start("start_" + active_class);
-    });
+        build_popup_start("start_" + active_class, (active_class == "intro" ? true : false));
 
-    // Request to join a game
-    $doc.on('click', '.js-start-game', function() {
-        var name = $('#txt_player1').val();
-        if (name == '') {
-            // TODO: Could replace with nicer notification system?
-            alert("Please enter a name!");
-            return;
-        }
-
-        socket.emit('join_request', {
-            name: name
-        });
+        //  Put the cursor in our name input
+        setTimeout("set_player_focus()", 250);
     });
 
     //  Create local player after join
     socket.on('player_id', function (data) {
         current_player = new currentPlayer(data.name, data.id, data.colour);
         setupPlayer();
-        build_popup_waiting_for_players([]);
+        build_popup_waiting_for_players([["show_message", "none"]]);
     });
 
     // Update the waiting display as new players join the game
     socket.on('player_joined', function (data) {
         var popupData = [
+            ["show_message", "block"],
             ["player_count", data.player_count],
-            ["players_needed", data.max_players],
+            ["players_needed", data.max_players]
         ];
         build_popup_waiting_for_players(popupData);
+
+        set_allowed_actions(false, false, false, false);
+        updatePanelDisplay();
     });
 
     // Detect the game starting
     socket.on('game_start', function (data) {
         //  Start the game with the waiting popups
         build_popup_waiting_for_turn();
+
+        set_allowed_actions(false, false, false, false);
+        updatePanelDisplay();
     });
 
     socket.on('game_turn', function (data) {
@@ -67,6 +68,7 @@ $(document).ready(function() {
         for (var i = 0; i < current_game.players.length; i++) {
             $(".other_player" + i + "_status").html("<i class='fa fa-spin fa-spinner'></i>");
         }
+
     });
 
     socket.on('update_players_waiting', function (waiting) {
@@ -138,15 +140,16 @@ $(document).ready(function() {
     var resolve_game_turn = function (data){
         if (data.data_type === "setup_complete" ){
             setup_phase = false;
-            $('.popup').hide();
             build_popup_setup_complete();
 
         }else if(data.data_type === 'setup_phase'){
             if (data.player !== 0) {
                 //  Popup for instructions on 1st or 2nd placement
+                set_allowed_actions(true, false, false, false);
                 build_popup_setup_phase_your_turn(data.player);
             } else {
                 //  Waiting for others to finish setup placement
+                set_allowed_actions(false, false, false, false);
                 build_popup_waiting_for_turn();
             }
 
@@ -183,6 +186,9 @@ $(document).ready(function() {
                 }
                 // allow players to purchase and play dev cards this round
                 reset_dev_cards_per_round()
+
+                set_allowed_actions(true, false, false, true);
+                updatePanelDisplay();
             }
 
         }else if (data.data_type === 'monopoly_used'){
@@ -237,9 +243,6 @@ $(document).ready(function() {
     $doc.on('click', '.finishturnbutton', function(e) {
         e.preventDefault();
 
-        //  Hide the reminder
-        $(".done_prompt").hide();
-
         var data_package = new Data_package();
         if(current_game.round_num < 3){
             if (turn_actions.length != 2) {
@@ -259,9 +262,20 @@ $(document).ready(function() {
             data_package.data_type = "turn_complete";
         }
 
+        if (!allowed_actions.can_finish) {
+            return false;
+        }
+        build_popup_round_waiting_for_others();
+        
+        //  Hide the reminder
+        $(".done_prompt").hide();
+        
         data_package.player_id = current_player.id;
         data_package.actions = turn_actions;
         update_server("game_update", data_package);
+
+        set_allowed_actions(false, false, false, false);
+        updatePanelDisplay();
     });
 
 
@@ -275,7 +289,7 @@ $(document).ready(function() {
     $doc.on('click', '.dev_rules ', function(e) {
         e.preventDefault();
         //clear the current popup
-        $('.popup').hide();
+        hidePopup();
         if($(this).hasClass('dev_year_of_plenty')){
             build_popup_show_dev_card("year_of_plenty");
         }
@@ -532,7 +546,6 @@ $(document).ready(function() {
             dev_card_played();
 
             update_server('game_update', data_package);
-            $('.popup').hide();
 
         }else if(this.innerHTML === 'Save for Later'){
             hidePopup();
@@ -567,9 +580,9 @@ $(document).ready(function() {
     //  Development Card - Purchase
     $doc.on('click', '.buybutton', function(e) {
         e.preventDefault();
-        // only active in trade phase
-        if(current_game.round_num > 2){
 
+        // only active in trade phase
+        if(current_game.round_num > 2 && allowed_actions.can_buy){
             // only purchase 2 cards per round
             if(current_player.dev_cards.purchased < 2){
                 console.log("----"+current_player.dev_cards.purchased);
@@ -672,9 +685,9 @@ function setupTurnFinished(){
 
 // Open the trading window and make only tradable cards available
 function openTrade () {
-
     //disable trade until setup complete and if tradebutton greyed out (logic in update panel)
-    if(current_game.round_num > 2 && !$(".tradebutton").hasClass("disabled")){
+    if(current_game.round_num > 2 && allowed_actions.can_trade){
+        action_in_progress = true;
         var resource_cards = current_game.player.cards.resource_cards;
 
         //basic card values
@@ -707,7 +720,10 @@ function openTrade () {
             card_data.push([card_name+'_tradenum', this_trade]);
             
         });
+
         buildPopup('round_maritime_trade', false, false, card_data);
+        set_allowed_actions(false, false, false, false);
+        updatePanelDisplay();
     }
 }
 
@@ -944,65 +960,63 @@ function buildNodes() {
 
 // Update display figuers
 function updatePanelDisplay() {
+    //    If we are beyond setup, or if setup has 2 items placed, show finish button
+    if (current_game) {
+        // Update the resouce cards
+        var resource_cards = current_game.player.cards.resource_cards;
+        var $resource_box = $('.resources');
+        $resource_box.find('.brickcount').text(resource_cards.brick);
+        $resource_box.find('.graincount').text(resource_cards.grain);
+        $resource_box.find('.lumbercount').text(resource_cards.lumber);
+        $resource_box.find('.orecount').text(resource_cards.ore);
+        $resource_box.find('.sheepcount').text(resource_cards.sheep);
 
-  // set trade to disabled to start with
-  $(".tradebutton").addClass("disabled");
+        var cards = new Cards();
+        allowed_actions.can_buy = false;
+        cards.resource_cards = current_game.player.cards.resource_cards;
+        if (cards.available_cards("dev_card")) {
+            allowed_actions.can_buy = true;
+        }
 
-  // Update the resouce cards
-  var resource_cards = current_game.player.cards.resource_cards;
-  var $resource_box = $('.resources');
-  $resource_box.find('.brickcount').text(resource_cards.brick);
-  $resource_box.find('.graincount').text(resource_cards.grain);
-  $resource_box.find('.lumbercount').text(resource_cards.lumber);
-  $resource_box.find('.orecount').text(resource_cards.ore);
-  $resource_box.find('.sheepcount').text(resource_cards.sheep);
+        //  Determine if a trade can be made
+        var current_cards = current_game.player.cards.resource_cards;
+        var current_trading = current_game.player.trading;
+        var base_trade_ratio = (current_trading.three ? 3 : 4);
+        var can_trade = (current_cards.lumber >= base_trade_ratio || current_cards.grain >= base_trade_ratio || current_cards.brick >= base_trade_ratio || current_cards.sheep >= base_trade_ratio || current_cards.ore >= base_trade_ratio);
 
-    var cards = new Cards();
-    cards.resource_cards = current_game.player.cards.resource_cards;
-    if (cards.available_cards("dev_card")) {
-        $(".buybutton").removeClass("disabled");
-    } else {
+        //  Now check the specific ports
+        can_trade = can_trade || (current_trading.sheep && current_cards.sheep > 1);
+        can_trade = can_trade || (current_trading.ore && current_cards.ore > 1);
+        can_trade = can_trade || (current_trading.lumber && current_cards.lumber > 1);
+        can_trade = can_trade || (current_trading.brick && current_cards.brick > 1);
+        can_trade = can_trade || (current_trading.grain && current_cards.grain > 1);
+        allowed_actions.can_trade = can_trade;
+
+        // Update the score
+        var score = current_game.player.score;
+        var $bonuses_box = $('.bonuses');
+
+        //if there is a change to largest army
+        var army_count = document.getElementsByClassName('armycount');
+        if (parseInt(army_count[0].innerHTML) === 0 && score.largest_army){
+            build_popup_largest_army(true);
+            $bonuses_box.find('.armycount').text(2);
+        } else if (parseInt(army_count[0].innerHTML) === 2 && !score.largest_army) {
+            build_popup_largest_army(false);
+            $bonuses_box.find('.armycount').text(0);
+        }
+
+        $bonuses_box.find('.longroadcount').text(score.longest_road ? 2 : 0);
+        $bonuses_box.find('.victorycount').text(score.total_points);
+
+        //  Lock down or enable actions as needed
+        $(".finishturnbutton").addClass("disabled");
+        if (allowed_actions.can_finish) { $(".finishturnbutton").removeClass("disabled"); }
+        $(".tradebutton").addClass("disabled");
+        if (allowed_actions.can_trade) { $(".tradebutton").removeClass("disabled"); }
         $(".buybutton").addClass("disabled");
+        if (allowed_actions.can_buy) { $(".buybutton").removeClass("disabled"); }
     }
-
-    //  Determine if a trade can be made
-    var current_cards = current_game.player.cards.resource_cards;
-    var current_trading = current_game.player.trading;
-    var base_trade_ratio = (current_trading.three ? 3 : 4);
-    var can_trade = (current_cards.lumber >= base_trade_ratio || current_cards.grain >= base_trade_ratio || current_cards.brick >= base_trade_ratio || current_cards.sheep >= base_trade_ratio || current_cards.ore >= base_trade_ratio);
-    
-    //  Now check the specific ports
-    can_trade = can_trade || (current_trading.sheep && current_cards.sheep > 1);
-    can_trade = can_trade || (current_trading.ore && current_cards.ore > 1);
-    can_trade = can_trade || (current_trading.lumber && current_cards.lumber > 1);
-    can_trade = can_trade || (current_trading.brick && current_cards.brick > 1);
-    can_trade = can_trade || (current_trading.grain && current_cards.grain > 1);
-    if (can_trade) {
-        $(".tradebutton").removeClass("disabled");
-    }
-
-  // Update the score
-  var score = current_game.player.score;
-  var $bonuses_box = $('.bonuses');
-
-  //if there is a change to largest army
-  var army_count = document.getElementsByClassName('armycount');
-
-  if ( parseInt(army_count[0].innerHTML) === 0 && score.largest_army){
-    alert("You have just received largest army");
-    $bonuses_box.find('.armycount').text(2);
-  }else if (parseInt(army_count[0].innerHTML) === 2 && !score.largest_army) {
-    alert("You have just lost the largest army");
-    $bonuses_box.find('.armycount').text(0);
-  }else{
-      //we just leave it as it is
-      console.log('there is no change to the army');
-  }
-
-  
-  $bonuses_box.find('.longroadcount').text(score.longest_road ? 2 : 0);
-  $bonuses_box.find('.victorycount').text(score.total_points);
-
 }
 
 //  This method determines the coordinates where a settlement/city is to be drawn
@@ -1365,7 +1379,6 @@ function check_failed_builds() {
 
 // Checked every time "begin Round" clicked to manage monopoly actions
 function monopoly_check(){
-
     if(monopoly_played !== null){
         build_popup_monopoly_lose(monopoly_played);
         //  Update cards
@@ -1373,6 +1386,7 @@ function monopoly_check(){
         monopoly_played = null;
     }else{
         monopoly_not_used();
+        hidePopup();
     }
 
 }
@@ -1390,7 +1404,7 @@ function setupPlayer() {
     html += "            <div class='player'><img src='images/player" + current_player.id + ".png' /></div>";
     html += "            <div class='playername'>" + current_player.name;
     html += "               <div class='playerbutton'>";
-    html += "                   <div class='btn btn-info finishturnbutton'>Finish Turn</div>";
+    html += "                   <div class='btn btn-info finishturnbutton disabled'>Finish Turn</div>";
     html += "               </div>";
     html += "               <div class='dice_row'>";
     html += "                   <div class='dice_window'><img id='score_dice_1' src='images/dice_score.png' class='dice dice1' /></div>";
@@ -1555,6 +1569,43 @@ function reset_dev_cards_per_round(){
     $('.cardlist .knight.card').removeClass('disabled');
     current_game.knight_in_use = false;
 }
+
+//  Set the focus for the player name input
+function set_player_focus() {
+    $("#txt_player1").focus();
+}
+//  Submit the name when enter is used
+function player_input_on_enter(e) {
+    var key = e.keyCode || e.which;
+    if (key == 13) {
+        setTimeout("join_game()", 500);
+        return false;
+    }
+    return true;
+}
+// Request to join a game
+function join_game() {
+    var name = $('#txt_player1').val();
+    if (name == '') {
+        $(".player_error").html("Please enter your name");
+        return;
+    }
+
+    socket.emit('join_request', {
+        name: name
+    });
+}
+
+//  Adjust what is allowed or not (build, buy, trade, finish round)
+function set_allowed_actions(can_build, can_buy, can_trade, can_finish) {
+    allowed_actions.can_build = can_build;
+    allowed_actions.can_buy = can_buy;
+    allowed_actions.can_trade = can_trade;
+    allowed_actions.can_finish = can_finish;
+}
+
+
+
 function doLog(m) {
     $(".log").append(m + "<br />");
 }

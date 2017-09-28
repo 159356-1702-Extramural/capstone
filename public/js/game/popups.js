@@ -3,7 +3,6 @@
 //   customData: array of paired values to replace corresponding tags in the html template (i.e. {player_name})
 function buildPopup(popupClass, useLarge, useRight, customData) {
     $.get("templates/" + popupClass + ".html", function(data) {
-
         //  In a few cases, we need a larger popup
         $(".popup_inner").removeClass("popup_inner_large");
         $(".popup_inner").removeClass("popup_inner_right");
@@ -27,16 +26,19 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     });
 }
 function hidePopup() {
-    $('.popup').fadeOut(400, function() {
+    action_in_progress = false;
+    allowed_actions.can_build = true;
+    allowed_actions.can_finish = (current_game.round_num > 2);
+    updatePanelDisplay();
 
-    });
+    $('.popup').hide();
 }
 
 /***************************************************
  *  start_up.html
  **************************************************/
-function build_popup_start(section) {
-    buildPopup(section, false, false);
+function build_popup_start(section, isLarge) {
+    buildPopup(section, isLarge, false);
 }
 
 /***************************************************
@@ -70,13 +72,7 @@ function build_popup_waiting_for_players(data) {
  *  setup_phase_your_turn.html
  **************************************************/
 function build_popup_setup_phase_your_turn(setup_round) {
-    if(setup_round === 1){
-        //TODO: Place First Settlement
-        buildPopup("setup_phase_your_turn", false, false);
-    }else{
-        //TODO: Place Second Settlement
-        buildPopup("setup_phase_your_turn", false, false);
-    }
+    buildPopup("setup_phase_your_turn", false, false);
 }
 
 /***************************************************
@@ -108,6 +104,25 @@ function build_popup_setup_complete() {
         for (var j = 0; j < popup_data[i][1]; j++) {
             card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
         }
+    }
+
+    //  Build the html to show the cards in the popup
+    var card_html = "";
+    var card_count = 0;
+    for (var i = 0; i < popup_data.length; i++) {
+        for (var j = 0; j < popup_data[i][1]; j++) {
+            if (card_count < 16) {
+                card_html += '<div class="build_card" style="z-index:' + (500 + card_count) + ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
+            }
+            card_count ++;
+        }
+    }
+    if (card_count > 15) {
+        card_html += "<br /><div class='player-row' style='width:99%; clear:both;'>+ " + (card_count - 16) + " more cards</div>";
+    }
+
+    if (card_html.length == 0) {
+        card_html += 'Nothing for you!';
     }
 
     //  Build the popup
@@ -171,7 +186,7 @@ function build_popup_round_roll_results() {
         }
     }
     if (card_count > 15) {
-        card_html += "<br /><div class='player-row' style='width:99%;'>+ " + (card_count - 16) + " more cards</div>";
+        card_html += "<br /><div class='player-row' style='width:99%; clear:both;'>+ " + (card_count - 16) + " more cards</div>";
     }
 
 
@@ -279,7 +294,9 @@ function build_popup_monopoly_lose(data) {
 //  build_popup_no_resources
 //      Shows information on what it takes to build an object when you do not have enough
 function build_popup_no_resources() {
-    buildPopup("round_build_no_resources", false, false, [["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],["normal_round_display", (current_game.round_num < 3 ? "none" : "block")]]);
+    if (!action_in_progress) {
+        buildPopup("round_build_no_resources", false, false, [["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],["normal_round_display", (current_game.round_num < 3 ? "none" : "block")]]);
+    }
 }
 
 
@@ -314,6 +331,7 @@ function build_popup_round_build(object_dragged_id, object_type) {
     my_cards.add_cards_from_list(card_list);
 
     buildPopup("round_build", false, false, [["object_dragged_id", object_dragged_id], ["object_type", object_type], ["build_cards", card_html], ["select_cards", select_html]]);
+    action_in_progress = true;
 }
 //  round_build_complete
 //      Build button in the round_build.html template
@@ -350,6 +368,8 @@ function round_build_complete(object_dragged_id, object_type) {
     turn_actions[turn_actions.length-1].boost_cards = card_list;
 
     //  Update our counts
+    allowed_actions.can_finish = true;
+    allowed_actions.can_build = true;
     update_object_counts();
     updatePanelDisplay();
 
@@ -380,6 +400,8 @@ function round_build_abort(object_type) {
     //  We need to restore the cards used to build this object
     return_resources(object_to_return.attr("id"));
 
+    allowed_actions.can_finish = true;
+    allowed_actions.can_build = true;
     updatePanelDisplay();
     hidePopup();
 }
@@ -435,7 +457,7 @@ function build_popup_victory_point_received(card) {
 
     }
     vp_cards.push(['other_vp_cards',other_vp_cards]);
-    buildPopup("victory_point_received", false, vp_cards);
+    buildPopup("victory_point_received", false, false, vp_cards);
 }
 
 /***************************************************
@@ -455,8 +477,8 @@ function build_popup_round_maritime_trade() {
 /***************************************************
  *  round_domestic_trade.html
  **************************************************/
-function build_popup_round_domestic_trade() {
-    buildPopup("round_domestic_trade", false, false);
+function build_popup_largest_army(won) {
+    buildPopup("round_largest_army", false, false, [["result", won]]);
 }
 
 /***************************************************
