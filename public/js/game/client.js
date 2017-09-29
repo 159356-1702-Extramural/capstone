@@ -407,14 +407,9 @@ $(document)
       //check to be sure no dev cards have been played yet
       if (!current_player.dev_cards.played && !current_player.road_building_used &&
           current_game.player.cards.dev_cards.road_building > recent_count) {
-
-        //check to be sure no dev cards have been played yet
-        if (!current_player.dev_cards.played &&
-            current_player.dev_cards.recent_purchase.indexOf("road_building") === -1) {
-          build_popup_use_road_building();
-        } else {
-          build_popup_restrict_dev_card_use('play');
-        }
+        build_popup_use_road_building();
+      } else {
+        build_popup_restrict_dev_card_use('play');
       }
 
     });
@@ -1694,25 +1689,33 @@ function setup_player_scores() {
 function update_dev_cards(data) {
 
   var card_list = "";
-  if (data.player.cards.dev_cards.year_of_plenty > 0) {
-    card_list += "<img src='images/dev_year_of_plenty.jpg' " +"title='" +
-    data.player.cards.dev_cards.year_of_plenty + "x cards' class='year_of_plenty card" +
+  var count = data.player.cards.dev_cards.year_of_plenty;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
+    card_list += "<img src='images/dev_year_of_plenty.jpg' " +"title='Year of Plenty x" +
+    data.player.cards.dev_cards.year_of_plenty + "' class='year_of_plenty card " + last +
     (card_list.length == 0 ? " first" : "") + "'>";
   }
-  if (data.player.cards.dev_cards.knight > 0) {
+  count = data.player.cards.dev_cards.knight;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
     var disabled_class = (current_game.knight_in_use) ? ' disabled' : '';
-    card_list += "<img src='images/dev_knight.jpg' " + "title='" +
-    data.player.cards.dev_cards.knight + "x cards' class='knight card" +
+    card_list += "<img src='images/dev_knight.jpg' " + "title='Knight x" +
+    data.player.cards.dev_cards.knight + "' class='knight card " + last +
     (card_list.length == 0 ? " first" : "") + disabled_class + "'>";
   }
-  if (data.player.cards.dev_cards.monopoly > 0) {
-    card_list += "<img src='images/dev_monopoly.jpg' " + "title='" +
-    data.player.cards.dev_cards.monopoly + "x cards' class='monopoly card" +
+  count = data.player.cards.dev_cards.monopoly;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
+    card_list += "<img src='images/dev_monopoly.jpg' " + "title='Monopoly x" +
+    data.player.cards.dev_cards.monopoly + "' class='monopoly card " + last +
     (card_list.length == 0 ? " first" : "") + "'>";
   }
-  if (data.player.cards.dev_cards.road_building > 0) {
-    card_list += "<img src='images/dev_road_building.jpg' " + "title='" +
-    data.player.cards.dev_cards.road_building + "x cards' class='road_building card" +
+  count = data.player.cards.dev_cards.road_building;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
+    card_list += "<img src='images/dev_road_building.jpg' " + "title='Road Building x" +
+    data.player.cards.dev_cards.road_building + "' class='road_building card " + last +
     (card_list.length == 0 ? " first" : "") + "'>";
   }
   if (card_list === "") {

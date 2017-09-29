@@ -799,22 +799,26 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     // load cards to display
     var count = current_game.player.cards.dev_cards.year_of_plenty;
     for (var i=0; i<count; i++) {
-      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+      var last = (i === count-1) ? "last" : "";
+      other_dev_cards += '<div class="build_card '+last+'" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
     }
     count = current_game.player.cards.dev_cards.knight;
     for (var i=0; i<count; i++) {
-      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+      var last = (i === count-1) ? "last" : "";
+      other_dev_cards += '<div class="build_card '+last+'" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
     }
     count = current_game.player.cards.dev_cards.monopoly;
     for (var i=0; i<count; i++) {
-      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+      var last = (i === count-1) ? "last" : "";
+      other_dev_cards += '<div class="build_card '+last+'" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
     }
     count = current_game.player.cards.dev_cards.road_building;
     for (var i=0; i<count; i++) {
-      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+      var last = (i === count-1) ? "last" : "";
+      other_dev_cards += '<div class="build_card '+last+'" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
     }
 
