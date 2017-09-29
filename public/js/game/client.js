@@ -443,24 +443,28 @@ $(document)
 
     // Play the Knight card
     $doc.on('click', '.cardlist .knight.card', function(e) {
-      e.preventDefault();
+      if (!current_player.dev_cards.played) {
+        e.preventDefault();
 
-      if ($(this)
-        .hasClass('disabled')) {
-        alert('Another player is currently using the knight card.');
-        return;
+        if ($(this)
+          .hasClass('disabled')) {
+          alert('Another player is currently using the knight card.');
+          return;
+        }
+
+        var data_package = new Data_package();
+        data_package.data_type = 'request_knight';
+        data_package.player_id = current_game.player.id;
+        data_package.knight_status = 'activate';
+
+        // Let server know we're thinking about playing the knight
+        update_server('game_update', data_package);
+
+        // Show the robbing options
+        build_popup_play_knight();
+      } else {
+        build_popup_restrict_dev_card_use('play');
       }
-
-      var data_package = new Data_package();
-      data_package.data_type = 'request_knight';
-      data_package.player_id = current_game.player.id;
-      data_package.knight_status = 'activate';
-
-      // Let server know we're thinking about playing the knight
-      update_server('game_update', data_package);
-
-      // Show the robbing options
-      build_popup_play_knight();
     });
     // Select the resource you want the knight to take
     $doc.on('mousedown', '.play_knight', function(e) {
@@ -508,7 +512,12 @@ $(document)
 
     //Monopoly - open development card rules popup
     $doc.on('click', '.monopoly', function(e) {
-      build_popup_show_dev_card('monopoly');
+      //check to be sure no dev cards have been played yet
+      if (!current_player.dev_cards.played) {
+        build_popup_show_dev_card('monopoly');
+      } else {
+        build_popup_restrict_dev_card_use('play');
+      }
     });
 
     //  Year of Plenty - clear selected resource
@@ -527,40 +536,43 @@ $(document)
       } else {
         build_popup_restrict_dev_card_use('play');
       }
-
     });
 
     $doc.on('click', '.year_of_plenty_button', function(e) {
       e.preventDefault();
+      //check to be sure no dev cards have been played yet
+      if (!current_player.dev_cards.played) {
+        if (this.innerHTML === 'Collect Resources') {
+          var action = new Action();
+          action.action_type = 'year_of_plenty';
+          action.action_result = 0;
+          action.action_data = [];
+          var temp_data1 = $(":first-child", ".year_box_card1")
+            .attr("class")
+            .split('_'); //action_data {String} 'trade_sheep'
+          var temp_data2 = $(":first-child", ".year_box_card2")
+            .attr("class")
+            .split('_'); //action_data {String} 'trade_sheep'
 
-      if (this.innerHTML === 'Collect Resources') {
-        var action = new Action();
-        action.action_type = 'year_of_plenty';
-        action.action_result = 0;
-        action.action_data = [];
-        var temp_data1 = $(":first-child", ".year_box_card1")
-          .attr("class")
-          .split('_'); //action_data {String} 'trade_sheep'
-        var temp_data2 = $(":first-child", ".year_box_card2")
-          .attr("class")
-          .split('_'); //action_data {String} 'trade_sheep'
+          action.action_data.push(temp_data1[1]);
+          action.action_data.push(temp_data2[1]);
 
-        action.action_data.push(temp_data1[1]);
-        action.action_data.push(temp_data2[1]);
+          var data_package = new Data_package();
+          data_package.data_type = 'year_of_plenty_used';
+          data_package.player_id = current_player.id;
+          data_package.actions.push(action);
+          update_server('game_update', data_package);
+          hidePopup();
 
-        var data_package = new Data_package();
-        data_package.data_type = 'year_of_plenty_used';
-        data_package.player_id = current_player.id;
-        data_package.actions.push(action);
-        update_server('game_update', data_package);
-        hidePopup();
-
-        //Development card played for the turn
-        dev_card_played();
-      } else if (this.innerHTML === 'Save for Later') {
-        hidePopup();
+          //Development card played for the turn
+          dev_card_played();
+        } else if (this.innerHTML === 'Save for Later') {
+          hidePopup();
+        } else {
+          console.log('Monopoly button click sent wrong click information');
+        }
       } else {
-        console.log('Monopoly button click sent wrong click information');
+        build_popup_restrict_dev_card_use('play');
       }
     });
 
@@ -654,7 +666,8 @@ $(document)
             var data_package = new Data_package();
             data_package.data_type = "buy_dev_card";
             data_package.player_id = current_game.player.id;
-
+            // prevent card being played in same turn
+            dev_card_played();
             update_server('game_update', data_package);
           }
         } else {

@@ -793,8 +793,8 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       heading = "Only two development cards can be purchased per turn.";
       content = "You can purchase a maximum of <b>2</b> cards in any turn and you've purchased two this turn.";
     } else if (card_use === 'play') {
-      heading = "Only one development card can be played per turn.";
-      content = "You can play a maximum of <b>1</b> card in any turn and you have played one this turn.";
+      heading = "Card cannot be played.";
+      content = "You can play a maximum of <b>1</b> card in any turn and you may not play a card immediately after purchase.";
     }
   
     // load cards to display
