@@ -689,7 +689,6 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var results_html = '';
   
     data.players.forEach(function(player) {
-      var total_settlements = player.score.settlements + player.score.cities;
       results_html += '<div class="player_row">' +
         '<div class="player_icon"><img src="images/player' + player.id + '.png" /></div>' +
         '<div class="player_name">' +

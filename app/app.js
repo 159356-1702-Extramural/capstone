@@ -3,7 +3,7 @@
 // Logging Framework
 var logger = require('./log.js');
 // TODO: can we set this from enviroment config?
-logger.level = 'debug';
+//logger.level = 'debug';
 
 // Web App Framework
 var express = require('express');
@@ -32,6 +32,10 @@ app.get('/', function (req, res) {
   var dev_card;
   //start with testing set to false
   process.env['testing'] = 'false';
+
+  var loglevel = req.query["loglevel"];
+  logger.level = (typeof loglevel === 'undefined') ? "error" : loglevel;
+  console.log("Log level set to", logger.level);
 
   //set environment variable if {url}:3000/?fixedDice=true is queried
   testing = req.query["fixedDice"];

@@ -1,19 +1,15 @@
-/**
- * Global logging Config
- */
+var logger = require('winston');
 
-var Winston = require('winston');
-var logger = new Winston.Logger({
-  level: 'verbose',
-  transports: [
-    new Winston.transports.Console({
-      timestamp: true
-    }),
-    // new Winston.transports.File({
-    //   filename: 'logs/logfile.log',
-    //   timestamp: true
-    // })
-  ]
+logger.addColors({
+    debug: 'green',
+    info:  'cyan',
+    silly: 'magenta',
+    verbose: 'magenta',
+    warn:  'yellow',
+    error: 'red'
 });
+
+logger.remove(logger.transports.Console);
+logger.add(logger.transports.Console, { level: 'silly', colorize:true });
 
 module.exports = logger;

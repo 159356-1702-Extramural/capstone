@@ -80,7 +80,7 @@ StateMachine.prototype.tick = function (data) {
    * If in Setup state - game setup logic operates on this.game
    ************************************************************/
   if (this.state === "setup" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked setup state");
+    logger.log('info', 'Game #' + this.id + " ticked setup state : initiated by "+this.game.players[data.player_id].name);
     //  Set the piece
     this.validate_player_builds(data);
 
@@ -132,7 +132,7 @@ StateMachine.prototype.tick = function (data) {
    * If in Trade state - trade logic operates on this.game
    ************************************************************/
   else if (this.state === "trade" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked trade state");
+    logger.log('info', 'Game #' + this.id + " ticked trade state : initiated by "+this.game.players[data.player_id].name);
     this.game.players.every(function (player) {
       return player.turn_complete === true;
     });
@@ -144,7 +144,8 @@ StateMachine.prototype.tick = function (data) {
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked play state");
+    logger.log('info', 'Game #' + this.id + " ticked play state : initiated by "+this.game.players[data.player_id].name);
+    logger.log('info', "Requested action is", data.data_type);
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
@@ -247,7 +248,7 @@ StateMachine.prototype.tick = function (data) {
    * If in end_game state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "end_game" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked end_game state");
+    logger.log('info', 'Game #' + this.id + " ticked end_game state : initiated by "+this.game.players[data.player_id].name);
     this.broadcast_gamestate();
     this.broadcast_end();
     this.next_state();
@@ -698,7 +699,7 @@ StateMachine.prototype.has_valid_path = function (player, object_type, node, ori
 };
 
 StateMachine.prototype.trade_with_bank = function (data) {
-  logger.log('debug', "trade action with bank, player: " + data.player_id);
+  logger.log('debug', "trade action with bank, player: " + this.game.players[data.player_id].name);
 
   //split the data to get the resource type: currently string = trade_sheep
   var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
@@ -774,7 +775,12 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
       this.game.players[data.player_id].round_distribution_cards.add_card(requested_cards[i]);
     }
 
-    this.game.players[data.player_id].cards.remove_card('year_of_plenty');
+    if (this.game.players[data.player_id].cards.remove_card('year_of_plenty')) {
+      logger.log('info', "Removed 'Year of Plenty' card from", data.player_id);
+    } else {
+      logger.log('error', "Failed to remove 'Year of Plenty' card from", data.player_id);
+      return false;
+    }
     //return the card to the pack
     this.game.return_dev_card('year_of_plenty');
 
@@ -786,6 +792,7 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
   } else {
     logger.log('error', "Year of plenty called but year of plenty action not visible");
   }
+  return true;
 };
 
 StateMachine.prototype.activate_road_building = function (data) {
@@ -871,7 +878,12 @@ StateMachine.prototype.activate_monopoly = function (data) {
   //add cards to the player who activated monopoly
   this.game.players[data.player_id].cards.add_cards(data.actions[0].action_data, cards);
   //remove monopoly from player's hand
-  this.game.players[data.player_id].cards.remove_card('monopoly');
+  if (this.game.players[data.player_id].cards.remove_card('monopoly')) {
+    logger.log('info', "Removed 'Monopoly' card from", data.player_id);
+  } else {
+    logger.log('error', "Failed to remove 'Monopoly' card from", data.player_id);
+    return false;
+  }
   // put monopoly back in the deck
   this.game.return_dev_card('monopoly');
   // send the spoils to the victor
@@ -885,6 +897,7 @@ StateMachine.prototype.activate_monopoly = function (data) {
   data_package.player.actions = [];
   data_package.player.actions.push(action);
   this.send_to_player('game_turn', data_package);
+  return true;
 };
 
 /**
