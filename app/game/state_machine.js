@@ -49,7 +49,6 @@ StateMachine.prototype.next_state = function () {
     if (this.setupComplete === true) {
       logger.log('debug', 'state_machine #' + this.id + ' setup state successfully completed');
       this.state = "play";
-      this.tick();
     }
   } else if (this.state === "trade") {
     logger.log('debug', 'state_machine #' + this.id + ' in "trade" state');
@@ -76,10 +75,12 @@ StateMachine.prototype.next_state = function () {
  *       come in is of use per state
  ****************************************************************/
 StateMachine.prototype.tick = function (data) {
+  logger.log('info', 'Game #' + this.id + ", round #"+this.game.round_num);
   /************************************************************
    * If in Setup state - game setup logic operates on this.game
    ************************************************************/
   if (this.state === "setup" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked setup state");
     //  Set the piece
     this.validate_player_builds(data);
 
@@ -119,8 +120,8 @@ StateMachine.prototype.tick = function (data) {
       this.broadcast('game_turn', setup_data);
     }
 
-    this.game_start_sequence();
     this.broadcast_gamestate();
+    this.game_start_sequence();
     // reset the player turn completion status
     this.game.reset_player_turns();
     this.next_state();
@@ -131,6 +132,7 @@ StateMachine.prototype.tick = function (data) {
    * If in Trade state - trade logic operates on this.game
    ************************************************************/
   else if (this.state === "trade" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked trade state");
     this.game.players.every(function (player) {
       return player.turn_complete === true;
     });
@@ -142,6 +144,7 @@ StateMachine.prototype.tick = function (data) {
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked play state");
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
@@ -244,6 +247,7 @@ StateMachine.prototype.tick = function (data) {
    * If in end_game state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "end_game" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked end_game state");
     this.broadcast_gamestate();
     this.broadcast_end();
     this.next_state();

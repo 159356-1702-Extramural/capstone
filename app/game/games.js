@@ -72,6 +72,7 @@ Games.prototype.assign_player = function (socket, data) {
     state_machine.broadcast('build_board', state_machine.game.buildBoard());
     state_machine.broadcast_gamestate();
     state_machine.game_start_sequence();
+    logger.log('info', 'Start of #' + state_machine.id + " completed");
   }
 };
 
