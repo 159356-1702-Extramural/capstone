@@ -271,7 +271,6 @@ Board.prototype.longest_roads = function(players) {
       player_map.set(player_id, longest_road);
     }
   }
-  console.log("Longest road for each player:\n", player_map);
   return player_map;
 }
 

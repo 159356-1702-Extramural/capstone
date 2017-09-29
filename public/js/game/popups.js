@@ -642,7 +642,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     this.current_game.nodes.forEach(function(node) {
       if (node.owner > -1 && node.owner == id) {
         settlements += (node.building === 'settlement') ? 1 : 0;
-        cities += (node.building === 'settlement') ? 0 : 1;
+        cities += (node.building === 'settlement') ? 0 : 2;
       }
     }, this);
   
@@ -689,7 +689,6 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var results_html = '';
   
     data.players.forEach(function(player) {
-      var total_settlements = player.score.settlements + player.score.cities;
       results_html += '<div class="player_row">' +
         '<div class="player_icon"><img src="images/player' + player.id + '.png" /></div>' +
         '<div class="player_name">' +
@@ -698,7 +697,9 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         '</div>' +
         '<div class="player_score_details">' +
         '<div class="player_score_detail"><img src="images/settlement_' + player.colour +
-        '_small.png" /><br />x ' + total_settlements + '</div>' +
+        '_small.png" /><br />x ' + player.score.settlements + '</div>' +
+        '<div class="player_score_detail"><img src="images/city_' + player.colour +
+        '_small.png" /><br />x ' + player.score.cities + '</div>' +
         '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x ' +
         player.score.victory_points + '</div>' +
         '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (
@@ -791,8 +792,8 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       heading = "Only two development cards can be purchased per turn.";
       content = "You can purchase a maximum of <b>2</b> cards in any turn and you've purchased two this turn.";
     } else if (card_use === 'play') {
-      heading = "Only one development card can be played per turn.";
-      content = "You can play a maximum of <b>1</b> card in any turn and you have played one this turn.";
+      heading = "Card cannot be played.";
+      content = "You can play a maximum of <b>1</b> card in any turn and you may not play a card immediately after purchase.";
     }
   
     // load cards to display

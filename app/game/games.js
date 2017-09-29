@@ -51,7 +51,6 @@ Games.prototype.assign_player = function (socket, data) {
   /*    Create listeners on sockets for messages    */
   /**************************************************/
   player.socket.on('game_update', function (data) {
-    console.log("Player." + player.id, "invoked game_update");
     logger.log('debug', "Player." + player.id, "invoked game_update");
     // state_machine function to be called
     state_machine.tick(data);
@@ -67,13 +66,13 @@ Games.prototype.assign_player = function (socket, data) {
 
   // Start the game if we have all the players
   if (state_machine.game.game_full()) {
-    console.log('info', 'Game #' + state_machine.id + " started");
     logger.log('info', 'Game #' + state_machine.id + " started");
     state_machine.broadcast('game_start', {});
     //  Create the board and send it to the clients
     state_machine.broadcast('build_board', state_machine.game.buildBoard());
     state_machine.broadcast_gamestate();
     state_machine.game_start_sequence();
+    logger.log('info', 'Start of #' + state_machine.id + " completed");
   }
 };
 
@@ -86,11 +85,11 @@ Games.prototype.remove_game = function (state_machine) {
 /// Resets all the games - use for debugging
 Games.prototype.hard_reset = function () {
   this.games = [];
-  console.log('Games have been reset.');
+  logger.log('debug', 'Games have been reset.');
 };
 
 Games.prototype.send_lobby_data = function (socket) {
-  console.log("Lobby data requested");
+  logger.log('info', "Lobby data requested");
   var games = [];
   for (var i = 0; i < this.games.length; i++) {
     var game_data = {
@@ -104,13 +103,13 @@ Games.prototype.send_lobby_data = function (socket) {
     }
     games.push(game_data);
   }
-  //console.log("Current lobby data = \n", games);
+  logger.log('debug', "Current lobby data = \n", games);
   socket.emit("lobby_data", games);
 };
 
 Games.prototype.new_game = function (socket, data, game_size) {
   var player = new Player(socket, data);
-  console.log('Creating an new game');
+  logger.log('info', 'Creating an new game');
 
   var state_machine = new sm.StateMachine(this.games.length, game_size);
   player.game_id = this.games.length;
@@ -124,7 +123,7 @@ Games.prototype.new_game = function (socket, data, game_size) {
   if (state_machine.game.test_mode === 'false') {
     state_machine.game.test_mode = this.set_test_flag();
   }
-  console.log('Number of games = ' + this.games.length);
+  logger.log('info', 'Number of games = ' + this.games.length);
   this.assign_player(socket, player);
 };
 
@@ -134,18 +133,36 @@ Games.prototype.parse_env = function (state_machine) {
     state_machine.setupComplete = true;
     state_machine.setupPointer = 8;
     state_machine.game.round_num = 3;
+
+    var node_road_pairs = [
+      [7, 9],
+      [22, 29],
+      [37, 36],
+      [44, 63],
+      [13, 21],
+      [53, 70],
+      [39, 56],
+      [46, 62]
+    ];
+
+    var used = [];
+    var rand = Math.floor(Math.random() * node_road_pairs.length);
+    for (var p = 0; p < state_machine.game.max_players; p++) {
+      for (var x = 0; x < 2; x++) {
+        do {
+          rand = Math.floor(Math.random() * node_road_pairs.length);
+        } while (used.indexOf(rand) !== -1);
+        used.push(rand);
+        var pair = node_road_pairs[rand];
+        state_machine.game.board.set_item('build_settlement', pair[0], p);
+        state_machine.game.board.set_item('build_road', pair[1], p);
+      }
+    }
   }
 
   // disable the robber for testing purposes
   if (process.env['robber'] === 'disabled') {
     state_machine.game.robber = 'disabled';
-  }
-
-  if (process.env['dev_card'] !== 'disabled') {
-    state_machine.game.development_cards = [];
-    for (var i = 0; i < 30; i++) {
-      state_machine.game.development_cards.push(process.env['dev_card']);
-    }
   }
 
   if (process.env['dev_card'] !== 'disabled') {

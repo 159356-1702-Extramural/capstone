@@ -3,7 +3,7 @@
 // Logging Framework
 var logger = require('./log.js');
 // TODO: can we set this from enviroment config?
-logger.level = 'debug';
+//logger.level = 'debug';
 
 // Web App Framework
 var express = require('express');
@@ -33,6 +33,10 @@ app.get('/', function (req, res) {
   //start with testing set to false
   process.env['testing'] = 'false';
 
+  var loglevel = req.query["loglevel"] || process.env['loglevel'];
+  logger.level = (typeof loglevel === 'undefined') ? "error" : loglevel;
+  console.log("Log level set to", logger.level);
+
   //set environment variable if {url}:3000/?fixedDice=true is queried
   testing = req.query["fixedDice"];
   process.env['testing'] = (typeof testing === 'undefined') ? false : testing;
@@ -40,10 +44,6 @@ app.get('/', function (req, res) {
   //set environment variable if {url}:3000/?startWithCards=true is queried
   startWithCards = req.query["startWithCards"];
   process.env['startWithCards'] = (typeof startWithCards === 'undefined') ? 0 : startWithCards;
-
-  //set environment variable for 4 players if {url}:3000/?players=4 is queried  --> {url}:3000/?test=true&players=4
-  playerNum = req.query["players"];
-  process.env['players'] = (typeof playerNum === 'undefined') ? 4 : playerNum;
 
   // skip setup phase using {url}:3000/?setup=skip
   setupGame = req.query["setup"];

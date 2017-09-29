@@ -44,30 +44,24 @@ function StateMachine(id, game_size) {
 StateMachine.prototype.next_state = function () {
   // TODO: checks on game conditions to determine state
   if (this.state === "setup") {
-    console.log('state_machine #' + this.id + ' in "setup" state');
     logger.log('debug', 'state_machine #' + this.id + ' in "setup" state');
     // if (conditions to switch state)
     if (this.setupComplete === true) {
-      console.log('state_machine #' + this.id + ' setup state successfully completed');
       logger.log('debug', 'state_machine #' + this.id + ' setup state successfully completed');
       this.state = "play";
-      this.tick();
     }
   } else if (this.state === "trade") {
-    console.log('state_machine #' + this.id + ' in "trade" state');
     logger.log('debug', 'state_machine #' + this.id + ' in "trade" state');
     if (round_complete) {
       this.state = "play";
     }
   } else if (this.state === "play") {
-    console.log('state_machine #' + this.id + ' in "play" state');
     logger.log('debug', 'state_machine #' + this.id + ' in "play" state');
     // End the game if we have a winner
     if (this.game.haveWinner()) {
       this.state = "end_game";
     }
   } else if (this.state === "end_game") {
-    console.log('state_machine #' + this.id + ' in "end_game" state');
     logger.log('debug', 'state_machine #' + this.id + ' in "end_game" state');
     // if (conditions to switch state)
   }
@@ -81,10 +75,12 @@ StateMachine.prototype.next_state = function () {
  *       come in is of use per state
  ****************************************************************/
 StateMachine.prototype.tick = function (data) {
+  logger.log('info', 'Game #' + this.id + ", round #"+this.game.round_num);
   /************************************************************
    * If in Setup state - game setup logic operates on this.game
    ************************************************************/
   if (this.state === "setup" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked setup state : initiated by "+this.game.players[data.player_id].name);
     //  Set the piece
     this.validate_player_builds(data);
 
@@ -96,7 +92,7 @@ StateMachine.prototype.tick = function (data) {
 
     //second round resources was running 1 too many times so needed to add the extra check
     if (this.setupPointer > this.setupSequence.length / 2 && this.setupPointer <= this.setupSequence.length) {
-      console.log("setupPointer: " + this.setupPointer + " | setupSeq ID: " + this.setupSequence[this.setupPointer] +
+      logger.log('debug', "setupPointer: " + this.setupPointer + " | setupSeq ID: " + this.setupSequence[this.setupPointer] +
         "| data.player_id: " + data.player_id);
       this.game.secondRoundResources(this.game.players[data.player_id], data);
     }
@@ -106,7 +102,7 @@ StateMachine.prototype.tick = function (data) {
       this.game.round_num++;
 
     if (this.setupPointer === this.setupSequence.length) {
-      console.log("final player setup");
+      logger.log('info', "final player setup");
       var diceroll;
       // We can't start with a 7 as that would mean starting with robber
       do {
@@ -124,8 +120,8 @@ StateMachine.prototype.tick = function (data) {
       this.broadcast('game_turn', setup_data);
     }
 
-    this.game_start_sequence();
     this.broadcast_gamestate();
+    this.game_start_sequence();
     // reset the player turn completion status
     this.game.reset_player_turns();
     this.next_state();
@@ -136,6 +132,7 @@ StateMachine.prototype.tick = function (data) {
    * If in Trade state - trade logic operates on this.game
    ************************************************************/
   else if (this.state === "trade" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked trade state : initiated by "+this.game.players[data.player_id].name);
     this.game.players.every(function (player) {
       return player.turn_complete === true;
     });
@@ -147,151 +144,102 @@ StateMachine.prototype.tick = function (data) {
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked play state : initiated by "+this.game.players[data.player_id].name);
+    logger.log('info', "Requested action is", data.data_type);
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
-    if (data.data_type === 'trade_with_bank') {
-      this.trade_with_bank(data);
-    } else if (data.data_type === 'buy_dev_card') {
-      this.buy_dev_card(data);
-    } else if (data.data_type === 'request_knight') {
-      // Player has indicated they're going to use knight
-      // disable the knight for all other players
-      this.knightRequest(data);
-    } else if (data.data_type === 'use_knight') {
-      // Players has has chosen a resource to get with the knight
-      // update the player, reposition the robber
-      this.useKnight(data);
-      // Add flag so we can notify other players knight has been played
-      this.game.knight_player_id = data.player_id;
-    } else if (data.data_type === 'year_of_plenty_used') {
-      logger.log('debug', 'year of plenty played by player ' + data.player_id);
-      this.activate_year_of_plenty(data);
-    } else if (data.data_type === 'road_building_used') {
-      logger.log('debug', 'road building played by player ' + data.player_id);
-      this.activate_road_building(data);
-    } else if (data.data_type === 'monopoly_used') {
-      this.game.monopoly = -1;
-      this.activate_monopoly(data);
-    } else if (data.data_type === 'monopoly_not_used') {
-      //ignore this if monopoly not in play
-      if (this.game.monopoly === data.player_id) {
-        var data_package = new Data_package();
-        data_package.data_type = "round_turn";
-        // player with monopoly chose not to play it... tell all players to have their turn
-        for (var i = 0; i < this.game.players.length; i++) {
-          if (i !== this.game.monopoly) {
-            data_package.player = this.game.players[i];
-            this.send_to_player('game_turn', data_package);
-          }
-        }
-      } else {
-        logger.log('monopoly ignored');
-      }
-    }
-    // this section is activated when each player finishes their turn
-    else if (data.data_type === 'turn_complete') {
-      // Handle standard gameplay rounds
-      this.game.players[data.player_id].turn_complete = true;
-      this.game.players[data.player_id].turn_data = data;
-      // Determine if all players have indicated their round is complete
-      var round_complete = this.game.players.every(function (player) {
-        return player.turn_complete === true;
-      });
-
-      if (round_complete) {
-        this.validate_player_builds(data);
-        this.game.round_num++;
-        this.game.calculateScores();
-
-        // Resource distribution for next round
-        for (var i = 0; i < this.game.players.length; i++) {
-          // Reset round distribution cards
-          this.game.players[i].round_distribution_cards = new Cards();
-        }
-        // House rule 7 only comes up once someone has created their first non-startup building
-        var player_has_built = false;
-        for (var i = 0; i < this.game.players.length; i++) {
-          if (this.game.players[i].score.total_points > 2) {
-            player_has_built = true;
+    switch (data.data_type) {
+      case 'trade_with_bank':
+        this.trade_with_bank(data);
+        break;
+      case 'buy_dev_card':
+        this.buy_dev_card(data);
+        break;
+      case 'request_knight':
+        // Player has indicated they're going to use knight
+        // disable the knight for all other players
+        this.knightRequest(data);
+        break;
+        // fall through to catch all dev card uses
+      case 'use_knight':
+      case 'year_of_plenty_used':
+      case 'road_building_used':
+      case 'monopoly_used':
+        if (!this.game.players[data.player_id].used_dev_card) {
+          switch (data.data_type) {
+          case 'use_knight':
+            // Players has has chosen a resource to get with the knight
+            // update the player, reposition the robber
+            this.useKnight(data);
+            // Add flag so we can notify other players knight has been played
+            this.game.knight_player_id = data.player_id;
             break;
+          case 'year_of_plenty_used':
+            logger.log('debug', 'year of plenty played by player ' + data.player_id);
+            this.activate_year_of_plenty(data);
+            break;
+          case 'road_building_used':
+            logger.log('debug', 'road building played by player ' + data.player_id);
+            this.activate_road_building(data);
+            break;
+          case 'monopoly_used':
+            this.game.monopoly = -1;
+            this.activate_monopoly(data);
+            break;
+            // TODO: does monopoly block using other cards?
           }
+          this.game.players[data.player_id].used_dev_card = true;
+        } else {
+          // send message saying Noooooo!
         }
-
-        //  Next dice roll
-        var diceroll = 1;
-        var diceroll_check = 1;
-        do {
-          diceroll = this.game.rollingDice();
-          if (diceroll == 7 && !player_has_built) {
-            diceroll = 1;
-
-            //  Nerf the robber just a little to prevent too frequent occurance
-          } else if (diceroll == 7 && diceroll_check == 1) {
-            diceroll_check = this.game.rollingDice();
-            if (diceroll_check != 7) {
-              diceroll = diceroll_check;
+        break;
+      case 'monopoly_not_used':
+        //ignore this if monopoly not in play
+        if (this.game.monopoly === data.player_id) {
+          var data_package = new Data_package();
+          data_package.data_type = "round_turn";
+          // player with monopoly chose not to play it... tell all players to have their turn
+          for (var i = 0; i < this.game.players.length; i++) {
+            if (i !== this.game.monopoly) {
+              data_package.player = this.game.players[i];
+              this.send_to_player('game_turn', data_package);
             }
           }
-        } while (diceroll < 2);
-
-        // disable the robber for testing
-        if (this.game.robber === 'disabled') {
-          console.log("robber disabled, changing roll to 8");
-          this.game.dice_roll = [4, 4];
-          diceroll = 8;
+        } else {
+          logger.log('monopoly ignored');
         }
-
-        if (diceroll !== 7) {
-          this.game.allocateDicerollResources(diceroll);
-        } else if (this.game.robber !== 'disabled') {
-          this.game.moveRobber();
-          this.game.robPlayers();
-        }
-
-        this.broadcast_gamestate();
-        this.game.players.forEach(function (player) {
-          player.turn_complete = false;
+        break;
+      // this section is activated when each player finishes their turn
+      case 'turn_complete':
+        // Handle standard gameplay rounds
+        this.game.players[data.player_id].turn_complete = true;
+        this.game.players[data.player_id].used_dev_card = false;
+        this.game.players[data.player_id].turn_data = data;
+        // Determine if all players have indicated their round is complete
+        var round_complete = this.game.players.every(function (player) {
+          return player.turn_complete === true;
         });
 
-        // Reset the played knight flag on the game
-        this.game.knight_player_id = -1;
-
-        var setup_data = new Data_package();
-        setup_data.data_type = 'round_turn';
-
-        //  Notify players if there is no monopoly in play
-        if (this.game.monopoly < 0) {
-
-          this.broadcast('game_turn', setup_data);
+        if (round_complete) {
+          this.finish_round_for_all(data);
         } else {
-          // if there is a monopoly in play, notify only that player to start their turn
-          setup_data.player = this.game.players[this.game.monopoly];
-          this.send_to_player('game_turn', setup_data);
-          //tell the player who finished the round to wait (if they aren't the monopoly player)
-          if (this.game.monopoly !== data.player_id) {
-            setup_data.data_type = 'wait_others';
-            this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+          //  Tell this player to wait and update the interface for all others
+          var waiting = [];
+          for (var i = 0; i < this.game.players.length; i++) {
+            waiting.push([i, this.game.players[i].turn_complete]);
+          }
 
+          for (var i = 0; i < this.game.players.length; i++) {
+            if (i == data.player_id) {
+              var setup_data = new Data_package();
+              setup_data.data_type = 'wait_others';
+              this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+            } else {
+              this.game.players[i].socket.emit('update_players_waiting', waiting);
+            }
           }
         }
-
-      } else {
-        //  Tell this player to wait and update the interface for all others
-        var waiting = [];
-        for (var i = 0; i < this.game.players.length; i++) {
-          waiting.push([i, this.game.players[i].turn_complete]);
-        }
-
-        for (var i = 0; i < this.game.players.length; i++) {
-          if (i == data.player_id) {
-            var setup_data = new Data_package();
-            setup_data.data_type = 'wait_others';
-            this.game.players[data.player_id].socket.emit('game_turn', setup_data);
-          } else {
-            this.game.players[i].socket.emit('update_players_waiting', waiting);
-          }
-        }
-      }
+        break;
     }
     this.next_state();
     return true;
@@ -300,14 +248,91 @@ StateMachine.prototype.tick = function (data) {
    * If in end_game state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "end_game" && data) {
+    logger.log('info', 'Game #' + this.id + " ticked end_game state : initiated by "+this.game.players[data.player_id].name);
     this.broadcast_gamestate();
     this.broadcast_end();
     this.next_state();
     return true;
   }
   this.next_state();
-  console.log("Game tick received no data");
+  logger.log('error', "Game tick received no data");
   return false;
+};
+
+StateMachine.prototype.finish_round_for_all = function(data) {
+  this.validate_player_builds(data);
+  this.game.round_num++;
+  this.game.calculateScores();
+
+  // Resource distribution for next round
+  for (var i = 0; i < this.game.players.length; i++) {
+    // Reset round distribution cards
+    this.game.players[i].round_distribution_cards = new Cards();
+  }
+  // House rule 7 only comes up once someone has created their first non-startup building
+  var player_has_built = false;
+  for (var i = 0; i < this.game.players.length; i++) {
+    if (this.game.players[i].score.total_points > 2) {
+      player_has_built = true;
+      break;
+    }
+  }
+
+  //  Next dice roll
+  var diceroll = 1;
+  var diceroll_check = 1;
+  do {
+    diceroll = this.game.rollingDice();
+    if (diceroll == 7 && !player_has_built) {
+      diceroll = 1;
+
+      //  Nerf the robber just a little to prevent too frequent occurance
+    } else if (diceroll == 7 && diceroll_check == 1) {
+      diceroll_check = this.game.rollingDice();
+      if (diceroll_check != 7) {
+        diceroll = diceroll_check;
+      }
+    }
+  } while (diceroll < 2);
+
+  // disable the robber for testing
+  if (this.game.robber === 'disabled' && diceroll === 7) {
+      logger.log('debug', "robber disabled, changing roll to 8");
+      this.game.dice_roll = [4, 4];
+      diceroll = 8;
+    }
+
+    if (diceroll !== 7) {
+      this.game.allocateDicerollResources(diceroll);
+    } else if (this.game.robber !== 'disabled') {
+      this.game.moveRobber();
+      this.game.robPlayers();
+    }
+
+    this.broadcast_gamestate();
+    this.game.players.forEach(function (player) {
+      player.turn_complete = false;
+    });
+
+    // Reset the played knight flag on the game
+    this.game.knight_player_id = -1;
+
+    var setup_data = new Data_package();
+    setup_data.data_type = 'round_turn';
+
+    //  Notify players if there is no monopoly in play
+    if (this.game.monopoly < 0) {
+      this.broadcast('game_turn', setup_data);
+    } else {
+      // if there is a monopoly in play, notify only that player to start their turn
+      setup_data.player = this.game.players[this.game.monopoly];
+      this.send_to_player('game_turn', setup_data);
+      //tell the player who finished the round to wait (if they aren't the monopoly player)
+      if (this.game.monopoly !== data.player_id) {
+        setup_data.data_type = 'wait_others';
+        this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+      }
+    }
 };
 
 /*****************************************************************
@@ -316,7 +341,6 @@ StateMachine.prototype.tick = function (data) {
  of the game in the browser
 ******************************************************************/
 StateMachine.prototype.broadcast_gamestate = function () {
-
   var player;
   var data_package;
 
@@ -357,7 +381,6 @@ StateMachine.prototype.broadcast_gamestate = function () {
  * The game is over and we have a winner!
  */
 StateMachine.prototype.broadcast_end = function () {
-
   var player;
   var end_game_data = {
     players: []
@@ -372,13 +395,12 @@ StateMachine.prototype.broadcast_end = function () {
       end_game_data.winners_name = player.name;
     }
   }
-
   this.broadcast('game_end', end_game_data);
 };
 
 /// Messages all players in a game
 StateMachine.prototype.broadcast = function (event_name, data) {
-  console.log('Broadcasting event: ' + event_name);
+  logger.log('debug', 'Broadcasting event: ' + event_name);
   this.game.players.forEach(function (player) {
     player.socket.emit(event_name, data);
   });
@@ -386,7 +408,6 @@ StateMachine.prototype.broadcast = function (event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function (event_name, data) {
-
   var player = this.game.players[data.player.id];
 
   /**
@@ -435,7 +456,6 @@ StateMachine.prototype.game_start_sequence = function (initiatingGame) {
     }
   } else {
     this.setupComplete = true;
-    console.log("Setup complete");
     logger.log('debug', 'Setup phase completed');
     setup_data.data_type = 'setup_complete';
     this.broadcast('game_turn', setup_data);
@@ -454,7 +474,6 @@ StateMachine.prototype.game_start_sequence = function (initiatingGame) {
  * Validate player builds/actions
  ***************************************************************/
 StateMachine.prototype.validate_player_builds = function (data) {
-  console.log('validate_player_builds called');
   logger.log('debug', 'validate_player_builds function called.');
   if (this.game.round_num < 3) {
     //  During the seutp, just set the piece
@@ -628,7 +647,6 @@ StateMachine.prototype.wins_conflict = function (player_id, item, index, boost_c
  ***************************************************************/
 StateMachine.prototype.has_valid_path = function (player, object_type, node, original_node, checked) {
   var has_path = false;
-
   //  Make sure we have not already checked this node/road
   if (checked.indexOf(object_type + ":" + node.id) > -1) {
     return has_path;
@@ -681,25 +699,20 @@ StateMachine.prototype.has_valid_path = function (player, object_type, node, ori
 };
 
 StateMachine.prototype.trade_with_bank = function (data) {
-  logger.log('debug', "trade action with bank, player: " + data.player_id);
-
-  //var player = this.game.players[data.player_id];
+  logger.log('debug', "trade action with bank, player: " + this.game.players[data.player_id].name);
 
   //split the data to get the resource type: currently string = trade_sheep
   var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
   var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
-
   var cards_for_trade = data.actions[0].action_data.cards_for_trade;
 
   // check if cards available and remove cards from hand
   var data_package = new Data_package();
   if (this.game.players[data.player_id].cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)) {
     // add card to hand
-
     this.game.players[data.player_id].cards.add_card(cards_from_bank[1]);
     this.game.players[data.player_id].round_distribution_cards = new Cards();
     this.game.players[data.player_id].round_distribution_cards.add_card(cards_from_bank[1]);
-
     //send card back to player
     data_package.data_type = "returned_trade_card";
     data_package.player = this.game.players[data.player_id];
@@ -721,7 +734,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
     data_package.player.actions.push(action);
 
     this.send_to_player('game_turn', data_package);
-    console.log('package sent');
+    logger.log('info', 'Trade with bank package sent');
   }
 };
 
@@ -731,13 +744,7 @@ StateMachine.prototype.buy_dev_card = function (data) {
     this.game.players[data.player_id].cards.remove_cards('dev_card');
     // changed to shift as development_cards[0] needs to be removed
     var card = this.game.development_cards.shift();
-
-    // NOTE: Debugging ... to test dev card activate the card you want here
-    // card = 'knight';
-    // card = 'road_building';
-    console.log('Dev card purchased: ' + card);
     logger.log('debug', 'Dev card purchased: ' + card);
-    console.log("-----------------" + card);
 
     if (card === 'monopoly') {
       this.game.monopoly = data.player_id;
@@ -754,10 +761,9 @@ StateMachine.prototype.buy_dev_card = function (data) {
     this.game.calculateScores();
     this.send_to_player('game_turn', data_package);
   } else {
-    console.log('error', 'Player ' + data.player_id + ' does not have enough resources to buy a dev card');
+    logger.log('debug', 'Player ' + data.player_id + ' does not have enough resources to buy a dev card');
     // TODO send a fail message
   }
-
 };
 
 StateMachine.prototype.activate_year_of_plenty = function (data) {
@@ -769,7 +775,12 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
       this.game.players[data.player_id].round_distribution_cards.add_card(requested_cards[i]);
     }
 
-    this.game.players[data.player_id].cards.remove_card('year_of_plenty');
+    if (this.game.players[data.player_id].cards.remove_card('year_of_plenty')) {
+      logger.log('info', "Removed 'Year of Plenty' card from", data.player_id);
+    } else {
+      logger.log('error', "Failed to remove 'Year of Plenty' card from", data.player_id);
+      return false;
+    }
     //return the card to the pack
     this.game.return_dev_card('year_of_plenty');
 
@@ -779,9 +790,9 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
 
     this.send_to_player('game_turn', data_package);
   } else {
-    console.log("Year of plenty called but year of plenty action not visible");
     logger.log('error', "Year of plenty called but year of plenty action not visible");
   }
+  return true;
 };
 
 StateMachine.prototype.activate_road_building = function (data) {
@@ -806,7 +817,6 @@ StateMachine.prototype.activate_road_building = function (data) {
 
     this.send_to_player('game_turn', data_package);
   } else {
-    console.log("Road building called but road building action not visible");
     logger.log('error', "Road building called but road building action not visible");
   }
 };
@@ -868,7 +878,12 @@ StateMachine.prototype.activate_monopoly = function (data) {
   //add cards to the player who activated monopoly
   this.game.players[data.player_id].cards.add_cards(data.actions[0].action_data, cards);
   //remove monopoly from player's hand
-  this.game.players[data.player_id].cards.remove_card('monopoly');
+  if (this.game.players[data.player_id].cards.remove_card('monopoly')) {
+    logger.log('info', "Removed 'Monopoly' card from", data.player_id);
+  } else {
+    logger.log('error', "Failed to remove 'Monopoly' card from", data.player_id);
+    return false;
+  }
   // put monopoly back in the deck
   this.game.return_dev_card('monopoly');
   // send the spoils to the victor
@@ -882,6 +897,7 @@ StateMachine.prototype.activate_monopoly = function (data) {
   data_package.player.actions = [];
   data_package.player.actions.push(action);
   this.send_to_player('game_turn', data_package);
+  return true;
 };
 
 /**
@@ -903,7 +919,7 @@ StateMachine.prototype.knightRequest = function (data) {
 StateMachine.prototype.useKnight = function (data) {
   this.game.knightMoveRobber(data.player_id);
 
-  console.log(data);
+  logger.log('debug', "Knight data:\n", data);
   // Add the resource played to the players stash on the back end
   this.game.players[data.player_id].cards.add_cards(data.resource, 1);
   // Update player card details to reflect they have played a knight
