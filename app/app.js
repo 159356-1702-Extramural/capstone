@@ -41,10 +41,6 @@ app.get('/', function (req, res) {
   startWithCards = req.query["startWithCards"];
   process.env['startWithCards'] = (typeof startWithCards === 'undefined') ? 0 : startWithCards;
 
-  //set environment variable for 4 players if {url}:3000/?players=4 is queried  --> {url}:3000/?test=true&players=4
-  playerNum = req.query["players"];
-  process.env['players'] = (typeof playerNum === 'undefined') ? 4 : playerNum;
-
   // skip setup phase using {url}:3000/?setup=skip
   setupGame = req.query["setup"];
   process.env['setup'] = (typeof setupGame === 'undefined') ? "continue" : setupGame;
