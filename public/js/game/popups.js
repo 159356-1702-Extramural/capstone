@@ -781,7 +781,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   /***************************************************
    *  round_restrict_dev_card_use.html
    **************************************************/
-  function build_popup_restrict_dev_card_use(card_use) {
+  function build_popup_restrict_dev_card_use(card_use, current_cards) {
   
     var dev_cards = [];
     var heading = "";
@@ -797,15 +797,26 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     }
   
     // load cards to display
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    var count = current_game.player.cards.dev_cards.year_of_plenty;
+    for (var i=0; i<count; i++) {
+      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    }
+    count = current_game.player.cards.dev_cards.knight;
+    for (var i=0; i<count; i++) {
+      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    }
+    count = current_game.player.cards.dev_cards.monopoly;
+    for (var i=0; i<count; i++) {
+      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    }
+    count = current_game.player.cards.dev_cards.road_building;
+    for (var i=0; i<count; i++) {
+      other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
-  
+    }
     dev_cards.push(['dev_card_heading', heading]);
     dev_cards.push(['dev_card_content', content]);
     dev_cards.push(['other_dev_cards', other_dev_cards]);
