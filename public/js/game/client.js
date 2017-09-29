@@ -486,6 +486,8 @@ $(document)
         $('.cardlist .knight.card')
           .remove();
       }
+      //Development card played for the turn
+      dev_card_played();
 
       hidePopup();
     });

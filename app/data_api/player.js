@@ -14,16 +14,13 @@ function Player(socket, data) {
   this.game_id = data.game_id;
   this.game_name = data.game_name;
   this.socket = socket;
-
-  // True when player has won the game
   this.winner = false;
 
   this.turn_complete = false;
   //hold on to turn data : null was causing errors with .length
   this.turn_data = [];
-
-  // Players colour
   this.colour = null;
+  this.used_dev_card = false;
 
   this.score = {
     total_points: 0,
