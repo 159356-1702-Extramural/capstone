@@ -46,8 +46,7 @@ Game.prototype.add_player = function (player) {
     colour: player.colour
   });
   this.players.push(player);
-  console.log('Player number ' + (this.players.length) + ' has been added');
-  logger.log("debug", 'Player number ' + (this.players.length) + ' has been added');
+  logger.log("info", 'Player number ' + (this.players.length) + ' has been added');
   return true;
 };
 
@@ -91,7 +90,6 @@ Game.prototype.secondRoundResources = function (player, data) {
       player.cards.add_card(res_type);
     }
   } else {
-    console.log("secondRoundResources(): tiles undefined, possible invalid data");
     logger.log('debug', "secondRoundResources(): tiles undefined, possible invalid data");
   }
 };
@@ -107,8 +105,7 @@ Game.prototype.rollingDice = function () {
 
   // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
   if (this.test_mode === 'true') {
-    console.log("Fixed dice rolls enabled");
-    logger.log("Fixed dice rolls enabled");
+    logger.log('debug', "Fixed dice rolls enabled");
     var dice1array = [1, 2, 3, 4, 5, 6];
     dice1 = dice1array[this.round_num % dice1array.length];
 
@@ -345,7 +342,7 @@ Game.prototype.modifyPlayerWithRoadBonus = function () {
       skip_update = true;
       this.longest_road = last_longest;
       this.longest_road_id = last_player;
-      console.log("Players have same length road");
+      logger.log('debug', "Players have same length road");
       break;
     }
   }
@@ -354,7 +351,7 @@ Game.prototype.modifyPlayerWithRoadBonus = function () {
     for (var p = 0; p < this.players.length; p++) {
       var player = this.players[p];
       if (this.longest_road >= 5) {
-        console.log("New player with longest road found:", player.id);
+        logger.log('info', "New player with longest road found:", player.id);
         player.score.longest_road =
           (this.longest_road_id === player.id) ? true : false;
       }

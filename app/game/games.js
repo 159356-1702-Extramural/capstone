@@ -51,7 +51,6 @@ Games.prototype.assign_player = function (socket, data) {
   /*    Create listeners on sockets for messages    */
   /**************************************************/
   player.socket.on('game_update', function (data) {
-    console.log("Player." + player.id, "invoked game_update");
     logger.log('debug', "Player." + player.id, "invoked game_update");
     // state_machine function to be called
     state_machine.tick(data);
@@ -67,7 +66,6 @@ Games.prototype.assign_player = function (socket, data) {
 
   // Start the game if we have all the players
   if (state_machine.game.game_full()) {
-    console.log('info', 'Game #' + state_machine.id + " started");
     logger.log('info', 'Game #' + state_machine.id + " started");
     state_machine.broadcast('game_start', {});
     //  Create the board and send it to the clients
@@ -86,11 +84,11 @@ Games.prototype.remove_game = function (state_machine) {
 /// Resets all the games - use for debugging
 Games.prototype.hard_reset = function () {
   this.games = [];
-  console.log('Games have been reset.');
+  logger.log('debug', 'Games have been reset.');
 };
 
 Games.prototype.send_lobby_data = function (socket) {
-  console.log("Lobby data requested");
+  logger.log('info', "Lobby data requested");
   var games = [];
   for (var i = 0; i < this.games.length; i++) {
     var game_data = {
@@ -104,13 +102,13 @@ Games.prototype.send_lobby_data = function (socket) {
     }
     games.push(game_data);
   }
-  //console.log("Current lobby data = \n", games);
+  logger.log('debug', "Current lobby data = \n", games);
   socket.emit("lobby_data", games);
 };
 
 Games.prototype.new_game = function (socket, data, game_size) {
   var player = new Player(socket, data);
-  console.log('Creating an new game');
+  logger.log('info', 'Creating an new game');
 
   var state_machine = new sm.StateMachine(this.games.length, game_size);
   player.game_id = this.games.length;
@@ -124,7 +122,7 @@ Games.prototype.new_game = function (socket, data, game_size) {
   if (state_machine.game.test_mode === 'false') {
     state_machine.game.test_mode = this.set_test_flag();
   }
-  console.log('Number of games = ' + this.games.length);
+  logger.log('info', 'Number of games = ' + this.games.length);
   this.assign_player(socket, player);
 };
 
