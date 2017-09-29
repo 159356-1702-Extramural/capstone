@@ -166,21 +166,35 @@ StateMachine.prototype.tick = function (data) {
       case 'road_building_used':
       case 'monopoly_used':
         if (!this.game.players[data.player_id].used_dev_card) {
+          var player_name = this.game.players[data.player_id].name;
+          var recent_purchase = this.game.players[data.player_id].recent_purchase;
           switch (data.data_type) {
           case 'use_knight':
-            // Players has has chosen a resource to get with the knight
-            // update the player, reposition the robber
-            this.useKnight(data);
-            // Add flag so we can notify other players knight has been played
-            this.game.knight_player_id = data.player_id;
+            if (recent_purchase !== 'knight') {
+              // Players has has chosen a resource to get with the knight
+              // update the player, reposition the robber
+              this.useKnight(data);
+              // Add flag so we can notify other players knight has been played
+              this.game.knight_player_id = data.player_id;
+            } else {
+              logger.log('debug', player_name+" attempted to use Knight in same round as purchase");
+            }
             break;
           case 'year_of_plenty_used':
-            logger.log('debug', 'year of plenty played by player ' + data.player_id);
-            this.activate_year_of_plenty(data);
+            if (recent_purchase !== 'year_of_plenty') {
+              logger.log('debug', 'year of plenty played by ' + player_name);
+              this.activate_year_of_plenty(data);
+            } else {
+              logger.log('debug', player_name+" attempted to use Year of Plenty in same round as purchase");
+            }
             break;
           case 'road_building_used':
-            logger.log('debug', 'road building played by player ' + data.player_id);
-            this.activate_road_building(data);
+            if (recent_purchase !== 'road_building') {
+              logger.log('debug', 'road building played by ' + player_name);
+              this.activate_road_building(data);
+            } else {
+              logger.log('debug', player_name+" attempted to use Road Building in same round as purchase");
+            }
             break;
           case 'monopoly_used':
             this.game.monopoly = -1;
@@ -214,6 +228,7 @@ StateMachine.prototype.tick = function (data) {
         // Handle standard gameplay rounds
         this.game.players[data.player_id].turn_complete = true;
         this.game.players[data.player_id].used_dev_card = false;
+        this.game.players[data.player_id].recent_purchase = "";
         this.game.players[data.player_id].turn_data = data;
         // Determine if all players have indicated their round is complete
         var round_complete = this.game.players.every(function (player) {
@@ -751,6 +766,7 @@ StateMachine.prototype.buy_dev_card = function (data) {
     }
 
     this.game.players[data.player_id].cards.add_card(card);
+    this.game.players[data.player_id].recent_purchase = card;
     this.game.players[data.player_id].round_distribution_cards.add_card(card);
 
     var data_package = new Data_package();
