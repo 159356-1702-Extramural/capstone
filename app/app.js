@@ -33,7 +33,7 @@ app.get('/', function (req, res) {
   //start with testing set to false
   process.env['testing'] = 'false';
 
-  var loglevel = req.query["loglevel"];
+  var loglevel = req.query["loglevel"] || process.env['loglevel'];
   logger.level = (typeof loglevel === 'undefined') ? "error" : loglevel;
   console.log("Log level set to", logger.level);
 
