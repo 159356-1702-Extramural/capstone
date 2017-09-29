@@ -222,79 +222,7 @@ StateMachine.prototype.tick = function (data) {
         });
 
         if (round_complete) {
-          this.validate_player_builds(data);
-          this.game.round_num++;
-          this.game.calculateScores();
-
-          // Resource distribution for next round
-          for (var i = 0; i < this.game.players.length; i++) {
-            // Reset round distribution cards
-            this.game.players[i].round_distribution_cards = new Cards();
-          }
-          // House rule 7 only comes up once someone has created their first non-startup building
-          var player_has_built = false;
-          for (var i = 0; i < this.game.players.length; i++) {
-            if (this.game.players[i].score.total_points > 2) {
-              player_has_built = true;
-              break;
-            }
-          }
-
-          //  Next dice roll
-          var diceroll = 1;
-          var diceroll_check = 1;
-          do {
-            diceroll = this.game.rollingDice();
-            if (diceroll == 7 && !player_has_built) {
-              diceroll = 1;
-
-              //  Nerf the robber just a little to prevent too frequent occurance
-            } else if (diceroll == 7 && diceroll_check == 1) {
-              diceroll_check = this.game.rollingDice();
-              if (diceroll_check != 7) {
-                diceroll = diceroll_check;
-              }
-            }
-          } while (diceroll < 2);
-
-          // disable the robber for testing
-          if (this.game.robber === 'disabled' && diceroll === 7) {
-            console.log("robber disabled, changing roll to 8");
-            this.game.dice_roll = [4, 4];
-            diceroll = 8;
-          }
-
-          if (diceroll !== 7) {
-            this.game.allocateDicerollResources(diceroll);
-          } else if (this.game.robber !== 'disabled') {
-            this.game.moveRobber();
-            this.game.robPlayers();
-          }
-
-          this.broadcast_gamestate();
-          this.game.players.forEach(function (player) {
-            player.turn_complete = false;
-          });
-
-          // Reset the played knight flag on the game
-          this.game.knight_player_id = -1;
-
-          var setup_data = new Data_package();
-          setup_data.data_type = 'round_turn';
-
-          //  Notify players if there is no monopoly in play
-          if (this.game.monopoly < 0) {
-            this.broadcast('game_turn', setup_data);
-          } else {
-            // if there is a monopoly in play, notify only that player to start their turn
-            setup_data.player = this.game.players[this.game.monopoly];
-            this.send_to_player('game_turn', setup_data);
-            //tell the player who finished the round to wait (if they aren't the monopoly player)
-            if (this.game.monopoly !== data.player_id) {
-              setup_data.data_type = 'wait_others';
-              this.game.players[data.player_id].socket.emit('game_turn', setup_data);
-            }
-          }
+          this.finish_round_for_all(data);
         } else {
           //  Tell this player to wait and update the interface for all others
           var waiting = [];
@@ -329,6 +257,82 @@ StateMachine.prototype.tick = function (data) {
   this.next_state();
   console.log("Game tick received no data");
   return false;
+};
+
+StateMachine.prototype.finish_round_for_all = function(data) {
+  this.validate_player_builds(data);
+  this.game.round_num++;
+  this.game.calculateScores();
+
+  // Resource distribution for next round
+  for (var i = 0; i < this.game.players.length; i++) {
+    // Reset round distribution cards
+    this.game.players[i].round_distribution_cards = new Cards();
+  }
+  // House rule 7 only comes up once someone has created their first non-startup building
+  var player_has_built = false;
+  for (var i = 0; i < this.game.players.length; i++) {
+    if (this.game.players[i].score.total_points > 2) {
+      player_has_built = true;
+      break;
+    }
+  }
+
+  //  Next dice roll
+  var diceroll = 1;
+  var diceroll_check = 1;
+  do {
+    diceroll = this.game.rollingDice();
+    if (diceroll == 7 && !player_has_built) {
+      diceroll = 1;
+
+      //  Nerf the robber just a little to prevent too frequent occurance
+    } else if (diceroll == 7 && diceroll_check == 1) {
+      diceroll_check = this.game.rollingDice();
+      if (diceroll_check != 7) {
+        diceroll = diceroll_check;
+      }
+    }
+  } while (diceroll < 2);
+
+  // disable the robber for testing
+  if (this.game.robber === 'disabled' && diceroll === 7) {
+      console.log("robber disabled, changing roll to 8");
+      this.game.dice_roll = [4, 4];
+      diceroll = 8;
+    }
+
+    if (diceroll !== 7) {
+      this.game.allocateDicerollResources(diceroll);
+    } else if (this.game.robber !== 'disabled') {
+      this.game.moveRobber();
+      this.game.robPlayers();
+    }
+
+    this.broadcast_gamestate();
+    this.game.players.forEach(function (player) {
+      player.turn_complete = false;
+    });
+
+    // Reset the played knight flag on the game
+    this.game.knight_player_id = -1;
+
+    var setup_data = new Data_package();
+    setup_data.data_type = 'round_turn';
+
+    //  Notify players if there is no monopoly in play
+    if (this.game.monopoly < 0) {
+      this.broadcast('game_turn', setup_data);
+    } else {
+      // if there is a monopoly in play, notify only that player to start their turn
+      setup_data.player = this.game.players[this.game.monopoly];
+      this.send_to_player('game_turn', setup_data);
+      //tell the player who finished the round to wait (if they aren't the monopoly player)
+      if (this.game.monopoly !== data.player_id) {
+        setup_data.data_type = 'wait_others';
+        this.game.players[data.player_id].socket.emit('game_turn', setup_data);
+      }
+    }
 };
 
 /*****************************************************************
