@@ -238,7 +238,8 @@ $(document)
 
         // keep track of how many cards are purchased
         current_player.dev_cards.purchased++;
-
+        current_player.dev_cards.recent_purchase.push(data.player.recent_purchase);
+        console.log("BLAAARRGH!",data.player);
         current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
@@ -402,7 +403,8 @@ $(document)
       if (!current_player.road_building_used) {
 
         //check to be sure no dev cards have been played yet
-        if (!current_player.dev_cards.played) {
+        if (!current_player.dev_cards.played &&
+            current_player.dev_cards.recent_purchase.indexOf("road_building") === -1) {
           build_popup_use_road_building();
         } else {
           build_popup_restrict_dev_card_use('play');
@@ -438,12 +440,12 @@ $(document)
 
       //Development card played for the turn
       dev_card_played();
-
     });
 
     // Play the Knight card
     $doc.on('click', '.cardlist .knight.card', function(e) {
-      if (!current_player.dev_cards.played) {
+      if (!current_player.dev_cards.played &&
+            current_player.dev_cards.recent_purchase.indexOf("knight") === -1) {
         e.preventDefault();
 
         if ($(this)
@@ -531,7 +533,8 @@ $(document)
     $doc.on('click', '.year_of_plenty', function(e) {
 
       //check to be sure no dev cards have been played yet
-      if (!current_player.dev_cards.played) {
+      if (!current_player.dev_cards.played &&
+            current_player.dev_cards.recent_purchase.indexOf("year_of_plenty") === -1) {
         buildPopup('round_use_year_of_plenty', false, false);
       } else {
         build_popup_restrict_dev_card_use('play');
@@ -666,8 +669,6 @@ $(document)
             var data_package = new Data_package();
             data_package.data_type = "buy_dev_card";
             data_package.player_id = current_game.player.id;
-            // prevent card being played in same turn
-            dev_card_played();
             update_server('game_update', data_package);
           }
         } else {
@@ -1759,6 +1760,7 @@ function dev_card_played() {
 function reset_dev_cards_per_round() {
   current_player.dev_cards.played = false;
   current_player.dev_cards.purchased = 0;
+  current_player.dev_cards.recent_purchase = [];
 
   $('.cardlist .knight.card')
     .removeClass('disabled');

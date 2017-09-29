@@ -9,7 +9,8 @@ function currentPlayer(name, id, colour) {
   this.free_roads = 0;
   this.dev_cards = {
     played: false,
-    purchased: 0
+    purchased: 0,
+    recent_purchase: []
   };
   this.trading = {
     sheep: false,

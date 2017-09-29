@@ -21,6 +21,7 @@ function Player(socket, data) {
   this.turn_data = [];
   this.colour = null;
   this.used_dev_card = false;
+  this.recent_purchase = "";
 
   this.score = {
     total_points: 0,
