@@ -284,7 +284,6 @@ StateMachine.prototype.tick = function (data) {
 
           //  Notify players if there is no monopoly in play
           if (this.game.monopoly < 0) {
-
             this.broadcast('game_turn', setup_data);
           } else {
             // if there is a monopoly in play, notify only that player to start their turn
@@ -294,10 +293,8 @@ StateMachine.prototype.tick = function (data) {
             if (this.game.monopoly !== data.player_id) {
               setup_data.data_type = 'wait_others';
               this.game.players[data.player_id].socket.emit('game_turn', setup_data);
-
             }
           }
-
         } else {
           //  Tell this player to wait and update the interface for all others
           var waiting = [];
@@ -340,7 +337,6 @@ StateMachine.prototype.tick = function (data) {
  of the game in the browser
 ******************************************************************/
 StateMachine.prototype.broadcast_gamestate = function () {
-
   var player;
   var data_package;
 
@@ -381,7 +377,6 @@ StateMachine.prototype.broadcast_gamestate = function () {
  * The game is over and we have a winner!
  */
 StateMachine.prototype.broadcast_end = function () {
-
   var player;
   var end_game_data = {
     players: []
@@ -396,7 +391,6 @@ StateMachine.prototype.broadcast_end = function () {
       end_game_data.winners_name = player.name;
     }
   }
-
   this.broadcast('game_end', end_game_data);
 };
 
@@ -410,7 +404,6 @@ StateMachine.prototype.broadcast = function (event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function (event_name, data) {
-
   var player = this.game.players[data.player.id];
 
   /**
@@ -652,7 +645,6 @@ StateMachine.prototype.wins_conflict = function (player_id, item, index, boost_c
  ***************************************************************/
 StateMachine.prototype.has_valid_path = function (player, object_type, node, original_node, checked) {
   var has_path = false;
-
   //  Make sure we have not already checked this node/road
   if (checked.indexOf(object_type + ":" + node.id) > -1) {
     return has_path;
@@ -707,23 +699,18 @@ StateMachine.prototype.has_valid_path = function (player, object_type, node, ori
 StateMachine.prototype.trade_with_bank = function (data) {
   logger.log('debug', "trade action with bank, player: " + data.player_id);
 
-  //var player = this.game.players[data.player_id];
-
   //split the data to get the resource type: currently string = trade_sheep
   var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
   var cards_from_bank = data.actions[0].action_data.cards_from_the_bank.split('_');
-
   var cards_for_trade = data.actions[0].action_data.cards_for_trade;
 
   // check if cards available and remove cards from hand
   var data_package = new Data_package();
   if (this.game.players[data.player_id].cards.remove_multiple_cards(cards_for_bank[1], cards_for_trade)) {
     // add card to hand
-
     this.game.players[data.player_id].cards.add_card(cards_from_bank[1]);
     this.game.players[data.player_id].round_distribution_cards = new Cards();
     this.game.players[data.player_id].round_distribution_cards.add_card(cards_from_bank[1]);
-
     //send card back to player
     data_package.data_type = "returned_trade_card";
     data_package.player = this.game.players[data.player_id];
