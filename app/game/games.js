@@ -1,6 +1,7 @@
 var logger = require('winston');
 var Player = require('../data_api/player.js');
 var sm = require("./state_machine.js");
+var Chat = require('./chat.js');
 
 /********************************************************
  * Games was Lobby - renamed to suit task
@@ -72,6 +73,7 @@ Games.prototype.assign_player = function (socket, data) {
     state_machine.broadcast('build_board', state_machine.game.buildBoard());
     state_machine.broadcast_gamestate();
     state_machine.game_start_sequence();
+    state_machine.chat = new Chat(state_machine.game.players);
     logger.log('info', 'Start of #' + state_machine.id + " completed");
   }
 };

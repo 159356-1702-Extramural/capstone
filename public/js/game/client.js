@@ -301,6 +301,38 @@ $(document)
       updatePanelDisplay();
     });
 
+
+    /**
+     * Chat Events --
+     */
+
+    // Dispatch chat message on enter press
+    $doc.on('keypress', '.chat_input', function(e) {
+      if (e.which != 13) return;
+
+      var $input = $(this);
+      var message = $input.val();
+
+      socket.emit('chat_message', {
+        player_id: current_player.id,
+        message: message
+      });
+
+      $input.val('').focus();
+
+      return false;
+    });
+
+    // Listen for incoming chat messages
+    socket.on('chat_message', function(data) {
+      var $message_panel = $('.messages');
+
+      var message_html = "<div class=\"chat_message\"><span class=\"chat_message_name chat_player"+data.player_id+"\">"+data.name+" </span>"+data.message+"</div>";
+
+      $message_panel.append(message_html);
+
+    });
+
     /*
 
     New events for upcoming html templates

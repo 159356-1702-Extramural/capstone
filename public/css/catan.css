@@ -325,6 +325,66 @@ body {
     display:none;
 }
 
+.game_chat {
+    position:absolute;
+    display:inline-block;
+    top:30px;
+    left:1183px;
+    height:812px;
+    width:232px;
+    z-index:100;
+    border: thick inset black;
+}
+
+.game_chat form {
+  position: absolute;
+  bottom: 0px;
+  background-color: silver;
+  height: 60px;
+  padding: 6px;
+  width: 220px;
+}
+
+.game_chat textarea {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  resize: none;
+  width: 214px;
+  height: 54px;
+}
+
+.game_chat .messages {
+  padding: 4px;
+  font-size: 14px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+  height: 731px;
+  overflow-y: auto;
+}
+
+.game_chat .messages .chat_message {
+  margin-bottom: 4px;
+}
+
+.game_chat .messages .chat_message_name {
+  font-weight: bold;
+}
+
+.game_chat .messages .chat_message_name.chat_player0 {
+  color: #7168CA;
+}
+.game_chat .messages .chat_message_name.chat_player1 {
+  color: #AB0F12;
+}
+.game_chat .messages .chat_message_name.chat_player2 {
+  color: #0C1BC3;
+}
+.game_chat .messages .chat_message_name.chat_player3 {
+  color: #0A9D08;
+}
+
 .board {
     position:absolute;
     background-image:url(../images/water.jpg);
