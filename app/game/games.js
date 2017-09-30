@@ -52,7 +52,7 @@ Games.prototype.assign_player = function (socket, data) {
   /*    Create listeners on sockets for messages    */
   /**************************************************/
   player.socket.on('game_update', function (data) {
-    logger.log('debug', "Player." + player.id, "invoked game_update");
+    logger.log('debug', "SM#"+state_machine.id+": "+player.name+" invoked game_update");
     // state_machine function to be called
     state_machine.tick(data);
   });
@@ -111,7 +111,7 @@ Games.prototype.send_lobby_data = function (socket) {
 
 Games.prototype.new_game = function (socket, data, game_size) {
   var player = new Player(socket, data);
-  logger.log('info', 'Creating an new game');
+  logger.log('info', '\nCreating an new game "'+player.game_name+'"');
 
   var state_machine = new sm.StateMachine(this.games.length, game_size);
   player.game_id = this.games.length;

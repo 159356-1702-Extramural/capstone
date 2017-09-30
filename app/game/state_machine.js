@@ -36,6 +36,9 @@ function StateMachine(id, game_size) {
   this.chat = null;
 }
 
+StateMachine.prototype.log = function(level, str) {
+  logger.log(level, 'SM#' + this.id + ': '+str);
+}
 /*
  * Iterates through states according to flags set
  * for example; setup_complete = true would skip that state
@@ -45,25 +48,25 @@ function StateMachine(id, game_size) {
 StateMachine.prototype.next_state = function () {
   // TODO: checks on game conditions to determine state
   if (this.state === "setup") {
-    logger.log('debug', 'state_machine #' + this.id + ' in "setup" state');
+    this.log('debug', 'in "setup" state');
     // if (conditions to switch state)
     if (this.setupComplete === true) {
-      logger.log('debug', 'state_machine #' + this.id + ' setup state successfully completed');
+      this.log('debug', 'setup state successfully completed');
       this.state = "play";
     }
   } else if (this.state === "trade") {
-    logger.log('debug', 'state_machine #' + this.id + ' in "trade" state');
+    this.log('debug', 'in "trade" state');
     if (round_complete) {
       this.state = "play";
     }
   } else if (this.state === "play") {
-    logger.log('debug', 'state_machine #' + this.id + ' in "play" state');
+    this.log('debug', 'in "play" state');
     // End the game if we have a winner
     if (this.game.haveWinner()) {
       this.state = "end_game";
     }
   } else if (this.state === "end_game") {
-    logger.log('debug', 'state_machine #' + this.id + ' in "end_game" state');
+    this.log('debug', 'in "end_game" state');
     // if (conditions to switch state)
   }
 };
@@ -76,12 +79,12 @@ StateMachine.prototype.next_state = function () {
  *       come in is of use per state
  ****************************************************************/
 StateMachine.prototype.tick = function (data) {
-  logger.log('info', 'Game #' + this.id + ", round #"+this.game.round_num);
+  this.log('debug', 'round #'+this.game.round_num);
   /************************************************************
    * If in Setup state - game setup logic operates on this.game
    ************************************************************/
   if (this.state === "setup" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked setup state : initiated by "+this.game.players[data.player_id].name);
+    this.log('debug', '\n   '+this.game.players[data.player_id].name+' initiated tick()');
     //  Set the piece
     this.validate_player_builds(data);
 
@@ -93,7 +96,7 @@ StateMachine.prototype.tick = function (data) {
 
     //second round resources was running 1 too many times so needed to add the extra check
     if (this.setupPointer > this.setupSequence.length / 2 && this.setupPointer <= this.setupSequence.length) {
-      logger.log('debug', "setupPointer: " + this.setupPointer + " | setupSeq ID: " + this.setupSequence[this.setupPointer] +
+      this.log('debug', "setupPointer: " + this.setupPointer + " | setupSeq ID: " + this.setupSequence[this.setupPointer] +
         "| data.player_id: " + data.player_id);
       this.game.secondRoundResources(this.game.players[data.player_id], data);
     }
@@ -103,7 +106,7 @@ StateMachine.prototype.tick = function (data) {
       this.game.round_num++;
 
     if (this.setupPointer === this.setupSequence.length) {
-      logger.log('info', "final player setup");
+      this.log('info', "final player setup");
       var diceroll;
       // We can't start with a 7 as that would mean starting with robber
       do {
@@ -133,7 +136,7 @@ StateMachine.prototype.tick = function (data) {
    * If in Trade state - trade logic operates on this.game
    ************************************************************/
   else if (this.state === "trade" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked trade state : initiated by "+this.game.players[data.player_id].name);
+    this.log('debug', 'ticked trade state : initiated by '+this.game.players[data.player_id].name);
     this.game.players.every(function (player) {
       return player.turn_complete === true;
     });
@@ -145,8 +148,9 @@ StateMachine.prototype.tick = function (data) {
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked play state : initiated by "+this.game.players[data.player_id].name);
-    logger.log('info', "Requested action is", data.data_type);
+    var player_name = this.game.players[data.player_id].name;
+    this.log('debug', 'ticked play state : initiated by '+player_name);
+    this.log('info', "Requested action is "+data.data_type);
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
@@ -167,7 +171,6 @@ StateMachine.prototype.tick = function (data) {
       case 'road_building_used':
       case 'monopoly_used':
         if (!this.game.players[data.player_id].used_dev_card) {
-          var player_name = this.game.players[data.player_id].name;
           var recent_purchase = this.game.players[data.player_id].recent_purchase;
           switch (data.data_type) {
           case 'use_knight':
@@ -178,23 +181,23 @@ StateMachine.prototype.tick = function (data) {
               // Add flag so we can notify other players knight has been played
               this.game.knight_player_id = data.player_id;
             } else {
-              logger.log('debug', player_name+" attempted to use Knight in same round as purchase");
+              this.log('debug', player_name+" attempted to use Knight in same round as purchase");
             }
             break;
           case 'year_of_plenty_used':
             if (recent_purchase !== 'year_of_plenty') {
-              logger.log('debug', 'year of plenty played by ' + player_name);
+              this.log('debug', 'year of plenty played by ' + player_name);
               this.activate_year_of_plenty(data);
             } else {
-              logger.log('debug', player_name+" attempted to use Year of Plenty in same round as purchase");
+              this.log('debug', player_name+" attempted to use Year of Plenty in same round as purchase");
             }
             break;
           case 'road_building_used':
             if (recent_purchase !== 'road_building') {
-              logger.log('debug', 'road building played by ' + player_name);
+              this.log('debug', 'road building played by ' + player_name);
               this.activate_road_building(data);
             } else {
-              logger.log('debug', player_name+" attempted to use Road Building in same round as purchase");
+              this.log('debug', player_name+" attempted to use Road Building in same round as purchase");
             }
             break;
           case 'monopoly_used':
@@ -221,7 +224,7 @@ StateMachine.prototype.tick = function (data) {
             }
           }
         } else {
-          logger.log('monopoly ignored');
+          this.log('debug', 'monopoly ignored');
         }
         break;
       // this section is activated when each player finishes their turn
@@ -264,18 +267,19 @@ StateMachine.prototype.tick = function (data) {
    * If in end_game state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "end_game" && data) {
-    logger.log('info', 'Game #' + this.id + " ticked end_game state : initiated by "+this.game.players[data.player_id].name);
+    this.log('debug', 'ticked end_game state : initiated by '+this.game.players[data.player_id].name);
     this.broadcast_gamestate();
     this.broadcast_end();
     this.next_state();
     return true;
   }
   this.next_state();
-  logger.log('error', "Game tick received no data");
+  this.log('error', "Game tick received no data");
   return false;
 };
 
 StateMachine.prototype.finish_round_for_all = function(data) {
+  if (!data) this.log("error", "func 'finish_round_for_all()' missing data");
   this.validate_player_builds(data);
   this.game.round_num++;
   this.game.calculateScores();
@@ -313,7 +317,7 @@ StateMachine.prototype.finish_round_for_all = function(data) {
 
   // disable the robber for testing
   if (this.game.robber === 'disabled' && diceroll === 7) {
-      logger.log('debug', "robber disabled, changing roll to 8");
+      this.log('debug', "robber disabled, changing roll to 8");
       this.game.dice_roll = [4, 4];
       diceroll = 8;
     }
@@ -380,7 +384,6 @@ StateMachine.prototype.broadcast_gamestate = function () {
   // Send each player their a game update
 
   for (var i = 0; i < this.game.players.length; i++) {
-
     // Clone Player so we can remove the socket for transmission to client
     player = Object.assign({}, this.game.players[i]);
     delete player.socket;
@@ -416,7 +419,8 @@ StateMachine.prototype.broadcast_end = function () {
 
 /// Messages all players in a game
 StateMachine.prototype.broadcast = function (event_name, data) {
-  logger.log('debug', 'Broadcasting event: ' + event_name);
+  if (!data) this.log("error", "func 'broadcast()' missing data");
+  this.log('debug', 'Broadcasting event: ' + event_name);
   this.game.players.forEach(function (player) {
     player.socket.emit(event_name, data);
   });
@@ -424,6 +428,7 @@ StateMachine.prototype.broadcast = function (event_name, data) {
 
 /// Messages individual player in a game
 StateMachine.prototype.send_to_player = function (event_name, data) {
+  if (!data) this.log("error", "func 'send_to_player()' missing data");
   var player = this.game.players[data.player.id];
 
   /**
@@ -436,29 +441,27 @@ StateMachine.prototype.send_to_player = function (event_name, data) {
     delete clonedPlayer.socket;
     data.player = clonedPlayer;
   }
-  logger.log('debug', 'preparing to send data to player ' + data.player.id);
+  this.log('debug', event_name+': sending to send data to player ' + data.player.id);
+  this.log('debug', event_name+': data = ');
+  this.log('debug', data);
   player.socket.emit(event_name, data);
-  logger.log('debug', 'data sent to player ' + data.player.id);
 };
 /***************************************************************
  * Start Sequence
  ***************************************************************/
 StateMachine.prototype.game_start_sequence = function (initiatingGame) {
-  logger.log('debug', 'game_start_sequence function called.');
+  this.log('debug', 'game_start_sequence function called.');
   //Create data package for setup phase
   var setup_data = new Data_package();
   setup_data.data_type = 'setup_phase';
 
   if (this.setupPointer < this.setupSequence.length) {
-
     // send all players except one a wait command
     for (var i = 0; i < this.game.players.length; i++) {
-
       if (i !== this.setupSequence[this.setupPointer]) {
-
         //not this player's turn to place a settlement and road
         setup_data.player = 0;
-        logger.log('debug', 'Send data for player to wait');
+        this.log('debug', 'Send data for player #' + i + ' to wait');
         this.game.players[i].socket.emit('game_turn', setup_data);
       } else {
         //this player's turn to place a settlement and road (1=first place, 2 = 2nd placement)
@@ -472,7 +475,7 @@ StateMachine.prototype.game_start_sequence = function (initiatingGame) {
     }
   } else {
     this.setupComplete = true;
-    logger.log('debug', 'Setup phase completed');
+    this.log('debug', 'Setup phase completed');
     setup_data.data_type = 'setup_complete';
     this.broadcast('game_turn', setup_data);
     this.game.players.forEach(function (player) {
@@ -490,7 +493,8 @@ StateMachine.prototype.game_start_sequence = function (initiatingGame) {
  * Validate player builds/actions
  ***************************************************************/
 StateMachine.prototype.validate_player_builds = function (data) {
-  logger.log('debug', 'validate_player_builds function called.');
+  this.log('debug', 'validate_player_builds function called.');
+  if (!data) this.log("error", "func 'validate_player_builds()' missing data");
   if (this.game.round_num < 3) {
     //  During the seutp, just set the piece
     for (var i = 0; i < data.actions.length; i++) {
@@ -715,7 +719,8 @@ StateMachine.prototype.has_valid_path = function (player, object_type, node, ori
 };
 
 StateMachine.prototype.trade_with_bank = function (data) {
-  logger.log('debug', "trade action with bank, player: " + this.game.players[data.player_id].name);
+  if (!data) this.log("error", "func 'trade_with_bank()' missing data");
+  this.log('debug', "trade action with bank, player: " + this.game.players[data.player_id].name);
 
   //split the data to get the resource type: currently string = trade_sheep
   var cards_for_bank = data.actions[0].action_data.cards_for_the_bank.split('_');
@@ -735,7 +740,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
     this.send_to_player('game_turn', data_package);
   } else {
     //trade failed server side
-    logger.log("error", "Bank trade approved client side but failed server side.");
+    this.log("error", "Bank trade approved client side but failed server side.");
 
     data_package.player = this.game.players[data.player_id];
     data_package.data_type = "invalid_move";
@@ -750,17 +755,18 @@ StateMachine.prototype.trade_with_bank = function (data) {
     data_package.player.actions.push(action);
 
     this.send_to_player('game_turn', data_package);
-    logger.log('info', 'Trade with bank package sent');
+    this.log('info', 'Trade with bank package sent');
   }
 };
 
 StateMachine.prototype.buy_dev_card = function (data) {
+  if (!data) this.log("error", "func 'buy_dev_card()' missing data");
   //check if player has available cards
   if (this.game.players[data.player_id].cards.available_cards('dev_card')) {
     this.game.players[data.player_id].cards.remove_cards('dev_card');
     // changed to shift as development_cards[0] needs to be removed
     var card = this.game.development_cards.shift();
-    logger.log('debug', 'Dev card purchased: ' + card);
+    this.log('debug', this.game.players[data.player_id].name+' purchased ' + card);
 
     if (card === 'monopoly') {
       this.game.monopoly = data.player_id;
@@ -769,6 +775,7 @@ StateMachine.prototype.buy_dev_card = function (data) {
     this.game.players[data.player_id].cards.add_card(card);
     this.game.players[data.player_id].recent_purchase = card;
     this.game.players[data.player_id].round_distribution_cards.add_card(card);
+    this.log('debug', 'Round distribution cards =\n'+this.game.players[data.player_id].round_distribution_cards);
 
     var data_package = new Data_package();
     data_package.data_type = 'buy_dev_card';
@@ -778,12 +785,13 @@ StateMachine.prototype.buy_dev_card = function (data) {
     this.game.calculateScores();
     this.send_to_player('game_turn', data_package);
   } else {
-    logger.log('debug', 'Player ' + data.player_id + ' does not have enough resources to buy a dev card');
+    this.log('debug', this.game.players[data.player_id].name + ' does not have enough resources to buy a dev card');
     // TODO send a fail message
   }
 };
 
 StateMachine.prototype.activate_year_of_plenty = function (data) {
+  if (!data) this.log("error", "func 'activate_year_of_plenty()' missing data");
   //request sent immediately so action will always be first but check to be sure
   if (data.actions[0].action_type === 'year_of_plenty') {
     var requested_cards = data.actions[0].action_data;
@@ -793,9 +801,9 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
     }
 
     if (this.game.players[data.player_id].cards.remove_card('year_of_plenty')) {
-      logger.log('info', "Removed 'Year of Plenty' card from", data.player_id);
+      this.log('info', "Removed 'Year of Plenty' card from", data.player_id);
     } else {
-      logger.log('error', "Failed to remove 'Year of Plenty' card from", data.player_id);
+      this.log('error', "Failed to remove 'Year of Plenty' card from", data.player_id);
       return false;
     }
     //return the card to the pack
@@ -807,12 +815,14 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
 
     this.send_to_player('game_turn', data_package);
   } else {
-    logger.log('error', "Year of plenty called but year of plenty action not visible");
+    this.log('error', "Year of plenty called but year of plenty action not visible");
   }
   return true;
 };
 
 StateMachine.prototype.activate_road_building = function (data) {
+  if (!data) this.log("error", "func 'activate_road_building()' missing data");
+
   //request sent immediately so action will always be first but check to be sure
   if (data.actions[0].action_type === 'road_building') {
     var requested_cards = data.actions[0].action_data;
@@ -834,7 +844,7 @@ StateMachine.prototype.activate_road_building = function (data) {
 
     this.send_to_player('game_turn', data_package);
   } else {
-    logger.log('error', "Road building called but road building action not visible");
+    this.log('error', "Road building called but road building action not visible");
   }
 };
 
@@ -843,6 +853,8 @@ StateMachine.prototype.activate_road_building = function (data) {
  * @param {data_package} data : received data from the player with the monopoly card holding card to take
  */
 StateMachine.prototype.activate_monopoly = function (data) {
+  if (!data) this.log("error", "func 'activate_monopoly()' missing data");
+
   var data_package = new Data_package();
   data_package.data_type = 'monopoly_used';
 
@@ -896,9 +908,9 @@ StateMachine.prototype.activate_monopoly = function (data) {
   this.game.players[data.player_id].cards.add_cards(data.actions[0].action_data, cards);
   //remove monopoly from player's hand
   if (this.game.players[data.player_id].cards.remove_card('monopoly')) {
-    logger.log('info', "Removed 'Monopoly' card from", data.player_id);
+    this.log('info', "Removed 'Monopoly' card from", data.player_id);
   } else {
-    logger.log('error', "Failed to remove 'Monopoly' card from", data.player_id);
+    this.log('error', "Failed to remove 'Monopoly' card from", data.player_id);
     return false;
   }
   // put monopoly back in the deck
@@ -923,6 +935,8 @@ StateMachine.prototype.activate_monopoly = function (data) {
  * reactivates the knight card if cancelled
  */
 StateMachine.prototype.knightRequest = function (data) {
+  if (!data) this.log("error", "func 'knightRequest()' missing data");
+
   var status = (data.knight_status === 'activate') ? 'disable' : 'enable';
   this.broadcast('knight_in_use', {
     knight_status: status
@@ -934,9 +948,9 @@ StateMachine.prototype.knightRequest = function (data) {
  * Moves the robber to a new location
  */
 StateMachine.prototype.useKnight = function (data) {
-  this.game.knightMoveRobber(data.player_id);
+  if (!data) this.log("error", "func 'useKnight()' missing data");
 
-  logger.log('debug', "Knight data:\n", data);
+  this.game.knightMoveRobber(data.player_id);
   // Add the resource played to the players stash on the back end
   this.game.players[data.player_id].cards.add_cards(data.resource, 1);
   // Update player card details to reflect they have played a knight
