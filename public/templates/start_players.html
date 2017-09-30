@@ -1,20 +1,20 @@
-<div class="title"><img src="images/catan_logo.png" /></div>
+<div id="enter-player" class="title"><img src="images/catan_logo.png" /></div>
 <div class="subtitle"> 159.356 Capstone Project</div>
 
 <div class="player_setup_box">
     <div class="player_title">Enter your name:</div>
     <div class="player_name_row">
         <div class="player_name_cell">
-            <input type="text" id="txt_player1" value="" class="player_input" onkeypress="player_input_on_enter(event);" />
+            <input type="text" id="player-input" value="" class="player_input" onkeypress="player_input_on_enter(event);" />
         </div>
         <div class="player_start_cell">
-            <div class="btn btn-info player_button" onclick="show_games();"><i class="fa fa-gamepad fa-2x"></i>&nbsp;<span class="player_text">Start Game</span></div>
+            <div id="start-game" class="btn btn-info player_button" onclick="show_games();"><i class="fa fa-gamepad fa-2x"></i>&nbsp;<span class="player_text">Start Game</span></div>
         </div>
     </div>
     <div class="player_error"></div>
 </div>
 
 <div class="player_setup_row">
-    <div class="btn btn-default player_button js-start-toggle" data-target="menu"><span class="player_text">Main Menu</span></div>
+    <div class="btn btn-default player_button js-start-toggle" data-target="menu"><span id="main-menu" class="player_text">Main Menu</span></div>
 </div>
 
