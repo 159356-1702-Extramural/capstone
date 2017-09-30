@@ -752,8 +752,10 @@ body {
     overflow:hidden;
 }
 
-.cardlist .disabled {
-  opacity: .5;
+.card.disabled {
+    border-color: red;
+    border-width: 1px !important;
+    margin-right:-100px !important;
 }
 
 .score .cards .buy {
@@ -1432,4 +1434,5 @@ body {
     float:right;
     padding:10px;
 }
+
 
