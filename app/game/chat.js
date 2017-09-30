@@ -42,6 +42,8 @@ Chat.prototype.broadcast = function(player_id, message) {
   var players = this.players;
   var name = this.players[player_id].name;
 
+  message = this.encodeTags(message);
+
   logger.log("info", 'Dispatching chat message from: ' + name);
 
   for (var i = 0; i < players.length; i++) {
@@ -52,6 +54,27 @@ Chat.prototype.broadcast = function(player_id, message) {
     });
   }
 
+};
+
+/**
+ * Encode any tags in the message
+ * @param {String} string - suspect text string
+ */
+Chat.prototype.encodeTags = function (string) {
+
+  var map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  };
+
+  string = string.replace(/[&<>"']/g, function (m) {
+    return map[m];
+  });
+
+  return string;
 };
 
 module.exports = Chat;
