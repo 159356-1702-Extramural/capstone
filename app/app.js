@@ -68,7 +68,7 @@ app.get('/prototype', function (req, res) {
 
 // Handle new socket connection
 io.on('connection', function (socket) {
-  logger.log('info', 'A client has connected...');
+  logger.log('info', '\nA client has connected...');
 
   socket.on('display_lobby', function () {
     logger.log('info', 'Lobby requested');
