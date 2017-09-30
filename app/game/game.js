@@ -179,23 +179,22 @@ Game.prototype.generate_dev_card_deck = function () {
    *      + Market
    */
   var dev_cards = [];
+  var action_cards = ['year_of_plenty', 'road_building', 'monopoly'];
+  var vp_cards = ['library', 'chapel', 'great_hall', 'university_of_catan', 'market'];
   for (var i = 0; i < 14; i++) {
     dev_cards.push('knight');
-  }
-  var other_cards = ['year_of_plenty', 'road_building', 'monopoly', 'library', 'chapel', 'great_hall',
-    'universtiy_of_catan', 'market'
-  ];
-  for (var j = 0; j < other_cards.length; j++) {
-
-    //add the first option twice (ignoring road_building and monopoly duplicates for now)
-    if (j < 1) {
-      dev_cards.push(other_cards[j]);
+    if (i < action_cards.length) {
+      dev_cards.push(action_cards[i]);
+      dev_cards.push(action_cards[i]);
     }
-    dev_cards.push(other_cards[j]);
+    if (i < vp_cards.length)
+      dev_cards.push(vp_cards[i]);
   }
 
   var shuffler = new Shuffler();
-  return shuffler.shuffle(dev_cards);
+  var cards = shuffler.shuffle(dev_cards);
+  logger.log("debug", "Shuffled dev cards =\n", cards);
+  return cards;
 };
 
 /**

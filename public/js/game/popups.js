@@ -515,10 +515,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.jpg"></div>'
   
     }
-    if (this.current_game.player.cards.victory_point_cards.universtiy_of_catan == 1 && card !==
+    if (this.current_game.player.cards.victory_point_cards.university_of_catan == 1 && card !==
       'university_of_catan') {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.jpg"></div>'
+        ';"><img class="vp_university_of_catan" src="images/dev_victory_university_of_catan.jpg"></div>'
   
     }
     vp_cards.push(['other_vp_cards', other_vp_cards]);
@@ -839,9 +839,9 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
         ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.jpg"></div>'
     }
-    if (this.current_game.player.cards.victory_point_cards.universtiy_of_catan == 1) {
+    if (this.current_game.player.cards.victory_point_cards.university_of_catan == 1) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_universtiy_of_catan" src="images/dev_victory_universtiy_of_catan.jpg"></div>'
+        ';"><img class="vp_university_of_catan" src="images/dev_victory_university_of_catan.jpg"></div>'
     }
 
     dev_cards.push(['dev_card_heading', heading]);

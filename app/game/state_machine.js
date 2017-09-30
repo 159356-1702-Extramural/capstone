@@ -441,7 +441,8 @@ StateMachine.prototype.send_to_player = function (event_name, data) {
     data.player = clonedPlayer;
   }
   this.log('debug', event_name+': sending to send data to player ' + data.player.id);
-  this.log('debug', event_name+': data = ' + data);
+  this.log('debug', event_name+': data = ');
+  this.log('debug', data);
   player.socket.emit(event_name, data);
 };
 /***************************************************************
