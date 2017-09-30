@@ -239,7 +239,6 @@ $(document)
         // keep track of how many cards are purchased
         current_player.dev_cards.purchased++;
         current_player.dev_cards.recent_purchase.push(data.player.recent_purchase);
-        console.log("BLAAARRGH!",data.player);
         current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
@@ -400,15 +399,17 @@ $(document)
     });
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
-      if (!current_player.road_building_used) {
-
-        //check to be sure no dev cards have been played yet
-        if (!current_player.dev_cards.played &&
-            current_player.dev_cards.recent_purchase.indexOf("road_building") === -1) {
-          build_popup_use_road_building();
-        } else {
-          build_popup_restrict_dev_card_use('play');
-        }
+      var recent_count = 0;
+      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
+        if (current_player.dev_cards.recent_purchase[i] === "road_building")
+          recent_count += 1;
+      }
+      //check to be sure no dev cards have been played yet
+      if (!current_player.dev_cards.played && !current_player.road_building_used &&
+          current_game.player.cards.dev_cards.road_building > recent_count) {
+        build_popup_use_road_building();
+      } else {
+        build_popup_restrict_dev_card_use('play');
       }
 
     });
@@ -444,8 +445,13 @@ $(document)
 
     // Play the Knight card
     $doc.on('click', '.cardlist .knight.card', function(e) {
+      var recent_count = 0;
+      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
+        if (current_player.dev_cards.recent_purchase[i] === "knight")
+          recent_count += 1;
+      }
       if (!current_player.dev_cards.played &&
-            current_player.dev_cards.recent_purchase.indexOf("knight") === -1) {
+          current_game.player.cards.dev_cards.knight > recent_count) {
         e.preventDefault();
 
         if ($(this)
@@ -531,10 +537,14 @@ $(document)
 
     // Year of Plenty - open Year of Plenty window
     $doc.on('click', '.year_of_plenty', function(e) {
-
+      var recent_count = 0;
+      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
+        if (current_player.dev_cards.recent_purchase[i] === "year_of_plenty")
+          recent_count += 1;
+      }
       //check to be sure no dev cards have been played yet
       if (!current_player.dev_cards.played &&
-            current_player.dev_cards.recent_purchase.indexOf("year_of_plenty") === -1) {
+          current_game.player.cards.dev_cards.year_of_plenty > recent_count) {
         buildPopup('round_use_year_of_plenty', false, false);
       } else {
         build_popup_restrict_dev_card_use('play');
@@ -1679,40 +1689,52 @@ function setup_player_scores() {
 function update_dev_cards(data) {
 
   var card_list = "";
-  if (data.player.cards.dev_cards.year_of_plenty > 0) {
-    card_list += "<img src='images/dev_year_of_plenty.jpg' class='year_of_plenty card" + (card_list.length ==
-      0 ? " first" : "") + "'>";
+  var count = data.player.cards.dev_cards.year_of_plenty;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
+    card_list += "<img src='images/dev_year_of_plenty.jpg' " +"title='Year of Plenty x" +
+    data.player.cards.dev_cards.year_of_plenty + "' class='year_of_plenty card " + last +
+    (card_list.length == 0 ? " first" : "") + "'>";
   }
-  if (data.player.cards.dev_cards.knight > 0) {
+  count = data.player.cards.dev_cards.knight;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
     var disabled_class = (current_game.knight_in_use) ? ' disabled' : '';
-    card_list += "<img src='images/dev_knight.jpg' class='knight card" + (card_list.length == 0 ? " first" :
-      "") + disabled_class + "'>";
+    card_list += "<img src='images/dev_knight.jpg' " + "title='Knight x" +
+    data.player.cards.dev_cards.knight + "' class='knight card " + last +
+    (card_list.length == 0 ? " first" : "") + disabled_class + "'>";
   }
-  if (data.player.cards.dev_cards.monopoly > 0) {
-    card_list += "<img src='images/dev_monopoly.jpg' class='monopoly card" + (card_list.length == 0 ?
-      " first" : "") + "'>";
+  count = data.player.cards.dev_cards.monopoly;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
+    card_list += "<img src='images/dev_monopoly.jpg' " + "title='Monopoly x" +
+    data.player.cards.dev_cards.monopoly + "' class='monopoly card " + last +
+    (card_list.length == 0 ? " first" : "") + "'>";
   }
-  if (data.player.cards.dev_cards.road_building > 0) {
-    card_list += "<img src='images/dev_road_building.jpg' class='road_building card" + (card_list.length == 0 ?
-      " first" : "") + "'>";
+  count = data.player.cards.dev_cards.road_building;
+  for (var i=0; i<count; i++) {
+    var last = (i === count-1) ? "last" : "";
+    card_list += "<img src='images/dev_road_building.jpg' " + "title='Road Building x" +
+    data.player.cards.dev_cards.road_building + "' class='road_building card " + last +
+    (card_list.length == 0 ? " first" : "") + "'>";
   }
   if (card_list === "") {
     card_list += "<img src='../images/nocards.png' class='no_cards' />";
   }
   //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
-  if (data.player.round_distribution_cards.victory_point_cards.chapel > 0) {
+  if (data.player.recent_purchase === "chapel") {
     build_popup_victory_point_received("chapel");
   }
-  if (data.player.round_distribution_cards.victory_point_cards.library > 0) {
+  if (data.player.recent_purchase === "library") {
     build_popup_victory_point_received("library");
   }
-  if (data.player.round_distribution_cards.victory_point_cards.market > 0) {
+  if (data.player.recent_purchase === "market") {
     build_popup_victory_point_received("market");
   }
-  if (data.player.round_distribution_cards.victory_point_cards.university_of_catan > 0) {
+  if (data.player.recent_purchase === "university_of_catan") {
     build_popup_victory_point_received("university_of_catan");
   }
-  if (data.player.round_distribution_cards.victory_point_cards.great_hall > 0) {
+  if (data.player.recent_purchase === "great_hall") {
     build_popup_victory_point_received("great_hall");
   }
   $(".cardlist")

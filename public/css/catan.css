@@ -1,4 +1,4 @@
-﻿@import url(https://fonts.googleapis.com/css?family=Raleway:400,,800,900);
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,,800,900);
 body {
   font-family: 'Raleway', sans-serif;
 }
@@ -22,6 +22,11 @@ body {
     top:0;
     z-index: 10000;
     background-color: #eaeaea;
+}
+
+.btn-right {
+  float: right;
+  margin: 1px;
 }
 
 .start, .turn, .popup {
@@ -969,10 +974,13 @@ body {
 }
 .cards .card, .failed_card .card {
     float:left;
-    margin-left:-33px;
+    margin-right:-74px;
+    border-radius:7px;
+    border-style: solid;
+    border-width: 1px;
 }
-.card.first {
-    margin-left:5px !important;
+.card.last {
+    margin-right:-47px !important;
 }
 
 .turn_button {
@@ -1181,11 +1189,21 @@ body {
     float:right;
     cursor: pointer;
 }
+
+.dev_rules {
+    border-radius:8px;
+}
+
 .trade_row_devs > .build_card {
-    width: 85px;
+    width: 75px;
+    height: 111px;
+    margin-right:-60px !important;
 }
 .trade_picked {
     width: 100px;
+}
+.build_card.last {
+    margin-right:5px !important;
 }
 
 .trade_give_box, .trade_receive_box, .year_box_card, .monopoly_card, .devcard_card {
@@ -1385,6 +1403,7 @@ body {
 
 .knight_resource_options .play_knight {
   cursor: pointer;
+  border-radius: 8px;
 }
 
 .play_knight_cancel {
@@ -1413,3 +1432,4 @@ body {
     float:right;
     padding:10px;
 }
+
