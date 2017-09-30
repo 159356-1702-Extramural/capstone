@@ -33,6 +33,7 @@ function StateMachine(id, game_size) {
   this.setupComplete = false;
   this.setupSequence = [];
   this.setupPointer = 0;
+  this.chat = null;
 }
 
 StateMachine.prototype.log = function(level, str) {
