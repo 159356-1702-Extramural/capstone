@@ -815,6 +815,7 @@ body {
 .card.disabled {
     border-color: red;
     border-width: 1px !important;
+    cursor: not-allowed;
 }
 
 .score .cards .buy {
