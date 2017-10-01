@@ -2,157 +2,144 @@
 // ie. import { Board, Point, TileNode, RoadNode, BuildNode } from '../../public/data_api/board.js';
 // then we can avoud the statements like Board.Board()
 var Board = require('../../public/data_api/board.js');
-// TODO: [EASY] Harbours
+var Shuffler = require('../helpers/shuffler.js');
+var logger = require('winston');
+
+log = function(level, inf) {
+  if (typeof inf === "object" && level === "debug") {
+    logger.log(level, 'BOARD BUILDER: object data =');
+    console.log(inf);
+  } else {
+    logger.log(level, 'BOARD_BUILDER: ', inf);
+  }
+}
+
+function BoardSet(pattern, tile_stack, tokens, harbor_stack, rndTokens) {
+  // even # row is moved over by tile_width/2
+  // 0 = water
+  // 1 = standard tile
+  // harbors, 4 = top_left,     5 = top_right,   6 = right
+  //           7 = bottom_right, 8 = bottom_left, 9 = left
+  // All of standard_ are associated.
+  this.pattern = pattern;
+  if (!this.pattern)
+    this.pattern = [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 0, 4, 5, 1, 0, 0],
+      [0, 0, 9, 1, 1, 5, 0],
+      [0, 1, 1, 1, 1, 6, 0],
+      [0, 0, 9, 1, 1, 7, 0],
+      [0, 0, 8, 7, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0, 0]
+    ];
+  this.tile_stack = tile_stack;
+  if (!this.tile_stack)
+    this.tile_stack = [
+      ['brick', 3],
+      ['sheep', 4],
+      ['ore',   3],
+      ['grain', 4],
+      ['lumber',4],
+      ['desert',1]
+    ];
+  this.tokens = tokens;
+  if (!this.tokens)
+    this.tokens = [9,10,8,12,5,4,3,11,6,11,6,4,3,9,2,8,10,5];
+  this.harbor_stack = harbor_stack;
+  if (!this.harbor_stack)
+    this.harbor_stack = [
+      ['three', 4],
+      ['brick', 1],
+      ['sheep', 1],
+      ['ore',   1],
+      ['grain', 1],
+      ['lumber',1]
+    ];
+  this.rnd_tokens = rndTokens;
+};
 
 /*
  * Takes a 2D array
  *
  * Numbers in grid determine the tile type
  */
-generate = function (_board) {
-  if (!_board) {
-    // Standard layout (as seen in the manual)
-    // even # row is moved over by tile_width/2
-
-    //  TODO:   Replace Temporary harbor generation when main method ready
-    var harbor_list = [];
-    harbor_list.push("bottom_right.three.1.0");
-    harbor_list.push("bottom_left.sheep.2.5");
-    harbor_list.push("bottom_left.three.12.25");
-    harbor_list.push("right.ore.7.15");
-    harbor_list.push("left.three.37.35");
-    harbor_list.push("right.grain.28.38");
-    harbor_list.push("top_left.brick.46.45");
-    harbor_list.push("top_right.three.47.49");
-    harbor_list.push("top_left.lumber.50.51");
-
-    _board = [
-      ["z0", "z0", "h0", "z0", "h1", "z0", "z0"],
-      ["z0", "z0", "e11", "b12", "d9", "h2", "z0"],
-      ["z0", "h3", "a4", "c6", "a5", "b10", "z0"],
-      ["z0", "f0", "e3", "d11", "e4", "d8", "h4"],
-      ["z0", "h5", "a8", "b10", "b9", "c3", "z0"],
-      ["z0", "z0", "c5", "d2", "e6", "h6", "z0"],
-      ["z0", "z0", "h7", "z0", "h8", "z0", "z0"]
-    ];
-    //  TODO:   End of temporary harbor generation
-
-    _board2 = [
-      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
-      ["z0", "z0", "e11", "b12", "d9", "z0", "z0"],
-      ["z0", "z0", "a4", "c6", "a5", "b10", "z0"],
-      ["z0", "f0", "e3", "d11", "e4", "d8", "z0"],
-      ["z0", "z0", "a8", "b10", "b9", "c3", "z0"],
-      ["z0", "z0", "c5", "d2", "e6", "z0", "z0"],
-      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"]
-    ];
-
-  }
+generate = function (board_set = new BoardSet()) {
+  var shuff = new Shuffler();
   var board = new Board.Board();
-  var harbors = [];
-
+  board.rnd_tokens = (typeof board.rnd_tokens === 'undefined') ? process.env['rndTokens'] : 'false';
+  log('debug', '.rnd_tokens = '+board.rnd_tokens);
   // iterate over the input board_array
-  for (var y = 0; y < _board.length; y++) {
+  for (var y = 0; y < board_set.pattern.length; y++) {
     board.tiles.push([]);
-    for (var x = 0; x < _board[y].length; x++) {
+    for (var x = 0; x < board_set.pattern[y].length; x++) {
+      /***************************
+      This block sets up the tile
+      ****************************/
+      // select a resource randomly
+      log('debug', 'choosing random resource');
+      var tile_type = (board_set.pattern[y][x] !== 0) ? random_from_stack(board_set.tile_stack) : "water";
+      if (tile_type !=="" && tile_type !== "water")
+        log('debug', 'resource = '+tile_type);
+      if (tile_type === "")
+        log('error', 'FAILED: random resource');
 
-      //  TODO:   Remove, temporary harbor generation
-      var tile_detail = _board[y][x];
-      var tile_harbor = "";
-      var tile_harbor_direction = "";
-      if (tile_detail.substring(0, 1) == "h") {
-        var harbor_details = harbor_list[tile_detail.substring(1, 2)].split('.');
-        tile_harbor = harbor_details[1];
-        tile_harbor_direction = harbor_details[0];
-        harbors.push([tile_harbor, harbor_details[2]]);
-        harbors.push([tile_harbor, harbor_details[3]]);
-        _board[y][x] = "z0";
-      }
-      //  TODO:   End of temporary harbor stuff
-
-      // insert tile_node from info
-      var tile_info = _board[y][x].match(/([A-Za-z]+)([0-9]+)/);
-      var tile_type = setup_tile_resource(tile_info[1]);
-
-      var tile = new Board.TileNode(tile_type, (tile_type === "desert"), parseInt(tile_info[2]), []);
-
-      //    TODO:   Remove temporary harbor stuff
-      tile.harbor = tile_harbor;
-      tile.harbor_direction = tile_harbor_direction;
-      //    TODO:   End of temporary harbor stuff
-
-      // Store reference to robber location
-      if (tile_type === 'desert') {
-        board.robberLocation = tile;
-      }
-
-      var add_node = true;
-      var water = 0;
-      // nodes from center of tile are in order;
-      // bottom right/middle/left, top left/middle/right. From 30 degrees onwards
-      var tile_nodes = setup_nodes(new Board.Point(x, y));
-      for (var i = 0; i < tile_nodes.length; i++) {
-        // Check if node has neighbours out of _board bounds, or completely surrounded by water
-        for (var w = 0; w < tile_nodes[i].n_tiles.length; w++) {
-          // if x,y is out of array bounds we can't index the _board with it to check type
-          if ((tile_nodes[i].n_tiles[w].x >= 0 && tile_nodes[i].n_tiles[w].x < _board[0].length) &&
-            (tile_nodes[i].n_tiles[w].y >= 0 && tile_nodes[i].n_tiles[w].y < _board.length)) {
-
-            var check_tile = _board[tile_nodes[i].n_tiles[w].y][tile_nodes[i].n_tiles[w].x];
-            if (check_tile.substring(0, 1) == "z" || check_tile.substring(0, 1) == "h") {
-              water += 1;
-            }
-          } else {
-            water += 1;
+      var token = "";
+      if (tile_type !=="" && tile_type !== "water" && tile_type !== "desert") {
+        if (board_set.rnd_tokens === "true") {
+          log('debug', 'doing random token placement');
+          if (board.tiles.length > 0 && board.tiles[y].length > 0) {
+            board_set.tokens = shuff.shuffle(board_set.tokens);
+            token = board_set.tokens.pop();
           }
-        }
-        // intersecting more than two water tiles means it isn't on a resource tile, don't add
-        if (water > 2) {
-          add_node = false;
-          break;
         } else {
-          for (var n = 0; n < board.nodes.length; n++) {
-            // check if the node is already indexed, and grab the index if so
-            var nodes_in_common = compare_point_array(board.nodes[n].n_tiles, tile_nodes[i].n_tiles);
-            if (nodes_in_common > 2) {
-              add_node = false;
-              tile.associated_nodes.push(n); // add association
-              break;
-            }
-          }
+          token = board_set.tokens.pop();
         }
-
-        if (add_node) {
-          board.nodes.push(tile_nodes[i]);
-          board.nodes[board.nodes.length - 1].id = board.nodes.length - 1;
-          tile.associated_nodes.push(board.nodes.length - 1);
-        }
-        add_node = true;
-        water = 0;
       }
+      // type, robber?, token token, associated nodes
+      var tile = new Board.TileNode(tile_type, (tile_type === "desert"), token, []);
+
+      // choose harbor type if tile is a harbor
+      if (board_set.pattern[y][x] >= 4 && board_set.pattern[y][x] <= 9) {
+        log('debug', 'choosing random harbor');
+        tile.harbor = random_from_stack(board_set.harbor_stack);
+        tile.harbor_direction = get_harbor_direction(board_set.pattern[y][x]);
+        log('debug', 'harbor direction is '+tile.harbor_direction);
+        if (tile.harbor === "" || !tile.harbor)
+          log('error', 'FAILED: random harbor');
+      }
+      // Store reference to robber location
+      // TODO check this - storing a dupe of the tile
+      if (tile_type === 'desert')
+        board.robberLocation = tile;
+      /****** block end *******/
+
+      add_tile_nodes(board, board_set.pattern, tile, new Board.Point(x, y));
+
+      // add harbor property to associated tile nodes
+      if (tile.harbor_direction !== "")
+        set_node_harbor(board, tile);
+
       board.tiles[y].push(tile);
 
       // Create an array of the the resource tiles
       if (['desert', 'water'].indexOf(tile_type) === -1) {
         board.resourceTiles.push(tile);
       }
+    } // for loop end
+  } // board input for loop ends
 
+  if (board_set.rnd_tokens  === "true") {
+    log('debug', 'doing first token check');
+    var ar = [2,3,4,5,6,8,9,10,11];
+    for (let num of ar) {
+      check_token_placement(board, [num]);
     }
+    check_token_placement(board, [6,8]);
   }
   // iterate over node_map for each node in the map and find neighbours
   for (var j = 0; j < board.nodes.length; j++) {
     fill_node_details(board, board.nodes[j], j);
   }
-
-  // console.log(board);
-
-  //    TODO:   Delete Temporary Harbor generation
-  //    Set each of the nodes that are harbors
-  for (var i = 0; i < harbors.length; i++) {
-    board.nodes[harbors[i][1]].harbor = harbors[i][0];
-  }
-  //    TODO:   End of temporary harbor stuff
-
   return board;
 };
 
@@ -169,22 +156,173 @@ compare_point_array = function (a1, a2) {
   return count;
 };
 
-setup_tile_resource = function (t) {
-  if (t === 'a') {
-    return "brick";
-  } else if (t === 'b') {
-    return "sheep";
-  } else if (t === 'c') {
-    return "ore";
-  } else if (t === 'd') {
-    return "grain";
-  } else if (t === 'e') {
-    return "lumber";
-  } else if (t === 'f') {
-    return "desert";
-  } else if (t === 'z') {
-    return "water";
+getRandomIntInclusive = function (min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
+};
+
+random_from_stack = function (stack) {
+  var checked = [];
+  var idx = -1;
+  do {
+    idx = getRandomIntInclusive(0, stack.length-1);
+    log('debug', 'random number = '+idx);
+    if (checked.indexOf(idx) === -1 && stack[idx][1] > 0) {
+      stack[idx][1] -= 1;
+      log('debug', 'random_from_stack chose '+stack[idx][0]);
+      log('debug', 'remaining = '+stack[idx][1]);
+      return stack[idx][0];
+    }
+    if (checked.indexOf(idx) !== -1)
+      checked.push(idx);
+  } while (checked.length < stack.length);
+  log('debug', 'Reached end of stack in random_from_stack()');
+  return "";
+};
+
+get_harbor_direction = function(num) {
+  switch (num) {
+    case 4:
+      return 'top_left';
+    case 5:
+      return 'top_right';
+    case 6:
+      return 'right';
+    case 7:
+      return 'bottom_right';
+    case 8:
+      return 'bottom_left';
+    case 9:
+      return 'left';
   }
+  log('error', 'failed to match harbor direction');
+  return false;
+};
+
+set_node_harbor = function(board, tile) {
+  switch (tile.harbor_direction) {
+    case 'top_left':
+      board.nodes[tile.get_node_by_dir("top_left")].harbor = tile.harbor;
+      board.nodes[tile.get_node_by_dir("top_mid")].harbor = tile.harbor;
+      break;
+    case 'top_right':
+      board.nodes[tile.get_node_by_dir("top_mid")].harbor = tile.harbor;
+      board.nodes[tile.get_node_by_dir("top_right")].harbor = tile.harbor;
+      break;
+    case 'right':
+      board.nodes[tile.get_node_by_dir("top_right")].harbor = tile.harbor;
+      board.nodes[tile.get_node_by_dir("bottom_right")].harbor = tile.harbor;
+      break;
+    case 'bottom_right':
+      board.nodes[tile.get_node_by_dir("bottom_right")].harbor = tile.harbor;
+      board.nodes[tile.get_node_by_dir("bottom_mid")].harbor = tile.harbor;
+      break;
+    case 'bottom_left':
+      board.nodes[tile.get_node_by_dir("bottom_mid")].harbor = tile.harbor;
+      board.nodes[tile.get_node_by_dir("bottom_left")].harbor = tile.harbor;
+      break;
+    case 'left':
+      board.nodes[tile.get_node_by_dir("bottom_left")].harbor = tile.harbor;
+      board.nodes[tile.get_node_by_dir("top_left")].harbor = tile.harbor;
+      break;
+  }
+};
+
+check_token_placement = function(board, not_allowed) {
+  // assumes that the outside tiles are always water
+  var changed = false;
+  for (var y = 0; y < board.tiles.length; y++) {
+    for (var x = 0; x < board.tiles[y].length; x++) {
+      if (board.tiles[y][x].type !== "water" && board.tiles[y][x].type !== "desert") {
+        var odd_x = x;
+        var eve_x = x;
+
+        if (y % 2 !== 0) {
+          odd_x = x + 1;
+          eve_x = x;
+        } else {
+          odd_x = x;
+          eve_x = x - 1;
+        }
+        if ((not_allowed.indexOf(board.tiles[y-1][eve_x].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y-1][odd_x].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y][x+1].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y][x-1].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y+1][odd_x].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y+1][eve_x].token) !== -1) &&
+            not_allowed.indexOf(board.tiles[y][x].token) !== -1) {
+          log('debug', 'found swappable token = '+board.tiles[y][x].token);
+          board.tiles[y][x].token = swap_not_allowed_token(board, board.tiles[y][x].token, not_allowed);
+          log('debug', 'swapped token = '+board.tiles[y][x].token);
+          changed = true;
+        }
+      }
+    }
+  }
+  return changed; // mostly for testing
+};
+
+swap_not_allowed_token = function(board, token, not_allowed) {
+  // assumes that the outside tiles are always water
+  for (var y = 0; y < board.tiles.length; y++) {
+    for (var x = 0; x < board.tiles[y].length; x++) {
+      if (board.tiles[y][x].type !== "water" && board.tiles[y][x].type !== "desert") {
+        if (not_allowed.indexOf(board.tiles[y][x].token) === -1) {
+          var old = board.tiles[y][x].token;
+          board.tiles[y][x].token = token;
+          return old;
+        }
+      }
+    }
+  }
+};
+
+add_tile_nodes = function(board, pattern, tile, tile_point) {
+  var add_node = true;
+  var water = 0;
+  // nodes from center of tile are in order;
+  // bottom right/middle/left, top left/middle/right. From 30 degrees onwards
+  var tile_nodes = setup_nodes(tile_point);
+  for (var i = 0; i < tile_nodes.length; i++) {
+    // Check if node has neighbours out of pattern bounds, or completely surrounded by water
+    for (var w = 0; w < tile_nodes[i].n_tiles.length; w++) {
+      // if x,y is out of array bounds we can't index the pattern with it to check type
+      if ((tile_nodes[i].n_tiles[w].x >= 0 && tile_nodes[i].n_tiles[w].x < pattern[0].length) &&
+        (tile_nodes[i].n_tiles[w].y >= 0 && tile_nodes[i].n_tiles[w].y < pattern.length)) {
+
+        var check_tile = pattern[tile_nodes[i].n_tiles[w].y][tile_nodes[i].n_tiles[w].x];
+        if (check_tile === 0) {
+          water += 1;
+        }
+      } else {
+        water += 1;
+      }
+    }
+    // intersecting more than two water tiles means it isn't on a resource tile, don't add
+    if (water > 2) {
+      add_node = false;
+      break;
+    } else {
+      for (var n = 0; n < board.nodes.length; n++) {
+        // check if the node is already indexed, and grab the index if so
+        var nodes_in_common = compare_point_array(board.nodes[n].n_tiles, tile_nodes[i].n_tiles);
+        if (nodes_in_common > 2) {
+          add_node = false;
+          tile.associated_nodes.push(n); // add association
+          break;
+        }
+      }
+    }
+
+    if (add_node) {
+      board.nodes.push(tile_nodes[i]);
+      board.nodes[board.nodes.length - 1].id = board.nodes.length - 1;
+      tile.associated_nodes.push(board.nodes.length - 1);
+    }
+    add_node = true;
+    water = 0;
+  } // tile_nodes for loop ends
 };
 
 /*
@@ -231,27 +369,46 @@ fill_node_details = function (board, node, node_index) {
     // if n_node.n_tiles contains any combo of two or more of
     // this nodes neighbouring tiles then it is a neighbour node
     if (compare_point_array(board.nodes[n].n_tiles, node.n_tiles) >= 2 && n !== node_index) {
+      var add_road = true;
+      // check if there are two water tiles in common, if there are
+      // then there is a body of water between the two nodes
+      var shared_water_count = 0;
+      for (var w=0; w<board.nodes[n].n_tiles.length; w++) {
+        var other_point = board.nodes[n].n_tiles[w];
+        var other_tile = board.get_tile(other_point);
+        if (other_tile !== -1 && other_tile.type === "water") {
+          for (var f=0; f<node.n_tiles.length; f++) {
+            if (node.n_tiles[f].x === other_point.x &&
+                node.n_tiles[f].y === other_point.y) {
+              shared_water_count += 1;
+            }
+          }
+        }
+      }
       node.n_nodes.push(n);
 
       // now check for connections between this node and others
-      var add_road = true;
-      for (var r = 0; r < board.roads.length; r++) {
-        var road = board.roads[r];
-        // if the road exists connecting these node indexes, don't add
-        // should be safe in JS since the comparison is between integers
-        if (road.connects.indexOf(n) !== -1 &&
-          road.connects.indexOf(node_index) !== -1) {
-          node.n_roads.push(r);
-          add_road = false;
-          break;
+      if (shared_water_count <= 1) {
+        for (var r = 0; r < board.roads.length; r++) {
+          var road = board.roads[r];
+          // if the road exists connecting these node indexes, don't add
+          // should be safe in JS since the comparison is between integers
+          if (road.connects.indexOf(n) !== -1 &&
+            road.connects.indexOf(node_index) !== -1) {
+            node.n_roads.push(r);
+            add_road = false;
+            break;
+          }
+        }
+
+        if (add_road) {
+          board.roads.push(new Board.RoadNode([n, node_index]));
+          board.roads[board.roads.length - 1].id = board.roads.length - 1;
+          node.n_roads.push(board.roads.length - 1);
         }
       }
-      if (add_road) {
-        board.roads.push(new Board.RoadNode([n, node_index]));
-        board.roads[board.roads.length - 1].id = board.roads.length - 1;
-        node.n_roads.push(board.roads.length - 1);
-      }
     }
+    // early exit if possible
     if (node.n_nodes.length === 3) {
       break;
     }
@@ -259,5 +416,5 @@ fill_node_details = function (board, node, node_index) {
 };
 
 module.exports = {
-  generate
+  generate, BoardSet
 };

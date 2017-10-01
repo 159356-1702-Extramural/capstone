@@ -79,7 +79,12 @@ Board.prototype.get_node = function(index) {
  * @return {Tile} Tile - the tile object
  */
 Board.prototype.get_tile = function(point) {
-  return this.tiles[point.y][point.x];
+  if (point.x < 0 || point.y < 0 ||
+      point.y > this.tiles.length || point.x > this.tiles[0].length) {
+    return -1;
+  } else {
+    return this.tiles[point.y][point.x];
+  }
 };
 
 /**

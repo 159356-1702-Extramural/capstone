@@ -977,11 +977,11 @@ function buildTile(theTile, row, col) {
   } else {
     var newTile = "<div class='hex";
 
-    if (theTile.type == "water" || theTile.type == "harbor") {
-      newTile += "_" + (theTile.harbor.length > 0 ? "harbor" : "water");
-      if (theTile.harbor.length > 0) {
-        newTile += " " + theTile.harbor_direction;
-      }
+    if (theTile.type == "water") {
+      newTile += "_water";
+    } else if (theTile.harbor.length > 0) {
+      newTile += " " + theTile.type;
+      newTile += " " + theTile.harbor_direction;
     } else {
       newTile += " " + theTile.type;
     }
@@ -998,6 +998,7 @@ function buildTile(theTile, row, col) {
     }
     if (theTile.harbor.length > 0) {
       newTile += "<img src='images/ship_" + theTile.harbor + ".png' class='ship' />";
+      newTile += "<img src='images/harbor_" + theTile.harbor_direction + ".png' class='harbor' />";
     }
 
     //  Set node placeholders
@@ -1884,3 +1885,4 @@ function doLog(m) {
   $(".log")
     .append(m + "<br />");
 }
+

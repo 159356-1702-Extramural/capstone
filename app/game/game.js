@@ -3,6 +3,15 @@ var board_builder = require('./board_builder.js');
 var Shuffler = require('../helpers/shuffler.js');
 
 function Game() {
+  var standard_board = [
+      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
+      ["z0", "z0", "e11", "b12", "d9", "z0", "z0"],
+      ["z0", "z0", "a4", "c6", "a5", "b10", "z0"],
+      ["z0", "f0", "e3", "d11", "e4", "d8", "z0"],
+      ["z0", "z0", "a8", "b10", "b9", "c3", "z0"],
+      ["z0", "z0", "c5", "d2", "e6", "z0", "z0"],
+      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"]
+  ];
   this.name = '';
   this.board = board_builder.generate();
   this.max_players = 4;
