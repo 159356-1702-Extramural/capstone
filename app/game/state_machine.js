@@ -788,8 +788,6 @@ StateMachine.prototype.buy_dev_card = function (data) {
     data_package.data_type = 'buy_dev_card';
     data_package.player = this.game.players[data.player_id];
 
-    //  Refreshes all player's scores, strip out to calc only one players score :- TODO
-    this.game.calculateScores();
     this.send_to_player('game_turn', data_package);
   } else {
     this.log('debug', this.game.players[data.player_id].name + ' does not have enough resources to buy a dev card');
