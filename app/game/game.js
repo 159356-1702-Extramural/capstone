@@ -291,8 +291,10 @@ Game.prototype.knightMoveRobber = function (player_id) {
   for (var i = 0; i < resourceTiles.length; i++) {
     can_use = true;
     for (var j = 0; j < resourceTiles[i].associated_nodes.length; j++) {
+
       // We can't block the player that played the knight
-      if (resourceTiles[i].associated_nodes[j].owner === player_id) {
+      var node = this.board.nodes[resourceTiles[i].associated_nodes[j]];
+      if (node.owner === player_id) {
         can_use = false;
         break;
       }
@@ -306,6 +308,7 @@ Game.prototype.knightMoveRobber = function (player_id) {
       possibleLocations.push(resourceTiles[i]);
     }
   }
+
   // Randomly pick a new home for the robber
   new_robber_tile = possibleLocations[Math.floor(Math.random() * possibleLocations.length)];
   new_robber_tile.robber = true;
