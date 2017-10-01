@@ -15,6 +15,7 @@ function Player(socket, data) {
   this.game_name = data.game_name;
   this.socket = socket;
   this.winner = false;
+  this.connected = true;
 
   this.turn_complete = false;
   //hold on to turn data : null was causing errors with .length

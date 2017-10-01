@@ -13,48 +13,17 @@ var allowed_actions = {
 //  Default width/height of settlement/city
 var building_dimension = 50;
 
-var monopoly_time = 30;
-var round_time = 60;
+// timer variables
+var timer_running = true;
+var monopoly_time = 20; //seconds
+var round_time = 60;  //seconds
 var remaining_time = -1;
-var timer = setInterval(function(){
-  update_time();
-}, 1000);
+var timer = null;
+
 // records whether player has had monopoly played on them
 var monopoly_played = null;
 var test = null;
 
-function setTransitionValues(){
-
-}
-function update_time(){
-  console.log("time remaining = " + remaining_time);
-  if(remaining_time > 0){
-    if(remaining_time === (round_time + 1)){
-      //monopoly time ending.
-      hidePopup();
-      monopoly_check();
-      animate_timer("standard");
-    }
-    remaining_time--;
-  }else if(remaining_time === 0){
-    hidePopup();
-    $('#timer_inner').removeClass('timer_animate');
-    console.log("finishing turn");
-    finish_turn();
-    remaining_time--;
-  }
-}
-function animate_timer(timer_type){
-  remaining_time = round_time;
-  var anim_time = round_time *1000;
-  if(timer_type === "monopoly"){
-    anim_time = monopoly_time *1000;
-    remaining_time += monopoly_time;
-  }
-  $('#timer_inner').animate({
-    width: '100%'
-  }, round_time*1000);
-}
 $(document)
   .ready(function() {
 
@@ -215,6 +184,12 @@ $(document)
       if (data.data_type === "setup_complete") {
         setup_phase = false;
         test = data;
+        if(timer_running){
+          timer = setInterval(function(){
+            update_time();
+          }, 1000);
+        }
+        animate_timer('standard');
         build_popup_setup_complete();
 
       } else if (data.data_type === 'setup_phase') {
@@ -268,10 +243,12 @@ $(document)
           // start timer
           if(current_game.player.cards.dev_cards.monopoly > 0){
             animate_timer("monopoly");
+            console.log("call animate timer - monopoly");
           }else{
             animate_timer("standard");
+            console.log("call animate timer - standard");
           }
-          
+
         }
 
       } else if (data.data_type === 'monopoly_used') {
@@ -320,6 +297,11 @@ $(document)
 
         // wipe current turn data
         setupTurnFinished();
+      } else if (data.data_type === 'autocomplete_round') {
+        //only called if client fails
+        console.log("--Server called turn complete--");
+        hidePopup();
+        finish_turn();
       } else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -1951,6 +1933,44 @@ function finish_turn(){
   updatePanelDisplay();
 }
 
+function update_time(){
+  if(timer_running){
+    console.log("time remaining = " + remaining_time);
+    if(remaining_time > 0){
+      if(remaining_time === (round_time + 1)){
+        //monopoly time ending.
+        hidePopup();
+        monopoly_check();
+        animate_timer("standard");
+      }
+      remaining_time--;
+    }else if(remaining_time === 0){
+      hidePopup();
+      console.log("finishing turn");
+      finish_turn();
+      remaining_time--;
+    }
+  }
+}
+
+function animate_timer(timer_type){
+  if(timer_running){
+    $('#timer_inner').stop();
+    remaining_time = round_time;
+    var anim_time = round_time *1000;
+    if(timer_type === "monopoly"){
+      anim_time = monopoly_time *1000;
+      remaining_time += monopoly_time;
+    }
+    $('#timer_inner').animate({
+      width: '0%'
+    }, 300, 'linear', function(){
+      $('#timer_inner').animate({
+        width: '100%'
+      }, anim_time-300, 'linear'
+    )});
+  }
+}
 
 function doLog(m) {
   $(".log")
