@@ -1823,7 +1823,7 @@ function reset_dev_cards_per_round() {
 
 //  Set the focus for the player name input
 function set_player_focus() {
-  $("#txt_player1")
+  $("#player-input")
     .focus();
 }
 //  Submit the name when enter is used
@@ -1837,7 +1837,7 @@ function player_input_on_enter(e) {
 }
 //  Start a new game
 function start_new_game(game_size) {
-  var name = $('#txt_game1')
+  var name = $('#player-input')
     .val();
   if (name == '') {
     $(".game_error")
@@ -1852,7 +1852,7 @@ function start_new_game(game_size) {
 }
 //  Show game list or new game option
 function show_games() {
-  var name = $('#txt_player1')
+  var name = $('#player-input')
     .val();
   if (name == '') {
     $(".player_error")
