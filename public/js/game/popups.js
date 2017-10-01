@@ -825,23 +825,23 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var other_vp_cards = [];
     if (this.current_game.player.cards.victory_point_cards.library == 1) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_library" src="images/dev_victory_library.jpg"></div>'
+        ';"><img class="vp_rules vp_library" title="Library" src="images/dev_victory_library.jpg"></div>'
     }
     if (this.current_game.player.cards.victory_point_cards.market == 1) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_market" src="images/dev_victory_market.jpg"></div>'
+        ';"><img class="vp_rules vp_market" title = "Market" src="images/dev_victory_market.jpg"></div>'
     }
     if (this.current_game.player.cards.victory_point_cards.chapel == 1) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_chapel" src="images/dev_victory_chapel.jpg"></div>'
+        ';"><img class="vp_rules vp_chapel" title="Chapel" src="images/dev_victory_chapel.jpg"></div>'
     }
     if (this.current_game.player.cards.victory_point_cards.great_hall == 1) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.jpg"></div>'
+        ';"><img class="vp_rules vp_great_hall" title="Great Hall" src="images/dev_victory_great_hall.jpg"></div>'
     }
     if (this.current_game.player.cards.victory_point_cards.university_of_catan == 1) {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
-        ';"><img class="vp_university_of_catan" src="images/dev_victory_university_of_catan.jpg"></div>'
+        ';"><img class="vp_rules vp_university_of_catan" title="University" src="images/dev_victory_university_of_catan.jpg"></div>'
     }
 
     dev_cards.push(['dev_card_heading', heading]);

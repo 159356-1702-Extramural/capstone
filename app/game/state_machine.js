@@ -14,6 +14,7 @@
  *
  * For each full game, a new state_machine is created.
  */
+var util = require('util');
 var logger = require('winston');
 var Game = require('./game.js');
 var Data_package = require('../data_api/data_package.js');
@@ -36,8 +37,13 @@ function StateMachine(id, game_size) {
   this.chat = null;
 }
 
-StateMachine.prototype.log = function(level, str) {
-  logger.log(level, 'SM#' + this.id + ': '+str);
+StateMachine.prototype.log = function(level, info) {
+  if (typeof info === "object" && level === "debug") {
+    logger.log(level, 'SM#' + this.id + ': object data =');
+    console.log(info);
+  } else {
+    logger.log(level, 'SM#' + this.id + ': ', info);
+  }
 }
 /*
  * Iterates through states according to flags set
@@ -442,8 +448,9 @@ StateMachine.prototype.send_to_player = function (event_name, data) {
     data.player = clonedPlayer;
   }
   this.log('debug', event_name+': sending to send data to player ' + data.player.id);
-  this.log('debug', event_name+': data = ');
-  this.log('debug', data);
+  this.log('debug', event_name+': data follows:');
+  if (data.turn_type !== 'update_board') // too big to print usually
+    this.log('debug', data);
   player.socket.emit(event_name, data);
 };
 /***************************************************************

@@ -815,7 +815,6 @@ body {
 .card.disabled {
     border-color: red;
     border-width: 1px !important;
-    margin-right:-100px !important;
 }
 
 .score .cards .buy {
@@ -1254,6 +1253,14 @@ body {
 
 .dev_rules {
     border-radius:8px;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.vp_rules {
+    border-radius:8px;
+    cursor: pointer;
+    cursor: hand;
 }
 
 .trade_row_devs > .build_card {
