@@ -134,7 +134,6 @@ generate = function (board_set = new BoardSet()) {
     for (let num of ar) {
       check_token_placement(board, [num]);
     }
-    check_token_placement(board, [6,8]);
   }
   // token check required for both random and non-random
   // because the desert can shift a 6 or 8 next to each other
