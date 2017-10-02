@@ -35,6 +35,9 @@ function StateMachine(id, game_size) {
   this.setupSequence = [];
   this.setupPointer = 0;
   this.chat = null;
+  this.timer = null;
+  this.timer_length = 30; // seconds
+
 }
 
 StateMachine.prototype.log = function(level, info) {
@@ -58,6 +61,8 @@ StateMachine.prototype.next_state = function () {
     // if (conditions to switch state)
     if (this.setupComplete === true) {
       this.log('debug', 'setup state successfully completed');
+      //start timer for first round
+      this.start_timer();
       this.state = "play";
     }
   } else if (this.state === "trade") {
@@ -285,6 +290,7 @@ StateMachine.prototype.tick = function (data) {
 };
 
 StateMachine.prototype.finish_round_for_all = function(data) {
+  this.stop_timer();
   if (!data) this.log("error", "func 'finish_round_for_all()' missing data");
   this.validate_player_builds(data);
   this.game.round_num++;
@@ -359,6 +365,7 @@ StateMachine.prototype.finish_round_for_all = function(data) {
         this.game.players[data.player_id].socket.emit('game_turn', setup_data);
       }
     }
+    this.start_timer();
 };
 
 /*****************************************************************
@@ -963,6 +970,29 @@ StateMachine.prototype.useKnight = function (data) {
   this.game.players[data.player_id].cards.dev_cards.knight--;
 };
 
+StateMachine.prototype.start_timer = function (){
+  logger.log('debug', "Server side timer set to :" + this.timer_length + " seconds");
+  this.timer = setTimeout(this.end_player_turns.bind(this), this.timer_length * 1000 );
+}
+StateMachine.prototype.stop_timer = function (){
+  logger.log('debug', "Server side timer stopped.");
+  clearTimeout(this.timer);
+}
+StateMachine.prototype.end_player_turns = function (){
+  for(var i = 0; i < this.game.players.length; i++){
+    console.log(this.game.players[i].turn_complete);
+    if(!this.game.players[i].turn_complete){
+      console.log("Player "+ i + ' never completed there turn');
+      this.game.players[i].connected = false;
+      var mock_data = {
+        data_type: 'turn_complete',
+        player_id: i,
+        actions: []
+      }
+      this.tick(mock_data);
+    }
+  }
+}
 module.exports = {
   StateMachine
 };

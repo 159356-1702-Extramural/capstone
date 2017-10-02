@@ -243,10 +243,8 @@ $(document)
           // start timer
           if(current_game.player.cards.dev_cards.monopoly > 0){
             animate_timer("monopoly");
-            console.log("call animate timer - monopoly");
           }else{
             animate_timer("standard");
-            console.log("call animate timer - standard");
           }
 
         }
@@ -297,11 +295,6 @@ $(document)
 
         // wipe current turn data
         setupTurnFinished();
-      } else if (data.data_type === 'autocomplete_round') {
-        //only called if client fails
-        console.log("--Server called turn complete--");
-        hidePopup();
-        finish_turn();
       } else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -1930,12 +1923,13 @@ function finish_turn(){
   update_server("game_update", data_package);
 
   set_allowed_actions(false, false, false, false);
+  //turn complete, stop timer from having any effect
+  remaining_time = -1;
   updatePanelDisplay();
 }
 
 function update_time(){
   if(timer_running){
-    console.log("time remaining = " + remaining_time);
     if(remaining_time > 0){
       if(remaining_time === (round_time + 1)){
         //monopoly time ending.
@@ -1946,7 +1940,6 @@ function update_time(){
       remaining_time--;
     }else if(remaining_time === 0){
       hidePopup();
-      console.log("finishing turn");
       finish_turn();
       remaining_time--;
     }
