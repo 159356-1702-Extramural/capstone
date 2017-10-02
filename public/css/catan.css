@@ -1,6 +1,15 @@
-﻿@import url(https://fonts.googleapis.com/css?family=Raleway:400,,800,900);
+@import url(https://fonts.googleapis.com/css?family=Raleway:400,,800,900);
 body {
   font-family: 'Raleway', sans-serif;
+}
+
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
 
 .hide {
@@ -13,6 +22,11 @@ body {
     top:0;
     z-index: 10000;
     background-color: #eaeaea;
+}
+
+.btn-right {
+  float: right;
+  margin: 1px;
 }
 
 .start, .turn, .popup {
@@ -33,13 +47,12 @@ body {
     width:720px;
     padding:15px;
     background-color:white;
-    border:thin solid black;
+    border:medium solid #000000;
     border-radius:25px;
     min-height:400px;
 }
 .popup_inner_large {
     top: 30px !important;
-    left: 50% !important;
     width:85% !important;
     max-width:1000px !important;
 }
@@ -53,16 +66,29 @@ body {
     border-radius: 0;
     height:600px;
 }
+.popup_title_row {
+    clear:both;
+    height:50px;
+    margin:10px;
+}
+.popup_inner_title {
+    float:left;
+    font-size:3em;
+    font-weight:bold;
+}
+.popup_close {
+    float:right;
+}
 
 .popup_inner .title, .popup_inner .subtitle {
     text-align: center;
 }
 
 .rules_inner {
-  height: 400px;
-  overflow-y: scroll;
+  overflow-y: auto;
   overflow-x: hidden;
   margin-bottom: 1em;
+  padding:10px;
 }
 
 .rules_inner h3,
@@ -112,16 +138,105 @@ body {
     height:30px;
     margin:3px;
 }
+.player_setup_box, .game_setup_box {
+    margin:0 7%;
+    border:thin solid green;
+    border-radius: 15px;
+    background-color:#eaeaea;
+    height:150px;
+    padding:10px;
+    margin:20px 10px 10px 10px;
+}
+.game_setup_box {
+    height:auto;
+    margin:5px 10px 20px 10px;
+}
+.player_setup_row, .game_setup_row {
+    height:40px;
+    width:90%;
+    margin-left:5%;
+    text-align: center;
+}
 .player_title {
-    float:left;
-    width:150px;
+    clear:both;
+    margin-left:10%;
+    font-size:36px;
+    font-weight:bold;
+    padding:5px;
+}
+.game_title {
+    clear:both;
+    font-size:24px;
+    padding:5px;
+}
+.game_title {
+    clear:both;
     font-size:18px;
     font-weight:bold;
-    padding:3px 3px 3px 10px;
+    padding:5px;
 }
-.player_input {
+
+.game_list_box {
+    clear:both;
+    overflow:auto;
+    padding:5px;
+    background-color:silver;
+}
+.game_list_row {
+    clear:both;
+    padding:5px;
+    height:23px;
+}
+.game_list_row:hover {
+    background-color:#187DC0;
+    cursor: pointer;
+}
+.game_list_row_title {
     float:left;
-    width:calc(90% - 150px);
+    width:33%;
+    font-weight:bold;
+    font-size:18px;
+}
+.game_list_row_spots {
+    float:left;
+    width:20%;
+}
+.game_list_row_players {
+    float:left;
+    width:33%;
+}
+
+.player_name_row, .game_name_row {
+    width:100%;
+    height:60px;
+}
+.player_name_cell, .game_name_cell {
+    float:left;
+    width:60%;
+    margin-top:5px;
+}
+.game_name_cell {
+    width:50%;
+}
+.player_start_cell, .game_start_cell {
+    float:left;
+    margin-left:15px;
+}
+.game_start_cell {
+    margin-top:10px;
+}
+.player_input, .game_input {
+    width:65%;
+    margin-left:25%;
+    height:40px;
+    font-size:32px;
+    background-color: #9DD67D;
+    border:thin solid #444;
+    padding:5px 10px;
+}
+.game_input {
+    width:85%;
+    margin-left:20px;
 }
 .player_button {
     width:150px; margin-top:10px; text-align:center;
@@ -131,8 +246,13 @@ body {
     padding-left:5px;
 }
 .player_error {
+    height:40px;
     color:red;
     font-weight:bold;
+    font-size:16px;
+    width:80%;
+    margin:10px 0 10px 10%;
+    text-align: center;
 }
 .place_settlement{
     width: 200px;
@@ -210,9 +330,69 @@ body {
     display:none;
 }
 
+.game_chat {
+    position:absolute;
+    display:inline-block;
+    top:30px;
+    left:1183px;
+    height:812px;
+    width:232px;
+    z-index:100;
+    border: thick inset black;
+}
+
+.game_chat form {
+  position: absolute;
+  bottom: 0px;
+  background-color: silver;
+  height: 60px;
+  padding: 6px;
+  width: 220px;
+}
+
+.game_chat textarea {
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  resize: none;
+  width: 214px;
+  height: 54px;
+}
+
+.game_chat .messages {
+  padding: 4px;
+  font-size: 14px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: column;
+  height: 731px;
+  overflow-y: auto;
+}
+
+.game_chat .messages .chat_message {
+  margin-bottom: 4px;
+}
+
+.game_chat .messages .chat_message_name {
+  font-weight: bold;
+}
+
+.game_chat .messages .chat_message_name.chat_player0 {
+  color: #7168CA;
+}
+.game_chat .messages .chat_message_name.chat_player1 {
+  color: #AB0F12;
+}
+.game_chat .messages .chat_message_name.chat_player2 {
+  color: #0C1BC3;
+}
+.game_chat .messages .chat_message_name.chat_player3 {
+  color: #0A9D08;
+}
+
 .board {
     position:absolute;
-    background-image:url(../images/water.png);
+    background-image:url(../images/water.jpg);
     height:812px;
     width:888px;
     z-index:100;
@@ -632,8 +812,10 @@ body {
     overflow:hidden;
 }
 
-.cardlist .disabled {
-  opacity: .5;
+.card.disabled {
+    border-color: red;
+    border-width: 1px !important;
+    cursor: not-allowed;
 }
 
 .score .cards .buy {
@@ -854,10 +1036,13 @@ body {
 }
 .cards .card, .failed_card .card {
     float:left;
-    margin-left:-33px;
+    margin-right:-74px;
+    border-radius:7px;
+    border-style: solid;
+    border-width: 1px;
 }
-.card.first {
-    margin-left:5px !important;
+.card.last {
+    margin-right:-47px !important;
 }
 
 .turn_button {
@@ -1066,11 +1251,29 @@ body {
     float:right;
     cursor: pointer;
 }
+
+.dev_rules {
+    border-radius:8px;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.vp_rules {
+    border-radius:8px;
+    cursor: pointer;
+    cursor: hand;
+}
+
 .trade_row_devs > .build_card {
-    width: 85px;
+    width: 75px;
+    height: 111px;
+    margin-right:-60px !important;
 }
 .trade_picked {
     width: 100px;
+}
+.build_card.last {
+    margin-right:5px !important;
 }
 
 .trade_give_box, .trade_receive_box, .year_box_card, .monopoly_card, .devcard_card {
@@ -1270,6 +1473,7 @@ body {
 
 .knight_resource_options .play_knight {
   cursor: pointer;
+  border-radius: 8px;
 }
 
 .play_knight_cancel {
@@ -1298,3 +1502,5 @@ body {
     float:right;
     padding:10px;
 }
+
+

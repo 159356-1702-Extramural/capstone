@@ -8,7 +8,7 @@ function Shuffler() {
    * @param {array} arr - array of something to shuffle
    * @return {array} arr - shuffled array
    */
-  this.shuffle = function(arr) {
+  this.shuffle = function (arr) {
     var index = arr.length;
     var temp;
     var randIndex;

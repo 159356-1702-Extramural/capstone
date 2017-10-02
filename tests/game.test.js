@@ -8,30 +8,32 @@ var StateMachine = require('../app/game/state_machine.js');
 var BoardBuilder = require('../app/game/board_builder.js');
 var Player = require('../app/data_api/player.js');
 
-import { Point } from '../public/data_api/board.js';
+import {
+  Point
+} from '../public/data_api/board.js';
 
-test("Game object can be created", function(t) {
-    var game = new Game();
-    t.truthy(game);
+test("Game object can be created", function (t) {
+  var game = new Game();
+  t.truthy(game);
 });
 
-test("End of start sequence resources can be allocated", function(t) {
+test("End of start sequence resources can be allocated", function (t) {
 
   var mock_data;
   var game = new Game();
-  game.players[0] = new Player({}, { name: 'Tim'});
+  game.players[0] = new Player({}, {
+    name: 'Tim'
+  });
   game.players[0].id = 0;
 
   // Fake settlement placement
   mock_data = {
-    actions: [
-      {
-        action_type: 'build_settlement',
-        action_data: {
-          n_tiles: [new Point(2,2), new Point(3,2), new Point(2,3)]
-        }
+    actions: [{
+      action_type: 'build_settlement',
+      action_data: {
+        n_tiles: [new Point(2, 2), new Point(3, 2), new Point(2, 3)]
       }
-    ]
+    }]
   };
 
   game.secondRoundResources(game.players[0], mock_data);
@@ -44,7 +46,7 @@ test("End of start sequence resources can be allocated", function(t) {
 
 });
 
-test("Dice roll function returns a number between 2 and 12", function(t) {
+test("Dice roll function returns a number between 2 and 12", function (t) {
   var game = new Game();
   var result = game.rollingDice();
   t.true(result >= 2 && result <= 12);
@@ -58,10 +60,12 @@ test("Individual rolls are added to the game object", function (t) {
   t.true(game.dice_roll[1] >= 1 && game.dice_roll[1] <= 6);
 });
 
-test("Test dice roll rescources have been allocated correctly.", function(t) {
+test("Test dice roll rescources have been allocated correctly.", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0] = new Player({}, {
+    name: 'Tim'
+  });
   game.players[0].id = 0;
 
   game.board.set_item('build_settlement', 19, 0);
@@ -73,9 +77,26 @@ test("Test dice roll rescources have been allocated correctly.", function(t) {
 
 });
 
+test("Reset turn status for all players", function (t) {
+  var game = new Game();
+  game.players[0] = new Player({}, {
+    name: 'Tim'
+  });
+  game.players[0].id = 0;
+  game.players[0].turn_complete = true;
+  game.players[1] = new Player({}, {
+    name: 'Tim #2'
+  });
+  game.players[1].id = 1;
+  game.players[1].turn_complete = true;
+  game.reset_player_turns();
+  t.is(game.players[0].turn_complete, false);
+  t.is(game.players[1].turn_complete, false);
+});
+
 test.todo("Confirm the robber prevents a tile from give up its resources");
 
-test("Robber moves", function(t) {
+test("Robber moves", function (t) {
   var game = new Game();
 
   var robber_start_x;
@@ -119,10 +140,12 @@ test("Robber moves", function(t) {
 
 });
 
-test("Player with 0 resource doesn't get robbed", function(t) {
+test("Player with 0 resource doesn't get robbed", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0] = new Player({}, {
+    name: 'Tim'
+  });
   game.players[0].id = 0;
 
   var start_cards = game.players[0].cards.count_cards();
@@ -134,10 +157,12 @@ test("Player with 0 resource doesn't get robbed", function(t) {
   t.true(start_cards == end_cards);
 });
 
-test("Player with 6 resources gets 1 card robbed", function(t) {
+test("Player with 6 resources gets 1 card robbed", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'Tim' });
+  game.players[0] = new Player({}, {
+    name: 'Tim'
+  });
   game.players[0].id = 0;
 
   game.players[0].cards.add_card("brick");
@@ -158,26 +183,20 @@ test("Player with 6 resources gets 1 card robbed", function(t) {
   t.true(round_cards === -1);
 });
 
-test("Player with 9 cards get 4 cards robbed", function(t) {
+test("Player with 9 cards get 4 cards robbed", function (t) {
   var game = new Game();
-
-  game.players[0] = new Player({}, { name: 'Tim' });
+  var cards = ["brick", "lumber", "grain", "sheep", "ore", "brick", "brick", "lumber", "grain"];
+  game.players[0] = new Player({}, {
+    name: 'Tim'
+  });
   game.players[0].id = 0;
 
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("lumber");
-  game.players[0].cards.add_card("grain");
-  game.players[0].cards.add_card("sheep");
-  game.players[0].cards.add_card("ore");
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("lumber");
-  game.players[0].cards.add_card("grain");
-
+  for (var i = 0; i < cards.length; i++) {
+    game.players[0].cards.add_card(cards[i]);
+  }
   var start_cards = game.players[0].cards.count_cards();
 
   game.robPlayers();
-
   var end_cards = game.players[0].cards.count_cards();
   var round_cards = game.players[0].round_distribution_cards.count_cards();
 
@@ -185,46 +204,45 @@ test("Player with 9 cards get 4 cards robbed", function(t) {
   t.true(round_cards === -4);
 });
 
-test("Player gets longest_road bonus", function(t) {
+test("Player gets longest_road bonus", function (t) {
   var game = new Game();
-  game.players[0] = new Player({}, { name: 'John' });
+  var player0_roads = [0, 1, 2, 3, 4, 5];
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
 
   // Give player 0 some roads
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
+  for (var i = 0; i < player0_roads.length; i++) {
+    game.board.set_item("build_road", player0_roads[i], game.players[0].id);
+  }
 
   game.modifyPlayerWithRoadBonus();
   t.true(game.players[0].score.longest_road);
   t.true(game.players[0].score.road_length === 5);
 });
 
-test("No players recieve road bonus in same turn if same length longest roads", function(t) {
+test("No players recieve road bonus in same turn if same length longest roads", function (t) {
   var game = new Game();
-  game.players[0] = new Player({}, { name: 'John' });
+  var player0_roads = [0, 1, 2, 3, 4, 5];
+  var player1_roads = [8, 9, 10, 11, 12, 13];
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
 
   // Give player 0 some roads
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
-
-  // Give player 0 some roads
-  game.board.set_item("build_road", 8, game.players[1].id);
-  game.board.set_item("build_road", 9, game.players[1].id);
-  game.board.set_item("build_road", 10, game.players[1].id);
-  game.board.set_item("build_road", 11, game.players[1].id);
-  game.board.set_item("build_road", 12, game.players[1].id);
-  game.board.set_item("build_road", 13, game.players[1].id);
+  for (var i = 0; i < player0_roads.length; i++) {
+    game.board.set_item("build_road", player0_roads[i], game.players[0].id);
+  }
+  // Give player 1 some roads
+  for (var i = 0; i < player1_roads.length; i++) {
+    game.board.set_item("build_road", player1_roads[i], game.players[1].id);
+  }
 
   game.modifyPlayerWithRoadBonus();
   t.false(game.players[0].score.longest_road);
@@ -233,30 +251,29 @@ test("No players recieve road bonus in same turn if same length longest roads", 
   t.true(game.players[1].score.road_length === 5);
 });
 
-test("Player 0 retains longest road in next turn after player 1 matches length", function(t) {
+test("Player 0 retains longest road in next turn after player 1 matches length", function (t) {
   var game = new Game();
-  game.players[0] = new Player({}, { name: 'John' });
+  var player0_roads = [0, 1, 2, 3, 4, 5];
+  var player1_roads = [8, 9, 10, 11, 12, 13];
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
 
   // Give player 0 some roads
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
+  for (var i = 0; i < player0_roads.length; i++) {
+    game.board.set_item("build_road", player0_roads[i], game.players[0].id);
+  }
   // effectively turn over
   game.modifyPlayerWithRoadBonus();
-
-  // Give player 0 some roads
-  game.board.set_item("build_road", 8, game.players[1].id);
-  game.board.set_item("build_road", 9, game.players[1].id);
-  game.board.set_item("build_road", 10, game.players[1].id);
-  game.board.set_item("build_road", 11, game.players[1].id);
-  game.board.set_item("build_road", 12, game.players[1].id);
-  game.board.set_item("build_road", 13, game.players[1].id);
+  // Give player 1 some roads
+  for (var i = 0; i < player1_roads.length; i++) {
+    game.board.set_item("build_road", player1_roads[i], game.players[1].id);
+  }
 
   game.modifyPlayerWithRoadBonus();
   t.true(game.players[0].score.longest_road);
@@ -265,10 +282,30 @@ test("Player 0 retains longest road in next turn after player 1 matches length",
   t.true(game.players[1].score.road_length === 5);
 });
 
-test("Player receives largest army bonus", function(t) {
+test("Player gets road of 15 long in complex loop", function (t) {
+  var game = new Game();
+  var complex = [29, 17, 13, 5, 1, 0, 2, 10, 12, 14, 26, 28, 15, 16, 21, 31];
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
+  game.players[0].id = 0;
+
+  // Build complex road
+  for (var i = 0; i < complex.length; i++) {
+    game.board.set_item("build_road", complex[i], game.players[0].id);
+  }
+
+  game.modifyPlayerWithRoadBonus();
+  t.true(game.players[0].score.longest_road);
+  t.true(game.players[0].score.road_length === 15);
+});
+
+test("Player receives largest army bonus", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
   game.players[0].cards.dev_cards.knight_played = 3;
 
@@ -276,13 +313,17 @@ test("Player receives largest army bonus", function(t) {
   t.true(game.players[0].score.largest_army);
 });
 
-test("No players receive army bonus if same army size in the same turn", function(t) {
+test("No players receive army bonus if same army size in the same turn", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'Rue' });
+  game.players[0] = new Player({}, {
+    name: 'Rue'
+  });
   game.players[0].id = 0;
   game.players[0].cards.dev_cards.knight_played = 3;
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
   game.players[1].cards.dev_cards.knight_played = 3;
 
@@ -291,13 +332,17 @@ test("No players receive army bonus if same army size in the same turn", functio
   t.false(game.players[1].score.largest_army);
 });
 
-test("New player gets largest army after previous player", function(t) {
+test("New player gets largest army after previous player", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'Rue' });
+  game.players[0] = new Player({}, {
+    name: 'Rue'
+  });
   game.players[0].id = 0;
   game.players[0].cards.dev_cards.knight_played = 3;
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
   game.modifyPlayerWithArmyBonus();
   t.true(game.players[0].score.largest_army);
@@ -306,25 +351,31 @@ test("New player gets largest army after previous player", function(t) {
   game.players[1].cards.dev_cards.knight_played = 3;
   game.modifyPlayerWithArmyBonus();
 
-  console.log("PLAYER 0\n", game.players[0].score);
-  console.log("PLAYER 1\n", game.players[1].score);
   t.false(game.players[0].score.largest_army);
   t.true(game.players[1].score.largest_army);
 });
 
-test("Starting players have no score", function(t) {
+test("Starting players have no score", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
 
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
 
-  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2] = new Player({}, {
+    name: 'John'
+  });
   game.players[2].id = 2;
 
-  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3] = new Player({}, {
+    name: 'Ringo'
+  });
   game.players[3].id = 3;
 
   game.calculateScores();
@@ -335,19 +386,27 @@ test("Starting players have no score", function(t) {
   t.true(game.players[3].score.total_points === 0);
 });
 
-test("Player scores correctly totalled", function(t) {
+test("Player scores correctly totalled", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
 
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
 
-  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2] = new Player({}, {
+    name: 'John'
+  });
   game.players[2].id = 2;
 
-  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3] = new Player({}, {
+    name: 'Ringo'
+  });
   game.players[3].id = 3;
 
   // Give player 0 some points
@@ -381,19 +440,27 @@ test("Player scores correctly totalled", function(t) {
   t.true(game.players[3].score.total_points === 0);
 });
 
-test("Winning player detected", function(t) {
+test("Winning player detected", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
 
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
 
-  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2] = new Player({}, {
+    name: 'John'
+  });
   game.players[2].id = 2;
 
-  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3] = new Player({}, {
+    name: 'Ringo'
+  });
   game.players[3].id = 3;
 
   // Give player 0 some points
@@ -428,16 +495,24 @@ test("Winning player detected", function(t) {
 test("No winnner found", function (t) {
   var game = new Game();
 
-  game.players[0] = new Player({}, { name: 'John' });
+  game.players[0] = new Player({}, {
+    name: 'John'
+  });
   game.players[0].id = 0;
 
-  game.players[1] = new Player({}, { name: 'Paul' });
+  game.players[1] = new Player({}, {
+    name: 'Paul'
+  });
   game.players[1].id = 1;
 
-  game.players[2] = new Player({}, { name: 'John' });
+  game.players[2] = new Player({}, {
+    name: 'John'
+  });
   game.players[2].id = 2;
 
-  game.players[3] = new Player({}, { name: 'Ringo' });
+  game.players[3] = new Player({}, {
+    name: 'Ringo'
+  });
   game.players[3].id = 3;
 
   // Give player 0 some points
@@ -468,14 +543,16 @@ test("No winnner found", function (t) {
 
 });
 
-test("Randomised array returned", function(t) {
+test("Randomised array returned", function (t) {
   var game = new Game();
-  var randomised_array = game.randomise_startup_array (4);
+  var randomised_array = game.randomise_startup_array(4);
 
   t.is(randomised_array.length, 8);
-  t.truthy(randomised_array !== [0,1,2,3,3,2,1,0]);
+  t.truthy(randomised_array !== [0, 1, 2, 3, 3, 2, 1, 0]);
 });
 
+/*
+TODO
 test("Set player number", function(t) {
   var game = new Game();
   var state_machine = new StateMachine.StateMachine();
@@ -487,10 +564,9 @@ test("Set player number", function(t) {
   t.is(game.set_player_number(), 4);
   t.is(game.state_machine.setupSequence.length, 8);
 });
-
-test("Set player number2", function(t) {
-  var state_machine = new StateMachine.StateMachine();
-  var game = new Game(state_machine);
+*/
+test("Set player number2", function (t) {
+  var game = new Game();
   game.test_mode = 'true';
   /**
    * round number = 1
@@ -499,32 +575,33 @@ test("Set player number2", function(t) {
    * total = dice1Array[1] + dice2 = 2 + 4 = 6
    */
   var dice_total = game.rollingDice();
-  t.is(dice_total,6);
+  t.is(dice_total, 6);
   t.is(game.dice_roll[0], 2);
   t.is(game.dice_roll[1], 4);
 });
 
-test("Return a development card to the pack", function(t) {
-  var state_machine = new StateMachine.StateMachine();
-  var game = new Game(state_machine);
+test("Return a development card to the pack", function (t) {
+  var game = new Game();
 
-  var dev_card_original_length = game.state_machine.development_cards.length;
+  var dev_card_original_length = game.development_cards.length;
   game.return_dev_card("knight");
-  t.is(game.state_machine.development_cards.length, dev_card_original_length + 1);
-  t.truthy(game.state_machine.development_cards[game.state_machine.development_cards.length-1], "knight");
+  t.is(game.development_cards.length, dev_card_original_length + 1);
+  t.truthy(game.development_cards[game.development_cards.length - 1], "knight");
 
 });
 
-test("Use knight decrements players knights cards", function(t) {
+test("Use knight decrements players knights cards", function (t) {
 
   var state_machine = new StateMachine.StateMachine(0);
 
   var mockSocket = {
-    emit: function () { },
-    on: function () { }
+    emit: function () {},
+    on: function () {}
   };
 
-  state_machine.game.add_player(new Player(mockSocket, { name: 'John' }));
+  state_machine.game.add_player(new Player(mockSocket, {
+    name: 'John'
+  }));
 
   state_machine.game.players[0].cards.dev_cards.knight++;
 
@@ -533,10 +610,10 @@ test("Use knight decrements players knights cards", function(t) {
   t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 0);
   t.is(state_machine.game.players[0].cards.resource_cards.ore, 0);
 
-  // Simpulate the request
-  state_machine.game.state_machine.useKnight({
-    player_id : 0,
-    resource  : 'ore'
+  // Simulate the request
+  state_machine.useKnight({
+    player_id: 0,
+    resource: 'ore'
   });
 
   // Confirm the the player no longer has the knight
@@ -546,7 +623,7 @@ test("Use knight decrements players knights cards", function(t) {
 
 });
 
-test("Knight moves the robber to a new location", function(t) {
+test("Knight moves the robber to a new location", function (t) {
 
   var robber_start_idx;
   var robber_end_idx;
@@ -554,14 +631,18 @@ test("Knight moves the robber to a new location", function(t) {
   var state_machine = new StateMachine.StateMachine(0);
 
   var mockSocket = {
-    emit: function () { },
-    on: function () { }
+    emit: function () {},
+    on: function () {}
   };
 
-  state_machine.game.add_player(new Player(mockSocket, { name: 'John' }));
-  state_machine.game.add_player(new Player(mockSocket, { name: 'Paul' }));
+  state_machine.game.add_player(new Player(mockSocket, {
+    name: 'John'
+  }));
+  state_machine.game.add_player(new Player(mockSocket, {
+    name: 'Paul'
+  }));
 
-  state_machine.game.board.resourceTiles.forEach(function(tile, i) {
+  state_machine.game.board.resourceTiles.forEach(function (tile, i) {
     if (tile.robber) {
       robber_start_idx = i;
     }

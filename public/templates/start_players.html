@@ -1,17 +1,20 @@
-<div class="title"><img src="images/catan_logo.png" /></div>
+<div id="enter-player" class="title"><img src="images/catan_logo.png" /></div>
 <div class="subtitle"> 159.356 Capstone Project</div>
 
-<h1>Enter your name:</h1>
-<div class="player_row">
-    <div class="player_title">Name</div>
-    <div class="player_input"><input type="text" id="txt_player1" value="" /></div>
+<div class="player_setup_box">
+    <div class="player_title">Enter your name:</div>
+    <div class="player_name_row">
+        <div class="player_name_cell">
+            <input type="text" id="player-input" value="" class="player_input" onkeypress="player_input_on_enter(event);" />
+        </div>
+        <div class="player_start_cell">
+            <div id="start-game" class="btn btn-info player_button" onclick="show_games();"><i class="fa fa-gamepad fa-2x"></i>&nbsp;<span class="player_text">Start Game</span></div>
+        </div>
+    </div>
+    <div class="player_error"></div>
 </div>
-<div class="player_error"></div>
-<div class="player_row">
-    <div class="btn btn-info player_button js-start-game"><i class="fa fa-gamepad fa-2x"></i>&nbsp;<span class="player_text">Start Game</span></div>
+
+<div class="player_setup_row">
+    <div class="btn btn-default player_button js-start-toggle" data-target="menu"><span id="main-menu" class="player_text">Main Menu</span></div>
 </div>
-<br>
-<br>
-<div class="player_row">
-    <a href="" class="js-start-toggle" data-target="menu">Back</a>
-</div>
+

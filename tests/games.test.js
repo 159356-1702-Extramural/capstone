@@ -6,114 +6,100 @@ var test = require('ava');
 var games = require('../app/game/games.js');
 var sm = require('../app/game/state_machine.js');
 
+var g;
+var player = {
+  name: "Test Player",
+  game_name: "TEST"
+}
+var mocket = {
+  emit: function (d) {
+    if (d == "game_full") game_full = true;
+  },
+  on: function () {}
+};
+var game_full = false;
 
-test("A new Games object contains an empty array", function(t) {
-    var g = new games.Games();
-    t.truthy(g);
-    t.is(g.games.length, 0);
+test.beforeEach(t => {
+  g = new games.Games();
+  game_full = false;
 });
 
-test("Insert and remove a state_machine in to Games.games[]", function(t) {
-    var g = new games.Games();
-    var m = new sm.StateMachine(0);
-    t.truthy(g);
-    t.truthy(m);
-    t.is(g.games.length, 0);
-    g.games.push(m);
-    t.is(g.games.length, 1);
-    g.remove_game(m);
-    t.is(g.games.length, 0);
+test("Create new game with player", function (t) {
+  g.new_game(mocket, player, 4);
+  t.is(g.games.length, 1);
+  t.is(g.games[0].game.name, "TEST");
 });
 
-test("Reset games to clean state", function(t) {
-    var g = new games.Games();
-    var m = new sm.StateMachine(0);
-    g.games.push(m);
-    t.is(g.games.length, 1);
-    g.hard_reset();
-    t.is(g.games.length, 0);
+test("Reset games to clean state", function (t) {
+  g.new_game(mocket, player, 4);
+  t.is(g.games.length, 1);
+  g.hard_reset();
+  t.is(g.games.length, 0);
 });
 
-test("Player can be assigned to a game", function(t) {
-  var g = new games.Games();
-
-  var mockSocket = {
-    emit: function() { },
-    on: function() {}
-  };
-
-  g.assign_player(mockSocket, {name: 'Tim'});
-
+test("New players can be assigned to a game except when game is full", function (t) {
+  g.new_game(mocket, player, 4);
   t.is(g.games.length, 1);
 
-  g.assign_player(mockSocket, { name: 'Paul' });
-  g.assign_player(mockSocket, { name: 'John' });
-  g.assign_player(mockSocket, { name: 'George' });
-  g.assign_player(mockSocket, { name: 'Ringo' });
-
-  // HACK: cuurent game maxsiz it 2, when this is changed to 4 this test
-  // will ned to be changed
-  t.is(g.games.length, 3);
-});
-
-test("Player assigned without testing data", function(t) {
-
-    // no environment variables set
-
-    var g = new games.Games();
-    var mockSocket = {
-      emit: function() { },
-      on: function() {}
-    };
-
-    g.assign_player(mockSocket, {name: 'Tim'});
-
-    t.is(g.games[0].state, 'setup');
-    t.is(g.games[0].setupComplete, false);
-    t.is(g.games[0].setupPointer, 0);
-    t.is(g.games[0].game.round_num,1);
+  g.assign_player(mocket, {
+    name: 'Paul',
+    game_id: 0
   });
-
-test("Player assigned with testing data", function(t) {
-    // environment variables set
-    // TODO: env vars cached?? and cant be changed during testing
-    process.env.setup = 'skip';
-
-    var g = new games.Games();
-    var mockSocket = {
-      emit: function() { },
-      on: function() {}
-    };
-
-    g.assign_player(mockSocket, {name: 'Craig'});
-
-    t.is(process.env.setup, 'skip');
-    // TODO: test items on board to be sure
-    t.is(g.games[0].setupComplete, true);
-    t.is(g.games[0].setupPointer, 8);
-    t.is(g.games[0].game.round_num,3);
+  g.assign_player(mocket, {
+    name: 'John',
+    game_id: 0
+  });
+  g.assign_player(mocket, {
+    name: 'George',
+    game_id: 0
+  });
+  t.false(game_full);
+  g.assign_player(mocket, {
+    name: 'Ringo',
+    game_id: 0
+  });
+  t.true(game_full);
+  t.is(g.games.length, 1);
 });
 
-test("Player assigned with testing data", function(t) {
-    // environment variables set
-    // TODO: env vars cached?? and cant be changed during testing
-    process.env.setup = 'skip';
-    process.env.players = 4;
-    process.env.robber = 'disabled';
+test("Player assigned without testing data", function (t) {
+  g.new_game(mocket, player, 4);
+  t.is(g.games.length, 1);
 
-    var g = new games.Games();
-    var mockSocket = {
-      emit: function() { },
-      on: function() {}
-    };
+  t.is(g.games[0].state, 'setup');
+  t.is(g.games[0].setupComplete, false);
+  t.is(g.games[0].setupPointer, 0);
+  t.is(g.games[0].game.round_num, 1);
+});
 
-    g.assign_player(mockSocket, {name: 'Craig'});
+test("Player assigned with testing data", function (t) {
+  // environment variables set
+  process.env.setup = 'skip';
 
-    t.is(process.env.setup, 'skip');
-    t.is(process.env.players, '4');
-    t.is(process.env.robber, 'disabled');
-    // TODO: test items on board to be sure
-    t.is(g.games[0].setupComplete, true);
-    t.is(g.games[0].setupPointer, 8);
-    t.is(g.games[0].game.round_num,3);
+  g.new_game(mocket, player, 4);
+  t.is(g.games.length, 1);
+
+  t.is(process.env.setup, 'skip');
+  // TODO: test items on board to be sure
+  t.is(g.games[0].setupComplete, true);
+  t.is(g.games[0].setupPointer, 8);
+  t.is(g.games[0].game.round_num, 3);
+});
+
+test("Player assigned with testing data", function (t) {
+  // environment variables set
+  process.env.setup = 'skip';
+  process.env.players = 4;
+  process.env.robber = 'disabled';
+
+  g.new_game(mocket, player, 4);
+  t.is(g.games.length, 1);
+
+  t.is(process.env.setup, 'skip');
+  t.is(process.env.players, '4');
+  t.is(process.env.robber, 'disabled');
+  // TODO: test items on board to be sure
+  t.is(g.games[0].setupComplete, true);
+  t.is(g.games[0].setupPointer, 8);
+  t.is(g.games[0].game.round_num, 3);
 });

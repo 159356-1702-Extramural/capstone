@@ -11,17 +11,19 @@ var data;
 var player;
 
 // Set up player for each test
-test.beforeEach(function(t) {
+test.beforeEach(function (t) {
   socket = {};
-  data = { name: 'Tim' };
+  data = {
+    name: 'Tim'
+  };
   player = new Player(socket, data);
 });
 
-test("Should create a new player called Tim", function(t) {
-    t.is(player.name, "Tim");
+test("Should create a new player called Tim", function (t) {
+  t.is(player.name, "Tim");
 });
 
-test("New player has a empty cards object", function(t) {
+test("New player has a empty cards object", function (t) {
   t.is(player.cards.count_cards(), 0);
 });
 

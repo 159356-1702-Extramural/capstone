@@ -1,4 +1,4 @@
-<div class="popup_title">Catan Marketplace</div>
+<div id="catan-marketplace" class="popup_title">Catan Marketplace</div>
 <div class="popup_subtitle">Let the trading begin! Simply click one of your resources to begin.</div>
 
 
@@ -8,32 +8,32 @@
 <div class="trade_row" style="height:140px;">
     <div class="card_give {brick_status}" data-resource="brick">
         <div class="trade-info"><span id='brick_tradenum'>{brick_tradenum}</span>:1</div>
-        <img class="trade_brick {brick_status}" src="images/card_brick_small.png">
+        <img class="trade_brick {brick_status}" src="images/card_brick_small.jpg">
 
         <br />
        {brick_cards}
     </div>
     <div class="card_give {grain_status}" data-resource="grain">
         <div class="trade-info"><span id='grain_tradenum'>{grain_tradenum}</span>:1</div>
-        <img class="trade_grain {grain_status}" src="images/card_grain_small.png">
+        <img class="trade_grain {grain_status}" src="images/card_grain_small.jpg">
         <br />
         {grain_cards}
     </div>
     <div class="card_give {sheep_status}" data-resource="sheep">
         <div class="trade-info"><span id='sheep_tradenum'>{sheep_tradenum}</span>:1</div>
-        <img class="trade_sheep {sheep_status}" src="images/card_sheep_small.png">
+        <img class="trade_sheep {sheep_status}" src="images/card_sheep_small.jpg">
         <br />
         {sheep_cards}
     </div>
     <div class="card_give {ore_status}" data-resource="ore">
         <div class="trade-info"><span id='ore_tradenum'>{ore_tradenum}</span>:1</div>
-        <img class="trade_ore {ore_status}" src="images/card_ore_small.png">
+        <img class="trade_ore {ore_status}" src="images/card_ore_small.jpg">
         <br />
         {ore_cards}
     </div>
     <div class="card_give {lumber_status}" data-resource="lumber">
         <div class="trade-info"><span id='lumber_tradenum'>{lumber_tradenum}</span>:1</div>
-        <img class="trade_lumber {lumber_status}" src="images/card_lumber_small.png">
+        <img class="trade_lumber {lumber_status}" src="images/card_lumber_small.jpg">
         <br />
         {lumber_cards}
     </div>
@@ -46,9 +46,9 @@
     <div class="trade_arrow"><i class="fa fa-arrow-right fa-3x"></i></div>
     <div class="trade_receive_box" id='trb'></div>
     <div class="trade_accept">
-      <div class="btn btn-info" onclick='acceptTrade()'>Accept Trade</div>
+      <div id="accept-trade" class="btn btn-info" onclick='acceptTrade()'>Accept Trade</div>
       <br />
-      <div class="btn btn-info" onclick="hidePopup()">Cancel Trade</div>
+      <div id="cancel-trade" class="btn btn-info" onclick="hidePopup()">Cancel Trade</div>
     </div>
 </div>
 
@@ -58,18 +58,18 @@
 </div>
 <div class="trade_row">
     <div class="card_receive" data-resource="brick">
-        <img class="trade_brick" src="images/card_brick_small.png">
+        <img class="trade_brick" src="images/card_brick_small.jpg">
     </div>
     <div class="card_receive" data-resource="grain">
-        <img class="trade_grain" src="images/card_grain_small.png">
+        <img class="trade_grain" src="images/card_grain_small.jpg">
     </div>
     <div class="card_receive" data-resource="sheep">
-        <img class="trade_sheep" src="images/card_sheep_small.png">
+        <img class="trade_sheep" src="images/card_sheep_small.jpg">
     </div>
     <div class="card_receive" data-resource="ore">
-        <img class="trade_ore" src="images/card_ore_small.png">
+        <img class="trade_ore" src="images/card_ore_small.jpg">
     </div>
     <div class="card_receive" data-resource="lumber">
-        <img class="trade_lumber" src="images/card_lumber_small.png">
+        <img class="trade_lumber" src="images/card_lumber_small.jpg">
     </div>
 </div>

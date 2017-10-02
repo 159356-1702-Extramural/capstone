@@ -18,7 +18,7 @@ var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4";
 var saucelabs = new SauceLabs({
   username: username,
   password: accessKey
-    });
+});
 
 var test = require('ava');
 var webdriver = require('selenium-webdriver');
@@ -39,242 +39,241 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
 
 //Super quick tests for setting up tests and not over loading saucelabs
 var superQuickTests = {
-    'Windows 10' : {
-        'firefox' : {
-            startVersion : 55,
-            endVersion : 55
-        },
-        'MicrosoftEdge' : { //testing two versions here
-            startVersion: 14,
-            endVersion: 14
-        }
+  'Windows 10': {
+    'firefox': {
+      startVersion: 55,
+      endVersion: 55
+    },
+    'MicrosoftEdge': { //testing two versions here
+      startVersion: 14,
+      endVersion: 14
     }
+  }
 }
 
- // Quick tests hold multiple of 4 tests at any time for testing in parallel - currently 8 combos
+// Quick tests hold multiple of 4 tests at any time for testing in parallel - currently 8 combos
 var quickTests = {
-    'Windows 10' : {
-        'firefox' : {
-            startVersion : 55,
-            endVersion : 55
-        },
-        'chrome' : {
-            startVersion : 60,
-            endVersion : 60
-        },
-        'internet explorer' : {
-            startVersion : 11,
-            endVersion : 11
-        },
-        'MicrosoftEdge' : { //testing two versions here
-            startVersion: 14,
-            endVersion: 15
-        },
+  'Windows 10': {
+    'firefox': {
+      startVersion: 55,
+      endVersion: 55
     },
-    'Windows 8.1' : {
-        'firefox' : {
-            startVersion : 55,
-            endVersion : 55
-        },
-        'internet explorer' : {
-            startVersion : 11,
-            endVersion : 11
-        }
+    'chrome': {
+      startVersion: 60,
+      endVersion: 60
     },
-    'Linux': {
-        'firefox' : {
-            startVersion : 45,
-            endVersion : 45
-        },
-        'chrome' : {
-            startVersion : 48,
-            endVersion : 48
-        }
+    'internet explorer': {
+      startVersion: 11,
+      endVersion: 11
     },
-    'Mac 10.12' : {
-        'firefox' : {
-            startVersion : 45,
-            endVersion : 45
-        },
-        'chrome' : {
-            startVersion : 60,
-            endVersion : 60
-        },
-        'safari' : {
-            startVersion : 10,
-            endVersion : 10
-        }
+    'MicrosoftEdge': { //testing two versions here
+      startVersion: 14,
+      endVersion: 15
+    },
+  },
+  'Windows 8.1': {
+    'firefox': {
+      startVersion: 55,
+      endVersion: 55
+    },
+    'internet explorer': {
+      startVersion: 11,
+      endVersion: 11
     }
- }
-
+  },
+  'Linux': {
+    'firefox': {
+      startVersion: 45,
+      endVersion: 45
+    },
+    'chrome': {
+      startVersion: 48,
+      endVersion: 48
+    }
+  },
+  'Mac 10.12': {
+    'firefox': {
+      startVersion: 45,
+      endVersion: 45
+    },
+    'chrome': {
+      startVersion: 60,
+      endVersion: 60
+    },
+    'safari': {
+      startVersion: 10,
+      endVersion: 10
+    }
+  }
+}
 
 var comprehensiveTests = {
-    'Windows 10' : {
-        'firefox' : {
-            startVersion : 4,
-            endVersion : 55
-        },
-        'chrome' : {
-            startVersion : 26,
-            endVersion : 60
-        },
-        'ie' : {
-            startVersion : 11,
-            endVersion : 11
-        },
-        'edge' : {
-            startVersion: 13,
-            endVersion: 15
-        }
+  'Windows 10': {
+    'firefox': {
+      startVersion: 4,
+      endVersion: 55
     },
-    'Windows 8.1' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 55
-        },
-        chrome : {
-            startVersion : 26,
-            endVersion : 60
-        },
-        ie : {
-            startVersion : 11,
-            endVersion : 11
-        }
+    'chrome': {
+      startVersion: 26,
+      endVersion: 60
     },
-    'Windows 8' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 55
-        },
-        chrome : {
-            startVersion : 26,
-            endVersion : 60
-        },
-        ie : {
-            startVersion : 10,
-            endVersion : 10
-        }
+    'ie': {
+      startVersion: 11,
+      endVersion: 11
     },
-    'Windows 7' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 55
-        },
-        chrome : {
-            startVersion : 26,
-            endVersion : 60
-        },
-        ie : {
-            startVersion : 8,
-            endVersion : 11
-        },
-        opera : {
-            startVersion : 11,
-            endVersion : 12
-        },
-        safari : {
-            startVersion : 5,
-            endVersion : 5
-        }
-    },
-    'Windows XP' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 45
-        },
-        chrome : {
-            startVersion : 26,
-            endVersion : 49
-        },
-        ie : {
-            startVersion : 6,
-            endVersion : 8
-        },
-        opera : {
-            startVersion : 11,
-            endVersion : 12
-        }
-    },
-    'Mac 10.12' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 45
-        },
-        chrome : {
-            startVersion : 27,
-            endVersion : 60
-        },
-        safari : {
-            startVersion : 10,
-            endVersion : 10
-        }
-    },
-    'Mac 10.11' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 45
-        },
-        chrome : {
-            startVersion : 27,
-            endVersion : 60
-        },
-        safari : {
-            startVersion : 9,
-            endVersion : 10
-        }
-    },
-    'Mac 10.10' : {
-        chrome : {
-            startVersion : 37,
-            endVersion : 60
-        },
-        safari : {
-            startVersion : 8,
-            endVersion : 8
-        }
-    },
-    'Mac 10.9' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 55
-        },
-        chrome : {
-            startVersion : 31,
-            endVersion : 60
-        },
-        safari : {
-            startVersion : 7,
-            endVersion : 7
-        }
-    },
-    'Mac 10.8' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 48
-        },
-        chrome : {
-            startVersion : 27,
-            endVersion : 49
-        },
-        safari : {
-            startVersion : 6,
-            endVersion : 6
-        }
-    },
-    'Linux' : {
-        firefox : {
-            startVersion : 4,
-            endVersion : 45
-        },
-        chrome : {
-            startVersion : 26,
-            endVersion : 48
-        },
-        opera : {
-            startVersion : 12,
-            endVersion : 12
-        }
+    'edge': {
+      startVersion: 13,
+      endVersion: 15
     }
+  },
+  'Windows 8.1': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 55
+    },
+    chrome: {
+      startVersion: 26,
+      endVersion: 60
+    },
+    ie: {
+      startVersion: 11,
+      endVersion: 11
+    }
+  },
+  'Windows 8': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 55
+    },
+    chrome: {
+      startVersion: 26,
+      endVersion: 60
+    },
+    ie: {
+      startVersion: 10,
+      endVersion: 10
+    }
+  },
+  'Windows 7': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 55
+    },
+    chrome: {
+      startVersion: 26,
+      endVersion: 60
+    },
+    ie: {
+      startVersion: 8,
+      endVersion: 11
+    },
+    opera: {
+      startVersion: 11,
+      endVersion: 12
+    },
+    safari: {
+      startVersion: 5,
+      endVersion: 5
+    }
+  },
+  'Windows XP': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 45
+    },
+    chrome: {
+      startVersion: 26,
+      endVersion: 49
+    },
+    ie: {
+      startVersion: 6,
+      endVersion: 8
+    },
+    opera: {
+      startVersion: 11,
+      endVersion: 12
+    }
+  },
+  'Mac 10.12': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 45
+    },
+    chrome: {
+      startVersion: 27,
+      endVersion: 60
+    },
+    safari: {
+      startVersion: 10,
+      endVersion: 10
+    }
+  },
+  'Mac 10.11': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 45
+    },
+    chrome: {
+      startVersion: 27,
+      endVersion: 60
+    },
+    safari: {
+      startVersion: 9,
+      endVersion: 10
+    }
+  },
+  'Mac 10.10': {
+    chrome: {
+      startVersion: 37,
+      endVersion: 60
+    },
+    safari: {
+      startVersion: 8,
+      endVersion: 8
+    }
+  },
+  'Mac 10.9': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 55
+    },
+    chrome: {
+      startVersion: 31,
+      endVersion: 60
+    },
+    safari: {
+      startVersion: 7,
+      endVersion: 7
+    }
+  },
+  'Mac 10.8': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 48
+    },
+    chrome: {
+      startVersion: 27,
+      endVersion: 49
+    },
+    safari: {
+      startVersion: 6,
+      endVersion: 6
+    }
+  },
+  'Linux': {
+    firefox: {
+      startVersion: 4,
+      endVersion: 45
+    },
+    chrome: {
+      startVersion: 26,
+      endVersion: 48
+    },
+    opera: {
+      startVersion: 12,
+      endVersion: 12
+    }
+  }
 }
 
 /**
@@ -286,18 +285,20 @@ var comprehensiveTests = {
  * @return {Object} : driver object
  */
 function buildDriver(os, browser, version, test_info) {
-    var driver = new webdriver.Builder()
-        .withCapabilities({
-            'browserName':browser,
-            'name' : test_info + os + " | " + browser + " | " + version,
-            'platform':os,
-            'version': version,})
-        .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
-        .build();
-    driver.getSession().then(function (sessionid){
-        driver.sessionID = sessionid.id_;
+  var driver = new webdriver.Builder()
+    .withCapabilities({
+      'browserName': browser,
+      'name': test_info + os + " | " + browser + " | " + version,
+      'platform': os,
+      'version': version,
+    })
+    .usingServer('http://' + username + ':' + accessKey + '@ondemand.saucelabs.com:80/wd/hub')
+    .build();
+  driver.getSession()
+    .then(function (sessionid) {
+      driver.sessionID = sessionid.id_;
     });
-    return driver;
+  return driver;
 }
 
 /**
@@ -305,71 +306,91 @@ function buildDriver(os, browser, version, test_info) {
  * Write functions for each test here and call them in the section at the bottom of the page
  */
 
-async function popups_display_and_close(title, driver,os, browser, version) {
-    test(title + ' - '+os+' | '+browser+' | '+ version+')', async t => {
-        var passedBool = true;
-        try{
-            driver.manage().window().setSize(1024, 768);
+async function popups_display_and_close(title, driver, os, browser, version) {
+  test(title + ' - ' + os + ' | ' + browser + ' | ' + version + ')', async t => {
+    var passedBool = true;
+    try {
+      driver.manage()
+        .window()
+        .setSize(1024, 768);
 
-            // road building set here to stop victory point cards interfering with the test.
-            await driver.get('http://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip&fixedDice=true&dev_card=road_building');
-            await driver.findElement(webdriver.By.id('play')).click();
-            await driver.findElement(webdriver.By.id('txt_player1')).sendKeys(os+"|"+browser+"|"+version);
-            await driver.findElement(webdriver.By.className('player_button')).click();
-            //below code twice to pass through two modals
+      // road building set here to stop victory point cards interfering with the test.
+      await driver.get(
+        'http://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip&fixedDice=true&dev_card=road_building'
+      );
+      await driver.findElement(webdriver.By.id('play'))
+        .click();
+      await driver.findElement(webdriver.By.id('txt_player1'))
+        .sendKeys(os + "|" + browser + "|" + version);
+      await driver.findElement(webdriver.By.className('player_button'))
+        .click();
+      //below code twice to pass through two modals
 
-            await driver.findElement(webdriver.By.className('btn-info')).click();
-            await driver.findElement(webdriver.By.className('btn-info')).click();
+      await driver.findElement(webdriver.By.className('btn-info'))
+        .click();
+      await driver.findElement(webdriver.By.className('btn-info'))
+        .click();
 
-            //get initial values to test against (they will be different based on resources distributed)
-            var startOre = await driver.findElement(webdriver.By.className('orecount')).getText();
-            var startSheep = await driver.findElement(webdriver.By.className('sheepcount')).getText();
-            var startGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
+      //get initial values to test against (they will be different based on resources distributed)
+      var startOre = await driver.findElement(webdriver.By.className('orecount'))
+        .getText();
+      var startSheep = await driver.findElement(webdriver.By.className('sheepcount'))
+        .getText();
+      var startGrain = await driver.findElement(webdriver.By.className('graincount'))
+        .getText();
 
-            // click "Buy Development Card" button
-            await driver.findElement(webdriver.By.className('buybutton')).click();
+      // click "Buy Development Card" button
+      await driver.findElement(webdriver.By.className('buybutton'))
+        .click();
 
-            // get returned values
-            var finishOre = await driver.findElement(webdriver.By.className('orecount')).getText();
-            var finishSheep = await driver.findElement(webdriver.By.className('sheepcount')).getText();
-            var finishGrain = await driver.findElement(webdriver.By.className('graincount')).getText();
+      // get returned values
+      var finishOre = await driver.findElement(webdriver.By.className('orecount'))
+        .getText();
+      var finishSheep = await driver.findElement(webdriver.By.className('sheepcount'))
+        .getText();
+      var finishGrain = await driver.findElement(webdriver.By.className('graincount'))
+        .getText();
 
-            // test cards removed when Buy Dev Card clicked
-            // t.is(parseInt(finishSheep), parseInt(startSheep)-1);
-            // t.is(parseInt(finishGrain), parseInt(startGrain)-1);
-            // t.is(parseInt(finishOre), parseInt(startOre)-1);
+      // test cards removed when Buy Dev Card clicked
+      // t.is(parseInt(finishSheep), parseInt(startSheep)-1);
+      // t.is(parseInt(finishGrain), parseInt(startGrain)-1);
+      // t.is(parseInt(finishOre), parseInt(startOre)-1);
 
-            // check card returned
-            t.is(await driver.findElement(webdriver.By.className('cardlist')).findElements(webdriver.By.className('card')).then(function(elements){
-                return elements.length;
-            }) , 1);
+      // check card returned
+      t.is(await driver.findElement(webdriver.By.className('cardlist'))
+        .findElements(webdriver.By.className('card'))
+        .then(function (elements) {
+          return elements.length;
+        }), 1);
 
-            // check in game popup works
-            await driver.findElement(webdriver.By.className('road_building')).click();
-            t.is(await driver.findElement(webdriver.By.className('popup_title')).getText(), "Road Building");
+      // check in game popup works
+      await driver.findElement(webdriver.By.className('road_building'))
+        .click();
+      t.is(await driver.findElement(webdriver.By.className('popup_title'))
+        .getText(), "Road Building");
 
-            // check can we close the popup window
-            await driver.findElement(webdriver.By.className('road_building_button')).click();
-            //t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
+      // check can we close the popup window
+      await driver.findElement(webdriver.By.className('road_building_button'))
+        .click();
+      //t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
 
-            saucelabs.updateJob(driver.sessionID, {
-                name: title + " | " + os + " | " + browser + " | " + version,
-                passed: passedBool,
-                });
+      saucelabs.updateJob(driver.sessionID, {
+        name: title + " | " + os + " | " + browser + " | " + version,
+        passed: passedBool,
+      });
 
-            driver.quit();
-        }
-        catch(err){
-            console.log("FAILED " + title + " - "+ os +" | " + browser + " | " + version);
-            passedBool = false;
-            saucelabs.updateJob(driver.sessionID, {
-                name: title + " | " + os + " | " + browser + " | " + version,
-                passed: passedBool,
-                });
+      driver.quit();
+    } catch (err) {
+      console.log("FAILED " + title + " - " + os + " | " + browser + " | " + version);
+      passedBool = false;
+      saucelabs.updateJob(driver.sessionID, {
+        name: title + " | " + os + " | " + browser + " | " + version,
+        passed: passedBool,
+      });
 
-            driver.quit();
-        }
-    });
+      driver.quit();
+    }
+  });
 }
 
 /**
@@ -382,27 +403,27 @@ var testCapabilities = superQuickTests;
 var testTitles = ['Popups display and close'];
 
 // Loop through test names
-for(var j = 0; j < testTitles.length; j++){
+for (var j = 0; j < testTitles.length; j++) {
 
-    // Loop each Operating System
-    for(var os in testCapabilities){
+  // Loop each Operating System
+  for (var os in testCapabilities) {
 
-        //Loop through each Browser on that Operating System
-        for(var browser in testCapabilities[os]){
+    //Loop through each Browser on that Operating System
+    for (var browser in testCapabilities[os]) {
 
-            // Loop through each version specified for that Browser
-            for( var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(testCapabilities[os][browser].endVersion); version++){
+      // Loop through each version specified for that Browser
+      for (var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(
+          testCapabilities[os][browser].endVersion); version++) {
 
-                //Find the correct test
-                if(testTitles[j] === 'Popups display and close'){
+        //Find the correct test
+        if (testTitles[j] === 'Popups display and close') {
 
-                    // initialise driver inside for loop otherwise can be created too early and time out
-                    var driver = buildDriver(os+"",browser+"", version+"", testTitles[j]+" - ");
-                    popups_display_and_close(testTitles[j], driver, os,browser, version);
+          // initialise driver inside for loop otherwise can be created too early and time out
+          var driver = buildDriver(os + "", browser + "", version + "", testTitles[j] + " - ");
+          popups_display_and_close(testTitles[j], driver, os, browser, version);
 
-                }
-            }
         }
+      }
     }
+  }
 }
-
