@@ -134,8 +134,11 @@ generate = function (board_set = new BoardSet()) {
     for (let num of ar) {
       check_token_placement(board, [num]);
     }
-    check_token_placement(board, [6,8]);
   }
+  // token check required for both random and non-random
+  // because the desert can shift a 6 or 8 next to each other
+  log('debug', '6 and 8 token check');
+  check_token_placement(board, [6,8]);
   // iterate over node_map for each node in the map and find neighbours
   for (var j = 0; j < board.nodes.length; j++) {
     fill_node_details(board, board.nodes[j], j);
