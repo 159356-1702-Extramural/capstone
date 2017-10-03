@@ -108,8 +108,8 @@ Game.prototype.secondRoundResources = function (player, data) {
  * @return {Number} sum of the two dice
  */
 Game.prototype.rollingDice = function () {
-  var dice1 = Math.ceil(Math.random() * 6);
-  var dice2 = Math.ceil(Math.random() * 6);
+  var dice1 = 1 + Math.floor(Math.random() * 6);
+  var dice2 = 1 + Math.floor(Math.random() * 6);
   this.dice_roll = [dice1, dice2];
 
   // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10

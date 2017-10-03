@@ -142,7 +142,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       for (var j = 0; j < popup_data[i][1]; j++) {
         if (card_count < 16) {
           card_html += '<div class="build_card" style="z-index:' + (500 + card_count) +
-            ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
+            ';"><img style="border-radius:6px" src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
         }
         card_count++;
       }
@@ -219,7 +219,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       for (var j = 0; j < popup_data[i][1]; j++) {
         if (card_count < 16) {
           card_html += '<div class="build_card" style="z-index:' + (500 + card_count) +
-            ';"><img src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
+            ';"><img style="border-radius:6px" src="images/card_' + popup_data[i][0] + '_small.jpg"></div>';
         }
         card_count++;
       }
@@ -283,7 +283,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         // length - 2 used to get second to last item which is total stolen
         for (var i = 0; i < data.player.actions[0].action_data[j]; i++) {
           stolen_cards += '<div class="failed_card" style="z-index:' + (500) +
-            ';"><img class="card" src="images/card_' + (data.player.actions[0].action_data[data.player.actions[
+            ';"><img style="border-radius:6px" class="card" src="images/card_' + (data.player.actions[0].action_data[data.player.actions[
               0].action_data.length - 1]) + '_small.jpg"></div>';
         }
         if (stolen_cards.length == 0) {
@@ -318,7 +318,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var stolen_cards = "";
     for (var i = 0; i < data.player.actions[0].action_data[current_game.player.id]; i++) {
       stolen_cards += '<div class="failed_card" style="z-index:' + (500) +
-        ';"><img class="card" src="images/card_' + data.player.actions[0].action_data[data.player.actions[0].action_data
+        ';"><img style="border-radius:6px" class="card" src="images/card_' + data.player.actions[0].action_data[data.player.actions[0].action_data
           .length - 1] + '_small.jpg"></div>';
     }
     if (stolen_cards.length == 0) {
@@ -369,7 +369,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
-      card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img class="trade_' + card_list[
+      card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img style="border-radius:6px" class="trade_' + card_list[
         i] + '" src="images/card_' + card_list[i] + '_small.jpg"></div>';
     }
   
@@ -487,7 +487,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    *  round_use_year_of_plenty.html
    **************************************************/
   function build_popup_victory_point_received(card) {
-    var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="vp_' + card +
+    var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img style="border-radius:28px;" class="vp_' + card +
       ' set_large_image_width" src="images/dev_victory_' + card + '_large.jpg"></div>';
   
     var vp_cards = [
@@ -580,7 +580,8 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         //  Now the html
         for (var c = 0; c < card_list.length; c++) {
           card_html += '<div class="failed_card" style="z-index:' + (500 + c) +
-            ';"><img class="card" src="images/card_' + card_list[c] + '_small.jpg"></div>';
+            ';"><img style="border-radius:6px" class="card" src="images/card_' +
+            card_list[c] + '_small.jpg"></div>';
         }
   
         var failure = [object_type + "_" + current_game.player.colour + ".png", card_html];
@@ -664,7 +665,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   
     //  TODO: Build list of Knights
     var knight_html = "";
-    //<div class="player_score_token"><img src="images/dev_knight_small.jpg" width="50" /></div>
+    //<div class="player_score_token"><img style="border-radius:6px" src="images/dev_knight_small.jpg" width="50" /></div>
   
     //  Victory Points
     var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
@@ -720,8 +721,8 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    *  round_show_dev_card.html
    **************************************************/
   function build_popup_show_dev_card(card) {
-  
-    var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img class="dev_' + card +
+
+    var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img style="border-radius:28px;" class="dev_' + card +
       ' set_large_image_width" src="images/dev_' + card + '_large.jpg"></div>';
     var dev_cards_rules = "";
     var other_dev_cards = "";
