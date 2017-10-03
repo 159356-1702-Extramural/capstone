@@ -65,11 +65,6 @@ StateMachine.prototype.next_state = function () {
       this.start_timer();
       this.state = "play";
     }
-  } else if (this.state === "trade") {
-    this.log('debug', 'in "trade" state');
-    if (round_complete) {
-      this.state = "play";
-    }
   } else if (this.state === "play") {
     this.log('debug', 'in "play" state');
     // End the game if we have a winner
@@ -139,18 +134,6 @@ StateMachine.prototype.tick = function (data) {
     this.game_start_sequence();
     // reset the player turn completion status
     this.game.reset_player_turns();
-    this.next_state();
-    return true;
-  }
-
-  /************************************************************
-   * If in Trade state - trade logic operates on this.game
-   ************************************************************/
-  else if (this.state === "trade" && data) {
-    this.log('debug', 'ticked trade state : initiated by '+this.game.players[data.player_id].name);
-    this.game.players.every(function (player) {
-      return player.turn_complete === true;
-    });
     this.next_state();
     return true;
   }
