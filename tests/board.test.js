@@ -36,8 +36,9 @@ test("Board object can be created from object parsed from JSON", function (t) {
 });
 
 test("build_board from passed in map", function (t) {
-  var board_obj = board_builder.generate(default_board);
-  t.truthy(board_obj);
+  var board_set = new board_builder.BoardSet();
+  var board = board_builder.generate(board_set);
+  t.truthy(board);
 });
 
 test("Point creation", function (t) {
@@ -96,7 +97,7 @@ test("Get a tile from the board", function (t) {
 test("Get a tile resource", function (t) {
   var point = new board.Point(2, 1);
   var resource = _board.get_tile_resource_type(point);
-  t.is(resource, "lumber");
+  t.truthy(resource);
 });
 
 test("Get a nodes connected by road", function (t) {
