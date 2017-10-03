@@ -13,3 +13,4 @@ logs
 .vscode/launch.json
 *.pyc
 tests/seleniumPythonTest/test_reports/*.html
+jasonPrivate/helloworld.js
