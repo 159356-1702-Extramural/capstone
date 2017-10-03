@@ -340,7 +340,8 @@ $(document)
     // Listen for incoming chat messages
     socket.on('chat_message', function(data) {
       var $message_panel = $('.messages');
-      $(".btn-control-maximize").addClass('btn-msg');
+      if (data.player_id != current_player.id)
+        $(".btn-control-maximize").addClass('btn-msg');
 
       var message_html = "<div class=\"chat_message\"><span class=\"chat_message_name chat_player"+data.player_id+"\">"+data.name+" </span>"+data.message+"</div>";
 
