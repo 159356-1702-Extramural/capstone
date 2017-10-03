@@ -21,6 +21,12 @@ $(document)
 
     var $doc = $(document);
 
+    $(".btn-control-maximize").click(function(){
+      $(".btn-control-maximize").removeClass('btn-msg');
+      $(".btn-control-maximize").toggleClass('btn-plus');
+      $(".score").slideToggle();
+    });
+
     //    Show the initial menu
     build_popup_start_menu();
 
@@ -107,11 +113,19 @@ $(document)
 
       //  Build tiles
       var _html = "";
+      // set the board width
+      var board_klass = document.getElementsByClassName('board');
+      for(i=0; i<board_klass.length; i++) {
+        board_klass[i].style.width = ((board.tiles[0].length-1) * 148)+"px";
+      }
+
       for (var i = 0; i < board.tiles.length; i++) {
         var row = board.tiles[i];
+        _html += '<div class = "board_row">';
         for (var j = 0; j < row.length; j++) {
-          _html += buildTile(row[j], i, j);
+          _html += buildTile(row[j], i, j, row.length);
         }
+        _html += '</div>';
       }
       $(".board")
         .html(_html);
@@ -326,6 +340,7 @@ $(document)
     // Listen for incoming chat messages
     socket.on('chat_message', function(data) {
       var $message_panel = $('.messages');
+      $(".btn-control-maximize").addClass('btn-msg');
 
       var message_html = "<div class=\"chat_message\"><span class=\"chat_message_name chat_player"+data.player_id+"\">"+data.name+" </span>"+data.message+"</div>";
 
@@ -970,9 +985,9 @@ var update_server = function(data_type, data) {
 }
 
 //  Method used to create the individual tiles when the board is first drawn
-function buildTile(theTile, row, col) {
+function buildTile(theTile, row, col, row_len) {
   //  We don't need the 1st water on even rows
-  if ((row % 2) == 0 && col == 0) {
+  if ((row % 2) == 0 && (col == 0 || col == row_len)) {
     return "";
   } else {
     var newTile = "<div class='hex";
@@ -986,7 +1001,9 @@ function buildTile(theTile, row, col) {
       newTile += " " + theTile.type;
     }
 
-    newTile += ((row % 2) != 0 && (col == 0 || col == 6) ? " half" : "") + "'>";
+    newTile += ((row % 2) != 0 && (col == 0) ? " hex_half" : "");
+    newTile += ((row % 2) != 0 && (col == row_len-1) ? " hex_last" : "");
+    newTile += "'>"
     if (theTile.type == "desert") {
       var point = getObjectPosition(col, row, 1);
       $(".robber")

@@ -1,6 +1,9 @@
 @import url(https://fonts.googleapis.com/css?family=Raleway:400,,800,900);
 body {
   font-family: 'Raleway', sans-serif;
+  background-image: url(../images/water2.jpg);
+  background-repeat: repeat;
+  background-color: darkblue;
 }
 
 .noselect {
@@ -29,27 +32,51 @@ body {
   margin: 1px;
 }
 
+.btn-control-maximize {
+  position: fixed;
+  float: right;
+  right: 10px;
+  top: 30px;
+  margin: 1px;
+  width: 48px;
+  height: 48px;
+  border:none;
+  z-index:999998;
+  background: url(../images/control_center.png) no-repeat;
+  background-size: 48px 48px;
+}
+.btn-plus {
+  background: url(../images/chat_icon.png) no-repeat;
+  background-size: 48px 48px;
+}
+.btn-msg {
+  background: url(../images/chat_icon_msg.png) no-repeat !important;
+  background-size: 48px 48px !important;
+}
+
 .start, .turn, .popup {
-    position:absolute;
+    position:fixed;
+    float:left;
     top:0px;
     left:0px;
     width:100%;
-    height: 882px;
+    height: 100%;
     background:rgba(0, 0, 0,0.4);
     display:block;
-    z-index:9999;
+    z-index:999999;
 }
 .start_inner, .turn_inner, .popup_inner {
-    position: absolute;
+    position: relative;
     top: 150px;
-    left: 100px;
+    margin:auto;
     height:auto;
-    width:720px;
+    width:720px !important;
     padding:15px;
     background-color:white;
     border:medium solid #000000;
     border-radius:25px;
-    min-height:400px;
+    padding-bottom: 50px;
+    max-height: 70%;
 }
 .popup_inner_large {
     top: 30px !important;
@@ -57,14 +84,15 @@ body {
     max-width:1000px !important;
 }
 .popup_inner_right {
-    position: fixed;
-    width:210px;
+    position: relative;
+    float: right;
+    width:209px !important;
     height:660px;
-    top:160px;
-    left:935px;
+    top:17%;
+    left:-18px;
     transform: none;
     border-radius: 0;
-    height:600px;
+    height:60%;
 }
 .popup_title_row {
     clear:both;
@@ -259,7 +287,8 @@ body {
 }
 
 .other_players {
-    position:absolute;
+    position:fixed;
+    float: left;
     top:5px;
     left:5px;
     height:350px;
@@ -317,27 +346,28 @@ body {
     padding:5px;
 }
 .other_players .player_red {
-    background-image: url(../Images/other_player_red.png);
+    background-image: url(../images/other_player_red.png);
 }
 .other_players .player_blue {
-    background-image: url(../Images/other_player_blue.png);
+    background-image: url(../images/other_player_blue.png);
 }
 .other_players .player_green {
-    background-image: url(../Images/other_player_green.png);
+    background-image: url(../images/other_player_green.png);
 }
 .other_players .player_purple {
-    background-image: url(../Images/other_player_purple.png);
+    background-image: url(../images/other_player_purple.png);
     display:none;
 }
 
 .game_chat {
-    position:absolute;
+    position:fixed;
+    float: right;
     display:inline-block;
-    top:30px;
-    left:1183px;
+    top:5%;
+    right:20px;
     height:812px;
     width:232px;
-    z-index:100;
+    z-index:80000;
     border: thick inset black;
 }
 
@@ -365,8 +395,9 @@ body {
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
-  height: 731px;
+  height: 732px;
   overflow-y: auto;
+  background-color: whitesmoke;
 }
 
 .game_chat .messages .chat_message {
@@ -392,11 +423,18 @@ body {
 
 .board {
     position:absolute;
-    background-image:url(../images/water.jpg);
-    height:812px;
-    width:888px;
-    z-index:100;
-    border: thick inset black;
+    z-index:9;
+    width: 888px;
+    top: 33px !important;
+    left: 33px !important;
+}
+.board_row {
+    clear:both;
+    position:relative;
+    left: 0px;
+    top: -5px;
+    height:124px;
+    z-index:10;
 }
 .board .row {
     clear:both;
@@ -409,13 +447,14 @@ body {
 }
 
 .score {
-    position:absolute;
+    position:fixed;
+    float: right;
     display:inline-block;
-    top:30px;
-    left:935px;
-    height:812px;
+    top:5%;
+    right:20px;
+    height:auto;
     width:232px;
-    z-index:100;
+    z-index:90000;
     border: thick inset black;
     background-color: silver;
 }
@@ -424,27 +463,30 @@ body {
     clear:both;
     text-align:center;
     padding:3px;
-    margin-bottom:10px;
+    margin-bottom:5%;
 }
 .score .player {
     float:left;
-    margin:0px 10px;
+    margin-top:5px;
+    margin:0px 15px;
 }
 .score .playername {
+    position: relative;
     float:left;
+    margin-top:5%;
     font-size: 18px;
     overflow:hidden;
     white-space:nowrap;
-    padding-top:10px;
 }
 .score .playerbutton {
+    margin-top: 5%;
     clear:both;
 }
 
 .score .dice_row {
     clear: both;
-    margin-top:5px;
-    height:50px;
+    margin-top:5%;
+    height:50%;
     display:none;
 }
 .score .dice_window {
@@ -493,13 +535,19 @@ body {
     float:left;
     width:148px;
     height:172px;
-    margin-top:-48px;
+    margin-top:-44.5px;
+    margin-bottom:-3px;
+
 }
-.half {
+.hex_half {
     margin-left:-74px;
+}
+.hex_last {
+    margin-right:-74px;
 }
 .hex_water {
     background:none;
+    z-index: -100;
 }
 
 .token {
@@ -547,7 +595,7 @@ body {
     border-color:#eaeaea;
 }
 .water {
-   background:none;
+   background-image:url(../images/hex_water.png);
 }
 .ore {
     background-image:url(../images/hex_ore.png);
@@ -583,7 +631,7 @@ body {
 }
 
 .harbor {
-    z-index:9980;
+    z-index: 10;
 }
 .bottom_left .harbor {
     position: relative;
@@ -629,8 +677,8 @@ body {
 
 .bottom_right .ship {
     position:relative;
-    left:100px;
-    top:140px;
+    left:90px;
+    top:150px;
 }
 .bottom_left .ship {
     position:relative;
@@ -869,7 +917,7 @@ body {
 }
 .score .resources, .score .bonuses {
     clear:both;
-    margin: 10px 15px 0px 15px;
+    margin: 10px 10px 5px 15px;
     height:auto;
 }
 .resources .lumber {
@@ -1229,6 +1277,7 @@ body {
 .trade_row, .trade_review_row, .build_row {
     clear:both;
     margin:5px 10px;
+    margin-bottom: auto;
     height:120px;
 }
 .trade_review_row, .year_review_row, .monopoly_review_row, .devcard_review_row {
@@ -1236,6 +1285,7 @@ body {
     height:140px;
     padding:10px;
     overflow: hidden;
+    margin: auto;
     white-space: nowrap;
     border-top: thin solid green;
     border-bottom: thin solid green;
@@ -1506,17 +1556,17 @@ body {
   float: right;
 }
 
-
 .done_prompt {
-    position:absolute;
+    position: fixed;
+    float: right;
     top:40px;
-    left:750px;
+    right:160px;
     width:250px;
     height:80px;
     border:thin solid black;
     background-color:white;
     border-radius: 10px;
-    z-index:9995;
+    z-index:99995;
     padding:10px;
     display:none;
 }
@@ -1528,6 +1578,19 @@ body {
     float:right;
     padding:10px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
