@@ -19,6 +19,7 @@ var monopoly_time = 20; //seconds
 var round_time = 60;  //seconds
 var remaining_time = -1;
 var timer = null;
+var force_complete = false;
 
 // records whether player has had monopoly played on them
 var monopoly_played = null;
@@ -295,6 +296,11 @@ $(document)
 
         // wipe current turn data
         setupTurnFinished();
+      } else if (data.data_type === 'force_complete') {
+
+        // Server has called end turn because client didn't respond
+        force_complete = true;
+        finish_turn();
       } else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -1905,6 +1911,8 @@ function finish_turn(){
       alert("Please place both your free roads.");
       return false;
     }
+  } else if(force_complete){
+    data_package.data_type = "still_connected";
   } else {
     data_package.data_type = "turn_complete";
   }

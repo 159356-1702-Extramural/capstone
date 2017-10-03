@@ -36,7 +36,7 @@ function StateMachine(id, game_size) {
   this.setupPointer = 0;
   this.chat = null;
   this.timer = null;
-  this.timer_length = 30; // seconds
+  this.timer_length = 100; // seconds
 
 }
 
@@ -165,6 +165,11 @@ StateMachine.prototype.tick = function (data) {
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
+      case 'still_connected':
+        this.game.players[data.player_id].connected = true;
+        this.game.players[data.player_id].used_dev_card = false;
+        this.game.players[data.player_id].recent_purchase = "";
+        break;
       case 'trade_with_bank':
         this.trade_with_bank(data);
         break;
@@ -979,18 +984,23 @@ StateMachine.prototype.stop_timer = function (){
   clearTimeout(this.timer);
 }
 StateMachine.prototype.end_player_turns = function (){
+  var players_left = [];
   for(var i = 0; i < this.game.players.length; i++){
-    console.log(this.game.players[i].turn_complete);
     if(!this.game.players[i].turn_complete){
-      console.log("Player "+ i + ' never completed there turn');
-      this.game.players[i].connected = false;
+      logger.log('Warning' , 'Player '+ i + ' in StateMachine ' + this.id + ' never completed their turn');
+      players_left.push(i);
+    }else{
+      logger.log('debug', 'Server side end turn triggered');
+    }
+  }
+  for (var j = 0; j < players_left.length; j++){
+    this.game.players[players_left[j]].connected = false;
       var mock_data = {
         data_type: 'turn_complete',
-        player_id: i,
+        player_id: players_left[j],
         actions: []
       }
       this.tick(mock_data);
-    }
   }
 }
 module.exports = {
