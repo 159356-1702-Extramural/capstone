@@ -13,9 +13,48 @@ var allowed_actions = {
 //  Default width/height of settlement/city
 var building_dimension = 50;
 
+var monopoly_time = 30;
+var round_time = 60;
+var remaining_time = -1;
+var timer = setInterval(function(){
+  update_time();
+}, 1000);
 // records whether player has had monopoly played on them
 var monopoly_played = null;
 var test = null;
+
+function setTransitionValues(){
+
+}
+function update_time(){
+  console.log("time remaining = " + remaining_time);
+  if(remaining_time > 0){
+    if(remaining_time === (round_time + 1)){
+      //monopoly time ending.
+      hidePopup();
+      monopoly_check();
+      animate_timer("standard");
+    }
+    remaining_time--;
+  }else if(remaining_time === 0){
+    hidePopup();
+    $('#timer_inner').removeClass('timer_animate');
+    console.log("finishing turn");
+    finish_turn();
+    remaining_time--;
+  }
+}
+function animate_timer(timer_type){
+  remaining_time = round_time;
+  var anim_time = round_time *1000;
+  if(timer_type === "monopoly"){
+    anim_time = monopoly_time *1000;
+    remaining_time += monopoly_time;
+  }
+  $('#timer_inner').animate({
+    width: '100%'
+  }, round_time*1000);
+}
 $(document)
   .ready(function() {
 
@@ -225,19 +264,28 @@ $(document)
 
           set_allowed_actions(true, false, false, true);
           updatePanelDisplay();
+
+          // start timer
+          if(current_game.player.cards.dev_cards.monopoly > 0){
+            animate_timer("monopoly");
+          }else{
+            animate_timer("standard");
+          }
+          
         }
 
       } else if (data.data_type === 'monopoly_used') {
         monopoly_played = data;
         current_game.player = data.player;
         build_popup_round_roll_results();
+        animate_timer("standard");
 
       } else if (data.data_type === 'monopoly_received') {
         //  Build popup to show what was won and from who
         current_game.player = data.player;
 
         build_popup_monopoly_win(data);
-
+        animate_timer("standard");
         //  Update cards
         updatePanelDisplay();
         update_dev_cards(data);
@@ -278,41 +326,7 @@ $(document)
     }
     $doc.on('click', '.finishturnbutton', function(e) {
       e.preventDefault();
-
-      var data_package = new Data_package();
-      if (current_game.round_num < 3) {
-        if (turn_actions.length != 2) {
-          alert("Please place a settlement and road.");
-          return false;
-        }
-        data_package.data_type = "setup_phase";
-      } else if (current_player.road_building_used) {
-        if (current_player.free_roads == 0) {
-          data_package.data_type = "turn_complete";
-          current_player.road_building_used = false;
-        } else {
-          alert("Please place both your free roads.");
-          return false;
-        }
-      } else {
-        data_package.data_type = "turn_complete";
-      }
-
-      if (!allowed_actions.can_finish) {
-        return false;
-      }
-      build_popup_round_waiting_for_others();
-
-      //  Hide the reminder
-      $(".done_prompt")
-        .hide();
-
-      data_package.player_id = current_player.id;
-      data_package.actions = turn_actions;
-      update_server("game_update", data_package);
-
-      set_allowed_actions(false, false, false, false);
-      updatePanelDisplay();
+      finish_turn();
     });
 
 
@@ -1634,6 +1648,7 @@ function monopoly_not_used() {
 function setupPlayer() {
   //  For the first time here, create the structure
   var html = "";
+  html += "        <div class='timer_box'><div id='timer_inner'></div></div>";
   html += "        <div class='row'>";
   html += "            <div class='player'><img src='images/player" + current_player.id + ".png' /></div>";
   html += "            <div class='playername'>" + current_player.name;
@@ -1898,6 +1913,44 @@ function set_allowed_actions(can_build, can_buy, can_trade, can_finish) {
   allowed_actions.can_trade = can_trade;
   allowed_actions.can_finish = can_finish;
 }
+
+function finish_turn(){
+  var data_package = new Data_package();
+  if (current_game.round_num < 3) {
+    if (turn_actions.length != 2) {
+      alert("Please place a settlement and road.");
+      return false;
+    }
+    data_package.data_type = "setup_phase";
+  } else if (current_player.road_building_used) {
+    if (current_player.free_roads == 0) {
+      data_package.data_type = "turn_complete";
+      current_player.road_building_used = false;
+    } else {
+      alert("Please place both your free roads.");
+      return false;
+    }
+  } else {
+    data_package.data_type = "turn_complete";
+  }
+
+  if (!allowed_actions.can_finish) {
+    return false;
+  }
+  build_popup_round_waiting_for_others();
+
+  //  Hide the reminder
+  $(".done_prompt")
+    .hide();
+
+  data_package.player_id = current_player.id;
+  data_package.actions = turn_actions;
+  update_server("game_update", data_package);
+
+  set_allowed_actions(false, false, false, false);
+  updatePanelDisplay();
+}
+
 
 function doLog(m) {
   $(".log")

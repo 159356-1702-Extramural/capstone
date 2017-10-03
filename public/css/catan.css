@@ -1579,21 +1579,34 @@ body {
     padding:10px;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+.timer_box {
+    height: 8px;
+    width: 100%;
+}
+#timer_inner {
+    height: 8px;
+    background-color: green;
+    width: 0%;
+}
+/*
+.timer_animate{
+    -webkit-transition: width 60s; /* Safari 
+    transition: width 60s;
+    width: 100%;
+}*/
+#timer_inner.timer_animate {
+  -webkit-transition: 60s linear;
+  -moz-transition: 60s linear;
+  -ms-transition: 60s linear;
+  -o-transition: 60s linear;
+  transition: 60s linear;
+  width: 100% !important;
+}
+#timer_inner.timer_animate_monopoly {
+  -webkit-transition: 30s linear;
+  -moz-transition: 30s linear;
+  -ms-transition: 30s linear;
+  -o-transition: 30s linear;
+  transition: 30s linear;
+  width: 100% !important;
+}
