@@ -1010,7 +1010,7 @@ function buildTile(theTile, row, col, row_len) {
     if (theTile.type == "desert") {
       var point = getObjectPosition(col, row, 1);
       $(".robber")
-        .css("left", (point[0] + 5) + "px");
+        .css("left", (point[0] - 15) + "px");
       $(".robber")
         .css("top", (point[1] - 120) + "px");
       $(".robber")
@@ -1122,7 +1122,7 @@ function buildNodes() {
         if (theTile.robber) {
           var point = getObjectPosition(x, y, 1);
           $(".robber")
-            .css("left", (point[0] + 5) + "px");
+            .css("left", (point[0] - 15) + "px");
           $(".robber")
             .css("top", (point[1] - 120) + "px");
           $(".robber")
