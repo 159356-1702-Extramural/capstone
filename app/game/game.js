@@ -517,34 +517,36 @@ Game.prototype.randomise_startup_array = function () {
 Game.prototype.generate_dice_rolls = function () {
   var shuffler = new Shuffler();
   var temp_dice = [];
-  if (this.test_mode === 'true') {
-    logger.log('debug', "Fixed dice rolls enabled");
-    var dice1array = [5, 6, 7, 8, 9, 10];
-    for (var i = 0; i < 6; i++){
-      temp_dice.push(dice1array[i]);
+
+  for( var i = 1; i < 7; i++ ){
+    for ( j = 1; j < 7; j++ ){
+      temp_dice.push([i,j]);
     }
-    return temp_dice;
-  }else{
-    for( var i = 1; i < 7; i++ ){
-      for ( j = 1; j < 7; j++ ){
-        temp_dice.push([i,j]);
-      }
-    }
-    return shuffler.shuffle(temp_dice); 
   }
-  
+  return shuffler.shuffle(temp_dice); 
 }
 
-Game.prototype.rollingDice = function (){
-  var shuffler = new Shuffler();
-  dice_roll = dice_array[dice_array_pointer];
+Game.prototype.fixed_dice_rolls = function () {
+  logger.log('debug', "Fixed dice rolls enabled");
+  var dice1array = [[1,4], [2,4], [3,4], [4,4], [5,4], [6,4]];
+  var temp_dice = [];
 
-  this.dice_array_pointer++;
-  if(dice_array_pointer === dice_array.length){
-    dice_array_pointer = 0;
-    dice_array = shuffler.shuffle(dice_array);
+  for (var i = 0; i < 36; i++){
+    temp_dice.push(dice1array[i%6]);
   }
 
-  return dice_roll[0] + dice_roll [1];
+  return temp_dice;
+}
+Game.prototype.rollingDice = function (){
+  var shuffler = new Shuffler();
+  this.dice_roll = this.dice_array[this.dice_array_pointer];
+
+  this.dice_array_pointer++;
+  if(this.dice_array_pointer === this.dice_array.length){
+    this.dice_array_pointer = 0;
+    this.dice_array = shuffler.shuffle(this.dice_array);
+  }
+
+  return this.dice_roll[0] + this.dice_roll [1];
 }
 module.exports = Game;
