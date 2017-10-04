@@ -75,6 +75,7 @@ $(document)
       var popupData = [
         ["show_message", "block"],
         ["player_count", data.player_count],
+        ["player_list", data.player_list],
         ["players_needed", data.max_players]
       ];
       build_popup_waiting_for_players(popupData);
@@ -832,49 +833,55 @@ function setupTurnFinished() {
 // Open the trading window and make only tradable cards available
 function openTrade() {
   //disable trade until setup complete and if tradebutton greyed out (logic in update panel)
-  if (current_game.round_num > 2 && allowed_actions.can_trade) {
-    action_in_progress = true;
-    var resource_cards = current_game.player.cards.resource_cards;
+  if (current_game.round_num > 2) {
+    if (allowed_actions.can_trade) {
+      action_in_progress = true;
+      var resource_cards = current_game.player.cards.resource_cards;
 
-    //basic card values
-    var card_data = [
-      ['brick_cards', resource_cards.brick],
-      ['grain_cards', resource_cards.grain],
-      ['sheep_cards', resource_cards.sheep],
-      ['ore_cards', resource_cards.ore],
-      ['lumber_cards', resource_cards.lumber]
-    ];
+      //basic card values
+      var card_data = [
+        ['brick_cards', resource_cards.brick],
+        ['grain_cards', resource_cards.grain],
+        ['sheep_cards', resource_cards.sheep],
+        ['ore_cards', resource_cards.ore],
+        ['lumber_cards', resource_cards.lumber]
+      ];
 
-    var trade_value = 4;
-    var trading = current_game.player.trading;
+      var trade_value = 4;
+      var trading = current_game.player.trading;
 
-    //if player has a settlement/city on 3:1 harbour
-    if (trading.three) {
-      trade_value = 3;
+      //if player has a settlement/city on 3:1 harbour
+      if (trading.three) {
+        trade_value = 3;
+      }
+
+      $.each(resource_cards, function(card_name, num_of_cards) {
+
+        //leave trade_value alone (so loop doesn't alter it)
+        var this_trade = trade_value;
+
+        //check whether 2:1 trade options exist
+        if (trading[card_name]) {
+          this_trade = 2;
+        }
+
+        if (num_of_cards >= this_trade) {
+          card_data.push([card_name + '_status', '']);
+        } else {
+          card_data.push([card_name + '_status', 'unavailable']);
+        }
+        card_data.push([card_name + '_tradenum', this_trade]);
+
+      });
+
+      buildPopup('round_maritime_trade', false, false, card_data);
+      set_allowed_actions(false, false, false, false);
+      updatePanelDisplay();
+    } else {
+      buildPopup('round_no_trade', false, false);
     }
-
-    $.each(resource_cards, function(card_name, num_of_cards) {
-
-      //leave trade_value alone (so loop doesn't alter it)
-      var this_trade = trade_value;
-
-      //check whether 2:1 trade options exist
-      if (trading[card_name]) {
-        this_trade = 2;
-      }
-
-      if (num_of_cards >= this_trade) {
-        card_data.push([card_name + '_status', '']);
-      } else {
-        card_data.push([card_name + '_status', 'unavailable']);
-      }
-      card_data.push([card_name + '_tradenum', this_trade]);
-
-    });
-
-    buildPopup('round_maritime_trade', false, false, card_data);
-    set_allowed_actions(false, false, false, false);
-    updatePanelDisplay();
+  } else {
+    buildPopup('round_no_trade', false, false);
   }
 }
 
@@ -1198,12 +1205,6 @@ function updatePanelDisplay() {
       .addClass("disabled");
     if (allowed_actions.can_finish) {
       $(".finishturnbutton")
-        .removeClass("disabled");
-    }
-    $(".tradebutton")
-      .addClass("disabled");
-    if (allowed_actions.can_trade) {
-      $(".tradebutton")
         .removeClass("disabled");
     }
     $(".buybutton")
@@ -1658,7 +1659,7 @@ function setupPlayer() {
   html += "            <div class='box ore'><span class='orecount'>0</span></div>";
   html += "            <div class='box grain'><span class='graincount'>0</span></div>";
   html +=
-    "            <div class='box trade'><div class='btn btn-info tradebutton disabled' onclick='openTrade()'>Trade</div></div>";
+    "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade()'>Trade</div></div>";
   html += "        </div>";
   html += "        <div class='buildings'>";
   html += "            Buildings:<br />";

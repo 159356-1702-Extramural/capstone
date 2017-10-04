@@ -224,6 +224,8 @@ body {
     width:33%;
     font-weight:bold;
     font-size:18px;
+    overflow: hidden;
+    height: 22px;
 }
 .game_list_row_spots {
     float:left;
@@ -232,6 +234,8 @@ body {
 .game_list_row_players {
     float:left;
     width:33%;
+    overflow: hidden;
+    height: 22px;
 }
 
 .player_name_row, .game_name_row {
@@ -495,6 +499,7 @@ body {
     font-size: 18px;
     overflow:hidden;
     white-space:nowrap;
+    width:110px;
 }
 .score .playerbutton {
     margin-top: 5%;
@@ -696,8 +701,8 @@ body {
 
 .bottom_right .ship {
     position:relative;
-    left:90px;
-    top:150px;
+    left:100px;
+    top:155px;
 }
 .bottom_left .ship {
     position:relative;
@@ -1630,6 +1635,40 @@ body {
   width: 100% !important;
 }
 
+.trade_help_title {
+    line-height: 30px;
+    font-size:24px;
+    font-weight:bold;
+}
+.trade_row {
+    width:100%;
+    overflow: hidden;;
+    height:140px;
+}
+.trade_help_text {
+    float:left;
+    width:25%;
+    font-size:14px;
+}
+.trade_help_image {
+    float:left;
+    width:25%;
+    margin-left:10px;
+    padding:0px 20px;
+}
 
-
-
+.player_waiting_row {
+    clear:both;
+    height:60px;
+    overflow: hidden;
+    width:90%;
+    margin-bottom:10px;
+}
+.player_waiting_icon {
+    float:left;
+    width: 90px;
+}
+.player_waiting_name {
+    float:left;
+    padding-top:20px;
+}
