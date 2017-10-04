@@ -35,6 +35,9 @@ function StateMachine(id, game_size) {
   this.setupSequence = [];
   this.setupPointer = 0;
   this.chat = null;
+  this.timer = null;
+  this.timer_length = 100; // seconds
+
 }
 
 StateMachine.prototype.log = function(level, info) {
@@ -58,11 +61,8 @@ StateMachine.prototype.next_state = function () {
     // if (conditions to switch state)
     if (this.setupComplete === true) {
       this.log('debug', 'setup state successfully completed');
-      this.state = "play";
-    }
-  } else if (this.state === "trade") {
-    this.log('debug', 'in "trade" state');
-    if (round_complete) {
+      //start timer for first round
+      this.start_timer();
       this.state = "play";
     }
   } else if (this.state === "play") {
@@ -139,18 +139,6 @@ StateMachine.prototype.tick = function (data) {
   }
 
   /************************************************************
-   * If in Trade state - trade logic operates on this.game
-   ************************************************************/
-  else if (this.state === "trade" && data) {
-    this.log('debug', 'ticked trade state : initiated by '+this.game.players[data.player_id].name);
-    this.game.players.every(function (player) {
-      return player.turn_complete === true;
-    });
-    this.next_state();
-    return true;
-  }
-
-  /************************************************************
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
@@ -160,6 +148,11 @@ StateMachine.prototype.tick = function (data) {
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
+      case 'still_connected':
+        this.game.players[data.player_id].connected = true;
+        this.game.players[data.player_id].used_dev_card = false;
+        this.game.players[data.player_id].recent_purchase = "";
+        break;
       case 'trade_with_bank':
         this.trade_with_bank(data);
         break;
@@ -285,6 +278,7 @@ StateMachine.prototype.tick = function (data) {
 };
 
 StateMachine.prototype.finish_round_for_all = function(data) {
+  this.stop_timer();
   if (!data) this.log("error", "func 'finish_round_for_all()' missing data");
   this.validate_player_builds(data);
   this.game.round_num++;
@@ -359,6 +353,7 @@ StateMachine.prototype.finish_round_for_all = function(data) {
         this.game.players[data.player_id].socket.emit('game_turn', setup_data);
       }
     }
+    this.start_timer();
 };
 
 /*****************************************************************
@@ -963,6 +958,35 @@ StateMachine.prototype.useKnight = function (data) {
   this.game.players[data.player_id].cards.dev_cards.knight--;
 };
 
+StateMachine.prototype.start_timer = function (){
+  logger.log('debug', "Server side timer set to :" + this.timer_length + " seconds");
+  this.timer = setTimeout(this.end_player_turns.bind(this), this.timer_length * 1000 );
+}
+StateMachine.prototype.stop_timer = function (){
+  logger.log('debug', "Server side timer stopped.");
+  clearTimeout(this.timer);
+  this.timer = null;
+}
+StateMachine.prototype.end_player_turns = function (){
+  var players_left = [];
+  for(var i = 0; i < this.game.players.length; i++){
+    if(!this.game.players[i].turn_complete){
+      logger.log('Warning' , 'Player '+ i + ' in StateMachine ' + this.id + ' never completed their turn');
+      players_left.push(i);
+    }else{
+      logger.log('debug', 'Server side end turn triggered');
+    }
+  }
+  for (var j = 0; j < players_left.length; j++){
+    this.game.players[players_left[j]].connected = false;
+      var mock_data = {
+        data_type: 'turn_complete',
+        player_id: players_left[j],
+        actions: []
+      }
+      this.tick(mock_data);
+  }
+}
 module.exports = {
   StateMachine
 };
