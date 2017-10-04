@@ -361,7 +361,10 @@ function set_object_on_canvas(event, ui) {
     //  Create our action
     create_player_action(object_type, node, (using_road_building_now ? ["road_building"] : resource_list));
     if (resource_list.length == 0) {
-      if (!current_player.road_building_used || (object_type != "road" && object_type != "city") || (
+      //  If building a city, we bypass the popup
+      if (object_type == "city") {
+        take_resources(dragged_object_new_id, ["ore", "ore", "ore", "grain", "grain"]);
+      } else if (!current_player.road_building_used || (object_type != "road" && object_type != "city") || (
           current_player.road_building_used && current_player.free_roads == 0)) {
         if (current_game.round_num > 2) {
           //  Prompt the user for more cards
@@ -374,8 +377,6 @@ function set_object_on_canvas(event, ui) {
       if (using_road_building_now) {
         take_resources(dragged_object_new_id, ["lumber", "brick"]);
         current_player.free_roads--;
-      } else if (object_type == "city") {
-        take_resources(dragged_object_new_id, ["ore", "ore", "ore", "grain", "grain"]);
       }
     }
 

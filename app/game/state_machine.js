@@ -309,7 +309,7 @@ StateMachine.prototype.finish_round_for_all = function(data) {
       //  Nerf the robber just a little to prevent too frequent occurance
     } else if (diceroll == 7 && diceroll_check == 1) {
       diceroll_check = this.game.rollingDice();
-      if (diceroll_check != 7) {
+      if (diceroll_check < 7) {
         diceroll = diceroll_check;
       }
     }
