@@ -30,17 +30,20 @@ app.get('/', function (req, res) {
   var setupGame;
   var robber;
   var dev_card;
-  var rndTokens;
   //start with testing set to false
   process.env['testing'] = 'false';
 
   var loglevel = req.query["loglevel"] || process.env['loglevel'];
-  logger.level = (typeof loglevel === 'undefined') ? "error" : loglevel;
+  logger.level = (typeof loglevel === 'undefined') ? "silly" : loglevel;
   console.log("Log level set to", logger.level);
 
-  rndTokens = req.query["rndTokens"] || process.env['rndTokens'];
+  var rndTokens = req.query["rndTokens"] || process.env['rndTokens'];
   process.env['rndTokens'] = (typeof rndTokens === 'undefined') ? "false" : rndTokens;
   console.log("Random tokens enabled =", process.env['rndTokens']);
+
+  var rndThreshold = req.query["rndThreshold"] || process.env['rndThreshold'];
+  process.env['rndThreshold'] = (typeof rndThreshold === 'undefined') ? 2 : parseInt(rndThreshold);
+  console.log("Tile swap threshold =", process.env['rndThreshold']);
 
   //set environment variable if {url}:3000/?fixedDice=true is queried
   testing = req.query["fixedDice"];
