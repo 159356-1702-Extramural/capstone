@@ -37,6 +37,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     allowed_actions.can_build = true;
     allowed_actions.can_finish = (current_game.round_num > 2);
     updatePanelDisplay();
+    $(".game_chat").removeClass('game_chat_top_z');
+    $(".btn-control-maximize").removeClass('btn-hide');
+    $(".score").removeClass("score--back");
+    $(".game_chat").addClass("game_chat--back");
   
     $('.popup')
       .hide();
@@ -107,6 +111,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    **************************************************/
   function build_popup_waiting_for_turn() {
     buildPopup("waiting_for_turn", false, true);
+    $(".game_chat").addClass('game_chat_top_z');
+    $(".btn-control-maximize").addClass('btn-hide');
+    $(".score").addClass("score--back");
+    $(".game_chat").removeClass("game_chat--back");
   }
   
   /***************************************************
