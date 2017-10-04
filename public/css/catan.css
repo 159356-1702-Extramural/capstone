@@ -427,6 +427,7 @@ body {
     width: 888px;
     top: 33px !important;
     left: 33px !important;
+    padding-right: 35% !important;
 }
 .board_row {
     clear:both;
