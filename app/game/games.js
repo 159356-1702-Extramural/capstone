@@ -12,6 +12,7 @@ var Chat = require('./chat.js');
 
 function Games() {
   this.games = []; // array of StateMachine objects, each corrosponds to one started game
+  this.lounging = [];
 };
 
 /**
@@ -23,9 +24,21 @@ function Games() {
 // TODO: Rework this function to
 Games.prototype.assign_player = function (socket, data) {
   self = this;
-  if (this.games[data.game_id].game.game_full()) {
-    console.log('Player tried to join full game');
+  var lounger_idx = this.lounging.indexOf(socket);
+  if (lounger_idx >= 0)
+    this.lounging.splice(lounger_idx, 1);
+
+  if (this.games[data.game_id] === null) {
+    logger.log('info', 'Player tried to join a non-existant game');
     // TODO: send something over socket
+    this.send_lobby_data(socket);
+    socket.emit('game_full');
+    return false;
+  }
+  if (this.games[data.game_id].game.game_full()) {
+    logger.log('info', 'Player tried to join full game');
+    // TODO: send something over socket
+    this.send_lobby_data(socket);
     socket.emit('game_full');
     return false;
   }
@@ -76,12 +89,18 @@ Games.prototype.assign_player = function (socket, data) {
     state_machine.chat = new Chat(state_machine.game.players);
     logger.log('info', 'Start of #' + state_machine.id + " completed");
   }
+  for (var x=0; x< this.lounging.length; x++) {
+    this.send_lobby_data(this.lounging[x]);
+  }
 };
 
 /// Removes a game instance from the active games
 Games.prototype.remove_game = function (state_machine) {
   var idx = this.games.indexOf(state_machine);
-  this.games.splice(idx, 1);
+  this.games[idx] = null;
+  for (var x=0; x< this.lounging.length; x++) {
+    this.send_lobby_data(this.lounging[x]);
+  }
 };
 
 /// Resets all the games - use for debugging
@@ -94,30 +113,40 @@ Games.prototype.send_lobby_data = function (socket) {
   logger.log('info', "Lobby data requested");
   var games = [];
   for (var i = 0; i < this.games.length; i++) {
-    var game_data = {
-      game_id: i,
-      game_name: this.games[i].game.name,
-      player_names: [],
-      max_players: this.games[i].game.max_players,
-    };
-    for (var x = 0; x < this.games[i].game.players.length; x++) {
-      game_data.player_names.push(this.games[i].game.players[x].name);
+    if (this.games[i] !== null) {
+      var game_data = {
+        game_id: i,
+        game_name: this.games[i].game.name,
+        player_names: [],
+        max_players: this.games[i].game.max_players,
+      };
+      for (var x = 0; x < this.games[i].game.players.length; x++) {
+        game_data.player_names.push(this.games[i].game.players[x].name);
+      }
+      games.push(game_data);
     }
-    games.push(game_data);
   }
   logger.log('debug', "Current lobby data = \n", games);
   socket.emit("lobby_data", games);
 };
 
 Games.prototype.new_game = function (socket, data, game_size) {
+  var this_id = this.games.length;
+  // todo: reset array if all null
+  for (var g=0; g< this.games.length; g++) {
+    if (this.games[g] === null) {
+      this_id = g;
+      break;
+    }
+  }
   var player = new Player(socket, data);
   logger.log('info', '\nCreating an new game "'+player.game_name+'"');
 
-  var state_machine = new sm.StateMachine(this.games.length, game_size);
-  player.game_id = this.games.length;
+  var state_machine = new sm.StateMachine(this_id, game_size);
+  player.game_id = this_id;
   state_machine.game.name = player.game_name;
   this.parse_env(state_machine);
-  this.games.push(state_machine);
+  this.games[this_id] = state_machine;
 
   state_machine.game.max_players = game_size;
   state_machine.setupSequence = state_machine.game.randomise_startup_array();
@@ -125,7 +154,6 @@ Games.prototype.new_game = function (socket, data, game_size) {
   if (state_machine.game.test_mode === 'false') {
     state_machine.game.test_mode = this.set_test_flag();
   }
-  logger.log('info', 'Number of games = ' + this.games.length);
   this.assign_player(socket, player);
 };
 
