@@ -12,6 +12,7 @@ var Chat = require('./chat.js');
 
 function Games() {
   this.games = []; // array of StateMachine objects, each corrosponds to one started game
+  this.lounging = [];
 };
 
 /**
@@ -23,6 +24,10 @@ function Games() {
 // TODO: Rework this function to
 Games.prototype.assign_player = function (socket, data) {
   self = this;
+  var lounger_idx = this.lounging.indexOf(socket);
+  if (lounger_idx >= 0)
+    this.lounging.splice(lounger_idx, 1);
+
   if (this.games[data.game_id] === null) {
     logger.log('info', 'Player tried to join a non-existant game');
     // TODO: send something over socket
@@ -84,12 +89,18 @@ Games.prototype.assign_player = function (socket, data) {
     state_machine.chat = new Chat(state_machine.game.players);
     logger.log('info', 'Start of #' + state_machine.id + " completed");
   }
+  for (var x=0; x< this.lounging.length; x++) {
+    this.send_lobby_data(this.lounging[x]);
+  }
 };
 
 /// Removes a game instance from the active games
 Games.prototype.remove_game = function (state_machine) {
   var idx = this.games.indexOf(state_machine);
   this.games[idx] = null;
+  for (var x=0; x< this.lounging.length; x++) {
+    this.send_lobby_data(this.lounging[x]);
+  }
 };
 
 /// Resets all the games - use for debugging
