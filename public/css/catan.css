@@ -54,6 +54,11 @@ body {
   background-size: 48px 48px !important;
 }
 
+.btn-hide {
+  background: none !important;
+  background-size: 0px 0px !important;
+}
+
 .start, .turn, .popup {
     position:fixed;
     float:left;
@@ -67,7 +72,7 @@ body {
 }
 .start_inner, .turn_inner, .popup_inner {
     position: relative;
-    top: 150px;
+    top: 20%;
     margin:auto;
     height:auto;
     width:720px !important;
@@ -84,15 +89,10 @@ body {
     max-width:1000px !important;
 }
 .popup_inner_right {
-    position: relative;
-    float: right;
     width:209px !important;
-    height:660px;
-    top:17%;
-    left:-18px;
+    top:25%;
     transform: none;
     border-radius: 0;
-    height:60%;
 }
 .popup_title_row {
     clear:both;
@@ -368,11 +368,22 @@ body {
     float: right;
     display:inline-block;
     top:5%;
-    right:20px;
-    height:812px;
-    width:232px;
+    right:18px;
+    height:820px;
+    width:235px;
     z-index:80000;
     border: thick inset black;
+    transition: transform .4s;
+    backface-visibility: hidden;
+    transform-style: preserve3d;
+}
+
+.game_chat--back {
+    transform: rotateY(180deg);
+}
+
+.game_chat_top_z {
+    z-index: 999999;
 }
 
 .game_chat form {
@@ -381,14 +392,13 @@ body {
   background-color: silver;
   height: 60px;
   padding: 6px;
-  width: 220px;
+  width: 223px;
 }
 
 .game_chat textarea {
   border: 1px solid #ccc;
-  border-radius: 3px;
   resize: none;
-  width: 214px;
+  width: 98%;
   height: 54px;
 }
 
@@ -399,7 +409,7 @@ body {
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
-  height: 732px;
+  height: 740px;
   overflow-y: auto;
   background-color: whitesmoke;
 }
@@ -462,6 +472,13 @@ body {
     z-index:90000;
     border: thick inset black;
     background-color: silver;
+    backface-visibility: hidden;
+    transform-style: preserve3d;
+    transition: transform .4s;
+}
+
+.score--back {
+    transform: rotateY(-180deg);
 }
 
 .score .row {

@@ -33,7 +33,9 @@ $(document)
     $(".btn-control-maximize").click(function(){
       $(".btn-control-maximize").removeClass('btn-msg');
       $(".btn-control-maximize").toggleClass('btn-plus');
-      $(".score").slideToggle();
+      $(".score").toggleClass("score--back");
+      $(".game_chat").toggleClass("game_chat--back");
+      //$(".score").slideToggle();
     });
 
     //    Show the initial menu
@@ -195,6 +197,7 @@ $(document)
         build_popup_setup_complete();
 
       } else if (data.data_type === 'setup_phase') {
+        $(".game_chat").removeClass('game_chat_top_z');
         if (data.player !== 0) {
           //  Popup for instructions on 1st or 2nd placement
           set_allowed_actions(true, false, false, false);
@@ -221,6 +224,7 @@ $(document)
         build_popup_round_waiting_for_others();
 
       } else if (data.data_type === 'round_turn') {
+        $(".game_chat").removeClass('game_chat_top_z');
         if (current_game.round_num === 2) {
           //  On the first round, we need to show the setup phase results
           //build_popup_setup_complete();
