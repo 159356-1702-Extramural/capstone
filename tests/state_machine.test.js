@@ -302,10 +302,6 @@ test('Trade 4:1 with the bank fails', function (t) {
   t.is(machine.game.players[0].round_distribution_cards.resource_cards.sheep, 0);
 });
 
-test.todo("has_valid_path");
-test.todo("wins_conflict");
-test.todo("validate_player_builds");
-
 test('Game start sequence finishes', function (t) {
   //setupPointer set to setupSequence.length
   machine.setupPointer = machine.setupSequence.length;
@@ -318,6 +314,18 @@ test('Game start sequence finishes', function (t) {
   t.falsy(machine.game.players[1].turn_complete);
 });
 
+test('Timer starts and stops', function (t) {
+  t.is(machine.timer, null);
+  machine.start_timer();
+  t.not(machine.timer, null);
+  machine.stop_timer();
+  t.is(machine.timer, null);
+});
+
+test.todo("has_valid_path");
+test.todo("wins_conflict");
+test.todo("validate_player_builds");
+
 test.todo("Game start sequence ... test socket data going out???");
 test.todo("send_to_player");
 test.todo("broadcast")
@@ -325,3 +333,4 @@ test.todo("broadcast_end")
 test.todo("broadcast_game_state")
 test.todo("tick");
 test.todo('Next state');
+test.todo('end_player_turns')

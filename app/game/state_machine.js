@@ -965,6 +965,7 @@ StateMachine.prototype.start_timer = function (){
 StateMachine.prototype.stop_timer = function (){
   logger.log('debug', "Server side timer stopped.");
   clearTimeout(this.timer);
+  this.timer = null;
 }
 StateMachine.prototype.end_player_turns = function (){
   var players_left = [];
