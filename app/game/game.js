@@ -30,6 +30,8 @@ function Game() {
   this.test_mode = 'false';
   this.robber = 'enabled';
   this.development_cards = this.generate_dev_card_deck();
+  this.dice_array = this.generate_dice_rolls();
+  this.dice_array_pointer = 0;
 }
 
 /**
@@ -107,26 +109,26 @@ Game.prototype.secondRoundResources = function (player, data) {
  * Rolling two dices, and return the sum of the two dices number.
  * @return {Number} sum of the two dice
  */
-Game.prototype.rollingDice = function () {
-  var dice1 = 1 + Math.floor(Math.random() * 6);
-  var dice2 = 1 + Math.floor(Math.random() * 6);
-  this.dice_roll = [dice1, dice2];
+// Game.prototype.rollingDice = function () {
+//   var dice1 = 1 + Math.floor(Math.random() * 6);
+//   var dice2 = 1 + Math.floor(Math.random() * 6);
+//   this.dice_roll = [dice1, dice2];
 
-  // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
-  if (this.test_mode === 'true') {
-    logger.log('debug', "Fixed dice rolls enabled");
-    var dice1array = [1, 2, 3, 4, 5, 6];
-    dice1 = dice1array[this.round_num % dice1array.length];
+//   // create fixed dice roll for testing -> constantly goes through dice values 5,6,7,8,9,10
+//   if (this.test_mode === 'true') {
+//     logger.log('debug', "Fixed dice rolls enabled");
+//     var dice1array = [1, 2, 3, 4, 5, 6];
+//     dice1 = dice1array[this.round_num % dice1array.length];
 
-    //to stop 7 being the first number and causing infinite loop
-    if (this.round_num === 2) {
-      dice1 = 4;
-    }
-    dice2 = 4;
-    this.dice_roll = [dice1, dice2];
-  }
-  return dice1 + dice2;
-};
+//     //to stop 7 being the first number and causing infinite loop
+//     if (this.round_num === 2) {
+//       dice1 = 4;
+//     }
+//     dice2 = 4;
+//     this.dice_roll = [dice1, dice2];
+//   }
+//   return dice1 + dice2;
+// };
 
 /**
  * Allocate Diceroll Resources
@@ -520,4 +522,39 @@ Game.prototype.randomise_startup_array = function () {
   return shuffled_array;
 }
 
+Game.prototype.generate_dice_rolls = function () {
+  var shuffler = new Shuffler();
+  var temp_dice = [];
+
+  for( var i = 1; i < 7; i++ ){
+    for ( j = 1; j < 7; j++ ){
+      temp_dice.push([i,j]);
+    }
+  }
+  return shuffler.shuffle(temp_dice); 
+}
+
+Game.prototype.fixed_dice_rolls = function () {
+  logger.log('debug', "Fixed dice rolls enabled");
+  var dice1array = [[1,4], [2,4], [3,4], [4,4], [5,4], [6,4]];
+  var temp_dice = [];
+
+  for (var i = 0; i < 36; i++){
+    temp_dice.push(dice1array[i%6]);
+  }
+
+  return temp_dice;
+}
+Game.prototype.rollingDice = function (){
+  var shuffler = new Shuffler();
+  this.dice_roll = this.dice_array[this.dice_array_pointer];
+
+  this.dice_array_pointer++;
+  if(this.dice_array_pointer === this.dice_array.length){
+    this.dice_array_pointer = 0;
+    this.dice_array = shuffler.shuffle(this.dice_array);
+  }
+
+  return this.dice_roll[0] + this.dice_roll [1];
+}
 module.exports = Game;

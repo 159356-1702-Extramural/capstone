@@ -56,10 +56,24 @@ Games.prototype.assign_player = function (socket, data) {
   var state_machine = this.games[player.game_id];
   state_machine.game.add_player(player);
 
+  //  Build some html to show each player
+  var player_html = "";
+  for (var i = 0; i < state_machine.game.max_players; i++) {
+    player_html += "<div class='player_waiting_row'>";
+    player_html += "  <div class='player_waiting_icon'><img src='images/player" + i + ".png' /></div>";
+    if (i > state_machine.game.players.length - 1) {
+      player_html += "  <div class='player_waiting_name'>Waiting...<i class='fa fa-spinner fa-spin'></i></div>";
+    } else {
+      player_html += "  <div class='player_waiting_name'>" + state_machine.game.players[i].name + "</div>";
+    }
+    player_html += "</div>";
+  }
+
   // Notify the other players that a new player has joined
   state_machine.broadcast('player_joined', {
     player_count: state_machine.game.players.length,
-    max_players: state_machine.game.max_players
+    max_players: state_machine.game.max_players,
+    player_list: player_html
   });
   /**************************************************/
   /*    Create listeners on sockets for messages    */
@@ -150,9 +164,11 @@ Games.prototype.new_game = function (socket, data, game_size) {
 
   state_machine.game.max_players = game_size;
   state_machine.setupSequence = state_machine.game.randomise_startup_array();
+  state_machine.dice_array
 
   if (state_machine.game.test_mode === 'false') {
     state_machine.game.test_mode = this.set_test_flag();
+    state_machine.game.dice_array = state_machine.game.fixed_dice_rolls();
   }
   this.assign_player(socket, player);
 };

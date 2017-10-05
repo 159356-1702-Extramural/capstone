@@ -64,6 +64,11 @@ function BoardSet(pattern, tile_stack, tokens, harbor_stack, rndTokens) {
  * Numbers in grid determine the tile type
  */
 generate = function (board_set = new BoardSet()) {
+  // how many tile check passes to do if random replacement was required
+  var pass_limit = 10;
+  // threshold for tile check moving a tile
+  var threshold = (typeof process.env['rndThreshold'] === 'undefined')
+                    ? 2 : parseInt(process.env['rndThreshold']);
   var shuff = new Shuffler();
   var board = new Board.Board();
   board.rnd_tokens = (typeof board.rnd_tokens === 'undefined') ? process.env['rndTokens'] : 'false';
@@ -139,6 +144,17 @@ generate = function (board_set = new BoardSet()) {
   // because the desert can shift a 6 or 8 next to each other
   log('debug', '6 and 8 token check');
   check_token_placement(board, [6,8]);
+  log('debug', 'doing tile check');
+  var check = check_tile_placement(board, threshold);
+  // sometimes threshold of 1 causes bad placements
+  if (threshold === 1)
+    check = check_tile_placement(board, threshold);
+  for (var c=0; c<pass_limit; c++)  {
+    if (check == -2) {
+      log('debug', 'pass required random, doing another tile check');
+      check = check_tile_placement(board, threshold);
+    }
+  }
   // iterate over node_map for each node in the map and find neighbours
   for (var j = 0; j < board.nodes.length; j++) {
     fill_node_details(board, board.nodes[j], j);
@@ -235,25 +251,16 @@ set_node_harbor = function(board, tile) {
 check_token_placement = function(board, not_allowed) {
   // assumes that the outside tiles are always water
   var changed = false;
-  for (var y = 0; y < board.tiles.length; y++) {
-    for (var x = 0; x < board.tiles[y].length; x++) {
+  for (var y = 1; y < board.tiles.length-1; y++) {
+    for (var x = 1; x < board.tiles[y].length-1; x++) {
       if (board.tiles[y][x].type !== "water" && board.tiles[y][x].type !== "desert") {
-        var odd_x = x;
-        var eve_x = x;
-
-        if (y % 2 !== 0) {
-          odd_x = x + 1;
-          eve_x = x;
-        } else {
-          odd_x = x;
-          eve_x = x - 1;
-        }
-        if ((not_allowed.indexOf(board.tiles[y-1][eve_x].token) !== -1 ||
-            not_allowed.indexOf(board.tiles[y-1][odd_x].token) !== -1 ||
+        var xx = (y % 2 !== 0) ? x + 1 : x - 1;
+        if ((not_allowed.indexOf(board.tiles[y-1][x].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y-1][xx].token) !== -1 ||
             not_allowed.indexOf(board.tiles[y][x+1].token) !== -1 ||
             not_allowed.indexOf(board.tiles[y][x-1].token) !== -1 ||
-            not_allowed.indexOf(board.tiles[y+1][odd_x].token) !== -1 ||
-            not_allowed.indexOf(board.tiles[y+1][eve_x].token) !== -1) &&
+            not_allowed.indexOf(board.tiles[y+1][x].token) !== -1 ||
+            not_allowed.indexOf(board.tiles[y+1][xx].token) !== -1) &&
             not_allowed.indexOf(board.tiles[y][x].token) !== -1) {
           log('debug', 'found swappable token = '+board.tiles[y][x].token);
           board.tiles[y][x].token = swap_not_allowed_token(board, board.tiles[y][x].token, not_allowed);
@@ -279,6 +286,57 @@ swap_not_allowed_token = function(board, token, not_allowed) {
       }
     }
   }
+};
+
+check_tile_placement = function(board, threshold, last_type=null, nx=1, ny=1) {
+  log('debug', "Tile check and swap threshold = "+threshold);
+  for (var y=ny; y < board.tiles.length-1; y++) {
+    for (var x=nx; x < board.tiles[y].length-1; x++) {
+      var type = board.tiles[y][x].type;
+      if (type !== "water" && type !== "desert" && type !== null) {
+        var xx = (y % 2 !== 0) ? x + 1 : x - 1;
+        var count = 0;
+        count += (board.tiles[y-1][x].type  === type && board.tiles[y-1][x].type  !== 'water')?1:0;
+        count += (board.tiles[y-1][xx].type === type && board.tiles[y-1][xx].type !== 'water')?1:0;
+        count += (board.tiles[y][x+1].type  === type && board.tiles[y][x+1].type  !== 'water')?1:0;
+        count += (board.tiles[y][x-1].type  === type && board.tiles[y][x-1].type  !== 'water')?1:0;
+        count += (board.tiles[y+1][x].type  === type && board.tiles[y+1][x].type  !== 'water')?1:0;
+        count += (board.tiles[y+1][xx].type === type && board.tiles[y+1][xx].type !== 'water')?1:0;
+        if (count >= threshold) {
+          log('debug', 'found swappable '+type+' at XY = ('+x+','+y+') with same type count = '+count);
+          // check limits for next recursion
+          var next_x = (x+2 > board.tiles[y].length-2) ? 0 : x+2;
+          var next_y = (next_x !== x) ? y+1 : y;
+          var swap = check_tile_placement(board, threshold, type, next_x, next_y);
+          if (swap !== -1 && swap !== type) {
+            log('debug', 'swapped '+type+' with '+swap);
+            board.tiles[y][x].type = swap;
+            return type;
+          } else if (last_type !== type && last_type !== null) {
+            log('debug', 'no new swappable tile found, swapping '+type+' with '+last_type);
+            board.tiles[y][x].type = last_type;
+            return type;
+          // special case for if finds only one cluster reaching threshold
+          // there won't be a tile to swap with
+          } else if (last_type === null) {
+            while (true) {
+              var ry = Math.floor(Math.random() * board.tiles.length)
+              var rx = Math.floor(Math.random() * board.tiles[0].length)
+              if (board.tiles[ry][rx].type !== board.tiles[y][x].type &&
+                  board.tiles[ry][rx].type !== "water" &&
+                  board.tiles[ry][rx].type !== "desert") {
+                log('debug', 'random pass: swapping '+type+' with '+board.tiles[ry][rx].type);
+                board.tiles[y][x].type = board.tiles[ry][rx].type;
+                board.tiles[ry][rx].type = type;
+                return -2;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return -1; // end of array
 };
 
 add_tile_nodes = function(board, pattern, tile, tile_point) {
