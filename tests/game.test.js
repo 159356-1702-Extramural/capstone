@@ -553,7 +553,7 @@ test("Set player number", function(t) {
 */
 test("Set player number2", function (t) {
   var game = new Game();
-  game.test_mode = 'true';
+  game.dice_array = game.fixed_dice_rolls();
   /**
    * round number = 1
    * var dice1array = [1,2,3,4,5,6];
@@ -561,8 +561,8 @@ test("Set player number2", function (t) {
    * total = dice1Array[1] + dice2 = 2 + 4 = 6
    */
   var dice_total = game.rollingDice();
-  t.is(dice_total, 6);
-  t.is(game.dice_roll[0], 2);
+  t.is(dice_total, 5);
+  t.is(game.dice_roll[0], 1);
   t.is(game.dice_roll[1], 4);
 });
 

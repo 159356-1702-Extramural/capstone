@@ -164,9 +164,11 @@ Games.prototype.new_game = function (socket, data, game_size) {
 
   state_machine.game.max_players = game_size;
   state_machine.setupSequence = state_machine.game.randomise_startup_array();
+  state_machine.dice_array
 
   if (state_machine.game.test_mode === 'false') {
     state_machine.game.test_mode = this.set_test_flag();
+    state_machine.game.dice_array = state_machine.game.fixed_dice_rolls();
   }
   this.assign_player(socket, player);
 };
