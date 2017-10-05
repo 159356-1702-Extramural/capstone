@@ -1318,7 +1318,7 @@ body {
     text-align: center;
     float:left;
 }
-.card_give .unavailable, .card_receive .unavailable, .devcard_card .unavailable, .trade_card_give .unavailable, .trade_card_want .unavailable {
+.card_give .unavailable, .card_receive .unavailable, .devcard_card .unavailable, .trade_card_give .unavailable, .trade_card_want .unavailable, .trade_card_give.unavailable {
     opacity: 0.4;
 }
 
@@ -1584,7 +1584,7 @@ body {
   float: right;
 }
 
-.done_prompt {
+.done_prompt, .trade_prompt {
     position: fixed;
     float: right;
     top:40px;
@@ -1598,6 +1598,15 @@ body {
     padding:10px;
     display:none;
 }
+.trade_prompt {
+    top:310px;
+    right:140px;
+    width:170px;
+    text-align: center;
+    height:auto;
+
+}
+
 .done_text {
     float:left;
     width:70%;
@@ -1675,4 +1684,64 @@ body {
 .player_waiting_name {
     float:left;
     padding-top:20px;
+}
+
+.player0_bubble, .player1_bubble, .player2_bubble, .player3_bubble {
+	position: absolute;
+    width: 260px;
+    left:110px;
+	padding: 10px;
+	text-align: center;
+	font-weight: bold;
+    z-index:9996;
+    border-radius: .4em;
+    background-color: white;
+    display:none;
+}
+.player0_bubble {
+    border: thick solid #7168CA;
+}
+.player1_bubble {
+    border: thick solid #AB0F12;
+}
+.player2_bubble {
+    border: thick solid #0C1BC3;
+}
+.player3_bubble {
+    border: thick solid #0A9D08;
+}
+
+.player0_bubble:after, .player1_bubble:after, .player2_bubble:after, .player3_bubble:after {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 28px solid transparent;
+	border-left: 0;
+	border-top: 0;
+	margin-top: -14px;
+	margin-left: -28px;
+    border-right-color: white;
+}
+
+.trade_bubble_message {
+    padding:5px;
+}
+.trade_bubble_row {
+    clear:both;
+    height:30px;
+    margin-left:20px;
+}
+.trade_bubble_button {
+    float:left;
+    padding:5px;
+}
+
+.give_hidden, .want_hidden, .give_cards, .want_cards {
+    display:none;
+}
+.trade_card_float {
+    float:left;
 }

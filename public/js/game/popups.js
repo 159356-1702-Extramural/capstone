@@ -399,8 +399,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   //      Build button in the round_build.html template
   function round_build_complete(object_dragged_id, object_type) {
     //  Get html holding the cards
-    var extra_cards = $(".extra_card_list")
-      .html();
+    var extra_cards = $(".extra_card_list").html();
 
     //  Create a reference to the players cards
     var my_cards = new Cards();
@@ -538,10 +537,23 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    **************************************************/
   function build_popup_round_domestic_trade() {
     //  Add in the selectable resources based on what the player has
-    var select_html = getTradeCardsHtml();
+    var select_html = getTradeCardsHtml(current_game.player.cards.resource_cards, false);
+    
     buildPopup("round_domestic_trade", false, false, [["select_cards", select_html]]);
   }
 
+  function build_popup_round_accept_trade(player_id) {
+    //  Show the trade this player is offering
+    var give_html = $(".give_cards" + player_id).html();
+    var want_html = $(".want_cards" + player_id).html();
+
+    buildPopup("round_trade_accept", false, false, [["player_id", player_id],["player_name", current_game.players[player_id].name], ["give_cards", give_html], ["want_cards", want_html]]);
+  }
+
+  function build_popup_trade_failed() {
+    buildPopup("round_trade_failed", false, false);
+  }
+  
   /***************************************************
    *  round_maritime_trade.html
    **************************************************/
