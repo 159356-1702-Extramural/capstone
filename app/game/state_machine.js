@@ -303,16 +303,12 @@ StateMachine.prototype.finish_round_for_all = function(data) {
   var diceroll_check = 1;
   do {
     diceroll = this.game.rollingDice();
+
+    // House rule: no robber until first non-startup build
     if (diceroll == 7 && !player_has_built) {
       diceroll = 1;
-
-      //  Nerf the robber just a little to prevent too frequent occurance
-    } else if (diceroll == 7 && diceroll_check == 1) {
-      diceroll_check = this.game.rollingDice();
-      if (diceroll_check < 7) {
-        diceroll = diceroll_check;
-      }
     }
+
   } while (diceroll < 2);
 
   // disable the robber for testing
