@@ -239,6 +239,14 @@ Game.prototype.robPlayers = function () {
       num_to_steal = 0;
     }
 
+    // The probability of you losing a single card should be the same
+    // as geting picked on in the actual game
+    if (num_to_steal == 1) {
+      if (Math.random() < (1 / (this.players.length - 1))) {
+        num_to_steal = 0;
+      }
+    }
+
     // If we're stealng some cards create an array of cards,
     // shuffle it then do the robbing
     if (num_to_steal > 0) {
