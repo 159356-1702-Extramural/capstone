@@ -29,6 +29,61 @@ function Cards() {
 }
 
 /**
+ * Set card count to
+ * @param {String} card : 'sheep' ...
+ * @param {int} qty
+ */
+Cards.prototype.set = function(card, qty) {
+  switch (card) {
+    case "brick":
+      this.resource_cards.brick = qty;
+      break;
+    case "grain":
+      this.resource_cards.grain = qty;
+      break;
+    case "sheep":
+      this.resource_cards.sheep = qty;
+      break;
+    case "lumber":
+      this.resource_cards.lumber = qty;
+      break;
+    case "ore":
+      this.resource_cards.ore = qty;
+      break;
+
+    case "knight":
+      this.dev_cards.knight = qty;
+      break;
+    case "year_of_plenty":
+      this.dev_cards.year_of_plenty = qty;
+      break;
+    case "monopoly":
+      this.dev_cards.monopoly = qty;
+      break;
+    case "road_building":
+      this.dev_cards.road_building = qty;
+      break;
+
+      //qty always one but keeping it consistent
+    case "library":
+      this.victory_point_cards.library = qty;
+      break;
+    case "chapel":
+      this.victory_point_cards.chapel = qty;
+      break;
+    case "market":
+      this.victory_point_cards.market = qty;
+      break;
+    case "great_hall":
+      this.victory_point_cards.great_hall = qty;
+      break;
+    case "university_of_catan":
+      this.victory_point_cards.university_of_catan += qty;
+      break;
+  }
+}
+
+/**
  * Return the number of a single resource type
  * @param {String} card : 'sheep' ...
  * @return {int}
@@ -45,7 +100,7 @@ Cards.prototype.count_single_card = function(card) {
   } else if (card === 'ore') {
     return this.resource_cards.ore;
   }
-}
+};
 
 //Return number of resource cards in Cards Object
 Cards.prototype.count_cards = function() {
@@ -311,9 +366,45 @@ Cards.prototype.available_cards = function(card_type) {
     return ((this.resource_cards.ore > 2) && (this.resource_cards.grain > 1) && (this.resource_cards.grain >
       0));
   }
+};
 
+
+// simplified struct for trading only
+function TradeCards(obj) {
+  this.brick = 0;
+  this.grain = 0;
+  this.sheep = 0;
+  this.lumber = 0;
+  this.ore = 0;
+  // This if statement must come last to ensure all data is filled in correctly
+  if (obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
 }
 
+TradeCards.prototype.get = function(card) {
+  switch (card) {
+    case 'sheep' : return this.sheep;
+    case 'lumber': return this.lumber;
+    case 'brick' : return this.brick;
+    case 'grain' : return this.grain;
+    case 'ore'   : return this.ore;
+  }
+};
+
+TradeCards.prototype.set = function(card, count) {
+  switch (card) {
+    case 'sheep' : this.sheep = count; break;
+    case 'lumber': this.lumber = count; break;
+    case 'brick' : this.brick = count; break;
+    case 'grain' : this.grain = count; break;
+    case 'ore'   : this.ore = count; break;
+  }
+};
+
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = Cards;
+  module.exports = {
+    Cards: Cards,
+    TradeCards: TradeCards
+  };
 }

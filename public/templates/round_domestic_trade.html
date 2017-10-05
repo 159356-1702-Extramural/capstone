@@ -2,102 +2,19 @@
 <div class="popup_subtitle">Let the trading begin!</div>
 
 <br />
-
 <div class="trade_title">
-    Other Traders:
+My Resources:
 </div>
-<div class="trading_grid">
-    <div class="trader_box">
-        <div class="trader_icon">
-            <img src="images/player1.png"><br />
-            <div class="btn btn-info btn-sm">Accept</div>
-        </div>
-        <div class="trading_offer_box">
-            <div>
-                You will give me:
-                <div class="trade_other_want">
-                    <img class="trading_card trading_card_1" src="images/card_grain_tiny.jpg" />
-                    <img class="trading_card trading_card_2" src="images/card_grain_tiny.jpg" />
-                    <img class="trading_card trading_card_3" src="images/card_grain_tiny.jpg" />
-                </div>
-            </div>
-            <div>
-                I will give you:
-                <div class="trade_other_give">
-                    <img class="trading_card trading_card_1" src="images/card_ore_tiny.jpg" />
-                    <img class="trading_card trading_card_2" src="images/card_ore_tiny.jpg" />
-                    <img class="trading_card trading_card_3" src="images/card_ore_tiny.jpg" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="trader_box">
-        <div class="trader_icon">
-            <img src="images/player0.png"><br />
-        </div>
-        <div class="trading_offer_box">
-            <div>
-                You will give me:
-                <div class="trade_other_want"></div>
-            </div>
-            <div>
-                I will give you:
-                <div class="trade_other_give"></div>
-            </div>
-        </div>
-    </div>
-    <div class="trader_box">
-        <div class="trader_icon">
-            <img src="images/player2.png"><br />
-        </div>
-        <div class="trading_offer_box">
-            <div>
-                You will give me:
-                <div class="trade_other_want"></div>
-            </div>
-            <div>
-                I will give you:
-                <div class="trade_other_give"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="trade_title">
-    My Resources:
-</div>
+<br />
+Give:
 <div class="trade_row">
-    <div class="trade_card_give" data-resource="brick">
-        <img class="trade_brick unavailable" src="images/card_brick_small.jpg"><br />
-        <div class="trade_count">0</div>
-    </div>
-    <div class="trade_card_give" data-resource="grain">
-        <img class="trade_brick unavailable" src="images/card_grain_small.jpg"><br />
-        <div class="trade_count">0</div>
-    </div>
-    <div class="trade_card_give" data-resource="sheep">
-        <img class="trade_brick" src="images/card_sheep_small.jpg"><br />
-        <div class="trade_count">4</div>
-    </div>
-    <div class="trade_card_give" data-resource="ore">
-        <img class="trade_brick unavailable" src="images/card_ore_small.jpg"><br />
-        <div class="trade_count">0</div>
-    </div>
-    <div class="trade_card_give" data-resource="lumber">
-        <img class="trade_brick" src="images/card_lumber_small.jpg"><br />
-        <div class="trade_count">2</div>
-    </div>
-    <div class="trading_offer_box">
-        <div>
-            Give:
+    {select_cards}
+    <div class="trading_offer_box" id='tgb'>
             <div class="trade_give">
-                <img class="trading_card trading_card_1" src="images/card_grain_tiny.jpg" />
-                <img class="trading_card trading_card_2" src="images/card_grain_tiny.jpg" />
             </div>
-        </div>
     </div>
 </div>
+Want:
 <div class="trade_row">
     <div class="trade_card_want" data-resource="brick">
         <img class="trade_brick" src="images/card_brick_small.jpg"><br />
@@ -114,16 +31,10 @@
     <div class="trade_card_want" data-resource="lumber">
         <img class="trade_brick" src="images/card_lumber_small.jpg"><br />
     </div>
-    <div class="trading_offer_box">
-        <div>
-            Want:
+    <div class="trading_offer_box" id='trb'>
             <div class="trade_want">
-                <img class="trading_card trading_card_1" src="images/card_ore_tiny.jpg" />
-                <img class="trading_card trading_card_2" src="images/card_ore_tiny.jpg" />
             </div>
-        </div>
     </div>
 </div>
-<div class="trade_row" style="height:30px; text-align:center;">
-    <div id="start-trade" class="btn btn-info">Start Trade</div>
-</div>
+<div id="accept-trade" class="btn btn-info btn-right" onclick='initInterTrade()'>Accept Trade</div>
+<div id="cancel-trade" class="btn btn-info btn-right" onclick="hidePopup()">Cancel Trade</div>

@@ -1458,11 +1458,6 @@ body {
     height:200px;
 }
 
-.trading_offer_box {
-    float:left;
-    width:180px;
-    margin-left:20px;
-}
 .trader_box {
     float:left;
     width:30%;
@@ -1489,10 +1484,19 @@ body {
     height:100px;
     margin:1%;
 }
+
+.trading_offer_box {
+    position:relative;
+    float:right;
+    width:42%;
+    margin: 2%;
+    margin-top: 0px;
+}
+
 .trade_want, .trade_give, .trade_other_want, .trade_other_give {
     position:relative;
-    height:65px;
-    width:160px;
+    height:125px;
+    width:93%;
     border: thin solid green;
 }
 .trader_box_right {
