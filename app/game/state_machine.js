@@ -162,6 +162,9 @@ StateMachine.prototype.tick = function (data) {
       case 'accept_player_trade':
         this.accept_player_trade(data);
         break;
+      case 'cancel_player_trade':
+        this.cancel_player_trade(data);
+        break;
       case 'buy_dev_card':
         this.buy_dev_card(data);
         break;
@@ -773,6 +776,22 @@ StateMachine.prototype.trade_with_bank = function (data) {
 // broadcast trade intent only
 StateMachine.prototype.init_player_trade = function (data) {
   var player = this.game.players[data.player_id];
+
+  if (player.inter_trade.wants_trade) {
+    var data_package = new Data_package();
+    data_package.player = player;
+    data_package.data_type = "invalid_move";
+    // return action to tell client failed reason
+    var action = new Action();
+    action.action_type = 'invalid_move';
+
+    // Message to display at client end
+    action.action_data = 'You already have an open trade pending';
+    data_package.player.actions = [];
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+  }
+
   var trade_cards = new TradeCards(data.actions[0].action_data.trade_cards); // is a "TradeCards" object
   var wants_cards = new TradeCards(data.actions[0].action_data.wants_cards); // is a "TradeCards" object
 
@@ -902,6 +921,20 @@ StateMachine.prototype.accept_player_trade = function (data) {
   data_package.actions = [];
   data_package.actions.push(action);
   this.broadcast('game_turn', data_package);
+};
+
+StateMachine.prototype.cancel_player_trade = function (data) {
+  var player = this.game.players[data.player_id];
+  player.inter_trade.wants_trade = false;
+  player.inter_trade.trade_cards = new TradeCards();
+  player.inter_trade.wants_cards = new TradeCards();
+
+  var data_package = new Data_package();
+  data_package.player_id = player.id;
+  data_package.data_type = "cancel_player_trade";
+  this.broadcast('game_turn', data_package);
+
+  this.log('info', player.name+' cancelled their trade offer')
 };
 
 StateMachine.prototype.buy_dev_card = function (data) {
