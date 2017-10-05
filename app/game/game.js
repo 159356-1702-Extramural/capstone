@@ -242,7 +242,7 @@ Game.prototype.robPlayers = function () {
     // The probability of you losing a single card should be the same
     // as geting picked on in the actual game
     if (num_to_steal == 1) {
-      if (Math.random() < (1 / (this.players.length - 1))) {
+      if (Math.random() > (1 / (this.players.length - 1))) {
         num_to_steal = 0;
       }
     }
