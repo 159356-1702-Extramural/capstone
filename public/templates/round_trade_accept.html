@@ -1,0 +1,21 @@
+<div class="end_row">
+    <div class="player_row">
+        <div class="player_icon"><img src="images/player{player_id}.png" /></div>
+        <div class="player_name">
+            {player_name}<br>
+        </div>
+    </div>
+</div>
+
+You will receive:
+<div class="trade_row">
+    {give_cards}
+</div>
+
+I will take:
+<div class="trade_row">
+    {want_cards}        
+</div>
+
+<div id="accept-trade" class="btn btn-info btn-right" onclick='accept_player_trade({player_id})'>Accept Trade</div>
+<div id="cancel-trade" class="btn btn-info btn-right" onclick="hidePopup()">Cancel Trade</div>

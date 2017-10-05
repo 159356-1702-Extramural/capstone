@@ -8,7 +8,7 @@ My Resources:
 <br />
 Give:
 <div class="trade_row">
-    {select_cards}
+    <div class="select_card_list">{select_cards}</div>
     <div class="trading_offer_box" id='tgb'>
             <div class="trade_give">
             </div>
@@ -20,21 +20,26 @@ Want:
         <img class="trade_brick" src="images/card_brick_small.jpg"><br />
     </div>
     <div class="trade_card_want" data-resource="grain">
-        <img class="trade_brick" src="images/card_grain_small.jpg"><br />
+        <img class="trade_grain" src="images/card_grain_small.jpg"><br />
     </div>
     <div class="trade_card_want" data-resource="sheep">
-        <img class="trade_brick" src="images/card_sheep_small.jpg"><br />
+        <img class="trade_sheep" src="images/card_sheep_small.jpg"><br />
     </div>
     <div class="trade_card_want" data-resource="ore">
-        <img class="trade_brick" src="images/card_ore_small.jpg"><br />
+        <img class="trade_ore" src="images/card_ore_small.jpg"><br />
     </div>
     <div class="trade_card_want" data-resource="lumber">
-        <img class="trade_brick" src="images/card_lumber_small.jpg"><br />
+        <img class="trade_lumber" src="images/card_lumber_small.jpg"><br />
     </div>
     <div class="trading_offer_box" id='trb'>
             <div class="trade_want">
             </div>
     </div>
 </div>
-<div id="accept-trade" class="btn btn-info btn-right" onclick='initInterTrade()'>Accept Trade</div>
+
+<div class="build_hidden">{select_cards}</div>
+<div class="give_hidden"></div>
+<div class="want_hidden"></div>
+
+<div id="accept-trade" class="btn btn-info btn-right" onclick='initInterTrade()'>Start Trade</div>
 <div id="cancel-trade" class="btn btn-info btn-right" onclick="hidePopup()">Cancel Trade</div>

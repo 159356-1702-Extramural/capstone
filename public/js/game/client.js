@@ -23,7 +23,6 @@ var force_complete = false;
 
 // records whether player has had monopoly played on them
 var monopoly_played = null;
-var test = null;
 
 $(document)
   .ready(function() {
@@ -107,6 +106,8 @@ $(document)
 
     socket.on('update_players_waiting', function(waiting) {
       for (var i = 0; i < waiting.length; i++) {
+        current_game.players[i].turn_complete = waiting[i][1];
+
         $(".other_player" + i + "_status")
           .html("<i class='fa " + (waiting[i][1] ? "fa-check" : "fa-spin fa-spinner") + "'></i>");
       }
@@ -187,7 +188,6 @@ $(document)
     var resolve_game_turn = function(data) {
       if (data.data_type === "setup_complete") {
         setup_phase = false;
-        test = data;
         if(timer_running){
           timer = setInterval(function(){
             update_time();
@@ -296,7 +296,29 @@ $(document)
         player.inter_trade.wants_cards = TradeCards() - simplified card struct
         */
 
+        //  First show a bubble next to the player
+        var trade_alert_html = "<div class='trade_bubble_message'>" + get_trade_message() + "</div>";
+        trade_alert_html += "<div class='trade_bubble_row'>";
+        trade_alert_html += " <div class='trade_bubble_button'><div class='btn btn-info btn-sm' onclick='show_player_trade(" + data.player_id + ");'>Show Me</div></div>";
+        trade_alert_html += " <div class='trade_bubble_button'><div class='btn btn-info btn-sm' onclick='decline_player_trade(" + data.player_id + ");'>No Thanks!</div></div>";
+        trade_alert_html += "</div>";
 
+        //  We need to build the detail for the next popup if they click to see more info
+        var give_cards = getTradeCardsHtml(data.actions[0].action_data.trade_cards, true);
+        var want_cards = getTradeCardsHtml(data.actions[0].action_data.wants_cards, true);
+        
+        //  Now we tuck it inside for use later as needed
+        trade_alert_html += "<div class='give_cards give_cards" + data.player_id + "'>" + give_cards + "</div>";
+        trade_alert_html += "<div class='give_cards want_cards" + data.player_id + "'>" + want_cards + "</div>";
+        
+        //  We need to adjust the top for the other player avatar position
+        var alert_offset = $(".other_player" + data.player_id + "_cell").offset().top;
+
+        //  Now we show the end result
+        $(".player" + data.player_id + "_bubble").html(trade_alert_html);
+        $(".player" + data.player_id + "_bubble").css("top", alert_offset + "px");
+        $(".player" + data.player_id + "_bubble").show();
+        
       } else if (data.data_type === 'returned_player_trade') {
         // successful trade for player
         // intended to work the same as for recv from bank
@@ -777,12 +799,13 @@ $(document)
         card_list.append(new_card);
 
         //  Remove resource and disable as needed
+        $(".give_hidden").append(resource + ",");
         resource_count--;
         $(this)
           .attr('data-count', resource_count);
         if (resource_count < 1) {
           $(this)
-            .addClass("disabled");
+            .addClass("unavailable");
         }
       }
     });
@@ -791,13 +814,15 @@ $(document)
       e.preventDefault();
 
       //  Clear the selected cards
-      $(".trade_give")
-        .html("");
+      $(".trade_give").html("");
+      $(".give_hidden").html("");
+
       //  Rebuild the list of selectable cards
       $(".select_card_list")
         .html($(".build_hidden")
           .html());
 
+          
     });
 
     //  Player Trading - Add Want Card
@@ -811,6 +836,8 @@ $(document)
       var new_card = '<div class="trade_card_want" style="z-index:' + (600 + next_z) +
         ';"><img src="images/card_' + resource + '_tiny.jpg"></div>';
       card_list.append(new_card);
+
+      $(".want_hidden").append(resource + ",");
     });
 
      //  Rest want resources
@@ -818,8 +845,8 @@ $(document)
       e.preventDefault();
 
       //  Clear the selected cards
-      $(".trade_want")
-        .html("");
+      $(".trade_want").html("");
+      $(".want_hidden").html("");
     });
 
 
@@ -865,6 +892,14 @@ $(document)
 
     });
 
+    //  Build - Remove resources
+    $doc.on('mousedown', '.trading_offer_box', function(e) {
+      e.preventDefault();
+
+      //  Rebuild the list of selectable cards
+      $(".select_card_list").html($(".build_hidden").html());
+    });
+
     //close start window
     $doc.on('click', '.close-start', function(e) {
       e.preventDefault();
@@ -890,6 +925,33 @@ $(document)
 function setupTurnFinished() {
   // wipe all current turn info (action arrays)
   turn_actions = [];
+}
+
+//  Determine what trade window(s) are to be shown
+function checkTrade() {
+  //  Can the player trade with the bank?
+  var can_trade_bank = current_game.round_num > 2 && allowed_actions.can_trade;
+
+  //  Can the player trade with another player?
+  var anyone_still_playing = false;
+  for (var i = 0; i < current_game.players.length; i++) {
+    if (!current_game.players[i].turn_complete && i != current_player.id) {
+      anyone_still_playing = true;
+      break;
+    }
+  }
+  var can_trade_player = anyone_still_playing && (current_game.player.cards.resource_cards.brick > 0 || 
+    current_game.player.cards.resource_cards.lumber > 0 || current_game.player.cards.resource_cards.sheep > 0 || 
+    current_game.player.cards.resource_cards.ore > 0 || current_game.player.cards.resource_cards.grain > 0);
+  
+  if (can_trade_bank && can_trade_player) {
+    $(".trade_prompt").show();
+  } else if (can_trade_player) {
+    openInterTrade();
+  } else {
+    openTrade();
+  }
+
 }
 
 // Open the trading window and make only tradable cards available
@@ -952,8 +1014,9 @@ function openInterTrade() {
   build_popup_round_domestic_trade();
 }
 
-function openPlayerTrade() {
+function openPlayerTrade(player_id) {
   // displays a popup showing this players trade offer
+  build_popup_round_accept_trade();
 }
 
 function acceptTrade() {
@@ -1002,24 +1065,45 @@ function acceptTrade() {
 }
 
 function initInterTrade() {
-  // sends the trade data to the server when the button is clicked
+  var give_html = $('.give_hidden').html();
+  var want_html = $('.want_hidden').html();
+
+  if (give_html.length > 0 && want_html.length > 0) {
+    var give_cards = new TradeCards();
+    give_cards.sheep = (give_html.match(/sheep/g) || []).length;
+    give_cards.ore = (give_html.match(/ore/g) || []).length;
+    give_cards.lumber = (give_html.match(/lumber/g) || []).length;
+    give_cards.grain = (give_html.match(/grain/g) || []).length;
+    give_cards.brick = (give_html.match(/brick/g) || []).length;
+    
+    var want_cards = new TradeCards();
+    want_cards.sheep = (want_html.match(/sheep/g) || []).length;
+    want_cards.ore = (want_html.match(/ore/g) || []).length;
+    want_cards.lumber = (want_html.match(/lumber/g) || []).length;
+    want_cards.grain = (want_html.match(/grain/g) || []).length;
+    want_cards.brick = (want_html.match(/brick/g) || []).length;
+
     var data_package = new Data_package();
     data_package.data_type = 'init_player_trade';
     data_package.player_id = current_player.id;
     var action = new Action();
-
     action.action_data = {
-      trade_cards: new TradeCards({'sheep':3, 'grain':1}),
-      wants_cards: new TradeCards({'brick':1}),
-    };
-
+      trade_cards: give_cards,
+      wants_cards: want_cards,
+    }
     data_package.actions.push(action);
 
     update_server('game_update', data_package);
     hidePopup();
+  }
 }
 
-function acceptInterTrade() {
+function show_player_trade(player_id) {
+  $(".player" + player_id + "_bubble").hide();
+  build_popup_round_accept_trade(player_id);
+}
+
+function accept_player_trade(player_id) {
   // from button on popup displayed after clicking the upper left player trade button
   // tells the server the player has accepted the trade the clicked player has offered
     var data_package = new Data_package();
@@ -1028,7 +1112,7 @@ function acceptInterTrade() {
     var action = new Action();
 
     action.action_data = {
-      other_id: machine.game.players[0].id
+      other_id: player_id
     };
 
     data_package.actions.push(action);
@@ -1037,8 +1121,12 @@ function acceptInterTrade() {
     hidePopup();
 }
 
-function tradeFailed() {
+function decline_player_trade(player_id) {
+  $(".player" + player_id + "_bubble").hide();
+}
 
+function tradeFailed() {
+  build_popup_trade_failed();
 }
 
 function invalidMove(data) {
@@ -1485,10 +1573,7 @@ function getRoadAngle(road) {
 }
 
 //  This method determines the coordinates where a road is to be drawn
-var test = null;
-
 function getRoadPosition(road) {
-  test = road;
   var node1_left = parseInt($("#node_" + road.connects[0])
     .css("left")
     .replace("px", ""));
@@ -1708,14 +1793,20 @@ function getResourceCardsHtml() {
   return html;
 }
 
-function getTradeCardsHtml() {
+function getTradeCardsHtml(cards, show_all_cards) {
   var html = "";
   var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
   for (var i = 0; i < resource_list.length; i++) {
-    var resource_count = current_game.player.cards.resource_cards[resource_list[i]];
-    html += "<img class='trade_card_give trade_" + resource_list[i] +
-    (resource_count < 1 ? " disabled" : "") + "' data-resource='" + resource_list[i] +
-    "' data-count='" + resource_count + "' src='images/card_" + resource_list[i] + "_small.jpg'>";
+    var resource_count = cards[resource_list[i]];
+    if (show_all_cards) {
+      for (var j = 0; j < resource_count; j++) {
+        html += "<img class='trade_card_float' src='images/card_" + resource_list[i] + "_small.jpg'>";
+      }
+    } else {
+      html += "<img class='trade_card_give trade_" + resource_list[i] +
+      (resource_count < 1 ? " unavailable" : "") + "' data-resource='" + resource_list[i] +
+      "' data-count='" + resource_count + "' src='images/card_" + resource_list[i] + "_small.jpg'>";
+    }
   }
   return html;
 }
@@ -1778,7 +1869,7 @@ function setupPlayer() {
   html += "            <div class='box ore'><span class='orecount'>0</span></div>";
   html += "            <div class='box grain'><span class='graincount'>0</span></div>";
   html +=
-    "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='openTrade()'>Trade</div></div>";
+    "            <div class='box trade'><div class='btn btn-info tradebutton' onclick='checkTrade()'>Trade</div></div>";
   html += "        </div>";
   html += "        <div class='buildings'>";
   html += "            Buildings:<br />";
@@ -1821,7 +1912,6 @@ function setupPlayer() {
   html += "               <div class='box bigarmy'><span class='armycount'>0</span></div>";
   html += "               <div class='box longroad'><span class='longroadcount'>0</span></div>";
   html += "               <div class='box victory'><span class='victorycount'>0</span></div>";
-  html += "               <div class='box trade'><div class='btn btn-info tradebutton disabled' onclick='openInterTrade()'>InterTrade</div></div>";
   html += "            </div>";
 
   $(".score")
@@ -1842,15 +1932,13 @@ function setup_player_scores() {
   var scores = "";
   for (var p = 0; p < current_game.players.length; p++) {
     if (p != current_player.id) {
-      scores += '<div class="other_player_cell other_player' + current_game.players[p].id +
-        '_cell" data-id="' + current_game.players[p].id + '">';
-      scores += '    <div class="other_player_avatar"><img src="images/player' + current_game.players[p].id +
-        '.png" /></div>';
+      scores += '<div class="other_player_cell other_player' + current_game.players[p].id + '_cell" data-id="' + current_game.players[p].id + '">';
+      scores += '    <div class="other_player_avatar"><img src="images/player' + current_game.players[p].id + '.png" /></div>';
       scores += '    <div class="other_player' + current_game.players[p].id + '_status"></div>';
       scores += '    <div class="other_player_name">' + current_game.players[p].name + '</div>';
-      scores += "    <div class='btn btn-info tradebutton disabled' onclick='openPlayerTrade()'>View Trade</div>";
       scores += '    <div class="other_player_score">' + current_game.players[p].points + '</div>';
       scores += '</div>';
+      scores += '<div class="player' + p + '_bubble"></div>';
     }
   }
 
@@ -2053,8 +2141,9 @@ function finish_turn(){
   build_popup_round_waiting_for_others();
 
   //  Hide the reminder
-  $(".done_prompt")
-    .hide();
+  $(".done_prompt").hide();
+  //  Hide the trade prompt
+  $('.trade_prompt').hide();
 
   data_package.player_id = current_player.id;
   data_package.actions = turn_actions;
@@ -2102,6 +2191,23 @@ function animate_timer(timer_type){
     )});
   }
 }
+
+function get_trade_message() {
+  var r = Math.floor(Math.random() * 6) + 1;
+  if (r == 1)
+    return "Hey! Wanna trade?";
+  if (r == 1)
+    return "Psst. I have a sweet deal for you...";
+  if (r == 1)
+    return "You will not want to pass this deal up...";
+  if (r == 1)
+    return "I need your help...please!";
+  if (r == 1)
+    return "Want to trade some resources?";
+
+  return "Want to swap some cards?";
+}
+
 
 function doLog(m) {
   $(".log")

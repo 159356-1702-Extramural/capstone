@@ -379,6 +379,7 @@ StateMachine.prototype.broadcast_gamestate = function () {
       name: player.name,
       colour: player.colour,
       points: player.score.total_points,
+      turn_complete: false,
       victory_points: player.cards.victory_point_cards
     };
   });
