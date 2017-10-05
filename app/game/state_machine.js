@@ -20,7 +20,7 @@ var Game = require('./game.js');
 var Data_package = require('../data_api/data_package.js');
 var Game_state = require('../data_api/game_state.js');
 var Action = require('../../public/data_api/action.js');
-var Cards = require('../../public/data_api/cards.js');
+var {Cards, TradeCards} = require('../../public/data_api/cards.js');
 
 /*
  * The state machine contains the Game and operates on it per current state logic
@@ -156,6 +156,12 @@ StateMachine.prototype.tick = function (data) {
       case 'trade_with_bank':
         this.trade_with_bank(data);
         break;
+      case 'init_player_trade':
+        this.init_player_trade(data);
+        break;
+      case 'accept_player_trade':
+        this.accept_player_trade(data);
+        break;
       case 'buy_dev_card':
         this.buy_dev_card(data);
         break;
@@ -288,6 +294,9 @@ StateMachine.prototype.finish_round_for_all = function(data) {
   for (var i = 0; i < this.game.players.length; i++) {
     // Reset round distribution cards
     this.game.players[i].round_distribution_cards = new Cards();
+    this.game.players[i].inter_trade.wants = false;
+    this.game.players[i].inter_trade.trade_cards = new TradeCards();
+    this.game.players[i].inter_trade.wants_cards = new TradeCards();
   }
   // House rule 7 only comes up once someone has created their first non-startup building
   var player_has_built = false;
@@ -759,6 +768,140 @@ StateMachine.prototype.trade_with_bank = function (data) {
     this.send_to_player('game_turn', data_package);
     this.log('info', 'Trade with bank package sent');
   }
+};
+
+// broadcast trade intent only
+StateMachine.prototype.init_player_trade = function (data) {
+  var player = this.game.players[data.player_id];
+  var trade_cards = new TradeCards(data.actions[0].action_data.trade_cards); // is a "TradeCards" object
+  var wants_cards = new TradeCards(data.actions[0].action_data.wants_cards); // is a "TradeCards" object
+
+  for (let card of Object.keys(trade_cards)) {
+    if (player.cards.count_single_card(card) < trade_cards.get(card)) {
+      this.log('info', 'player '+player.name+' attempted to trade without enough cards');
+      var data_package = new Data_package();
+      data_package.player = player;
+      data_package.data_type = "invalid_move";
+      // return action to tell client failed reason
+      var action = new Action();
+      action.action_type = 'invalid_move';
+      // Message to display at client end
+      action.action_data = 'Your trade attempt failed, you didn\'t have enough cards';
+      data_package.actions = [];
+      data_package.actions.push(action);
+      this.send_to_player('game_turn', data_package);
+    }
+  };
+  player.inter_trade.wants_trade = true;
+  player.inter_trade.trade_cards = trade_cards;
+  player.inter_trade.wants_cards = wants_cards;
+
+  this.log('info', 'player '+player.name+' wants to trade with others');
+  var data_package = new Data_package();
+  data_package.player_id = player.id;
+  data_package.data_type = "player_trade";
+  var action = new Action();
+  action.action_data = data.actions[0].action_data; // copy over trade data
+  data_package.actions = [];
+  data_package.actions.push(action);
+  this.broadcast('game_turn', data_package);
+};
+
+// remove cards only when trade is accepted
+StateMachine.prototype.accept_player_trade = function (data) {
+  var this_player = this.game.players[data.player_id];
+  var other_player = this.game.players[data.actions[0].action_data.other_id];
+  var trade_cards = other_player.inter_trade.trade_cards;
+  var wants_cards = other_player.inter_trade.wants_cards;
+
+  var success = true;
+  var player_old_cards = new TradeCards();
+  var other_old_cards = new TradeCards();
+  this_player.round_distribution_cards = new Cards();
+  other_player.round_distribution_cards = new Cards();
+
+  if (other_player.inter_trade.wants_trade) {
+    // TODO: move duplication in to a function
+    for (let card of Object.keys(trade_cards)) {
+      if (other_player.cards.count_single_card(card) > 0 && trade_cards.get(card) > 0) {
+        // backup old card counts just incase of failure
+        other_old_cards.set(card, other_player.cards.count_single_card(card));
+        player_old_cards.set(card, this_player.cards.count_single_card(card));
+        success = (other_player.cards.remove_multiple_cards(card, trade_cards.get(card)));
+        if (!success) break;
+        this_player.cards.add_cards(card, trade_cards.get(card));
+        this_player.round_distribution_cards.add_cards(card, trade_cards.get(card));
+      }
+    }
+    if (success) {
+      for (let card of Object.keys(wants_cards)) {
+        if (this_player.cards.count_single_card(card) > 0 && wants_cards.get(card) > 0) {
+          // backup old card counts just incase of failure
+          other_old_cards.set(card, other_player.cards.count_single_card(card));
+          player_old_cards.set(card, this_player.cards.count_single_card(card));
+          success = (this_player.cards.remove_multiple_cards(card, wants_cards.get(card)));
+          if (!success) break;
+          other_player.cards.add_cards(card, trade_cards.get(card));
+          other_player.round_distribution_cards.add_cards(card, trade_cards.get(card));
+        }
+      }
+    }
+  }
+
+  if (success) {
+    var this_player_package = new Data_package();
+    var other_player_package = new Data_package();
+    this.log('info', 'trade between '+this_player.name+' and '+other_player.name+' successful')
+    // send cards back to player
+    this_player_package.data_type = "returned_player_trade";
+    this_player_package.player = this_player;
+    this.send_to_player('game_turn', this_player_package);
+    // and back to other player
+    other_player.inter_trade = new TradeCards(); // reset trade
+    other_player_package.data_type = "returned_player_trade";
+    other_player_package.player = other_player;
+    this.send_to_player('game_turn', other_player_package);
+  } else if (!success) {
+    this.log('info', 'trade between '+this_player.name+' and '+other_player.name+' unsuccessful')
+    // if we failed, reset everything
+    for (let card of Object.keys(player_old_cards)) {
+      if (player_old_cards.get(card) > 0)
+        this_player.cards.set(card, player_old_cards.get(card));
+    }
+    for (let card of Object.keys(other_old_cards)) {
+      if (other_old_cards.get(card) > 0)
+        other_player.cards.set(card, other_old_cards.get(card));
+    }
+    var data_package = new Data_package();
+    data_package.player = this_player;
+    data_package.data_type = "invalid_move";
+    // return action to tell client failed reason
+    var action = new Action();
+    action.action_type = 'invalid_move';
+
+    // Message to display at client end
+    action.action_data = 'The trade attempt failed, the other player didn\'t have enough cards';
+    data_package.player.actions = [];
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+
+    other_player.inter_trade = new TradeCards(); // reset trade
+    data_package.player = other_player;
+    action.action_data = 'The trade attempt failed, you didn\'t have enough cards';
+    data_package.player.actions = [];
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+  }
+
+  this.log('info', 'updating all players with status of trade');
+  var data_package = new Data_package();
+  data_package.player_id = other_player.id;
+  data_package.data_type = "player_trade";
+  var action = new Action();
+  action.action_data = other_player.inter_trade; // copy over trade data
+  data_package.actions = [];
+  data_package.actions.push(action);
+  this.broadcast('game_turn', data_package);
 };
 
 StateMachine.prototype.buy_dev_card = function (data) {
