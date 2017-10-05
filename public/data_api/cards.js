@@ -1,7 +1,7 @@
 /**
  * Create a cards object to hold relevant card relating to specific action
  */
-function Cards() {
+function Cards(obj) {
   this.resource_cards = {
     brick: 0,
     grain: 0,
@@ -25,7 +25,10 @@ function Cards() {
     university_of_catan: 0,
     great_hall: 0
   };
-
+  // This if statement must come last to ensure all data is filled in correctly
+  if (obj) {
+    for (var prop in obj) this[prop] = obj[prop];
+  }
 }
 
 /**
@@ -49,36 +52,6 @@ Cards.prototype.set = function(card, qty) {
       break;
     case "ore":
       this.resource_cards.ore = qty;
-      break;
-
-    case "knight":
-      this.dev_cards.knight = qty;
-      break;
-    case "year_of_plenty":
-      this.dev_cards.year_of_plenty = qty;
-      break;
-    case "monopoly":
-      this.dev_cards.monopoly = qty;
-      break;
-    case "road_building":
-      this.dev_cards.road_building = qty;
-      break;
-
-      //qty always one but keeping it consistent
-    case "library":
-      this.victory_point_cards.library = qty;
-      break;
-    case "chapel":
-      this.victory_point_cards.chapel = qty;
-      break;
-    case "market":
-      this.victory_point_cards.market = qty;
-      break;
-    case "great_hall":
-      this.victory_point_cards.great_hall = qty;
-      break;
-    case "university_of_catan":
-      this.victory_point_cards.university_of_catan += qty;
       break;
   }
 }

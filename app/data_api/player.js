@@ -53,4 +53,10 @@ function Player(socket, data) {
   };
 }
 
+Player.prototype.reset_inter_trade = function() {
+  this.inter_trade.wants_trade = false;
+  this.inter_trade.trade_cards = new TradeCards();
+  this.inter_trade.wants_cards = new TradeCards();
+};
+
 module.exports = Player;

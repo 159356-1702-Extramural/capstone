@@ -210,12 +210,12 @@ $(document)
 
       } else if (data.data_type === 'invalid_move') {
         //  restore player to server held player data
-        current_player = data.player;
+        current_game.player = data.player;
 
         //  revert current player state
         updatePanelDisplay();
         //  Details on failed moves
-        alert("That's an invalid move  : " + data.player.actions[0].action_data);
+        alert(data.player.actions[0].action_data);
 
       } else if (data.data_type === 'wait_others') {
         // allow players to purchase and play dev cards this round
@@ -295,29 +295,32 @@ $(document)
         player.inter_trade.trade_cards = TradeCards() - simplified card struct
         player.inter_trade.wants_cards = TradeCards() - simplified card struct
         */
+        if (data.actions[0].action_data.wants_trade) {
+          //  First show a bubble next to the player
+          var trade_alert_html = "<div class='trade_bubble_message'>" + get_trade_message() + "</div>";
+          trade_alert_html += "<div class='trade_bubble_row'>";
+          trade_alert_html += " <div class='trade_bubble_button'><div class='btn btn-info btn-sm' onclick='show_player_trade(" + data.player_id + ");'>Show Me</div></div>";
+          trade_alert_html += " <div class='trade_bubble_button'><div class='btn btn-info btn-sm' onclick='decline_player_trade(" + data.player_id + ");'>No Thanks!</div></div>";
+          trade_alert_html += "</div>";
 
-        //  First show a bubble next to the player
-        var trade_alert_html = "<div class='trade_bubble_message'>" + get_trade_message() + "</div>";
-        trade_alert_html += "<div class='trade_bubble_row'>";
-        trade_alert_html += " <div class='trade_bubble_button'><div class='btn btn-info btn-sm' onclick='show_player_trade(" + data.player_id + ");'>Show Me</div></div>";
-        trade_alert_html += " <div class='trade_bubble_button'><div class='btn btn-info btn-sm' onclick='decline_player_trade(" + data.player_id + ");'>No Thanks!</div></div>";
-        trade_alert_html += "</div>";
+          //  We need to build the detail for the next popup if they click to see more info
+          var give_cards = getTradeCardsHtml(data.actions[0].action_data.trade_cards, true);
+          var want_cards = getTradeCardsHtml(data.actions[0].action_data.wants_cards, true);
 
-        //  We need to build the detail for the next popup if they click to see more info
-        var give_cards = getTradeCardsHtml(data.actions[0].action_data.trade_cards, true);
-        var want_cards = getTradeCardsHtml(data.actions[0].action_data.wants_cards, true);
-        
-        //  Now we tuck it inside for use later as needed
-        trade_alert_html += "<div class='give_cards give_cards" + data.player_id + "'>" + give_cards + "</div>";
-        trade_alert_html += "<div class='give_cards want_cards" + data.player_id + "'>" + want_cards + "</div>";
-        
-        //  We need to adjust the top for the other player avatar position
-        var alert_offset = $(".other_player" + data.player_id + "_cell").offset().top;
+          //  Now we tuck it inside for use later as needed
+          trade_alert_html += "<div class='give_cards give_cards" + data.player_id + "'>" + give_cards + "</div>";
+          trade_alert_html += "<div class='give_cards want_cards" + data.player_id + "'>" + want_cards + "</div>";
 
-        //  Now we show the end result
-        $(".player" + data.player_id + "_bubble").html(trade_alert_html);
-        $(".player" + data.player_id + "_bubble").css("top", alert_offset + "px");
-        $(".player" + data.player_id + "_bubble").show();
+          //  We need to adjust the top for the other player avatar position
+          var alert_offset = $(".other_player" + data.player_id + "_cell").offset().top;
+
+          //  Now we show the end result
+          $(".player" + data.player_id + "_bubble").html(trade_alert_html);
+          $(".player" + data.player_id + "_bubble").css("top", alert_offset + "px");
+          $(".player" + data.player_id + "_bubble").show();
+        } else {
+          $(".player" + data.player_id + "_bubble").hide();
+        }
         
       } else if (data.data_type === 'returned_player_trade') {
         // successful trade for player
@@ -1088,6 +1091,7 @@ function initInterTrade() {
     data_package.player_id = current_player.id;
     var action = new Action();
     action.action_data = {
+      wants_trade: true,
       trade_cards: give_cards,
       wants_cards: want_cards,
     }
@@ -2042,6 +2046,7 @@ function dev_card_played() {
 // At end of turn reset the dev_card.played and dev_card.purchased variables
 // Re-enable the knight card
 function reset_dev_cards_per_round() {
+  console.log(current_player);
   current_player.dev_cards.played = false;
   current_player.dev_cards.purchased = 0;
   current_player.dev_cards.recent_purchase = [];

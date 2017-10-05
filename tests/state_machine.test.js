@@ -370,6 +370,38 @@ test('Player can accept trade', function (t) {
   t.is(machine.game.players[1].cards.count_single_card('grain'), 1);
 });
 
+test('Player can cancel trade', function (t) {
+  //setup cards in hand to enable trade
+  machine.game.players[0].cards.add_cards('sheep', 5);
+  machine.game.players[0].cards.add_cards('grain', 3);
+
+  //Build a typical incoming data package
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'init_player_trade';
+  data_package.player_id = 0;
+  var action = new Action();
+
+  action.action_data = {
+    trade_cards: new TradeCards({'sheep':3, 'grain':1}),
+    wants_cards: new TradeCards({'brick':1}),
+  };
+  data_package.actions.push(action);
+
+  machine.state = 'play'
+  machine.tick(data_package);
+  t.true(machine.game.players[0].inter_trade.wants_trade);
+
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'cancel_player_trade';
+  data_package.player_id = 0;
+
+  machine.tick(data_package);
+  t.false(machine.game.players[0].inter_trade.wants_trade);
+  t.is(machine.game.players[0].inter_trade.trade_cards.get('sheep'), 0);
+  t.is(machine.game.players[0].inter_trade.trade_cards.get('grain'), 0);
+  t.is(machine.game.players[0].inter_trade.wants_cards.get('brick'), 0);
+});
+
 test('Player accepts trade, fails, and cards are reset to before', function (t) {
   //setup cards in hand to enable trade
   machine.game.players[0].cards.add_cards('sheep', 2);
@@ -395,7 +427,6 @@ test('Player accepts trade, fails, and cards are reset to before', function (t) 
   data_package.data_type = 'accept_player_trade';
   data_package.player_id = 1;
   var action = new Action();
-
   action.action_data = {
     other_id: machine.game.players[0].id
   };
