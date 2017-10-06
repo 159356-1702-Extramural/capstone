@@ -1,5 +1,5 @@
 // CAPSTONE PROJECT 2017
-
+process.title = process.argv[2];
 // Logging Framework
 var logger = require('./log.js');
 // TODO: can we set this from enviroment config?
@@ -98,6 +98,10 @@ io.on('connection', function (socket) {
     games.reset_game();
   });
 
+  socket.on('npmStop', () => {
+    console.log("Received kill command");
+    process.exit(0);
+  });
 });
 
 server.listen(PORT, function () {
