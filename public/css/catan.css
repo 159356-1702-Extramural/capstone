@@ -641,7 +641,6 @@ body {
 .robber {
     position:absolute;
     background-image:url(../images/robber.png);
-    margin-left:-20px;
     height:70px;
     width:30px;
     display:none;
@@ -1627,7 +1626,7 @@ body {
 }
 /*
 .timer_animate{
-    -webkit-transition: width 60s; /* Safari 
+    -webkit-transition: width 60s; /* Safari
     transition: width 60s;
     width: 100%;
 }*/

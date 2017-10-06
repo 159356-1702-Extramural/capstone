@@ -10,7 +10,8 @@
     "concurrency": 4
   },
   "scripts": {
-    "start": "node app/app.js",
+    "start": "node app/app.js catan",
+    "stop": "node app/server.stop.js",
     "inspect": "node --inspect app/app.js",
     "test": "nyc ava",
     "test:watch": "nyc ava --watch --verbose",
@@ -30,6 +31,7 @@
     "geckodriver": "^1.8.0",
     "mock-socket": "^7.0.0",
     "nyc": "^11.0.3",
+    "purify-css": "^1.2.5",
     "saucelabs": "^1.4.0",
     "selenium": "^2.20.0",
     "selenium-webdriver": "^3.5.0",

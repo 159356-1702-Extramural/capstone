@@ -2067,11 +2067,15 @@ function player_input_on_enter(e) {
 }
 //  Start a new game
 function start_new_game(game_size) {
+
+  $('.game_button').addClass('disabled');
+
   var name = $('#player-input')
     .val();
-  if (name == '') {
+  if (name === '') {
     $(".game_error")
       .html("Please enter a name for your game");
+    $('.game_button').removeClass('disabled');
     return;
   }
 
