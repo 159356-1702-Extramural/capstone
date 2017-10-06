@@ -16,7 +16,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         $(".popup_inner")
           .addClass("popup_inner_right");
       }
-  
+
       //  Now load and update the template
       var html = data;
       if (customData) {
@@ -28,10 +28,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         .html(html);
       $(".popup")
         .show();
-  
+
     });
   }
-  
+
   function hidePopup() {
     action_in_progress = false;
     allowed_actions.can_build = true;
@@ -41,33 +41,33 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     $(".btn-control-maximize").removeClass('btn-hide');
     $(".score").removeClass("score--back");
     $(".game_chat").addClass("game_chat--back");
-  
+
     $('.popup')
       .hide();
   }
-  
+
   /***************************************************
    *  start_up.html
    **************************************************/
   function build_popup_start(section, isLarge) {
     buildPopup(section, isLarge, false);
   }
-  
+
   /***************************************************
    *  start_intro.html
    **************************************************/
-  
+
   /***************************************************
    *  start_menu.html
    **************************************************/
   function build_popup_start_menu() {
     buildPopup("start_menu", false, false);
   }
-  
+
   /***************************************************
    *  start_settings.html
    **************************************************/
-  
+
   /***************************************************
    *  start_players.html
    **************************************************/
@@ -75,7 +75,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     //  Format list of games
     var show_join = (game_list.length > 0 ? "block" : "none");
     var game_list_html = "";
-  
+
     for (var g = 0; g < game_list.length; g++) {
       var name_list = game_list[g].player_names.join(", ");
       game_list_html += "<div class='game_list_row' onclick='join_game(" + game_list[g].game_id + ");'>";
@@ -91,21 +91,21 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       ["list_of_games", game_list_html]
     ]);
   }
-  
+
   /***************************************************
    *  waiting_for_players.html
    **************************************************/
   function build_popup_waiting_for_players(data) {
     buildPopup("waiting_for_players", false, false, data);
   }
-  
+
   /***************************************************
    *  setup_phase_your_turn.html
    **************************************************/
   function build_popup_setup_phase_your_turn(setup_round) {
     buildPopup("setup_phase_your_turn", false, false);
   }
-  
+
   /***************************************************
    *  waiting_for_turn.html
    **************************************************/
@@ -116,7 +116,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     $(".score").addClass("score--back");
     $(".game_chat").removeClass("game_chat--back");
   }
-  
+
   /***************************************************
    *  setup_complete.html
    **************************************************/
@@ -124,7 +124,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   //      Shows resourcees given from setup phase
   //          {setup_cards} - html list of cards
   function build_popup_setup_complete() {
-  
+
     //  First build a list of cards received during the setup round
     var popup_data = [];
     popup_data.push(["brick", current_game.player.cards.resource_cards.brick - current_game.player.round_distribution_cards
@@ -142,7 +142,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     popup_data.push(["grain", current_game.player.cards.resource_cards.grain - current_game.player.round_distribution_cards
       .resource_cards.grain
     ]);
-  
+
     //  Build the html to show the cards in the popup
     var card_html = "";
     var card_count = 0;
@@ -159,18 +159,18 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       card_html += "<br /><div class='player-row' style='width:99%; clear:both;'>+ " + (card_count - 16) +
         " more cards</div>";
     }
-  
+
     if (card_html.length == 0) {
       card_html += 'Nothing for you!';
     }
-  
+
     //  Build the popup
     buildPopup("setup_complete", false, false, [
       ["setup_cards", card_html]
     ]);
-  
+
   }
-  
+
   /***************************************************
    *  round_roll_results.html
    **************************************************/
@@ -180,9 +180,9 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   //          {dice1} - numeric result of 1st dice
   //          {dice2} - numeric result of 2nd dice
   function build_popup_round_roll_results() {
-  
+
     var robber_active = current_game.dice_values[0] + current_game.dice_values[1] === 7;
-  
+
     var title = robber_active ? "Robbed! Resources stolen this round:" : "Resources received this round:";
     $(".dice_row .robber_roll")
       .hide();
@@ -190,7 +190,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       $(".dice_row .robber_roll")
         .show();
     }
-  
+
     //  Show the dice in the score area
     $("#score_dice_1")
       .attr("class", "dice dice" + current_game.dice_values[0]);
@@ -198,10 +198,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       .attr("class", "dice dice" + current_game.dice_values[1]);
     $(".score .dice_row")
       .show();
-  
+
     // User the multipler to convert negative to positive for display
     var multiplier = robber_active ? -1 : 1;
-  
+
     // Create message if a player has used the knight
     var knight = '';
     if (typeof current_game.knight_player_id !== 'undefined' && current_game.knight_player_id !== -1) {
@@ -212,14 +212,14 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
           " has played the knight! Robber has moved.";
       }
     }
-  
+
     var popup_data = [];
     popup_data.push(["brick", current_game.player.round_distribution_cards.resource_cards.brick * multiplier]);
     popup_data.push(["sheep", current_game.player.round_distribution_cards.resource_cards.sheep * multiplier]);
     popup_data.push(["ore", current_game.player.round_distribution_cards.resource_cards.ore * multiplier]);
     popup_data.push(["lumber", current_game.player.round_distribution_cards.resource_cards.lumber * multiplier]);
     popup_data.push(["grain", current_game.player.round_distribution_cards.resource_cards.grain * multiplier]);
-  
+
     //  Build the html to show the cards in the popup
     var card_html = "";
     var card_count = 0;
@@ -236,20 +236,20 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       card_html += "<br /><div class='player-row' style='width:99%; clear:both;'>+ " + (card_count - 16) +
         " more cards</div>";
     }
-  
+
     if (card_html.length == 0) {
       card_html += 'Nothing for you!';
     }
-  
+
     //  Robber
     var robber_display = "none";
     if (robber_active) {
       robber_display = "block";
     }
-  
+
     //  Does this player have a monopoly card?
     var has_monopoly = current_game.player.cards.dev_cards.monopoly > 0 ? "inline-block" : "none";
-  
+
     //  Build the popup
     buildPopup("round_roll_results", false, false, [
       ["dice1", current_game.dice_values[0]],
@@ -261,14 +261,14 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       ["knight", knight]
     ]);
   }
-  
+
   /***************************************************
    *  round_use_monopoly.html
    **************************************************/
   function build_popup_use_monopoly() {
     buildPopup('round_use_monopoly', false, false);
   }
-  
+
   function build_popup_monopoly_win(data) {
     //  Who played the card?
     var monopoly_played_by = -1;
@@ -278,7 +278,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         break;
       }
     }
-  
+
     var popup_data = [];
     for (var j = 0; j < 4; j++) {
       if (j >= current_game.players.length) {
@@ -287,7 +287,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         popup_data.push(["player_" + j + "_display", "none"]);
       } else {
         var stolen_cards = "";
-  
+
         // length - 2 used to get second to last item which is total stolen
         for (var i = 0; i < data.player.actions[0].action_data[j]; i++) {
           stolen_cards += '<div class="failed_card" style="z-index:' + (500) +
@@ -299,20 +299,20 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
             data.player.actions[0].action_data[data.player.actions[0].action_data.length - 1] +
             ", but they didn't have any!";
         }
-  
+
         popup_data.push(["player_" + j + "_display", "block"]);
         popup_data.push(["player_" + j + "_name", current_game.players[j].name]);
         popup_data.push(["stolen_cards_player_" + j, stolen_cards]);
-  
+
       }
     }
-  
+
     //  Build the popup
     buildPopup("round_monopoly_win", false, false, popup_data);
   }
-  
+
   function build_popup_monopoly_lose(data) {
-  
+
     //  Who played the card?
     var monopoly_played_by = "";
     for (var i = 0; i < current_game.players.length; i++) {
@@ -321,7 +321,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         break;
       }
     }
-  
+
     //  Get the list of cards
     var stolen_cards = "";
     for (var i = 0; i < data.player.actions[0].action_data[current_game.player.id]; i++) {
@@ -333,7 +333,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       stolen_cards = "Nothing! " + monopoly_played_by + " tried to steal " + data.player.actions[0].action_data[
         data.player.actions[0].action_data.length - 1] + ", but you didn't have any!";
     }
-  
+
     //  Build the popup
     buildPopup("round_monopoly_lose", false, false, [
       ["player_id", current_player.id],
@@ -341,7 +341,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       ["stolen_cards", stolen_cards]
     ]);
   }
-  
+
   /***************************************************
    *  round_build_no_resources.html
    **************************************************/
@@ -355,7 +355,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       ]);
     }
   }
-  
+
   /***************************************************
    *  round_build.html
    **************************************************/
@@ -369,24 +369,24 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var cards = new Cards();
     var card_list = cards.get_required_cards(object_type);
     var card_html = "";
-  
+
     //  Remove the base cards temporarily
     var my_cards = new Cards();
     my_cards.resource_cards = current_game.player.cards.resource_cards;
     my_cards.remove_boost_cards(card_list);
-  
+
     //  Create the HTML and remove the initial cards
     for (var i = 0; i < card_list.length; i++) {
       card_html += '<div class="build_card" style="z-index:' + (500 + i) + ';"><img style="border-radius:6px" class="trade_' + card_list[
         i] + '" src="images/card_' + card_list[i] + '_small.jpg"></div>';
     }
-  
+
     //  Add in the selectable resources based on what the player has
     var select_html = getResourceCardsHtml();
-  
+
     //  Add the base cards back in
     my_cards.add_cards_from_list(card_list);
-  
+
     buildPopup("round_build", false, false, [
       ["object_dragged_id", object_dragged_id],
       ["object_type", object_type],
@@ -399,14 +399,13 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   //      Build button in the round_build.html template
   function round_build_complete(object_dragged_id, object_type) {
     //  Get html holding the cards
-    var extra_cards = $(".extra_card_list")
-      .html();
-  
+    var extra_cards = $(".extra_card_list").html();
+
     //  Create a reference to the players cards
     var my_cards = new Cards();
     var card_list = my_cards.get_required_cards(object_type);
     my_cards.resource_cards = current_game.player.cards.resource_cards;
-  
+
     //  Remove cards from player
     var resource_list = ['ore', 'brick', 'lumber', 'grain', 'sheep'];
     for (var i = 0; i < resource_list.length; i++) {
@@ -416,26 +415,26 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       if (resource_count > 0) {
         //  Remove that many from the player
         var result = my_cards.remove_multiple_cards(resource_list[i], resource_count);
-  
+
         //  Keep track of the cards
         for (var j = 0; j < resource_count; j++) {
           card_list.push(resource_list[i]);
         }
       }
     }
-  
+
     //  Now take the resources away
     take_resources(object_dragged_id, card_list);
-  
+
     //  Update the turn_action data
     turn_actions[turn_actions.length - 1].boost_cards = card_list;
-  
+
     //  Update our counts
     allowed_actions.can_finish = true;
     allowed_actions.can_build = true;
     update_object_counts();
     updatePanelDisplay();
-  
+
     //  All done!
     hidePopup();
   }
@@ -447,61 +446,61 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var object_node = turn_actions[turn_actions.length - 1].action_data;
     var object_to_return = $("#" + object_type + "_" + current_player.colour + "_pending_" + object_node.id);
     return_object(object_to_return, object_to_return.attr("id"), object_node.id);
-  
+
     //  We need to reset the node on the board it was dropped on
     if (object_type == "city") {
       object_node.building = "settlement";
-  
+
       //  Restore the settlement
       $("#node_" + object_node.id)
         .show();
-  
+
     } else {
       object_node.owner = -1;
     }
     object_node.status = "";
-  
+
     //  We need to restore the cards used to build this object
     return_resources(object_to_return.attr("id"));
-  
+
     allowed_actions.can_finish = true;
     allowed_actions.can_build = true;
     updatePanelDisplay();
     hidePopup();
   }
-  
+
   /***************************************************
    *  round_use_card.html
    **************************************************/
   function build_popup_round_use_card() {
     buildPopup("round_use_card", false, false);
   }
-  
+
   /***************************************************
    *  round_use_year_of_plenty.html
    **************************************************/
   function build_popup_round_use_year_of_plenty() {
     buildPopup("round_use_year_of_plenty", false, false);
   }
-  
+
   /***************************************************
    *  build_popup_use_road_building.html
    **************************************************/
   function build_popup_use_road_building() {
     buildPopup("round_use_road_building", false, false);
   }
-  
+
   /***************************************************
    *  round_use_year_of_plenty.html
    **************************************************/
   function build_popup_victory_point_received(card) {
     var vp_html = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img style="border-radius:28px;" class="vp_' + card +
       ' set_large_image_width" src="images/dev_victory_' + card + '_large.jpg"></div>';
-  
+
     var vp_cards = [
       ['vp_card', vp_html]
     ];
-  
+
     // add cards they already have to bottom of window
     var other_vp_cards = [];
     if (this.current_game.player.cards.victory_point_cards.library == 1 && card !== 'library') {
@@ -511,33 +510,48 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     if (this.current_game.player.cards.victory_point_cards.market == 1 && card !== 'market') {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
         ';"><img class="vp_market" src="images/dev_victory_market.jpg"></div>'
-  
+
     }
     if (this.current_game.player.cards.victory_point_cards.chapel == 1 && card !== 'chapel') {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
         ';"><img class="vp_chapel" src="images/dev_victory_chapel.jpg"></div>'
-  
+
     }
     if (this.current_game.player.cards.victory_point_cards.great_hall == 1 && card !== 'great_hall') {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
         ';"><img class="vp_great_hall" src="images/dev_victory_great_hall.jpg"></div>'
-  
+
     }
     if (this.current_game.player.cards.victory_point_cards.university_of_catan == 1 && card !==
       'university_of_catan') {
       other_vp_cards += '<div class="build_card" style="z-index:' + (500) +
         ';"><img class="vp_university_of_catan" src="images/dev_victory_university_of_catan.jpg"></div>'
-  
+
     }
     vp_cards.push(['other_vp_cards', other_vp_cards]);
     buildPopup("victory_point_received", false, false, vp_cards);
   }
-  
+
   /***************************************************
    *  round_domestic_trade.html
    **************************************************/
   function build_popup_round_domestic_trade() {
-    buildPopup("round_domestic_trade", false, false);
+    //  Add in the selectable resources based on what the player has
+    var select_html = getTradeCardsHtml(current_game.player.cards.resource_cards, false);
+    
+    buildPopup("round_domestic_trade", false, false, [["select_cards", select_html]]);
+  }
+
+  function build_popup_round_accept_trade(player_id) {
+    //  Show the trade this player is offering
+    var give_html = $(".give_cards" + player_id).html();
+    var want_html = $(".want_cards" + player_id).html();
+
+    buildPopup("round_trade_accept", false, false, [["player_id", player_id],["player_name", current_game.players[player_id].name], ["give_cards", give_html], ["want_cards", want_html]]);
+  }
+
+  function build_popup_trade_failed() {
+    buildPopup("round_trade_failed", false, false);
   }
   
   /***************************************************
@@ -546,58 +560,58 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   function build_popup_round_maritime_trade() {
     buildPopup("round_maritime_trade", false, false);
   }
-  
+
   /***************************************************
-   *  round_domestic_trade.html
+   *  round_largest_army.html
    **************************************************/
   function build_popup_largest_army(won) {
     buildPopup("round_largest_army", false, false, [
       ["result", won]
     ]);
   }
-  
+
   /***************************************************
    *  round_waiting_others.html
    **************************************************/
   function build_popup_round_waiting_for_others() {
     buildPopup("round_waiting_others", false, true);
   }
-  
+
   /***************************************************
    *  round_post_results.html
    **************************************************/
   function build_popup_failed_moves() {
     var objects = []
     var fail_count = 0;
-  
+
     var cards = new Cards();
-  
+
     for (var i = 0; i < current_game.player.turn_data.actions.length; i++) {
       if (current_game.player.turn_data.actions[i].action_result > 0) {
         var card_html = "";
-  
+
         //  Get the object type
         var object_type = current_game.player.turn_data.actions[i].action_type.replace("build_", "");
-  
+
         //  Build cards to be returned
         var card_list = [];
         for (var c = 0; c < current_game.player.turn_data.actions[i].boost_cards.length; c++) {
           card_list.push(current_game.player.turn_data.actions[i].boost_cards[c]);
         }
-  
+
         //  Now the html
         for (var c = 0; c < card_list.length; c++) {
           card_html += '<div class="failed_card" style="z-index:' + (500 + c) +
             ';"><img style="border-radius:6px" class="card" src="images/card_' +
             card_list[c] + '_small.jpg"></div>';
         }
-  
+
         var failure = [object_type + "_" + current_game.player.colour + ".png", card_html];
         objects.push(failure);
         fail_count++;
       }
     }
-  
+
     //  Put it all together for the popup call
     var popup_details = [];
     popup_details.push(["failed_count", fail_count]);
@@ -610,15 +624,15 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         popup_details.push(["show_" + i, "none"]);
       }
     }
-  
+
     //  Build it
     buildPopup("round_post_results", false, false, popup_details);
   }
-  
+
   //  This method will return any failed objects to the players piles
   function build_popup_failed_done() {
     var turn_actions = current_game.player.turn_data.actions;
-  
+
     for (var i = 0; i < turn_actions.length; i++) {
       if (turn_actions[i].action_result > 0) {
         //  Return the item to the pile
@@ -631,21 +645,21 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         return_object(object_to_return, object_to_return.attr("id"), object_node.id);
       }
     }
-  
+
     //  Now continue with the round
     build_popup_round_roll_results();
   }
-  
+
   /***************************************************
    *  player_detail.html
    **************************************************/
   function build_popup_player_detail(id) {
     var popup_data = [];
-  
+
     popup_data.push(["player_id", id]);
     popup_data.push(["player_name", current_game.players[id].name]);
     popup_data.push(["player_score", current_game.players[id].points]);
-  
+
     var settlements = 0;
     var cities = 0;
     this.current_game.nodes.forEach(function(node) {
@@ -654,7 +668,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         cities += (node.building === 'settlement') ? 0 : 2;
       }
     }, this);
-  
+
     //  Build settlements in use
     var settlement_html = "";
     for (var i = 0; i < 5; i++) {
@@ -662,7 +676,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         '"><img src="images/settlement_' + current_game.players[id].colour + '_small.png" /></div>';
     }
     popup_data.push(["settlements", settlement_html]);
-  
+
     //  Build cities in use
     var city_html = "";
     for (var i = 0; i < 5; i++) {
@@ -670,11 +684,11 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         '"><img src="images/city_' + current_game.players[id].colour + '_small.png" /></div>';
     }
     popup_data.push(["cities", city_html]);
-  
+
     //  TODO: Build list of Knights
     var knight_html = "";
     //<div class="player_score_token"><img style="border-radius:6px" src="images/dev_knight_small.jpg" width="50" /></div>
-  
+
     //  Victory Points
     var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
     var victory_html = "";
@@ -685,18 +699,18 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       }
     }
     popup_data.push(["cards", knight_html + victory_html]);
-  
+
     buildPopup("player_detail", false, false, popup_data);
   }
-  
+
   /***************************************************
    *  end_results.html
    **************************************************/
   function build_popup_end_results(data) {
-  
+
     var winner_name = data.winners_name;
     var results_html = '';
-  
+
     data.players.forEach(function(player) {
       results_html += '<div class="player_row">' +
         '<div class="player_icon"><img src="images/player' + player.id + '.png" /></div>' +
@@ -718,13 +732,13 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         '</div>' +
         '</div>';
     }, this);
-  
+
     buildPopup("end_results", false, false, [
       ['results_html', results_html],
       ['winner_name', winner_name]
     ]);
   }
-  
+
   /***************************************************
    *  round_show_dev_card.html
    **************************************************/
@@ -746,9 +760,9 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       dev_cards_rules =
         "Click this card to play it.  You are given the resources to build two additional roads in the turn.  They will automatically win any road conflicts with other players so you don't need to boost the success with cards.";
     }
-  
+
     //Use this if we want to only show a players current cards
-  
+
     // if (current_game.player.cards.dev_cards.year_of_plenty > 0) {
     //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
     // }
@@ -761,7 +775,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     // if (current_game.player.cards.dev_cards.road_building > 0) {
     //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
     // }
-  
+
     //use this to show all cards
     other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
@@ -771,7 +785,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
     other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
-  
+
     var dev_cards = [
       ['dev_card', dev_card]
     ];
@@ -779,24 +793,24 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     dev_cards.push(['other_dev_cards', other_dev_cards]);
     buildPopup("round_show_dev_card", false, dev_cards);
   }
-  
+
   /**
    * Displays the knight popup
    */
   function build_popup_play_knight() {
     buildPopup("knight_options", false, false);
   }
-  
+
   /***************************************************
    *  round_restrict_dev_card_use.html
    **************************************************/
   function build_popup_restrict_dev_card_use(card_use, current_cards) {
-  
+
     var dev_cards = [];
     var heading = "";
     var content = "";
     var other_dev_cards = "";
-  
+
     if (card_use === 'purchase') {
       heading = "Only two development cards can be purchased per turn.";
       content = "You can purchase a maximum of <b>2</b> cards in any turn and you've purchased two this turn.";
@@ -804,7 +818,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       heading = "Card cannot be played.";
       content = "You can play a maximum of <b>1</b> card in any turn and you may not play a card immediately after purchase.";
     }
-  
+
     // load cards to display
     var count = current_game.player.cards.dev_cards.year_of_plenty;
     for (var i=0; i<count; i++) {
