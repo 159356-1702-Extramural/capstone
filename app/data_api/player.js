@@ -1,6 +1,5 @@
 var logger = require('winston');
-
-var Cards = require('../../public/data_api/cards.js');
+var {Cards, TradeCards} = require('../../public/data_api/cards.js');
 
 /**
  * Instance of a player
@@ -36,6 +35,12 @@ function Player(socket, data) {
 
   this.actions = [];
   this.cards = new Cards();
+  // required for tracking during and after rounds
+  this.inter_trade = {
+    wants_trade: false,
+    trade_cards: new TradeCards(),
+    wants_cards: new TradeCards()
+  };
   this.round_distribution_cards = new Cards();
 
   this.trading = {
@@ -47,5 +52,11 @@ function Player(socket, data) {
     three: false
   };
 }
+
+Player.prototype.reset_inter_trade = function() {
+  this.inter_trade.wants_trade = false;
+  this.inter_trade.trade_cards = new TradeCards();
+  this.inter_trade.wants_cards = new TradeCards();
+};
 
 module.exports = Player;

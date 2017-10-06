@@ -8,6 +8,7 @@ var Data_package = require('../app/data_api/data_package.js');
 var Player = require('../app/data_api/player.js');
 var Action = require('../public/data_api/action.js');
 var Client_Data_package = require('../public/data_api/data_package.js');
+var {Cards, TradeCards} = require('../public/data_api/cards.js');
 
 var machine;
 
@@ -212,6 +213,7 @@ test('Test buying a Development card sets monopoly user', function (t) {
   machine.buy_dev_card(data_package);
   t.is(machine.game.monopoly, 1);
 });
+
 test('Test buying a Development card failed', function (t) {
   var dev_card_deck_length = machine.game.development_cards.length;
   //force first card to be year_of_plenty
@@ -301,6 +303,140 @@ test('Trade 4:1 with the bank fails', function (t) {
   t.is(machine.game.players[0].cards.resource_cards.grain, 3);
   t.is(machine.game.players[0].round_distribution_cards.resource_cards.sheep, 0);
 });
+
+
+test('Player can initiate trade', function (t) {
+  //setup cards in hand to enable trade
+  machine.game.players[0].cards.add_cards('sheep', 5);
+  machine.game.players[0].cards.add_cards('grain', 3);
+
+  //Build a typical incoming data package
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'init_player_trade';
+  data_package.player_id = 0;
+  var action = new Action();
+
+  action.action_data = {
+    trade_cards: new TradeCards({'sheep':3, 'grain':1}),
+    wants_cards: new TradeCards({'brick':1}),
+  };
+  data_package.actions.push(action);
+
+  machine.state = 'play'
+  machine.tick(data_package);
+
+  t.true(machine.game.players[0].inter_trade.wants_trade);
+  t.is(machine.game.players[0].inter_trade.trade_cards.get('sheep'), 3);
+  t.is(machine.game.players[0].inter_trade.trade_cards.get('grain'), 1);
+  t.is(machine.game.players[0].inter_trade.wants_cards.get('brick'), 1);
+});
+
+test('Player can accept trade', function (t) {
+  //setup cards in hand to enable trade
+  machine.game.players[0].cards.add_cards('sheep', 5);
+  machine.game.players[0].cards.add_cards('grain', 3);
+  machine.game.players[1].cards.add_cards('brick', 2);
+
+  //Build a typical incoming data package
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'init_player_trade';
+  data_package.player_id = 0;
+  var action = new Action();
+
+  action.action_data = {
+    trade_cards: new TradeCards({'sheep':3, 'grain':1}),
+    wants_cards: new TradeCards({'brick':1}),
+  };
+  data_package.actions.push(action);
+
+  machine.state = 'play'
+  machine.tick(data_package);
+  t.true(machine.game.players[0].inter_trade.wants_trade);
+
+  // test accepting trade
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'accept_player_trade';
+  data_package.player_id = 1;
+  var action = new Action();
+  action.action_data = {
+    other_id: machine.game.players[0].id
+  };
+  data_package.actions.push(action);
+  machine.tick(data_package);
+
+  t.is(machine.game.players[0].cards.count_single_card('sheep'), 2);
+  t.is(machine.game.players[1].cards.count_single_card('sheep'), 3);
+  t.is(machine.game.players[1].cards.count_single_card('brick'), 1);
+  t.is(machine.game.players[1].cards.count_single_card('grain'), 1);
+});
+
+test('Player can cancel trade', function (t) {
+  //setup cards in hand to enable trade
+  machine.game.players[0].cards.add_cards('sheep', 5);
+  machine.game.players[0].cards.add_cards('grain', 3);
+
+  //Build a typical incoming data package
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'init_player_trade';
+  data_package.player_id = 0;
+  var action = new Action();
+
+  action.action_data = {
+    trade_cards: new TradeCards({'sheep':3, 'grain':1}),
+    wants_cards: new TradeCards({'brick':1}),
+  };
+  data_package.actions.push(action);
+
+  machine.state = 'play'
+  machine.tick(data_package);
+  t.true(machine.game.players[0].inter_trade.wants_trade);
+
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'cancel_player_trade';
+  data_package.player_id = 0;
+
+  machine.tick(data_package);
+  t.false(machine.game.players[0].inter_trade.wants_trade);
+  t.is(machine.game.players[0].inter_trade.trade_cards.get('sheep'), 0);
+  t.is(machine.game.players[0].inter_trade.trade_cards.get('grain'), 0);
+  t.is(machine.game.players[0].inter_trade.wants_cards.get('brick'), 0);
+});
+
+test('Player accepts trade, fails, and cards are reset to before', function (t) {
+  //setup cards in hand to enable trade
+  machine.game.players[0].cards.add_cards('sheep', 2);
+  machine.game.players[1].cards.add_cards('brick', 2);
+
+  //Build a typical incoming data package
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'init_player_trade';
+  data_package.player_id = 0;
+  var action = new Action();
+  action.action_data = {
+    trade_cards: new TradeCards({'sheep':3}),
+    wants_cards: new TradeCards({'brick':1}),
+  };
+  data_package.actions.push(action);
+
+  machine.state = 'play'
+  machine.tick(data_package);
+  t.true(machine.game.players[0].inter_trade.wants_trade);
+
+  // test accepting trade
+  var data_package = new Client_Data_package();
+  data_package.data_type = 'accept_player_trade';
+  data_package.player_id = 1;
+  var action = new Action();
+  action.action_data = {
+    other_id: machine.game.players[0].id
+  };
+  data_package.actions.push(action);
+  machine.tick(data_package);
+
+  t.is(machine.game.players[0].cards.count_single_card('sheep'), 2);
+  t.is(machine.game.players[1].cards.count_single_card('brick'), 2);
+});
+
 
 test('Game start sequence finishes', function (t) {
   //setupPointer set to setupSequence.length
