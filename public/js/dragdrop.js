@@ -364,6 +364,7 @@ function set_object_on_canvas(event, ui) {
       //  If building a city, we bypass the popup
       if (object_type == "city") {
         take_resources(dragged_object_new_id, ["ore", "ore", "ore", "grain", "grain"]);
+        turn_actions[turn_actions.length - 1].boost_cards = ["ore", "ore", "ore", "grain", "grain"];
       } else if (!current_player.road_building_used || (object_type != "road" && object_type != "city") || (
           current_player.road_building_used && current_player.free_roads == 0)) {
         if (current_game.round_num > 2) {
