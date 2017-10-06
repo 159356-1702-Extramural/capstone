@@ -1897,6 +1897,7 @@ function monopoly_check() {
     monopoly_played = null;
   } else {
     monopoly_not_used();
+    animate_timer("standard");
     hidePopup();
   }
 
@@ -2237,7 +2238,6 @@ function update_time(){
         //monopoly time ending.
         hidePopup();
         monopoly_check();
-        animate_timer("standard");
       }
       remaining_time--;
     }else if(remaining_time === 0){
