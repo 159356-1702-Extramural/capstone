@@ -552,7 +552,10 @@ Game.prototype.rollingDice = function (){
   this.dice_array_pointer++;
   if(this.dice_array_pointer === this.dice_array.length){
     this.dice_array_pointer = 0;
-    this.dice_array = shuffler.shuffle(this.dice_array);
+    if(this.test_mode === 'false'){
+      this.dice_array = shuffler.shuffle(this.dice_array);
+    }
+    
   }
 
   return this.dice_roll[0] + this.dice_roll [1];

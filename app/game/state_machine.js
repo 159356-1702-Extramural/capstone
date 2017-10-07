@@ -385,9 +385,13 @@ StateMachine.prototype.broadcast_gamestate = function () {
       id: idx,
       name: player.name,
       colour: player.colour,
-      points: player.score.total_points,
       turn_complete: false,
-      victory_points: player.cards.victory_point_cards
+      points: player.score.total_points - player.score.victory_points,
+      victory_points: player.score.victory_points,
+      cards_count: player.cards.count_cards(),
+      knight_played: player.cards.dev_cards.knight_played,
+      dev_cards_count: player.cards.count_dev_cards(),
+      vp_cards: [player.score.largest_army, player.score.longest_road]
     };
   });
   game_state.players = players;

@@ -166,8 +166,8 @@ Games.prototype.new_game = function (socket, data, game_size) {
   state_machine.setupSequence = state_machine.game.randomise_startup_array();
   state_machine.dice_array
 
-  if (state_machine.game.test_mode === 'false') {
-    state_machine.game.test_mode = this.set_test_flag();
+  state_machine.game.test_mode = this.set_test_flag();
+  if(state_machine.game.test_mode === 'true'){
     state_machine.game.dice_array = state_machine.game.fixed_dice_rolls();
   }
   this.assign_player(socket, player);
@@ -223,7 +223,11 @@ Games.prototype.parse_env = function (state_machine) {
 /* General purpose functions for Games and StateMachine */
 /********************************************************/
 Games.prototype.set_test_flag = function () {
-  return process.env['testing'];
+  if(process.env['testing'] === 'true'){
+    return 'true';
+  }else{
+    return 'false';
+  }
 };
 module.exports = {
   Games
