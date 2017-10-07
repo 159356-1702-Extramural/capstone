@@ -44,7 +44,10 @@ var superQuickTests = {
       startVersion: 54,
       endVersion: 55
     },
+<<<<<<< 4545eead5f115424fa1d89e3beb8216f0fdd4f5e
     'screenResolution' : '1280x1024'
+=======
+>>>>>>> testsWeek10: half  rewritten
   }
 }
 
@@ -304,7 +307,10 @@ function buildDriver(os, browser, version, test_info) {
  */
 
 async function popups_display_and_close(title, driver, os, browser, version, testNum) {
+<<<<<<< 4545eead5f115424fa1d89e3beb8216f0fdd4f5e
   var passedBool = false;
+=======
+>>>>>>> testsWeek10: half  rewritten
   test(title + ' - ' + os + ' | ' + browser + ' | ' + version + ')', async t => {
     try {
       driver.manage()
@@ -318,6 +324,7 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       await driver.findElement(webdriver.By.id('play')).click();
       await driver.findElement(webdriver.By.id('player-input')).sendKeys(os + "|" + browser + "|" + version);
       await driver.findElement(webdriver.By.id('start-game')).click();
+<<<<<<< 4545eead5f115424fa1d89e3beb8216f0fdd4f5e
 
       if(testNum % 2 === 0){
         await driver.wait(webdriver.until.elementLocated(webdriver.By.id('start-2-players')),20000);
@@ -356,6 +363,24 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       console.log(testNum + " :: " + "... begin-round-btn found ...");
       await driver.findElement(webdriver.By.id('begin-round-btn')).click();
       console.log(testNum + " :: " + "... begin-round-btn clicked ...");
+=======
+      
+      if(testNum % 2 === 0){
+        await driver.findElement(webdriver.By.id('start-2-players')).click();
+        //player 1 sets up game and waits for player 2 to join
+        console.log("waiting...");
+      }else{
+        //wait until game_title visible
+        await driver.wait(until.elementLocated(By.name('game_title')));
+        await driver.findElement(webdriver.By.id('game_list_row')).click();
+        //await driver.findElement(webdriver.By.className('game_list_row')).click();
+      }
+      
+      //second round placement resources
+      await driver.findElement(webdriver.By.id('begin-round'));
+      //firs dice roll resources
+      await driver.findElement(webdriver.By.id('begin-round'));
+>>>>>>> testsWeek10: half  rewritten
 
       //get initial values to test against (they will be different based on resources distributed)
       var startOre = await driver.findElement(webdriver.By.className('orecount'))
