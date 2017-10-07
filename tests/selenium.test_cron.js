@@ -41,13 +41,9 @@ webdriver.promise.USE_PROMISE_MANAGER = false;
 var superQuickTests = {
   'Windows 10': {
     'firefox': {
-      startVersion: 55,
+      startVersion: 54,
       endVersion: 55
     },
-    'MicrosoftEdge': { //testing two versions here
-      startVersion: 14,
-      endVersion: 14
-    }
   }
 }
 
@@ -306,7 +302,7 @@ function buildDriver(os, browser, version, test_info) {
  * Write functions for each test here and call them in the section at the bottom of the page
  */
 
-async function popups_display_and_close(title, driver, os, browser, version) {
+async function popups_display_and_close(title, driver, os, browser, version, testNum) {
   test(title + ' - ' + os + ' | ' + browser + ' | ' + version + ')', async t => {
     var passedBool = true;
     try {
@@ -318,18 +314,25 @@ async function popups_display_and_close(title, driver, os, browser, version) {
       await driver.get(
         'http://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip&fixedDice=true&dev_card=road_building'
       );
-      await driver.findElement(webdriver.By.id('play'))
-        .click();
-      await driver.findElement(webdriver.By.id('txt_player1'))
-        .sendKeys(os + "|" + browser + "|" + version);
-      await driver.findElement(webdriver.By.className('player_button'))
-        .click();
-      //below code twice to pass through two modals
-
-      await driver.findElement(webdriver.By.className('btn-info'))
-        .click();
-      await driver.findElement(webdriver.By.className('btn-info'))
-        .click();
+      await driver.findElement(webdriver.By.id('play')).click();
+      await driver.findElement(webdriver.By.id('player-input')).sendKeys(os + "|" + browser + "|" + version);
+      await driver.findElement(webdriver.By.id('start-game')).click();
+      
+      if(testNum % 2 === 0){
+        await driver.findElement(webdriver.By.id('start-2-players')).click();
+        //player 1 sets up game and waits for player 2 to join
+        console.log("waiting...");
+      }else{
+        //wait until game_title visible
+        await driver.wait(until.elementLocated(By.name('game_title')));
+        await driver.findElement(webdriver.By.id('game_list_row')).click();
+        //await driver.findElement(webdriver.By.className('game_list_row')).click();
+      }
+      
+      //second round placement resources
+      await driver.findElement(webdriver.By.id('begin-round'));
+      //firs dice roll resources
+      await driver.findElement(webdriver.By.id('begin-round'));
 
       //get initial values to test against (they will be different based on resources distributed)
       var startOre = await driver.findElement(webdriver.By.className('orecount'))
@@ -401,7 +404,7 @@ var testCapabilities = superQuickTests;
 
 // add descriptive string here and the test to the if-else statements below
 var testTitles = ['Popups display and close'];
-
+var testsRun = 0;
 // Loop through test names
 for (var j = 0; j < testTitles.length; j++) {
 
@@ -420,8 +423,8 @@ for (var j = 0; j < testTitles.length; j++) {
 
           // initialise driver inside for loop otherwise can be created too early and time out
           var driver = buildDriver(os + "", browser + "", version + "", testTitles[j] + " - ");
-          popups_display_and_close(testTitles[j], driver, os, browser, version);
-
+          popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
+          testsRun++;
         }
       }
     }
