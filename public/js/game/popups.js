@@ -684,22 +684,43 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
         '"><img src="images/city_' + current_game.players[id].colour + '_small.png" /></div>';
     }
     popup_data.push(["cities", city_html]);
-
-    //  TODO: Build list of Knights
-    var knight_html = "";
-    //<div class="player_score_token"><img style="border-radius:6px" src="images/dev_knight_small.jpg" width="50" /></div>
-
-    //  Victory Points
-    var victories = "chapel,great_hall,library,market,university_of_catan".split(',');
-    var victory_html = "";
-    for (var i = 0; i < victories.length; i++) {
-      if (current_game.players[id].victory_points[victories[i]] > 0) {
-        victory_html += '<div class="player_score_token"><img src="images/dev_victory_' + victories[i] +
-          '.jpg" width="75" /></div>';
-      }
+    
+    var left_margin = 0;
+    var cards_html = "";
+    // Hidden Resource Cards
+    cards_html += '<div class="player_detail_cards">';
+    for( var i = 0; i < current_game.players[id].cards_count; i++){
+      left_margin = ((i===0) ? 0 : -40);
+      cards_html += '<img class="player_detail_card_backs" style="margin-left: ' + left_margin + 'px" src="images/card_back.jpg" width="50" />';
     }
-    popup_data.push(["cards", knight_html + victory_html]);
+    cards_html += '</div>';
+    
+    // Hidden Dev Cards and Victory Point Cards
+    cards_html += '<div class="player_detail_cards">';
+    for( var k = 0; k < (current_game.players[id].dev_cards_count + current_game.players[id].victory_points); k++){
+      left_margin = ((k===0) ? 0 : -40);
+      cards_html += '<img  class="player_detail_card_backs" style="margin-left: ' + left_margin + 'px" src="images/card_back_dev.jpg" width="50" />';
+    }
+    cards_html += '</div>';
 
+    // Knights played (face up)
+    cards_html += '<div class="player_detail_cards">';
+    for( var j = 0; j < current_game.players[id].knight_played; j++){
+      left_margin = ((j===0) ? 0 : -40);
+      cards_html += '<img class="player_detail_card_backs" style="margin-left: ' + left_margin + 'px" src="images/dev_knight_small.jpg" onclick="build_popup_show_dev_card(\'knight\');" width="50" />';
+    }
+    cards_html += '</div>';
+
+    // largest army (face up)
+    if (current_game.players[id].vp_cards[0]){
+      cards_html += '<div class="player_detail_vp_cards"><img src="images/largest_army.jpg" width="60" /></div>';
+    }
+    // longest road (face up)
+    if (current_game.players[id].vp_cards[1]){
+      cards_html += '<div class="player_detail_vp_cards"><img src="images/longest_road.jpg" width="60" /></div>';
+    }
+    popup_data.push(["cards", cards_html]);
+  
     buildPopup("player_detail", false, false, popup_data);
   }
 
@@ -746,6 +767,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
 
     var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img style="border-radius:28px;" class="dev_' + card +
       ' set_large_image_width" src="images/dev_' + card + '_large.jpg"></div>';
+
     var dev_cards_rules = "";
     var other_dev_cards = "";
     if (card === "knight") {
@@ -760,30 +782,15 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       dev_cards_rules =
         "Click this card to play it.  You are given the resources to build two additional roads in the turn.  They will automatically win any road conflicts with other players so you don't need to boost the success with cards.";
     }
-
-    //Use this if we want to only show a players current cards
-
-    // if (current_game.player.cards.dev_cards.year_of_plenty > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
-    // }
-    // if (current_game.player.cards.dev_cards.knight > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
-    // }
-    // if (current_game.player.cards.dev_cards.monopoly > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
-    // }
-    // if (current_game.player.cards.dev_cards.road_building > 0) {
-    //     other_dev_cards += '<div class="build_card" style="z-index:' + (500) + ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
-    // }
-
+  
     //use this to show all cards
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_year_of_plenty" src="images/dev_year_of_plenty.jpg"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_knight" src="images/dev_knight.jpg"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
-    other_dev_cards += '<div class="build_card" style="z-index:' + (500) +
+    other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
 
     var dev_cards = [
@@ -791,7 +798,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     ];
     dev_cards.push(['dev_card_rules', dev_cards_rules]);
     dev_cards.push(['other_dev_cards', other_dev_cards]);
-    buildPopup("round_show_dev_card", false, dev_cards);
+    buildPopup("round_show_dev_card", false, false, dev_cards);
   }
 
   /**

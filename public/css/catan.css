@@ -935,9 +935,6 @@ body {
     left:100px;
 }
 
-.score .resources {
-    height:205px !important;
-}
 .score .resources, .score .bonuses {
     clear:both;
     margin: 10px 10px 5px 15px;
@@ -1336,10 +1333,6 @@ body {
 }
 .build_give:hover, .extra_card_list:hover {
     cursor: pointer;
-}
-.main_card{
-    /* centers card on popup */
-    margin-left: 25%;
 }
 .set_large_image_width{
     width: 180px;
@@ -1743,4 +1736,73 @@ body {
 }
 .trade_card_float {
     float:left;
+}
+.player_detail_cards{
+    position: relative;
+    float: left;
+    max-width:30%;
+    height: 78px;
+    overflow: hidden;
+}
+.player_detail_vp_cards{
+    position: relative;
+    float: left;
+    max-width:5%;
+    height: 78px;
+}
+.featured_dev_card{
+    float: left;
+    width: 30%;
+}
+.dev_card_rules{
+    display: inline;
+    width:60%;
+    margin: 20px;
+}
+.inline_cards{
+    display: inline;
+    margin-left: 10px;
+}
+@media screen and (min-height: 770px){
+    .score .resources {
+        height:205px !important;
+    }
+}
+@media screen and (max-height: 769px){
+    .score {
+        position:fixed;
+        float: right;
+        display:inline-block;
+        top:0;
+        right:0px;
+        height:1024px;
+        width:232px;
+        z-index:90000;
+        border: thick inset black;
+        background-color: silver;
+        backface-visibility: hidden;
+        transform-style: preserve3d;
+        transition: transform .4s;
+    }
+    .player img{
+        width: 80%;
+    }
+    .box {
+        display:inline-block;
+        width:45%;
+        height:39px;
+        border:thin solid black;
+        padding:5px 5px 0px 0px;
+        background:white;
+        background-size: contain;
+        background-position: 15px;
+        font-size:26px !important;
+    }
+    .resources{
+        height: 170px !important;
+    }
+    .btn-control-maximize{
+        right: -10px !important;
+        top: -10px !important;
+    }
 }
