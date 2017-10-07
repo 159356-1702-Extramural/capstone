@@ -829,61 +829,14 @@ StateMachine.prototype.init_player_trade = function (data) {
   this.broadcast('game_turn', data_package);
 };
 
-// swaps the cards in the tradecard list between players
-StateMachine.prototype.trade_cards_between = function (this_player, other_player, trade_cards) {
-  var success = false;
-  this_player.round_distribution_cards = new Cards();
-  for (let card of Object.keys(trade_cards)) {
-    if (other_player.cards.count_single_card(card) > 0 && trade_cards.get(card) > 0) {
-      success = (other_player.cards.remove_multiple_cards(card, trade_cards.get(card)));
-      if (!success)
-        break;
-      this_player.cards.add_cards(card, trade_cards.get(card));
-      this_player.round_distribution_cards.add_cards(card, trade_cards.get(card));
-    }
-  }
-  this.log('debug', 'TRADE: cards from ' + other_player.name + ' to ' + this_player.name + ' - success:' +
-    success);
-  return success;
-};
-
-StateMachine.prototype.trade_backup_player_cards = function (player) {
-  var cards = new TradeCards();
-  for (let card of Object.keys(player.cards.resource_cards)) {
-    if (player.cards.count_single_card(card) > 0)
-      cards.set(card, player.cards.count_single_card(card));
-  }
-  return cards;
-}
-
-StateMachine.prototype.trade_restore_player_cards = function (player, backup) {
-  for (let card of Object.keys(backup)) {
-    if (backup.get(card) > 0)
-      player.cards.set(card, backup.get(card));
-  }
-}
-
 // remove cards only when trade is accepted
 StateMachine.prototype.accept_player_trade = function (data) {
   var this_player = this.game.players[data.player_id];
   var other_player = this.game.players[data.actions[0].action_data.other_id];
-  var trade_cards = other_player.inter_trade.trade_cards;
-  var wants_cards = other_player.inter_trade.wants_cards;
-  var this_backup = this.trade_backup_player_cards(this_player);
-  var other_backup = this.trade_backup_player_cards(other_player);
-
-  var success = false;
   // try trading the cards
-  if (other_player.inter_trade.wants_trade) {
-    success = this.trade_cards_between(this_player, other_player, trade_cards);
-    if (success) {
-      success = this.trade_cards_between(other_player, this_player, wants_cards);
-    }
-  }
-  // reset trade either way the status goes
-  other_player.reset_inter_trade();
+  var success = this.game.do_trade_with_other(this_player.id, other_player.id);
+
   if (success) {
-    this.log('info', 'TRADE: between ' + this_player.name + ' and ' + other_player.name + ' successful')
     // send cards back to player
     var this_player_package = new Data_package();
     this_player_package.data_type = "returned_player_trade";
@@ -896,18 +849,15 @@ StateMachine.prototype.accept_player_trade = function (data) {
     this.send_to_player('game_turn', other_player_package);
   }
   else if (!success) {
-    this.trade_restore_player_cards(this_player, this_backup);
-    this_player.round_distribution_cards = new Cards();
-    this.trade_restore_player_cards(other_player, other_backup);
-    other_player.round_distribution_cards = new Cards();
-    this.log('info', 'TRADE: between ' + this_player.name + ' and ' + other_player.name + ' unsuccessful')
-    this.send_invalid_msg(this_player, 'invalid_move',
+    this.invalid_trade(this_player, 'invalid_move',
       'The trade attempt failed, the other player didn\'t have enough cards');
     this.send_invalid_msg(other_player, 'invalid_move',
       'The trade attempt failed, you didn\'t have enough cards');
   }
+  // reset trade either way the status goes
+  other_player.reset_inter_trade();
 
-  this.log('info', 'updating all players with status of trade');
+  this.log('info', 'updating all players with status of inter-player trade');
   var data_package = new Data_package();
   data_package.player_id = other_player.id;
   data_package.data_type = "player_trade";

@@ -212,8 +212,6 @@ Cards.prototype.remove_multiple_cards = function(card, qty) {
     } else if (card == "road_building" && this.dev_cards.road_building >= qty) {
       this.dev_cards.road_building -= qty;
       return true;
-    } else {
-      return false;
     }
   }
   return false;
