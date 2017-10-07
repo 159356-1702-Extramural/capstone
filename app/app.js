@@ -77,10 +77,10 @@ app.get('/prototype', function (req, res) {
 // Handle new socket connection
 io.on('connection', function (socket) {
   logger.log('info', 'A client has connected...');
-  games.lounging.push(socket);
 
   socket.on('display_lobby', function () {
     logger.log('info', 'Lobby requested');
+    games.lounging.push(socket);
     games.send_lobby_data(socket);
   });
 
