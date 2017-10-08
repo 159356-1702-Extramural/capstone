@@ -308,7 +308,7 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
     try {
       driver.manage()
         .window()
-        .setSize(1024, 768);
+        .setSize(1366, 768);
 
       // road building set here to stop victory point cards interfering with the test.
       await driver.get(
@@ -324,15 +324,23 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
         console.log("waiting...");
       }else{
         //wait until game_title visible
-        await driver.wait(until.elementLocated(By.name('game_title')));
-        await driver.findElement(webdriver.By.id('game_list_row')).click();
+        console.log("find game title...");
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.className('game_title')),20000);
+        console.log("... game title found...");
+        await driver.findElement(webdriver.By.className('game_list_row')).click();
+        console.log("... joined game ...");
         //await driver.findElement(webdriver.By.className('game_list_row')).click();
       }
-      
+      console.log("exited if-else ...");
+      await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
+      console.log("... begin-round found ...");
       //second round placement resources
-      await driver.findElement(webdriver.By.id('begin-round'));
+      await driver.findElement(webdriver.By.id('begin-round')).click();
+      console.log("... begin-round clicked ...");
       //firs dice roll resources
-      await driver.findElement(webdriver.By.id('begin-round'));
+
+      await driver.findElement(webdriver.By.id('begin-round')).click();
+      console.log("... begin-round clicked ...");
 
       //get initial values to test against (they will be different based on resources distributed)
       var startOre = await driver.findElement(webdriver.By.className('orecount'))
@@ -341,10 +349,10 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
         .getText();
       var startGrain = await driver.findElement(webdriver.By.className('graincount'))
         .getText();
-
+      
+      console.log("... set variables with initial cards ...");
       // click "Buy Development Card" button
-      await driver.findElement(webdriver.By.className('buybutton'))
-        .click();
+      await driver.findElement(webdriver.By.className('buybutton')).click();
 
       // get returned values
       var finishOre = await driver.findElement(webdriver.By.className('orecount'))
