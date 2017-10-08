@@ -70,7 +70,7 @@ test("Monopoly", function (t) {
 
 test('Activate_road_building', function (t) {
   // Create incoming client package
-  var dev_card_deck_length = machine.game.development_cards.length;
+  var dev_card_deck_length = machine.game.cards.length;
   var action = new Action();
   action.action_type = 'road_building';
   action.action_data = ['lumber', 'brick', 'lumber', 'brick'];
@@ -91,11 +91,11 @@ test('Activate_road_building', function (t) {
   //check dev card removed from player hand
   t.is(machine.game.players[0].cards.dev_cards.road_building, 0);
   //check dev card returned to deck
-  t.is(machine.game.development_cards.length, (dev_card_deck_length + 1));
+  t.is(machine.game.cards.length, (dev_card_deck_length + 1));
 });
 
 test('Activate_year_of_plenty', function (t) {
-  var dev_card_deck_length = machine.game.development_cards.length;
+  var dev_card_deck_length = machine.game.cards.length;
   //setup package as if it has arrived from the client
   var action = new Action();
   action.action_type = 'year_of_plenty';
@@ -123,11 +123,11 @@ test('Activate_year_of_plenty', function (t) {
   //check dev card removed from player hand
   t.is(machine.game.players[0].cards.dev_cards.year_of_plenty, 0);
   //check dev card returned to deck
-  t.is(machine.game.development_cards.length, (dev_card_deck_length + 1));
+  t.is(machine.game.cards.length, (dev_card_deck_length + 1));
 });
 
 test('Activate_year_of_plenty and road_building fails with wrong data_type', function (t) {
-  var dev_card_deck_length = machine.game.development_cards.length;
+  var dev_card_deck_length = machine.game.cards.length;
   //setup package as if it has arrived from the client
   var action = new Action();
   action.action_type = 'monopoly'; //purposefully wrong
@@ -153,7 +153,7 @@ test('Activate_year_of_plenty and road_building fails with wrong data_type', fun
   //check dev card not removed from player hand
   t.is(machine.game.players[0].cards.dev_cards.year_of_plenty, 1);
   //check dev card not returned to deck
-  t.is(machine.game.development_cards.length, dev_card_deck_length);
+  t.is(machine.game.cards.length, dev_card_deck_length);
 
   machine.activate_road_building(data_package);
   //check resources are not given
@@ -162,14 +162,14 @@ test('Activate_year_of_plenty and road_building fails with wrong data_type', fun
   //check dev card not removed from player hand
   t.is(machine.game.players[0].cards.dev_cards.road_building, 1);
   //check dev card not returned to deck
-  t.is(machine.game.development_cards.length, dev_card_deck_length);
+  t.is(machine.game.cards.length, dev_card_deck_length);
 
 });
 
 test('Test buying a Development card success', function (t) {
-  var dev_card_deck_length = machine.game.development_cards.length;
+  var dev_card_deck_length = machine.game.cards.length;
   //force first card to be year_of_plenty
-  machine.game.development_cards[0] = 'year_of_plenty';
+  machine.game.cards[0] = 'year_of_plenty';
 
   //setup Player 0 with enough cards
   machine.game.players[0].cards.add_cards('grain', 1);
@@ -193,11 +193,11 @@ test('Test buying a Development card success', function (t) {
   //check dev card added to the players hand
   t.is(machine.game.players[0].cards.dev_cards.year_of_plenty, 1);
   //check dev card removed from deck
-  t.is(machine.game.development_cards.length, (dev_card_deck_length - 1));
+  t.is(machine.game.cards.length, (dev_card_deck_length - 1));
 });
 
 test('Test buying a Development card sets monopoly user', function (t) {
-  machine.game.development_cards[0] = 'monopoly';
+  machine.game.cards[0] = 'monopoly';
 
   //setup Player 1 with enough cards
   machine.game.players[1].cards.add_cards('grain', 1);
@@ -215,9 +215,9 @@ test('Test buying a Development card sets monopoly user', function (t) {
 });
 
 test('Test buying a Development card failed', function (t) {
-  var dev_card_deck_length = machine.game.development_cards.length;
+  var dev_card_deck_length = machine.game.cards.length;
   //force first card to be year_of_plenty
-  machine.game.development_cards[0] = 'year_of_plenty';
+  machine.game.cards[0] = 'year_of_plenty';
 
   //setup Player 0 with insufficient cards
   machine.game.players[0].cards.add_cards('grain', 1);
@@ -239,7 +239,7 @@ test('Test buying a Development card failed', function (t) {
   //check dev card not added to the players hand
   t.is(machine.game.players[0].cards.dev_cards.year_of_plenty, 0);
   //check dev card still in deck
-  t.is(machine.game.development_cards.length, (dev_card_deck_length));
+  t.is(machine.game.cards.length, (dev_card_deck_length));
 });
 
 test('Trade 4:1 with the bank', function (t) {

@@ -130,6 +130,16 @@ test("Get players with nodes on resource", function (t) {
   t.is(player.length, 2);
 });
 
+// TODO: this can sometimes fail if the random board makes a group
+test("Get tiles owned by player", function (t) {
+  var tiles = _board.get_tiles_with_resource("sheep");
+  _board.nodes[tiles[0].associated_nodes[5]].owner = 0;
+  _board.nodes[tiles[1].associated_nodes[5]].owner = 0;
+  _board.nodes[tiles[2].associated_nodes[5]].owner = 0;
+  var tiles = _board.get_resource_owned_by(0, "sheep");
+  t.is(tiles.length, 3);
+});
+
 test("Player can build here - blank board", function (t) {
   var can = _board.is_node_valid_build(0, 0);
   t.true(can);

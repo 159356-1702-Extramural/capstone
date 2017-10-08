@@ -19,6 +19,9 @@ body {
     display: none;
 }
 
+.hex_highlight {
+}
+
 .log {
     position: fixed;
     right: 0;

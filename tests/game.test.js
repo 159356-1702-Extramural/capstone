@@ -85,6 +85,21 @@ test.todo("Confirm the robber prevents a tile from give up its resources");
 test("Robber moves", function (t) {
   var game = new Game();
 
+  game.players[0] = new Player({}, {
+    id: 0,
+    name: 'Tim',
+  });
+  game.players[0].id = 0;
+
+  game.players[0].cards.add_card("brick");
+  game.players[0].cards.add_card("lumber");
+  game.board.set_item('build_settlement', 0, 0);
+
+  var tiles = game.board.get_tiles_with_resource("lumber");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
+
   var robber_start_x;
   var robber_start_y;
 
@@ -108,7 +123,7 @@ test("Robber moves", function (t) {
     }
   }
 
-  game.moveRobber();
+  game.robPlayers();
 
   // Work out end location of the robber
   for (x = 0; x < tiles.length; x++) {
@@ -150,13 +165,17 @@ test("Player with 6 resources gets 1 card robbed", function (t) {
     name: 'Tim'
   });
   game.players[0].id = 0;
+  game.players[0].cards.add_cards("lumber", 1);
+  game.players[0].cards.add_cards("sheep", 1);
 
-  game.players[0].cards.add_card("brick");
-  game.players[0].cards.add_card("lumber");
-  game.players[0].cards.add_card("grain");
-  game.players[0].cards.add_card("sheep");
-  game.players[0].cards.add_card("ore");
-  game.players[0].cards.add_card("brick");
+  var tiles = game.board.get_tiles_with_resource("lumber");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
+  var tiles = game.board.get_tiles_with_resource("sheep");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
 
   var start_cards = game.players[0].cards.count_cards();
 
@@ -569,10 +588,10 @@ test("Set player number2", function (t) {
 test("Return a development card to the pack", function (t) {
   var game = new Game();
 
-  var dev_card_original_length = game.development_cards.length;
+  var dev_card_original_length = game.cards.length;
   game.return_dev_card("knight");
-  t.is(game.development_cards.length, dev_card_original_length + 1);
-  t.truthy(game.development_cards[game.development_cards.length - 1], "knight");
+  t.is(game.cards.length, dev_card_original_length + 1);
+  t.truthy(game.cards[game.cards.length - 1], "knight");
 
 });
 

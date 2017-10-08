@@ -219,121 +219,130 @@ Game.prototype.robPlayers = function () {
   var num_cards;
   var player_cards;
   var num_to_steal;
-  var resource;
   var shuffler = new Shuffler();
+
+  // find us a victim
+  let rand_idx = -1;
+  do {
+    rand_idx = Math.floor(Math.random() * this.players.length);
+  } while (rand_idx === -1 || this.players[rand_idx].id === this.knight_player_id);
+  let victim = this.players[rand_idx];
+  let victim_cards = [];
+  for (let card of Object.keys(victim.cards.resource_cards)) {
+    if (victim.cards.count_single_card(card) >= 1)
+      victim_cards.push(card);
+  };
+  if (victim_cards.length >= 1) {
+    let resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
+    let tiles = this.board.get_resource_owned_by(victim.id, resource);
+    if (tiles.length >= 1) {
+      let tile = tiles[Math.floor(Math.random() * tiles.length)]
+      // Remove the robber from current location before switching tile
+      this.board.robberLocation.robber = false;
+      this.board.robberLocation = tile;
+      this.board.robberLocation.robber = true;
+    } else {
+      logger.log('info', "Robber targetted a resource the victim didn't own");
+    }
+  }
 
   // Work out what happens to each player
   for (i = 0; i < this.players.length; i++) {
-    player = this.players[i];
+    if (this.players[i].id !== this.knight_player_id) {
+      player = this.players[i];
+      num_cards = player.cards.count_cards();
+      // If we're stealng some cards create an array of cards,
+      // shuffle it then do the robbing
+      if (num_cards > 7) {
+        player_cards = [];
 
-    num_cards = player.cards.count_cards();
-
-    // Work out how many cards to steal
-    if (num_cards > 7) {
-      // if players have > 7 cards steal half their cards,
-      // in players favour if odd number of cards
-      num_to_steal = Math.floor(num_cards / 2);
-    } else if (num_cards > 0) {
-      // if players have <= 7 cards steal one random resource
-      num_to_steal = 1;
-    } else {
-      // No cards for the robber to steal!. Well played Sir.
-      num_to_steal = 0;
-    }
-
-    // The probability of you losing a single card should be the same
-    // as geting picked on in the actual game
-    if (num_to_steal == 1) {
-      if (Math.random() > (1 / (this.players.length - 1))) {
-        num_to_steal = 0;
-      }
-    }
-
-    // If we're stealng some cards create an array of cards,
-    // shuffle it then do the robbing
-    if (num_to_steal > 0) {
-      player_cards = [];
-
-      for (resource in player.cards.resource_cards) {
-        if (player.cards.resource_cards.hasOwnProperty(resource)) {
-          var resource_count = player.cards.resource_cards[resource];
-          for (j = 0; j < resource_count; j++) {
-            player_cards.push(resource);
+        for (resource in player.cards.resource_cards) {
+          if (player.cards.resource_cards.hasOwnProperty(resource)) {
+            var resource_count = player.cards.resource_cards[resource];
+            for (j = 0; j < resource_count; j++) {
+              player_cards.push(resource);
+            }
           }
         }
-      }
 
-      // Randomise the cards then start robbing...
-      player_cards = shuffler.shuffle(player_cards);
+        // Randomise the cards then start robbing...
+        player_cards = shuffler.shuffle(player_cards);
 
-      for (j = 0; j < num_to_steal; j++) {
-        player.cards.remove_card(player_cards[j]);
-        player.round_distribution_cards.resource_cards[player_cards[j]]--;
+        let num_to_steal = Math.floor(num_cards / 2);
+        for (j = 0; j < num_to_steal; j++) {
+          player.cards.remove_card(player_cards[j]);
+          player.round_distribution_cards.resource_cards[player_cards[j]]--;
+        }
       }
     }
   }
-};
-
-/**
- * Moves the robber to a new location
- * @return void
- */
-Game.prototype.moveRobber = function () {
-  var new_robber_tile;
-  // Remove the robber from current location
-  this.board.robberLocation.robber = false;
-  // Find a random resource tile for the robber, make sure the robber
-  // goes to a new location
-  do {
-    new_robber_tile = this.board.resourceTiles[Math.floor(Math.random() * this.board.resourceTiles.length)];
-  } while (new_robber_tile == this.board.robberLocation);
-  new_robber_tile.robber = true;
-
-  // Store reference to the new home of the robber
-  this.board.robberLocation = new_robber_tile;
 };
 
 /**
  * Moves the robber after the knight card has been played
  * @param {Number} player_id : id of the player playing the knight
  */
-Game.prototype.knightMoveRobber = function (player_id) {
+Game.prototype.knightValidLocations = function (player_id) {
   var can_use;
-  var new_robber_tile;
   var possibleLocations = [];
-  var resourceTiles = this.board.resourceTiles;
 
-  // Remove the robber from current location
-  this.board.robberLocation.robber = false;
-
-  // Find possible locations that we could move the robber to
-  for (var i = 0; i < resourceTiles.length; i++) {
-    can_use = true;
-    for (var j = 0; j < resourceTiles[i].associated_nodes.length; j++) {
-
-      // We can't block the player that played the knight
-      var node = this.board.nodes[resourceTiles[i].associated_nodes[j]];
-      if (node.owner === player_id) {
+  //  Iterate through all tiles
+  for (var y = 0; y < this.board.tiles.length; y++) {
+    for (var x = 0; x < this.board.tiles[y].length; x++) {
+      can_use = true;
+      if (this.board.tiles[y][x].type === 'water') {
         can_use = false;
-        break;
+      } else {
+        // Find possible locations that we could move the robber to
+        for (var j = 0; j < this.board.tiles[y][x].associated_nodes.length; j++) {
+          // We can't block the player that played the knight
+          var node = this.board.tiles[y][x].associated_nodes[j];
+          if (node.owner === player_id) {
+            can_use = false;
+            break;
+          }
+        }
+      }
+      // Robber can't stay in the same place so exclude that location
+      // If this is a tile we can rob add to array to pick from
+      if (can_use && !this.board.tiles[y][x].robber) {
+        possibleLocations.push([x,y]);
       }
     }
-    // Robber can't stay in the same place
-    if (resourceTiles[i].robber) {
-      can_use = false;
-    }
-    // If this is a tile we can rob add to array to pick from
-    if (can_use) {
-      possibleLocations.push(resourceTiles[i]);
-    }
   }
+  return possibleLocations;
+};
 
-  // Randomly pick a new home for the robber
-  new_robber_tile = possibleLocations[Math.floor(Math.random() * possibleLocations.length)];
-  new_robber_tile.robber = true;
+Game.prototype.knight_rob_tile = function (player_id, loc) {
+  let tile = this.board.tiles[loc[1]][loc[0]];
+  // find a random player on the tile and nick off with a random card
+  let player_ids = this.board.get_player_ids_on_tile(loc);
 
-  // Store reference to the new home of the robber
-  this.board.robberLocation = new_robber_tile;
+  let rand_idx = -1;
+  do {
+    rand_idx = Math.floor(Math.random() * player_ids.length);
+  } while (rand_idx === -1 || player_ids[rand_idx] === player_id);
+  let victim = this.players[player_ids[rand_idx]];
+
+  let victim_cards = [];
+  for (let card of Object.keys(victim.cards.resource_cards)) {
+    if (victim.cards.count_single_card(card) >= 1)
+      victim_cards.push(card);
+  };
+  let resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
+
+  victim.cards.remove_multiple_cards(resource, 1); // TODO: use result?
+  this.players[player_id].cards.add_cards(resource, 1);
+  logger.log('info', 'player stole '+resource);
+
+  // Update player card details to reflect they have played a knight
+  this.players[player_id].cards.dev_cards.knight_played++;
+  this.players[player_id].cards.dev_cards.knight--;
+  // Remove the robber from current location before switching tile
+  this.board.robberLocation.robber = false;
+  this.board.robberLocation = tile;
+  this.board.robberLocation.robber = true;
+  return true;
 };
 
 Game.prototype.modifyPlayerWithRoadBonus = function () {

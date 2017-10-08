@@ -177,6 +177,9 @@ StateMachine.prototype.tick = function (data) {
       // disable the knight for all other players
       this.knightRequest(data);
       break;
+    case 'move_knight_to':
+      this.move_knight_to(data);
+      break;
       // fall through to catch all dev card uses
     case 'use_knight':
     case 'year_of_plenty_used':
@@ -337,7 +340,6 @@ StateMachine.prototype.finish_round_for_all = function (data) {
   if (diceroll !== 7) {
     this.game.allocateDicerollResources(diceroll);
   } else if (this.game.robber !== 'disabled') {
-    this.game.moveRobber();
     this.game.robPlayers();
   }
 
@@ -1118,12 +1120,26 @@ StateMachine.prototype.knightRequest = function (data) {
 StateMachine.prototype.useKnight = function (data) {
   if (!data) this.log("error", "func 'useKnight()' missing data");
 
-  this.game.knightMoveRobber(data.player_id);
-  // Add the resource played to the players stash on the back end
-  this.game.players[data.player_id].cards.add_cards(data.resource, 1);
-  // Update player card details to reflect they have played a knight
-  this.game.players[data.player_id].cards.dev_cards.knight_played++;
-  this.game.players[data.player_id].cards.dev_cards.knight--;
+  let locations = this.game.knightValidLocations(data.player_id);
+  let data_package = new Data_package();
+  data_package.data_type = 'move_knight_choice';
+  data_package.player = this.game.players[data.player_id];
+  data_package.player.actions = [];
+  let action = new Action();
+  action.action_data = locations;
+  data_package.player.actions.push(action);
+  this.send_to_player('game_turn', data_package);
+};
+
+StateMachine.prototype.move_knight_to = function (data) {
+  // TODO: check placement is allowed
+  // TODO: rob from players on that tile
+  if (!data) this.log("error", "func 'move_knight_to()' missing data");
+  let loc = data.actions[0].action_data;
+  if (!this.game.knight_rob_tile(data.player_id, loc))
+    this.log("error", "func 'move_knight_to()' failed to move knight");
+  //TODO: broadcast update
+  this.broadcast_gamestate();
 };
 
 StateMachine.prototype.start_timer = function () {
