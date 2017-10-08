@@ -1988,19 +1988,21 @@ function update_dev_cards(data) {
     card_list += "<img src='../images/nocards.png' class='no_cards' />";
   }
   //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
-  if (data.player.recent_purchases.indexOf("chapel") !== -1) {
+  // get most recent index
+  let idx = data.player.recent_purchases.length - 1;
+  if (data.player.recent_purchases[idx] === "chapel") {
     build_popup_victory_point_received("chapel");
   }
-  if (data.player.recent_purchases.indexOf("library") !== -1) {
+  if (data.player.recent_purchases[idx] === "library") {
     build_popup_victory_point_received("library");
   }
-  if (data.player.recent_purchases.indexOf("market") !== -1) {
+  if (data.player.recent_purchases[idx] === "market") {
     build_popup_victory_point_received("market");
   }
-  if (data.player.recent_purchases.indexOf("university_of_catan") !== -1) {
+  if (data.player.recent_purchases[idx] === "university_of_catan") {
     build_popup_victory_point_received("university_of_catan");
   }
-  if (data.player.recent_purchases.indexOf("great_hall") !== -1) {
+  if (data.player.recent_purchases[idx] === "great_hall") {
     build_popup_victory_point_received("great_hall");
   }
   $(".cardlist")

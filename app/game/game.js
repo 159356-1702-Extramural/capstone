@@ -29,7 +29,7 @@ function Game() {
   // set these variables via environment varaibles
   this.test_mode = 'false';
   this.robber = 'enabled';
-  this.development_cards = this.generate_dev_card_deck();
+  this.cards = this.generate_dev_card_deck();
   this.dice_array = this.generate_dice_rolls();
   this.dice_array_pointer = 0;
 }
@@ -499,7 +499,7 @@ Game.prototype.haveWinner = function () {
  * @param {String} card : knight, monopoly, road_building, year_of_plenty
  */
 Game.prototype.return_dev_card = function (card) {
-  this.development_cards.push(card);
+  this.cards.push(card);
 }
 
 /**

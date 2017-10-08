@@ -927,31 +927,36 @@ StateMachine.prototype.cancel_player_trade = function (data) {
 
 StateMachine.prototype.buy_dev_card = function (data) {
   if (!data) this.log("error", "func 'buy_dev_card()' missing data");
-  //check if player has available cards
-  if (this.game.players[data.player_id].cards.available_cards('dev_card')) {
-    this.game.players[data.player_id].cards.remove_cards('dev_card');
-    // changed to shift as development_cards[0] needs to be removed
-    var card = this.game.development_cards.shift();
-    this.log('debug', this.game.players[data.player_id].name + ' purchased ' + card);
+  let player = this.game.players[data.player_id];
+  if (this.game.cards.length >= 1) {
+    //check if player has available cards
+    if (player.cards.available_cards('dev_card')) {
+      player.cards.remove_cards('dev_card');
+      // changed to shift as cards[0] needs to be removed
+      var card = this.game.cards.shift();
+      this.log('debug', player.name + ' purchased ' + card);
 
-    if (card === 'monopoly') {
-      this.game.monopoly = data.player_id;
+      if (card === 'monopoly') {
+        this.game.monopoly = data.player_id;
+      }
+
+      player.cards.add_card(card);
+      player.recent_purchases.push(card);
+      player.round_distribution_cards.add_card(card);
+      this.log('debug', 'Round distribution cards =\n' + player.round_distribution_cards);
+
+      var data_package = new Data_package();
+      data_package.data_type = 'buy_dev_card';
+      data_package.player = player;
+
+      this.send_to_player('game_turn', data_package);
+    } else {
+      this.invalid_trade(player, 'invalid_move', "You don't have enough resources for a purchase");
     }
-
-    this.game.players[data.player_id].cards.add_card(card);
-    this.game.players[data.player_id].recent_purchases.push(card);
-    this.game.players[data.player_id].round_distribution_cards.add_card(card);
-    this.log('debug', 'Round distribution cards =\n' + this.game.players[data.player_id].round_distribution_cards);
-
-    var data_package = new Data_package();
-    data_package.data_type = 'buy_dev_card';
-    data_package.player = this.game.players[data.player_id];
-
-    this.send_to_player('game_turn', data_package);
   } else {
-    this.log('debug', this.game.players[data.player_id].name +
+    this.log('debug', player.name +
       ' does not have enough resources to buy a dev card');
-    // TODO send a fail message
+    this.invalid_trade(player, 'invalid_move', 'There are no cards left to purchase');
   }
 };
 
@@ -1101,10 +1106,8 @@ StateMachine.prototype.activate_monopoly = function (data) {
  */
 StateMachine.prototype.knightRequest = function (data) {
   if (!data) this.log("error", "func 'knightRequest()' missing data");
-
-  var status = (data.knight_status === 'activate') ? 'disable' : 'enable';
   this.broadcast('knight_in_use', {
-    knight_status: status
+    knight_status: (data.knight_status === 'activate') ? 'disable' : 'enable'
   });
 };
 
