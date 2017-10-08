@@ -332,7 +332,7 @@ $(document)
 
         // keep track of how many cards are purchased
         current_player.dev_cards.purchased++;
-        current_player.dev_cards.recent_purchase.push(data.player.recent_purchase);
+        current_player.dev_cards.recent_purchases = data.player.recent_purchases;
         current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
@@ -499,8 +499,8 @@ $(document)
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
       var recent_count = 0;
-      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
-        if (current_player.dev_cards.recent_purchase[i] === "road_building")
+      for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
+        if (current_player.dev_cards.recent_purchases[i] === "road_building")
           recent_count += 1;
       }
       //check to be sure no dev cards have been played yet
@@ -545,8 +545,8 @@ $(document)
     // Play the Knight card
     $doc.on('click', '.cardlist .knight.card', function(e) {
       var recent_count = 0;
-      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
-        if (current_player.dev_cards.recent_purchase[i] === "knight")
+      for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
+        if (current_player.dev_cards.recent_purchases[i] === "knight")
           recent_count += 1;
       }
       if (!current_player.dev_cards.played &&
@@ -637,8 +637,8 @@ $(document)
     // Year of Plenty - open Year of Plenty window
     $doc.on('click', '.year_of_plenty', function(e) {
       var recent_count = 0;
-      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
-        if (current_player.dev_cards.recent_purchase[i] === "year_of_plenty")
+      for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
+        if (current_player.dev_cards.recent_purchases[i] === "year_of_plenty")
           recent_count += 1;
       }
       //check to be sure no dev cards have been played yet
@@ -1988,19 +1988,19 @@ function update_dev_cards(data) {
     card_list += "<img src='../images/nocards.png' class='no_cards' />";
   }
   //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
-  if (data.player.recent_purchase === "chapel") {
+  if (data.player.recent_purchases.indexOf("chapel") !== -1) {
     build_popup_victory_point_received("chapel");
   }
-  if (data.player.recent_purchase === "library") {
+  if (data.player.recent_purchases.indexOf("library") !== -1) {
     build_popup_victory_point_received("library");
   }
-  if (data.player.recent_purchase === "market") {
+  if (data.player.recent_purchases.indexOf("market") !== -1) {
     build_popup_victory_point_received("market");
   }
-  if (data.player.recent_purchase === "university_of_catan") {
+  if (data.player.recent_purchases.indexOf("university_of_catan") !== -1) {
     build_popup_victory_point_received("university_of_catan");
   }
-  if (data.player.recent_purchase === "great_hall") {
+  if (data.player.recent_purchases.indexOf("great_hall") !== -1) {
     build_popup_victory_point_received("great_hall");
   }
   $(".cardlist")
@@ -2049,7 +2049,7 @@ function reset_dev_cards_per_round() {
   console.log(current_player);
   current_player.dev_cards.played = false;
   current_player.dev_cards.purchased = 0;
-  current_player.dev_cards.recent_purchase = [];
+  current_player.dev_cards.recent_purchases = [];
 
   $('.cardlist .knight.card')
     .removeClass('disabled');

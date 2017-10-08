@@ -155,7 +155,7 @@ StateMachine.prototype.tick = function (data) {
     case 'still_connected':
       this.game.players[data.player_id].connected = true;
       this.game.players[data.player_id].used_dev_card = false;
-      this.game.players[data.player_id].recent_purchase = "";
+      this.game.players[data.player_id].recent_purchases =[];
       break;
     case 'trade_with_bank':
       this.trade_with_bank(data);
@@ -183,10 +183,10 @@ StateMachine.prototype.tick = function (data) {
     case 'road_building_used':
     case 'monopoly_used':
       if (!this.game.players[data.player_id].used_dev_card) {
-        var recent_purchase = this.game.players[data.player_id].recent_purchase;
+        var recent_purchases = this.game.players[data.player_id].recent_purchases;
         switch (data.data_type) {
         case 'use_knight':
-          if (recent_purchase !== 'knight') {
+          if (recent_purchases.indexOf('knight') === -1) {
             // Players has has chosen a resource to get with the knight
             // update the player, reposition the robber
             this.useKnight(data);
@@ -197,7 +197,7 @@ StateMachine.prototype.tick = function (data) {
           }
           break;
         case 'year_of_plenty_used':
-          if (recent_purchase !== 'year_of_plenty') {
+          if (recent_purchases.indexOf('year_of_plenty') === -1) {
             this.log('debug', 'year of plenty played by ' + player_name);
             this.activate_year_of_plenty(data);
           } else {
@@ -205,7 +205,7 @@ StateMachine.prototype.tick = function (data) {
           }
           break;
         case 'road_building_used':
-          if (recent_purchase !== 'road_building') {
+          if (recent_purchases.indexOf('road_building') === -1) {
             this.log('debug', 'road building played by ' + player_name);
             this.activate_road_building(data);
           } else {
@@ -244,7 +244,7 @@ StateMachine.prototype.tick = function (data) {
       // Handle standard gameplay rounds
       this.game.players[data.player_id].turn_complete = true;
       this.game.players[data.player_id].used_dev_card = false;
-      this.game.players[data.player_id].recent_purchase = "";
+      this.game.players[data.player_id].recent_purchases = [];
       this.game.players[data.player_id].turn_data = data;
       // Determine if all players have indicated their round is complete
       var round_complete = this.game.players.every(function (player) {
@@ -939,7 +939,7 @@ StateMachine.prototype.buy_dev_card = function (data) {
     }
 
     this.game.players[data.player_id].cards.add_card(card);
-    this.game.players[data.player_id].recent_purchase = card;
+    this.game.players[data.player_id].recent_purchases.push(card);
     this.game.players[data.player_id].round_distribution_cards.add_card(card);
     this.log('debug', 'Round distribution cards =\n' + this.game.players[data.player_id].round_distribution_cards);
 
