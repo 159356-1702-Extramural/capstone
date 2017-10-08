@@ -19,9 +19,6 @@ body {
     display: none;
 }
 
-.hex_highlight {
-}
-
 .log {
     position: fixed;
     right: 0;
@@ -626,21 +623,40 @@ body {
 .ore {
     background-image:url(../images/hex_ore.png);
 }
+.ore.hex_highlight {
+    background-image:url(../images/hex_ore_highlight.png);
+}
 .grain {
     background-image:url(../images/hex_grain.png);
+}
+.grain.hex_highlight {
+    background-image:url(../images/hex_grain_highlight.png);
 }
 .sheep {
     background-image:url(../images/hex_sheep.png);
 }
+.sheep.hex_highlight {
+    background-image:url(../images/hex_sheep_highlight.png);
+}
 .lumber {
     background-image:url(../images/hex_lumber.png);
+}
+.lumber.hex_highlight {
+    background-image:url(../images/hex_lumber_highlight.png);
 }
 .brick {
     background-image:url(../images/hex_brick.png);
 }
+.brick.hex_highlight {
+    background-image:url(../images/hex_brick_highlight.png);
+}
 .desert {
     background-image:url(../images/hex_desert.png);
 }
+.desert.hex_highlight {
+    background-image:url(../images/hex_desert_highlight.png);
+}
+
 .robber {
     position:absolute;
     background-image:url(../images/robber.png);

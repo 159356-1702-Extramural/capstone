@@ -180,6 +180,12 @@ $(document)
 
       //  Update drag and drop
       setupDragDrop();
+      // ditch the highlights - if the turn finished without the player
+      // moving the knight the hightlights stick around
+      let tiles = document.getElementsByClassName('hex');
+      for (let i=0; i<tiles.length; i++) {
+        tiles[i].classList.remove('hex_highlight');
+      }
     });
 
     //  During the setup phase, each player waits until their
@@ -367,6 +373,12 @@ $(document)
             var elem = document.getElementById(id);
             elem.classList.add("hex_highlight"); //classList.remove too
         }
+      } else if (data.data_type === 'robbed_player') {
+        console.log("robbed_player", data);
+        // {player_id: of the person robbed, resource: resource gained}
+      } else if (data.data_type === 'robbed_by_player') {
+        console.log("robbed_by_player", data);
+        // {player_id: of the robber, resource: resource lost}
       } else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -577,6 +589,7 @@ $(document)
 
     // Play the Knight card
     $doc.on('click', '.cardlist .knight.card', function(e) {
+      // TODO: add flag so player can click the knightcard again to cancel
       var recent_count = 0;
       for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
         if (current_player.dev_cards.recent_purchases[i] === "knight")
