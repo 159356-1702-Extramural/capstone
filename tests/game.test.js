@@ -7,6 +7,8 @@ var Game = require('../app/game/game.js');
 var StateMachine = require('../app/game/state_machine.js');
 var BoardBuilder = require('../app/game/board_builder.js');
 var Player = require('../app/data_api/player.js');
+var Data_package = require('../public/data_api/data_package.js');
+var Action = require('../public/data_api/action.js');
 
 import {
   Point
@@ -84,21 +86,29 @@ test.todo("Confirm the robber prevents a tile from give up its resources");
 
 test("Robber moves", function (t) {
   var game = new Game();
-
-  game.players[0] = new Player({}, {
-    id: 0,
-    name: 'Tim',
-  });
+  game.players[0] = new Player();
   game.players[0].id = 0;
+  game.players[0].name = 'Tim';
+
+  game.players[1] = new Player();
+  game.players[1].id = 1;
+  game.players[1].name = 'Fin';
 
   game.players[0].cards.add_card("brick");
   game.players[0].cards.add_card("lumber");
-  game.board.set_item('build_settlement', 0, 0);
 
   var tiles = game.board.get_tiles_with_resource("lumber");
   game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
   game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
   game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
+
+  game.players[1].cards.add_card("sheep");
+  game.players[1].cards.add_card("grain");
+
+  var tiles = game.board.get_tiles_with_resource("grain");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 1;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 1;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 1;
 
   var robber_start_x;
   var robber_start_y;
@@ -143,58 +153,66 @@ test("Robber moves", function (t) {
 
 test("Player with 0 resource doesn't get robbed", function (t) {
   var game = new Game();
-
-  game.players[0] = new Player({}, {
-    name: 'Tim'
-  });
+  game.players[0] = new Player();
   game.players[0].id = 0;
+  game.players[0].name = 'Tim';
 
   var start_cards = game.players[0].cards.count_cards();
-
   game.robPlayers();
-
   var end_cards = game.players[0].cards.count_cards();
-
   t.true(start_cards == end_cards);
 });
 
 test("Player with 6 resources gets 1 card robbed", function (t) {
   var game = new Game();
-
-  game.players[0] = new Player({}, {
-    name: 'Tim'
-  });
+  game.players[0] = new Player();
   game.players[0].id = 0;
+  game.players[0].name = 'Tim';
+
   game.players[0].cards.add_cards("lumber", 1);
   game.players[0].cards.add_cards("sheep", 1);
+  game.players[0].cards.add_cards("grain", 1);
+  game.players[0].cards.add_cards("brick", 1);
+  game.players[0].cards.add_cards("ore", 1);
 
-  var tiles = game.board.get_tiles_with_resource("lumber");
+  let tiles = game.board.get_tiles_with_resource("lumber");
   game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
   game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
   game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
-  var tiles = game.board.get_tiles_with_resource("sheep");
+  tiles = game.board.get_tiles_with_resource("sheep");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
+  tiles = game.board.get_tiles_with_resource("grain");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
+  tiles = game.board.get_tiles_with_resource("brick");
+  game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
+  game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
+  game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
+  tiles = game.board.get_tiles_with_resource("ore");
   game.board.nodes[tiles[0].associated_nodes[0]].owner = 0;
   game.board.nodes[tiles[1].associated_nodes[1]].owner = 0;
   game.board.nodes[tiles[2].associated_nodes[3]].owner = 0;
 
   var start_cards = game.players[0].cards.count_cards();
-
+  console.log("Trying to rob player with 6 resources");
   game.robPlayers();
 
   var end_cards = game.players[0].cards.count_cards();
-  var round_cards = game.players[0].round_distribution_cards.count_cards();
+  //var round_cards = game.players[0].round_distribution_cards.count_cards();
 
-  t.true(start_cards == 6 && end_cards == 5);
-  t.true(round_cards === -1);
+  t.true(start_cards == 5 && end_cards == 4);
+  //t.true(round_cards === -1);
 });
 
 test("Player with 9 cards get 4 cards robbed", function (t) {
   var game = new Game();
   var cards = ["brick", "lumber", "grain", "sheep", "ore", "brick", "brick", "lumber", "grain"];
-  game.players[0] = new Player({}, {
-    name: 'Tim'
-  });
+  game.players[0] = new Player();
   game.players[0].id = 0;
+  game.players[0].name = 'Tim';
 
   for (var i = 0; i < cards.length; i++) {
     game.players[0].cards.add_card(cards[i]);
@@ -595,8 +613,7 @@ test("Return a development card to the pack", function (t) {
 
 });
 
-test("Use knight decrements players knights cards", function (t) {
-
+test("Use knight decrements players knights cards and moves to location", function (t) {
   var state_machine = new StateMachine.StateMachine(0);
 
   var mockSocket = {
@@ -607,54 +624,36 @@ test("Use knight decrements players knights cards", function (t) {
   state_machine.game.add_player(new Player(mockSocket, {
     name: 'John'
   }));
+  state_machine.game.players[0].id = 0;
+  state_machine.game.players[0].cards.add_cards("ore", 2);
 
   state_machine.game.players[0].cards.dev_cards.knight++;
 
   // Confirm the the player has one knight card and no ore resource
   t.is(state_machine.game.players[0].cards.dev_cards.knight, 1);
   t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 0);
-  t.is(state_machine.game.players[0].cards.resource_cards.ore, 0);
+  t.is(state_machine.game.players[0].cards.resource_cards.ore, 2);
 
-  // Simulate the request
-  state_machine.useKnight({
-    player_id: 0,
-    resource: 'ore'
-  });
+  let action = new Action();
+  action.action_type = 'move_knight_to';
+  action.action_data = [2,3];
 
-  // Confirm the the player no longer has the knight
-  t.is(state_machine.game.players[0].cards.dev_cards.knight, 0);
-  t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 1);
-  t.is(state_machine.game.players[0].cards.resource_cards.ore, 1);
+  let data_package = new Data_package();
+  data_package.data_type = 'move_knight_to';
+  data_package.player_id = 0;
+  data_package.actions.push(action);
 
-});
-
-test("Knight moves the robber to a new location", function (t) {
-
-  var robber_start_idx;
-  var robber_end_idx;
-
-  var state_machine = new StateMachine.StateMachine(0);
-
-  var mockSocket = {
-    emit: function () {},
-    on: function () {}
-  };
-
-  state_machine.game.add_player(new Player(mockSocket, {
-    name: 'John'
-  }));
-  state_machine.game.add_player(new Player(mockSocket, {
-    name: 'Paul'
-  }));
-
+  let robber_start_idx = -1;
   state_machine.game.board.resourceTiles.forEach(function (tile, i) {
     if (tile.robber) {
       robber_start_idx = i;
     }
   }, this);
 
-  state_machine.game.knightMoveRobber(0);
+  // Simulate the request
+  state_machine.move_knight_to(data_package);
 
+  let robber_end_idx = -1;
   state_machine.game.board.resourceTiles.forEach(function (tile, i) {
     if (tile.robber) {
       robber_end_idx = i;
@@ -662,5 +661,9 @@ test("Knight moves the robber to a new location", function (t) {
   }, this);
 
   t.not(robber_start_idx, robber_end_idx);
+  // Confirm the the player no longer has the knight
+  t.is(state_machine.game.players[0].cards.dev_cards.knight, 0);
+  t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 1);
+  t.is(state_machine.game.players[0].cards.resource_cards.ore, 2);
 
 });

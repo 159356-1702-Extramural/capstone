@@ -16,7 +16,7 @@ var building_dimension = 50;
 // timer variables
 var timer_running = true;
 var monopoly_time = 30; //seconds
-var round_time = 666;  //seconds
+var round_time = 60;  //seconds
 var remaining_time = -1;
 var timer = null;
 var force_complete = false;

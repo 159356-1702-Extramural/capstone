@@ -137,7 +137,15 @@ test("Get tiles owned by player", function (t) {
   _board.nodes[tiles[1].associated_nodes[5]].owner = 0;
   _board.nodes[tiles[2].associated_nodes[5]].owner = 0;
   var tiles = _board.get_resource_owned_by(0, "sheep");
-  t.is(tiles.length, 3);
+  t.true(tiles.length === 3 || tiles.length === 4);
+});
+
+// get_player_ids_on_tile
+test("Get player ID's on tile", function (t) {
+  let tile = _board.tiles[2][3];
+  _board.nodes[tile.associated_nodes[5]].owner = 0;
+  let player_ids = _board.get_player_ids_on_tile(tile);
+  t.true(player_ids.length === 1 || player_ids[0] === 0);
 });
 
 test("Player can build here - blank board", function (t) {

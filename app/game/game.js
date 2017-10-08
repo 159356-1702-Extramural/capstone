@@ -227,6 +227,7 @@ Game.prototype.robPlayers = function () {
     rand_idx = Math.floor(Math.random() * this.players.length);
   } while (rand_idx === -1 || this.players[rand_idx].id === this.knight_player_id);
   let victim = this.players[rand_idx];
+  logger.log('info', "Robber targetted player "+victim.id);
   let victim_cards = [];
   for (let card of Object.keys(victim.cards.resource_cards)) {
     if (victim.cards.count_single_card(card) >= 1)
@@ -234,6 +235,7 @@ Game.prototype.robPlayers = function () {
   };
   if (victim_cards.length >= 1) {
     let resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
+    logger.log('info', "Robber targetted card "+resource);
     let tiles = this.board.get_resource_owned_by(victim.id, resource);
     if (tiles.length >= 1) {
       let tile = tiles[Math.floor(Math.random() * tiles.length)]
@@ -241,10 +243,13 @@ Game.prototype.robPlayers = function () {
       this.board.robberLocation.robber = false;
       this.board.robberLocation = tile;
       this.board.robberLocation.robber = true;
+      victim.cards.remove_card(resource);
     } else {
-      logger.log('info', "Robber targetted a resource the victim didn't own");
+      logger.log('debug', "Robber targetted a resource the victim didn't own");
     }
-  }
+  } else {
+      logger.log('debug', "Robber targetted a player with no cards");
+    }
 
   // Work out what happens to each player
   for (i = 0; i < this.players.length; i++) {
@@ -316,25 +321,34 @@ Game.prototype.knightValidLocations = function (player_id) {
 Game.prototype.knight_rob_tile = function (player_id, loc) {
   let tile = this.board.tiles[loc[1]][loc[0]];
   // find a random player on the tile and nick off with a random card
-  let player_ids = this.board.get_player_ids_on_tile(loc);
+  let player_ids = this.board.get_player_ids_on_tile(tile)
+  let victim_id = -1;
+  let resource = -1;
+  if (player_ids.length >= 1) {
+    let rand_idx = -1;
+    do {
+      rand_idx = Math.floor(Math.random() * player_ids.length);
+    } while (rand_idx === -1 || player_ids[rand_idx] === player_id);
+    let victim = this.players[player_ids[rand_idx]];
+    victim_id = victim.id;
 
-  let rand_idx = -1;
-  do {
-    rand_idx = Math.floor(Math.random() * player_ids.length);
-  } while (rand_idx === -1 || player_ids[rand_idx] === player_id);
-  let victim = this.players[player_ids[rand_idx]];
+    let victim_cards = [];
+    for (let card of Object.keys(victim.cards.resource_cards)) {
+      if (victim.cards.count_single_card(card) >= 1)
+        victim_cards.push(card);
+    };
+    if (victim_cards.length >= 1) {
+      resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
 
-  let victim_cards = [];
-  for (let card of Object.keys(victim.cards.resource_cards)) {
-    if (victim.cards.count_single_card(card) >= 1)
-      victim_cards.push(card);
-  };
-  let resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
-
-  victim.cards.remove_multiple_cards(resource, 1); // TODO: use result?
-  this.players[player_id].cards.add_cards(resource, 1);
-  logger.log('info', 'player stole '+resource);
-
+      victim.cards.remove_multiple_cards(resource, 1); // TODO: use result?
+      this.players[player_id].cards.add_cards(resource, 1);
+      logger.log('info', 'player stole '+resource);
+    } else {
+      logger.log('info', 'victim had no cards to rob from');
+    }
+  } else {
+    logger.log('info', 'player moved knight to a tile with no owners');
+  }
   // Update player card details to reflect they have played a knight
   this.players[player_id].cards.dev_cards.knight_played++;
   this.players[player_id].cards.dev_cards.knight--;
@@ -342,7 +356,9 @@ Game.prototype.knight_rob_tile = function (player_id, loc) {
   this.board.robberLocation.robber = false;
   this.board.robberLocation = tile;
   this.board.robberLocation.robber = true;
-  return true;
+  if (victim_id !== -1 && resource !== -1)
+    return ({robbed:victim_id, resource:resource});
+  return false;
 };
 
 Game.prototype.modifyPlayerWithRoadBonus = function () {

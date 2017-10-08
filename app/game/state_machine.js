@@ -1136,10 +1136,31 @@ StateMachine.prototype.move_knight_to = function (data) {
   // TODO: rob from players on that tile
   if (!data) this.log("error", "func 'move_knight_to()' missing data");
   let loc = data.actions[0].action_data;
-  if (!this.game.knight_rob_tile(data.player_id, loc))
+  let result = this.game.knight_rob_tile(data.player_id, loc);
+  if (!result) {
     this.log("error", "func 'move_knight_to()' failed to move knight");
-  //TODO: broadcast update
-  this.broadcast_gamestate();
+  } else {
+    var data_package = new Data_package();
+    // send to victim
+    data_package.data_type = 'robbed_by_player';
+    data_package.player = this.game.players[result.robbed];
+    data_package.player.actions = [];
+    var action = new Action();
+    action.action_data = ({player_id:data.player_id, resource:result.resource});
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+
+    // send to player
+    data_package.data_type = 'robbed_player';
+    data_package.player = this.game.players[data.player_id];
+    action = new Action();
+    data_package.player.actions = [];
+    action.action_data = ({player_id:result.robbed, resource:result.resource});
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+
+    this.broadcast_gamestate();
+  }
 };
 
 StateMachine.prototype.start_timer = function () {

@@ -9,10 +9,10 @@ var {Cards, TradeCards} = require('../../public/data_api/cards.js');
  */
 function Player(socket, data) {
   this.id = null;
-  this.name = data.name;
-  this.game_id = data.game_id;
-  this.game_name = data.game_name;
-  this.socket = socket;
+  this.name = data ? data.name : null;
+  this.game_id = data ? data.game_id : null;
+  this.game_name = data ? data.game_name : null;
+  this.socket = socket ? socket : null;
   this.winner = false;
   this.connected = true;
 

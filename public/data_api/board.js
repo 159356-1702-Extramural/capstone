@@ -140,15 +140,14 @@ Board.prototype.get_tiles_with_resource = function(resource) {
   return array;
 };
 
-Board.prototype.get_player_ids_on_tile = function(location) {
-  let array = [];
-  let tile = this.tiles[location[1]][location[0]];
-  for (let i=0; i<tile.associated_nodes.length; i++) {
-    let player_id = tile.associated_nodes[i].owner;
-    if (player_id !== -1)
-      array.push();
-  };
-  return array;
+Board.prototype.get_player_ids_on_tile = function(tile) {
+  let player_ids = [];
+  for (let n of tile.associated_nodes) {
+    if (this.nodes[n].owner !== -1) {
+        player_ids.push(this.nodes[n].owner);
+      }
+  }
+  return player_ids;
 };
 
 /**
