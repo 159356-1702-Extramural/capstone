@@ -146,7 +146,8 @@ StateMachine.prototype.tick = function (data) {
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
-    var player_name = this.game.players[data.player_id].name;
+    let player_name = this.game.players[data.player_id].name;
+    let turn_complete = this.game.players[data.player_id].turn_complete;
     this.log('debug', 'ticked play state : initiated by ' + player_name);
     this.log('info', "Requested action is " + data.data_type);
     //  Validate each player action
@@ -158,34 +159,40 @@ StateMachine.prototype.tick = function (data) {
       this.game.players[data.player_id].recent_purchases =[];
       break;
     case 'trade_with_bank':
-      this.trade_with_bank(data);
+      if (!turn_complete)
+        this.trade_with_bank(data);
       break;
     case 'init_player_trade':
-      this.init_player_trade(data);
+      if (!turn_complete)
+        this.init_player_trade(data);
       break;
     case 'accept_player_trade':
       this.accept_player_trade(data);
       break;
     case 'cancel_player_trade':
-      this.cancel_player_trade(data);
+      if (!turn_complete)
+        this.cancel_player_trade(data);
       break;
     case 'buy_dev_card':
-      this.buy_dev_card(data);
+      if (!turn_complete)
+        this.buy_dev_card(data);
       break;
     case 'request_knight':
       // Player has indicated they're going to use knight
       // disable the knight for all other players
-      this.knightRequest(data);
+      if (!turn_complete)
+        this.knightRequest(data);
       break;
     case 'move_knight_to':
-      this.move_knight_to(data);
+      if (!turn_complete)
+        this.move_knight_to(data);
       break;
       // fall through to catch all dev card uses
     case 'use_knight':
     case 'year_of_plenty_used':
     case 'road_building_used':
     case 'monopoly_used':
-      if (!this.game.players[data.player_id].used_dev_card) {
+      if (!this.game.players[data.player_id].used_dev_card && !turn_complete) {
         var recent_purchases = this.game.players[data.player_id].recent_purchases;
         switch (data.data_type) {
         case 'use_knight':
@@ -228,7 +235,7 @@ StateMachine.prototype.tick = function (data) {
       break;
     case 'monopoly_not_used':
       //ignore this if monopoly not in play
-      if (this.game.monopoly === data.player_id) {
+      if (this.game.monopoly === data.player_id && !turn_complete) {
         var data_package = new Data_package();
         data_package.data_type = "round_turn";
         // player with monopoly chose not to play it... tell all players to have their turn
@@ -245,10 +252,12 @@ StateMachine.prototype.tick = function (data) {
       // this section is activated when each player finishes their turn
     case 'turn_complete':
       // Handle standard gameplay rounds
-      this.game.players[data.player_id].turn_complete = true;
-      this.game.players[data.player_id].used_dev_card = false;
-      this.game.players[data.player_id].recent_purchases = [];
-      this.game.players[data.player_id].turn_data = data;
+      if (!turn_complete) {
+        this.game.players[data.player_id].turn_complete = true;
+        this.game.players[data.player_id].used_dev_card = false;
+        this.game.players[data.player_id].recent_purchases = [];
+        this.game.players[data.player_id].turn_data = data;
+      }
       // Determine if all players have indicated their round is complete
       var round_complete = this.game.players.every(function (player) {
         return player.turn_complete === true;
