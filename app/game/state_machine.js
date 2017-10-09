@@ -39,7 +39,7 @@ function StateMachine(id, game_size) {
   this.setupPointer = 0;
   this.chat = null;
   this.timer = null;
-  this.timer_length = 100; // seconds
+  this.timer_length = 666; // seconds
 
 }
 
@@ -146,7 +146,8 @@ StateMachine.prototype.tick = function (data) {
    * If in Play state - gameplay logic opperates on this.game
    ************************************************************/
   else if (this.state === "play" && data) {
-    var player_name = this.game.players[data.player_id].name;
+    let player_name = this.game.players[data.player_id].name;
+    let turn_complete = this.game.players[data.player_id].turn_complete;
     this.log('debug', 'ticked play state : initiated by ' + player_name);
     this.log('info', "Requested action is " + data.data_type);
     //  Validate each player action
@@ -155,39 +156,52 @@ StateMachine.prototype.tick = function (data) {
     case 'still_connected':
       this.game.players[data.player_id].connected = true;
       this.game.players[data.player_id].used_dev_card = false;
-      this.game.players[data.player_id].recent_purchase = "";
+      this.game.players[data.player_id].recent_purchases =[];
       break;
     case 'trade_with_bank':
-      this.trade_with_bank(data);
+      if (!turn_complete)
+        this.trade_with_bank(data);
       break;
     case 'init_player_trade':
-      this.init_player_trade(data);
+      if (!turn_complete)
+        this.init_player_trade(data);
       break;
     case 'accept_player_trade':
       this.accept_player_trade(data);
       break;
     case 'cancel_player_trade':
-      this.cancel_player_trade(data);
+      if (!turn_complete)
+        this.cancel_player_trade(data);
       break;
     case 'buy_dev_card':
-      this.buy_dev_card(data);
+      if (!turn_complete)
+        this.buy_dev_card(data);
       break;
     case 'request_knight':
       // Player has indicated they're going to use knight
       // disable the knight for all other players
-      this.knightRequest(data);
+      if (!turn_complete)
+        this.knightRequest(data);
+      break;
+    case 'move_knight_to':
+      if (!turn_complete)
+        this.move_knight_to(data);
       break;
       // fall through to catch all dev card uses
     case 'use_knight':
     case 'year_of_plenty_used':
     case 'road_building_used':
     case 'monopoly_used':
-      if (!this.game.players[data.player_id].used_dev_card) {
-        var recent_purchase = this.game.players[data.player_id].recent_purchase;
+      if (!this.game.players[data.player_id].used_dev_card && !turn_complete) {
+        var recent_purchases = this.game.players[data.player_id].recent_purchases;
         switch (data.data_type) {
         case 'use_knight':
-          if (recent_purchase !== 'knight') {
-            // Players has has chosen a resource to get with the knight
+          //  First we need to see if there is 1 or more recent knights purchased
+          var recent_knights = (recent_purchases.indexOf('knight') === -1 ? 0 : 1);
+          recent_knights += (recent_purchases.indexOf('knight', 1) === -1 ? 0 : 1)
+
+          //  Now see if any previously purchased knights are available
+          if (this.game.players[data.player_id].cards.dev_cards.knight - this.game.players[data.player_id].cards.dev_cards.knight_played - recent_knights > 0) {
             // update the player, reposition the robber
             this.useKnight(data);
             // Add flag so we can notify other players knight has been played
@@ -197,7 +211,7 @@ StateMachine.prototype.tick = function (data) {
           }
           break;
         case 'year_of_plenty_used':
-          if (recent_purchase !== 'year_of_plenty') {
+          if (recent_purchases.indexOf('year_of_plenty') === -1) {
             this.log('debug', 'year of plenty played by ' + player_name);
             this.activate_year_of_plenty(data);
           } else {
@@ -205,7 +219,7 @@ StateMachine.prototype.tick = function (data) {
           }
           break;
         case 'road_building_used':
-          if (recent_purchase !== 'road_building') {
+          if (recent_purchases.indexOf('road_building') === -1) {
             this.log('debug', 'road building played by ' + player_name);
             this.activate_road_building(data);
           } else {
@@ -225,7 +239,7 @@ StateMachine.prototype.tick = function (data) {
       break;
     case 'monopoly_not_used':
       //ignore this if monopoly not in play
-      if (this.game.monopoly === data.player_id) {
+      if (this.game.monopoly === data.player_id && !turn_complete) {
         var data_package = new Data_package();
         data_package.data_type = "round_turn";
         // player with monopoly chose not to play it... tell all players to have their turn
@@ -242,10 +256,12 @@ StateMachine.prototype.tick = function (data) {
       // this section is activated when each player finishes their turn
     case 'turn_complete':
       // Handle standard gameplay rounds
-      this.game.players[data.player_id].turn_complete = true;
-      this.game.players[data.player_id].used_dev_card = false;
-      this.game.players[data.player_id].recent_purchase = "";
-      this.game.players[data.player_id].turn_data = data;
+      if (!turn_complete) {
+        this.game.players[data.player_id].turn_complete = true;
+        this.game.players[data.player_id].used_dev_card = false;
+        this.game.players[data.player_id].recent_purchases = [];
+        this.game.players[data.player_id].turn_data = data;
+      }
       // Determine if all players have indicated their round is complete
       var round_complete = this.game.players.every(function (player) {
         return player.turn_complete === true;
@@ -308,7 +324,7 @@ StateMachine.prototype.finish_round_for_all = function (data) {
   // House rule 7 only comes up once someone has created their first non-startup building
   var player_has_built = false;
   for (var i = 0; i < this.game.players.length; i++) {
-    if (this.game.players[i].score.total_points > 2) {
+    if (this.game.players[i].score.settlements > 2) {
       player_has_built = true;
       break;
     }
@@ -337,7 +353,6 @@ StateMachine.prototype.finish_round_for_all = function (data) {
   if (diceroll !== 7) {
     this.game.allocateDicerollResources(diceroll);
   } else if (this.game.robber !== 'disabled') {
-    this.game.moveRobber();
     this.game.robPlayers();
   }
 
@@ -778,7 +793,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
   }
 };
 
-StateMachine.prototype.invalid_trade = function (player, data_type, msg) {
+StateMachine.prototype.send_invalid_msg = function (player, data_type, msg) {
   var data_package = new Data_package();
   data_package.player = player;
   data_package.data_type = data_type;
@@ -796,7 +811,7 @@ StateMachine.prototype.init_player_trade = function (data) {
   var player = this.game.players[data.player_id];
 
   if (player.inter_trade.wants_trade) {
-    this.invalid_trade(player, 'invalid_move', 'You already have a trade open');
+    this.send_invalid_msg(player, 'invalid_move', 'You already have a trade open');
   }
 
   var trade_cards = new TradeCards(data.actions[0].action_data.trade_cards); // is a "TradeCards" object
@@ -805,7 +820,7 @@ StateMachine.prototype.init_player_trade = function (data) {
   for (let card of Object.keys(trade_cards)) {
     if (player.cards.count_single_card(card) < trade_cards.get(card)) {
       this.log('info', 'player ' + player.name + ' attempted to trade without enough cards');
-      this.invalid_trade(player, 'invalid_move',
+      this.send_invalid_msg(player, 'invalid_move',
         'Your trade attempt failed, you didn\'t have enough cards');
     }
   };
@@ -896,9 +911,9 @@ StateMachine.prototype.accept_player_trade = function (data) {
     this.trade_restore_player_cards(other_player, other_backup);
     other_player.round_distribution_cards = new Cards();
     this.log('info', 'TRADE: between ' + this_player.name + ' and ' + other_player.name + ' unsuccessful')
-    this.invalid_trade(this_player, 'invalid_move',
+    this.send_invalid_msg(this_player, 'invalid_move',
       'The trade attempt failed, the other player didn\'t have enough cards');
-    this.invalid_trade(other_player, 'invalid_move',
+    this.send_invalid_msg(other_player, 'invalid_move',
       'The trade attempt failed, you didn\'t have enough cards');
   }
 
@@ -927,31 +942,36 @@ StateMachine.prototype.cancel_player_trade = function (data) {
 
 StateMachine.prototype.buy_dev_card = function (data) {
   if (!data) this.log("error", "func 'buy_dev_card()' missing data");
-  //check if player has available cards
-  if (this.game.players[data.player_id].cards.available_cards('dev_card')) {
-    this.game.players[data.player_id].cards.remove_cards('dev_card');
-    // changed to shift as development_cards[0] needs to be removed
-    var card = this.game.development_cards.shift();
-    this.log('debug', this.game.players[data.player_id].name + ' purchased ' + card);
+  let player = this.game.players[data.player_id];
+  if (this.game.cards.length >= 1) {
+    //check if player has available cards
+    if (player.cards.available_cards('dev_card')) {
+      player.cards.remove_cards('dev_card');
+      // changed to shift as cards[0] needs to be removed
+      var card = this.game.cards.shift();
+      this.log('debug', player.name + ' purchased ' + card);
 
-    if (card === 'monopoly') {
-      this.game.monopoly = data.player_id;
+      if (card === 'monopoly') {
+        this.game.monopoly = data.player_id;
+      }
+
+      player.cards.add_card(card);
+      player.recent_purchases.push(card);
+      player.round_distribution_cards.add_card(card);
+      this.log('debug', 'Round distribution cards =\n' + player.round_distribution_cards);
+
+      var data_package = new Data_package();
+      data_package.data_type = 'buy_dev_card';
+      data_package.player = player;
+
+      this.send_to_player('game_turn', data_package);
+    } else {
+      this.send_invalid_msg(player, 'invalid_move', "You don't have enough resources for a purchase");
     }
-
-    this.game.players[data.player_id].cards.add_card(card);
-    this.game.players[data.player_id].recent_purchase = card;
-    this.game.players[data.player_id].round_distribution_cards.add_card(card);
-    this.log('debug', 'Round distribution cards =\n' + this.game.players[data.player_id].round_distribution_cards);
-
-    var data_package = new Data_package();
-    data_package.data_type = 'buy_dev_card';
-    data_package.player = this.game.players[data.player_id];
-
-    this.send_to_player('game_turn', data_package);
   } else {
-    this.log('debug', this.game.players[data.player_id].name +
+    this.log('debug', player.name +
       ' does not have enough resources to buy a dev card');
-    // TODO send a fail message
+    this.send_invalid_msg(player, 'invalid_move', 'There are no cards left to purchase');
   }
 };
 
@@ -1101,10 +1121,8 @@ StateMachine.prototype.activate_monopoly = function (data) {
  */
 StateMachine.prototype.knightRequest = function (data) {
   if (!data) this.log("error", "func 'knightRequest()' missing data");
-
-  var status = (data.knight_status === 'activate') ? 'disable' : 'enable';
   this.broadcast('knight_in_use', {
-    knight_status: status
+    knight_status: (data.knight_status === 'activate') ? 'disable' : 'enable'
   });
 };
 
@@ -1115,12 +1133,49 @@ StateMachine.prototype.knightRequest = function (data) {
 StateMachine.prototype.useKnight = function (data) {
   if (!data) this.log("error", "func 'useKnight()' missing data");
 
-  this.game.knightMoveRobber(data.player_id);
-  // Add the resource played to the players stash on the back end
-  this.game.players[data.player_id].cards.add_cards(data.resource, 1);
-  // Update player card details to reflect they have played a knight
-  this.game.players[data.player_id].cards.dev_cards.knight_played++;
-  this.game.players[data.player_id].cards.dev_cards.knight--;
+  let locations = this.game.knightValidLocations(data.player_id);
+  let data_package = new Data_package();
+  data_package.data_type = 'move_knight_choice';
+  data_package.player = this.game.players[data.player_id];
+  data_package.player.actions = [];
+  let action = new Action();
+  action.action_data = locations;
+  data_package.player.actions.push(action);
+  this.send_to_player('game_turn', data_package);
+};
+
+StateMachine.prototype.move_knight_to = function (data) {
+  // TODO: check placement is allowed
+  // TODO: rob from players on that tile
+  if (!data) this.log("error", "func 'move_knight_to()' missing data");
+  let loc = data.actions[0].action_data;
+  let result = this.game.knight_rob_tile(data.player_id, loc);
+  if (!result) {
+    this.log("debug", "func 'move_knight_to()' failed to move knight");
+    this.send_invalid_msg(this.game.players[data.player_id],
+                        'invalid_move',
+                        'The player you tried to rob had no cards');
+  } else {
+    var data_package = new Data_package();
+    // send to victim
+    data_package.data_type = 'robbed_by_player';
+    data_package.player = this.game.players[result.robbed];
+    data_package.player.actions = [];
+    var action = new Action();
+    action.action_data = ({player_id:data.player_id, resource:result.resource});
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+
+    // send to player
+    data_package.data_type = 'robbed_player';
+    data_package.player = this.game.players[data.player_id];
+    action = new Action();
+    data_package.player.actions = [];
+    action.action_data = ({player_id:result.robbed, resource:result.resource});
+    data_package.player.actions.push(action);
+    this.send_to_player('game_turn', data_package);
+  }
+  this.broadcast_gamestate();
 };
 
 StateMachine.prototype.start_timer = function () {

@@ -11,7 +11,7 @@ function currentPlayer(name, id, colour) {
   this.dev_cards = {
     played: false,
     purchased: 0,
-    recent_purchase: []
+    recent_purchases: []
   };
   this.trading = {
     sheep: false,

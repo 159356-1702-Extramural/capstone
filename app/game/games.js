@@ -212,9 +212,9 @@ Games.prototype.parse_env = function (state_machine) {
   }
 
   if (process.env['dev_card'] !== 'disabled') {
-    state_machine.game.development_cards = [];
+    state_machine.game.cards = [];
     for (var i = 0; i < 30; i++) {
-      state_machine.game.development_cards.push(process.env['dev_card']);
+      state_machine.game.cards.push(process.env['dev_card']);
     }
   }
 };

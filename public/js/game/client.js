@@ -15,8 +15,8 @@ var building_dimension = 50;
 
 // timer variables
 var timer_running = true;
-var monopoly_time = 20; //seconds
-var round_time = 60;  //seconds
+var monopoly_time = 30; //seconds
+var round_time = 666;  //seconds
 var remaining_time = -1;
 var timer = null;
 var force_complete = false;
@@ -34,7 +34,6 @@ $(document)
       $(".btn-control-maximize").toggleClass('btn-plus');
       $(".score").toggleClass("score--back");
       $(".game_chat").toggleClass("game_chat--back");
-      //$(".score").slideToggle();
     });
 
     //    Show the initial menu
@@ -132,11 +131,11 @@ $(document)
         board_klass[i].style.width = ((board.tiles[0].length-1) * 148)+"px";
       }
 
-      for (var i = 0; i < board.tiles.length; i++) {
-        var row = board.tiles[i];
+      for (var y = 0; y < board.tiles.length; y++) {
+        var row = board.tiles[y];
         _html += '<div class = "board_row">';
-        for (var j = 0; j < row.length; j++) {
-          _html += buildTile(row[j], i, j, row.length);
+        for (var x = 0; x < row.length; x++) {
+          _html += buildTile(row[x], y, x, row.length);
         }
         _html += '</div>';
       }
@@ -181,6 +180,11 @@ $(document)
 
       //  Update drag and drop
       setupDragDrop();
+
+      // ditch the greyed out tiles
+      $(".hex").each(function() {
+        $(this).removeClass('hex_dim');
+      });
     });
 
     //  During the setup phase, each player waits until their
@@ -332,7 +336,7 @@ $(document)
 
         // keep track of how many cards are purchased
         current_player.dev_cards.purchased++;
-        current_player.dev_cards.recent_purchase.push(data.player.recent_purchase);
+        current_player.dev_cards.recent_purchases = data.player.recent_purchases;
         current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
@@ -356,6 +360,34 @@ $(document)
         // Server has called end turn because client didn't respond
         force_complete = true;
         finish_turn();
+      } else if (data.data_type === 'move_knight_choice') {
+        // Allowed to use knight after requesting and got a list of
+        // locations that are valid moves
+        console.log("move_knight_choice", data);
+        // an array of [[x,y],..]
+        let allowed = data.player.actions[0].action_data;
+        for (var i = 0; i < allowed.length; i++) {
+            let id = "x"+allowed[i][0]+"y"+allowed[i][1];
+            console.log("Attempting to grey out ", id);
+            var elem = document.getElementById(id);
+            elem.classList.add("hex_dim"); //classList.remove too
+        }
+      } else if (data.data_type === 'robbed_player') {
+        // {player_id: of the person robbed, resource: resource gained}
+        console.log("robbed_player", data);
+        let player_id = data.player.actions[0].action_data.player_id;
+        let player_name = current_game.players[player_id].name;
+        let res = data.player.actions[0].action_data.resource;
+        let msg = "You robbed "+player_name+" for 1x "+res;
+        alert(msg);
+      } else if (data.data_type === 'robbed_by_player') {
+        // {player_id: of the robber, resource: resource lost}
+        console.log("robbed_by_player", data);
+        let player_id = data.player.actions[0].action_data.player_id;
+        let player_name = current_game.players[player_id].name;
+        let res = data.player.actions[0].action_data.resource;
+        let msg = "You were robbed by "+player_name+" for 1x "+res;
+        alert(msg);
       } else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -365,6 +397,28 @@ $(document)
       finish_turn();
     });
 
+    // Send the selected tile location to the server for knight placement
+    $doc.on('click', '.hex_dim ', function(e) {
+      e.preventDefault();
+      let location = $(this).attr('id');
+      location = location.match(/(\d+)/g);
+      console.log("Selected", location);
+      
+      var action = new Action();
+      action.action_type = 'move_knight_to';
+      action.action_data = location;
+
+      var data_package = new Data_package();
+      data_package.data_type = 'move_knight_to';
+      data_package.player_id = current_game.player.id;
+      data_package.actions.push(action);
+      update_server('game_update', data_package);
+
+      let tiles = document.getElementsByClassName('hex');
+      for (let i=0; i<tiles.length; i++) {
+        tiles[i].classList.remove('hex_dim');
+      }
+    });
 
     /**
      * Chat Events --
@@ -499,8 +553,8 @@ $(document)
     //Road Building - open Road Building window
     $doc.on('click', '.road_building', function(e) {
       var recent_count = 0;
-      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
-        if (current_player.dev_cards.recent_purchase[i] === "road_building")
+      for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
+        if (current_player.dev_cards.recent_purchases[i] === "road_building")
           recent_count += 1;
       }
       //check to be sure no dev cards have been played yet
@@ -544,9 +598,10 @@ $(document)
 
     // Play the Knight card
     $doc.on('click', '.cardlist .knight.card', function(e) {
+      // TODO: add flag so player can click the knightcard again to cancel
       var recent_count = 0;
-      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
-        if (current_player.dev_cards.recent_purchase[i] === "knight")
+      for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
+        if (current_player.dev_cards.recent_purchases[i] === "knight")
           recent_count += 1;
       }
       if (!current_player.dev_cards.played &&
@@ -574,22 +629,14 @@ $(document)
       }
     });
     // Select the resource you want the knight to take
-    $doc.on('mousedown', '.play_knight', function(e) {
+    $doc.on('click', '.play_knight', function(e) {
       e.preventDefault();
-
-      var resource = $(this)
-        .attr('data-resource');
 
       var data_package = new Data_package();
       data_package.data_type = 'use_knight';
       data_package.player_id = current_game.player.id;
-      data_package.resource = resource;
-
       update_server('game_update', data_package);
-
-      current_game.player.cards.resource_cards[resource]++;
       updatePanelDisplay();
-
       current_game.player.cards.dev_cards.knight--;
 
       // If we've used our last knight remove the card from the players stack
@@ -599,7 +646,6 @@ $(document)
       }
       //Development card played for the turn
       dev_card_played();
-
       hidePopup();
     });
     // Cancel playing the knight card
@@ -637,8 +683,8 @@ $(document)
     // Year of Plenty - open Year of Plenty window
     $doc.on('click', '.year_of_plenty', function(e) {
       var recent_count = 0;
-      for (var i=0; i<current_player.dev_cards.recent_purchase.length; i++) {
-        if (current_player.dev_cards.recent_purchase[i] === "year_of_plenty")
+      for (var i=0; i<current_player.dev_cards.recent_purchases.length; i++) {
+        if (current_player.dev_cards.recent_purchases[i] === "year_of_plenty")
           recent_count += 1;
       }
       //check to be sure no dev cards have been played yet
@@ -1196,7 +1242,7 @@ function buildTile(theTile, row, col, row_len) {
   if ((row % 2) == 0 && (col == 0 || col == row_len)) {
     return "";
   } else {
-    var newTile = "<div class='hex";
+    var newTile = "<div id='x"+col+"y"+row+"' class='hex";
 
     if (theTile.type == "water") {
       newTile += "_water";
@@ -1988,19 +2034,21 @@ function update_dev_cards(data) {
     card_list += "<img src='../images/nocards.png' class='no_cards' />";
   }
   //these are cheap and nasty but for some reason cards.count_victory_cards() fails with undefined
-  if (data.player.recent_purchase === "chapel") {
+  // get most recent index
+  let idx = data.player.recent_purchases.length - 1;
+  if (data.player.recent_purchases[idx] === "chapel") {
     build_popup_victory_point_received("chapel");
   }
-  if (data.player.recent_purchase === "library") {
+  if (data.player.recent_purchases[idx] === "library") {
     build_popup_victory_point_received("library");
   }
-  if (data.player.recent_purchase === "market") {
+  if (data.player.recent_purchases[idx] === "market") {
     build_popup_victory_point_received("market");
   }
-  if (data.player.recent_purchase === "university_of_catan") {
+  if (data.player.recent_purchases[idx] === "university_of_catan") {
     build_popup_victory_point_received("university_of_catan");
   }
-  if (data.player.recent_purchase === "great_hall") {
+  if (data.player.recent_purchases[idx] === "great_hall") {
     build_popup_victory_point_received("great_hall");
   }
   $(".cardlist")
@@ -2049,7 +2097,7 @@ function reset_dev_cards_per_round() {
   console.log(current_player);
   current_player.dev_cards.played = false;
   current_player.dev_cards.purchased = 0;
-  current_player.dev_cards.recent_purchase = [];
+  current_player.dev_cards.recent_purchases = [];
 
   $('.cardlist .knight.card')
     .removeClass('disabled');

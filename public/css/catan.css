@@ -623,21 +623,54 @@ body {
 .ore {
     background-image:url(../images/hex_ore.png);
 }
+.ore.hex_dim:hover, .ore.hex_highlight {
+    background-image:url(../images/hex_ore_highlight.png);
+    opacity: 1.0;
+}
 .grain {
     background-image:url(../images/hex_grain.png);
+}
+.grain.hex_dim:hover, .grain.hex_highlight {
+    background-image:url(../images/hex_grain_highlight.png);
+    opacity: 1.0;
 }
 .sheep {
     background-image:url(../images/hex_sheep.png);
 }
+.sheep.hex_dim:hover, .sheep.hex_highlight {
+    background-image:url(../images/hex_sheep_highlight.png);
+    opacity: 1.0;
+}
 .lumber {
     background-image:url(../images/hex_lumber.png);
+}
+.lumber.hex_dim:hover, .lumber.hex_highlight {
+    background-image:url(../images/hex_lumber_highlight.png);
+    opacity: 1.0;
 }
 .brick {
     background-image:url(../images/hex_brick.png);
 }
+.brick.hex_dim:hover, .brick.hex_highlight {
+    background-image:url(../images/hex_brick_highlight.png);
+    opacity: 1.0;
+}
 .desert {
     background-image:url(../images/hex_desert.png);
 }
+.desert.hex_dim:hover, .desert.hex_highlight {
+    background-image:url(../images/hex_desert_highlight.png);
+    opacity: 1.0;
+}
+
+.sheep.hex_dim:hover, .ore.hex_dim:hover, .lumber.hex_dim:hover, .brick.hex_dim:hover, .grain.hex_dim:hover, .desert.hex_dim:hover {
+    cursor: pointer;
+}
+
+.hex_dim {
+    opacity: 0.6;
+}
+
 .robber {
     position:absolute;
     background-image:url(../images/robber.png);
