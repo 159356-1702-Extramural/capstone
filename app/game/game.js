@@ -225,9 +225,9 @@ Game.prototype.robPlayers = function () {
   let rand_idx = -1;
   do {
     rand_idx = Math.floor(Math.random() * this.players.length);
-  } while (rand_idx === -1 || this.players[rand_idx].id === this.knight_player_id);
+  } while (rand_idx === -1 && this.players[rand_idx].id === this.knight_player_id);
   let victim = this.players[rand_idx];
-  logger.log('info', "Robber targetted player "+victim.id);
+  logger.log('info', "Robber targetted player "+victim.name);
   let victim_cards = [];
   for (let card of Object.keys(victim.cards.resource_cards)) {
     if (victim.cards.count_single_card(card) >= 1)
@@ -244,6 +244,7 @@ Game.prototype.robPlayers = function () {
       this.board.robberLocation = tile;
       this.board.robberLocation.robber = true;
       victim.cards.remove_card(resource);
+      victim.round_distribution_cards.resource_cards[resource]--;
     } else {
       logger.log('debug', "Robber targetted a resource the victim didn't own");
     }
@@ -328,7 +329,7 @@ Game.prototype.knight_rob_tile = function (player_id, loc) {
     let rand_idx = -1;
     do {
       rand_idx = Math.floor(Math.random() * player_ids.length);
-    } while (rand_idx === -1 || player_ids[rand_idx] === player_id);
+    } while (rand_idx === -1 && player_ids[rand_idx] === player_id);
     let victim = this.players[player_ids[rand_idx]];
     victim_id = victim.id;
 

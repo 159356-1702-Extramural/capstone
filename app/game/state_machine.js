@@ -39,7 +39,7 @@ function StateMachine(id, game_size) {
   this.setupPointer = 0;
   this.chat = null;
   this.timer = null;
-  this.timer_length = 100; // seconds
+  this.timer_length = 666; // seconds
 
 }
 
@@ -780,7 +780,7 @@ StateMachine.prototype.trade_with_bank = function (data) {
   }
 };
 
-StateMachine.prototype.invalid_trade = function (player, data_type, msg) {
+StateMachine.prototype.send_invalid_msg = function (player, data_type, msg) {
   var data_package = new Data_package();
   data_package.player = player;
   data_package.data_type = data_type;
@@ -798,7 +798,7 @@ StateMachine.prototype.init_player_trade = function (data) {
   var player = this.game.players[data.player_id];
 
   if (player.inter_trade.wants_trade) {
-    this.invalid_trade(player, 'invalid_move', 'You already have a trade open');
+    this.send_invalid_msg(player, 'invalid_move', 'You already have a trade open');
   }
 
   var trade_cards = new TradeCards(data.actions[0].action_data.trade_cards); // is a "TradeCards" object
@@ -807,7 +807,7 @@ StateMachine.prototype.init_player_trade = function (data) {
   for (let card of Object.keys(trade_cards)) {
     if (player.cards.count_single_card(card) < trade_cards.get(card)) {
       this.log('info', 'player ' + player.name + ' attempted to trade without enough cards');
-      this.invalid_trade(player, 'invalid_move',
+      this.send_invalid_msg(player, 'invalid_move',
         'Your trade attempt failed, you didn\'t have enough cards');
     }
   };
@@ -898,9 +898,9 @@ StateMachine.prototype.accept_player_trade = function (data) {
     this.trade_restore_player_cards(other_player, other_backup);
     other_player.round_distribution_cards = new Cards();
     this.log('info', 'TRADE: between ' + this_player.name + ' and ' + other_player.name + ' unsuccessful')
-    this.invalid_trade(this_player, 'invalid_move',
+    this.send_invalid_msg(this_player, 'invalid_move',
       'The trade attempt failed, the other player didn\'t have enough cards');
-    this.invalid_trade(other_player, 'invalid_move',
+    this.send_invalid_msg(other_player, 'invalid_move',
       'The trade attempt failed, you didn\'t have enough cards');
   }
 
@@ -953,12 +953,12 @@ StateMachine.prototype.buy_dev_card = function (data) {
 
       this.send_to_player('game_turn', data_package);
     } else {
-      this.invalid_trade(player, 'invalid_move', "You don't have enough resources for a purchase");
+      this.send_invalid_msg(player, 'invalid_move', "You don't have enough resources for a purchase");
     }
   } else {
     this.log('debug', player.name +
       ' does not have enough resources to buy a dev card');
-    this.invalid_trade(player, 'invalid_move', 'There are no cards left to purchase');
+    this.send_invalid_msg(player, 'invalid_move', 'There are no cards left to purchase');
   }
 };
 
@@ -1138,7 +1138,10 @@ StateMachine.prototype.move_knight_to = function (data) {
   let loc = data.actions[0].action_data;
   let result = this.game.knight_rob_tile(data.player_id, loc);
   if (!result) {
-    this.log("error", "func 'move_knight_to()' failed to move knight");
+    this.log("debug", "func 'move_knight_to()' failed to move knight");
+    this.send_invalid_msg(this.game.players[data.player_id],
+                        'invalid_move',
+                        'The player you tried to rob had no cards');
   } else {
     var data_package = new Data_package();
     // send to victim
@@ -1158,9 +1161,8 @@ StateMachine.prototype.move_knight_to = function (data) {
     action.action_data = ({player_id:result.robbed, resource:result.resource});
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
-
-    this.broadcast_gamestate();
   }
+  this.broadcast_gamestate();
 };
 
 StateMachine.prototype.start_timer = function () {

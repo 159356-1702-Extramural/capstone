@@ -16,7 +16,7 @@ var building_dimension = 50;
 // timer variables
 var timer_running = true;
 var monopoly_time = 30; //seconds
-var round_time = 60;  //seconds
+var round_time = 666;  //seconds
 var remaining_time = -1;
 var timer = null;
 var force_complete = false;
@@ -374,11 +374,21 @@ $(document)
             elem.classList.add("hex_highlight"); //classList.remove too
         }
       } else if (data.data_type === 'robbed_player') {
-        console.log("robbed_player", data);
         // {player_id: of the person robbed, resource: resource gained}
+        console.log("robbed_player", data);
+        let player_id = data.player.actions[0].action_data.player_id;
+        let player_name = current_game.players[player_id].name;
+        let res = data.player.actions[0].action_data.resource;
+        let msg = "You robbed "+player_name+" for 1x "+res;
+        alert(msg);
       } else if (data.data_type === 'robbed_by_player') {
-        console.log("robbed_by_player", data);
         // {player_id: of the robber, resource: resource lost}
+        console.log("robbed_by_player", data);
+        let player_id = data.player.actions[0].action_data.player_id;
+        let player_name = current_game.players[player_id].name;
+        let res = data.player.actions[0].action_data.resource;
+        let msg = "You were robbed by "+player_name+" for 1x "+res;
+        alert(msg);
       } else {
         console.log('failed to direct data_type into an else if section');
       }
