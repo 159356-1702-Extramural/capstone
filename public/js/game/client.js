@@ -632,9 +632,6 @@ $(document)
     $doc.on('click', '.play_knight', function(e) {
       e.preventDefault();
 
-      var resource = $(this)
-        .attr('data-resource');
-
       var data_package = new Data_package();
       data_package.data_type = 'use_knight';
       data_package.player_id = current_game.player.id;

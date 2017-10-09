@@ -377,6 +377,7 @@ function set_object_on_canvas(event, ui) {
       //  In the case of a road building card, take away the resources directly
       if (using_road_building_now) {
         take_resources(dragged_object_new_id, ["lumber", "brick"]);
+        turn_actions[turn_actions.length - 1].boost_cards = ["lumber", "brick"];
         current_player.free_roads--;
       }
     }

@@ -196,8 +196,12 @@ StateMachine.prototype.tick = function (data) {
         var recent_purchases = this.game.players[data.player_id].recent_purchases;
         switch (data.data_type) {
         case 'use_knight':
-          if (recent_purchases.indexOf('knight') === -1) {
-            // Players has has chosen a resource to get with the knight
+          //  First we need to see if there is 1 or more recent knights purchased
+          var recent_knights = (recent_purchases.indexOf('knight') === -1 ? 0 : 1);
+          recent_knights += (recent_purchases.indexOf('knight', 1) === -1 ? 0 : 1)
+
+          //  Now see if any previously purchased knights are available
+          if (this.game.players[data.player_id].cards.dev_cards.knight - this.game.players[data.player_id].cards.dev_cards.knight_played - recent_knights > 0) {
             // update the player, reposition the robber
             this.useKnight(data);
             // Add flag so we can notify other players knight has been played
@@ -320,7 +324,7 @@ StateMachine.prototype.finish_round_for_all = function (data) {
   // House rule 7 only comes up once someone has created their first non-startup building
   var player_has_built = false;
   for (var i = 0; i < this.game.players.length; i++) {
-    if (this.game.players[i].score.total_points > 2) {
+    if (this.game.players[i].score.settlements > 2) {
       player_has_built = true;
       break;
     }
