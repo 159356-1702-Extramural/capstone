@@ -180,12 +180,11 @@ $(document)
 
       //  Update drag and drop
       setupDragDrop();
-      // ditch the highlights - if the turn finished without the player
-      // moving the knight the hightlights stick around
-      let tiles = document.getElementsByClassName('hex');
-      for (let i=0; i<tiles.length; i++) {
-        tiles[i].classList.remove('hex_highlight');
-      }
+
+      // ditch the greyed out tiles
+      $(".hex").each(function() {
+        $(this).removeClass('hex_dim');
+      });
     });
 
     //  During the setup phase, each player waits until their
@@ -369,9 +368,9 @@ $(document)
         let allowed = data.player.actions[0].action_data;
         for (var i = 0; i < allowed.length; i++) {
             let id = "x"+allowed[i][0]+"y"+allowed[i][1];
-            console.log("Attempting to add highlight to", id);
+            console.log("Attempting to grey out ", id);
             var elem = document.getElementById(id);
-            elem.classList.add("hex_highlight"); //classList.remove too
+            elem.classList.add("hex_dim"); //classList.remove too
         }
       } else if (data.data_type === 'robbed_player') {
         // {player_id: of the person robbed, resource: resource gained}
@@ -399,12 +398,12 @@ $(document)
     });
 
     // Send the selected tile location to the server for knight placement
-    $doc.on('click', '.hex_highlight ', function(e) {
+    $doc.on('click', '.hex_dim ', function(e) {
       e.preventDefault();
       let location = $(this).attr('id');
       location = location.match(/(\d+)/g);
       console.log("Selected", location);
-      // TODO: remove hex_highlight class for all tiles after
+      
       var action = new Action();
       action.action_type = 'move_knight_to';
       action.action_data = location;
@@ -417,7 +416,7 @@ $(document)
 
       let tiles = document.getElementsByClassName('hex');
       for (let i=0; i<tiles.length; i++) {
-        tiles[i].classList.remove('hex_highlight');
+        tiles[i].classList.remove('hex_dim');
       }
     });
 
