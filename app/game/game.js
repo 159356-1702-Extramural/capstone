@@ -35,7 +35,6 @@ function Game() {
   this.robber = 'enabled';
   this.cards = this.generate_dev_card_deck();
   this.dice_array = this.generate_dice_rolls();
-  this.dice_array_pointer = 0;
 }
 
 /**
@@ -588,18 +587,10 @@ Game.prototype.fixed_dice_rolls = function () {
   return temp_dice;
 }
 Game.prototype.rollingDice = function (){
-  var shuffler = new Shuffler();
-  this.dice_roll = this.dice_array[this.dice_array_pointer];
-
-  this.dice_array_pointer++;
-  if(this.dice_array_pointer === this.dice_array.length){
-    this.dice_array_pointer = 0;
-    if(this.test_mode === 'false'){
-      this.dice_array = shuffler.shuffle(this.dice_array);
-    }
-    
+  if (this.dice_array.length == 0) {
+    this.dice_array = this.generate_dice_rolls();
   }
-
+  this.dice_roll = this.dice_array.pop();
   return this.dice_roll[0] + this.dice_roll[1];
 }
 
