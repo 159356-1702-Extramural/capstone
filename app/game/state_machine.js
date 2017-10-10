@@ -849,9 +849,9 @@ StateMachine.prototype.accept_player_trade = function (data) {
     this.send_to_player('game_turn', other_player_package);
   }
   else if (!success) {
-    this.send_invalid_msg(this_player, 'invalid_move',
-      'The trade attempt failed, the other player didn\'t have enough cards');
     this.send_invalid_msg(other_player, 'invalid_move',
+      'The trade attempt failed, the other player didn\'t have enough cards');
+    this.send_invalid_msg(this_player, 'invalid_move',
       'The trade attempt failed, you didn\'t have enough cards');
   }
   // reset trade either way the status goes
