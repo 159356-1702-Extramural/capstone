@@ -1,16 +1,20 @@
 var logger = require('winston');
 var board_builder = require('./board_builder.js');
 var Shuffler = require('../helpers/shuffler.js');
+var {
+  Cards,
+  TradeCards
+} = require('../../public/data_api/cards.js');
 
 function Game() {
   var standard_board = [
-      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
-      ["z0", "z0", "e11", "b12", "d9", "z0", "z0"],
-      ["z0", "z0", "a4", "c6", "a5", "b10", "z0"],
-      ["z0", "f0", "e3", "d11", "e4", "d8", "z0"],
-      ["z0", "z0", "a8", "b10", "b9", "c3", "z0"],
-      ["z0", "z0", "c5", "d2", "e6", "z0", "z0"],
-      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"]
+    ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
+    ["z0", "z0", "e11", "b12", "d9", "z0", "z0"],
+    ["z0", "z0", "a4", "c6", "a5", "b10", "z0"],
+    ["z0", "f0", "e3", "d11", "e4", "d8", "z0"],
+    ["z0", "z0", "a8", "b10", "b9", "c3", "z0"],
+    ["z0", "z0", "c5", "d2", "e6", "z0", "z0"],
+    ["z0", "z0", "z0", "z0", "z0", "z0", "z0"]
   ];
   this.name = '';
   this.board = board_builder.generate();
@@ -584,6 +588,71 @@ Game.prototype.rollingDice = function (){
     
   }
 
-  return this.dice_roll[0] + this.dice_roll [1];
+  return this.dice_roll[0] + this.dice_roll[1];
 }
+
+// swaps the cards in the tradecard list between players
+Game.prototype.do_trade_with_other = function (player_id, other_id) {
+  if (!this.players[other_id].inter_trade.wants_trade)
+    return false;
+  var swapsies = function (player, other, cards) {
+    player.round_distribution_cards = new Cards();
+    for (let card of Object.keys(cards)) {
+      if (cards.get(card) > 0) {
+        // take cards from the player wanting to trade, and give
+        if (!other.cards.remove_multiple_cards(card, cards.get(card)))
+          return false;
+        player.cards.add_cards(card, cards.get(card));
+        player.round_distribution_cards.add_cards(card, cards.get(card));
+      }
+    }
+    return true;
+  }
+  var this_backup = this.trade_backup_player_cards(this.players[player_id]);
+  var other_backup = this.trade_backup_player_cards(this.players[other_id]);
+
+  if (swapsies(this.players[player_id], this.players[other_id],
+      this.players[other_id].inter_trade.trade_cards)) {
+    logger.log('debug', 'TRADE: from trade initiator ' + this.players[other_id].name + ' to ' + this.players[
+      player_id].name);
+    if (swapsies(this.players[other_id], this.players[player_id],
+      this.players[other_id].inter_trade.wants_cards)) {
+      logger.log('debug', 'TRADE: from trade acceptor ' + this.players[player_id].name + ' to ' + this.players[
+        other_id].name);
+      return true;
+    } else {
+      logger.log('debug', 'TRADE: failed at 2nd part');
+    }
+  } else {
+    logger.log('debug', 'TRADE: failed at 1st part');
+  }
+  this.trade_restore_player_cards(this.players[player_id], this_backup);
+  this.trade_restore_player_cards(this.players[other_id], other_backup);
+  this.players[player_id].round_distribution_cards = new Cards();
+  this.players[other_id].round_distribution_cards = new Cards();
+  logger.log('info', 'TRADE: between ' + this.players[player_id].name + ' and ' +
+                                          this.players[other_id].name + ' failed');
+  return false;
+};
+
+Game.prototype.trade_backup_player_cards = function (player) {
+  var cards = new TradeCards();
+  for (let card of Object.keys(player.cards.resource_cards)) {
+    if (player.cards.count_single_card(card) > 0)
+      cards.set(card, player.cards.count_single_card(card));
+  }
+  logger.log('debug', 'TRADE: '+player.name+" backup cards =");
+  logger.log('debug', cards);
+  return cards;
+};
+
+Game.prototype.trade_restore_player_cards = function (player, backup) {
+  for (let card of Object.keys(backup)) {
+    if (backup.get(card) > 0)
+      player.cards.set(card, backup.get(card));
+  }
+  logger.log('debug', 'TRADE: '+player.name+" restored cards =");
+  logger.log('debug', player.cards.resource_cards);
+};
+
 module.exports = Game;
