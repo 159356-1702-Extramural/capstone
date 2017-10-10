@@ -620,8 +620,8 @@ Game.prototype.do_trade_with_other = function (player_id, other_id) {
     }
     return true;
   }
-  var this_backup = this.trade_backup_player_cards(this.players[player_id]);
-  var other_backup = this.trade_backup_player_cards(this.players[other_id]);
+  let this_backup = this.trade_backup_player_cards(this.players[player_id]);
+  let other_backup = this.trade_backup_player_cards(this.players[other_id]);
 
   if (swapsies(this.players[player_id], this.players[other_id],
       this.players[other_id].inter_trade.trade_cards)) {
@@ -648,10 +648,9 @@ Game.prototype.do_trade_with_other = function (player_id, other_id) {
 };
 
 Game.prototype.trade_backup_player_cards = function (player) {
-  var cards = new TradeCards();
+  let cards = new TradeCards();
   for (let card of Object.keys(player.cards.resource_cards)) {
-    if (player.cards.count_single_card(card) > 0)
-      cards.set(card, player.cards.count_single_card(card));
+      cards.set(card, player.cards.resource_cards[card]);
   }
   logger.log('debug', 'TRADE: '+player.name+" backup cards =");
   logger.log('debug', cards);
@@ -660,8 +659,7 @@ Game.prototype.trade_backup_player_cards = function (player) {
 
 Game.prototype.trade_restore_player_cards = function (player, backup) {
   for (let card of Object.keys(backup)) {
-    if (backup.get(card) > 0)
-      player.cards.set(card, backup.get(card));
+    player.cards.set(card, backup.get(card));
   }
   logger.log('debug', 'TRADE: '+player.name+" restored cards =");
   logger.log('debug', player.cards.resource_cards);
