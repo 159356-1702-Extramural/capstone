@@ -21,6 +21,8 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.15.3",
+    "google-closure-compiler-js": "^20170910.0.1",
+    "gulp": "^3.9.1",
     "iedriver": "^3.4.0",
     "socket.io": "^2.0.3",
     "winston": "^2.3.1"
