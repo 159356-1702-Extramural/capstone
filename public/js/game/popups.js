@@ -35,7 +35,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   function hidePopup() {
     action_in_progress = false;
     allowed_actions.can_build = true;
-    allowed_actions.can_finish = (current_game.round_num > 2);
+    allowed_actions.can_finish = (current_game.round_num > 2 || turn_actions.length === 2);
     updatePanelDisplay();
     $(".game_chat").removeClass('game_chat_top_z');
     $(".btn-control-maximize").removeClass('btn-hide');
