@@ -950,14 +950,6 @@ $(document)
 
     });
 
-    //  Build - Remove resources
-    $doc.on('mousedown', '.trading_offer_box', function(e) {
-      e.preventDefault();
-
-      //  Rebuild the list of selectable cards
-      $(".select_card_list").html($(".build_hidden").html());
-    });
-
     //close start window
     $doc.on('click', '.close-start', function(e) {
       e.preventDefault();
