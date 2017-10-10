@@ -87,6 +87,12 @@ $(document)
       //  Start the game with the waiting popups
       build_popup_waiting_for_turn();
 
+      //  Update player statuses
+      for (var i = 0; i < current_game.players.length; i++) {
+        $(".other_player" + i + "_status")
+          .html("<i class='fa fa-spin fa-spinner'></i>");
+      }
+
       set_allowed_actions(false, false, false, false);
       updatePanelDisplay();
     });
@@ -94,13 +100,6 @@ $(document)
     socket.on('game_turn', function(data) {
       server_data = data;
       resolve_game_turn(data);
-
-      //  Update player statuses
-      for (var i = 0; i < current_game.players.length; i++) {
-        $(".other_player" + i + "_status")
-          .html("<i class='fa fa-spin fa-spinner'></i>");
-      }
-
     });
 
     socket.on('update_players_waiting', function(waiting) {
@@ -185,6 +184,12 @@ $(document)
       $(".hex").each(function() {
         $(this).removeClass('hex_dim');
       });
+
+      //  Update player statuses
+      for (var i = 0; i < current_game.players.length; i++) {
+        $(".other_player" + i + "_status")
+          .html("<i class='fa fa-spin fa-spinner'></i>");
+      }
     });
 
     //  During the setup phase, each player waits until their
