@@ -10,6 +10,22 @@ var Player = require('../app/data_api/player.js');
 var Data_package = require('../public/data_api/data_package.js');
 var Action = require('../public/data_api/action.js');
 
+function Socket() {
+  //outgoing
+  this.on = (event, func) => {
+    if (event !== 'disconnect') {
+      if (typeof func === 'function') { func() }; // runs the callback
+    }
+  };
+  //incoming
+  this.emit = (event, data) => {
+    if (event == "game_full") game_full = true;
+    if (event == "lobby_data") lobby_data = data;
+    if (event == "player_quit") player_quit = true;
+    if (event == "game_turn") game_data = data;
+  };
+};
+
 import {
   Point
 } from '../public/data_api/board.js';
@@ -50,8 +66,18 @@ test("End of start sequence resources can be allocated", function (t) {
 
 test("Dice roll function returns a number between 2 and 12", function (t) {
   var game = new Game();
+  game.test_mode = 'false';
   var result = game.rollingDice();
   t.true(result >= 2 && result <= 12);
+});
+
+test("Dice roll a thousand times for exercise", function (t) {
+  var game = new Game();
+  game.test_mode = 'false';
+  for (let x=0; x<1000; x++) {
+    var result = game.rollingDice();
+    t.true(result >= 2 && result <= 12);
+  }
 });
 
 test("Individual rolls are added to the game object", function (t) {
@@ -432,35 +458,37 @@ test("Player scores correctly totalled", function (t) {
   });
   game.players[3].id = 3;
 
-  // Give player 0 some points
-  game.board.set_item("build_road", 0, game.players[0].id);
-  game.board.set_item("build_road", 1, game.players[0].id);
-  game.board.set_item("build_road", 2, game.players[0].id);
-  game.board.set_item("build_road", 3, game.players[0].id);
-  game.board.set_item("build_road", 4, game.players[0].id);
-  game.board.set_item("build_road", 5, game.players[0].id);
+  // Give player 1 some points to win
+  game.board.set_item("build_road", 0, game.players[1].id);
+  game.board.set_item("build_road", 1, game.players[1].id);
+  game.board.set_item("build_road", 2, game.players[1].id);
+  game.board.set_item("build_road", 3, game.players[1].id);
+  game.board.set_item("build_road", 4, game.players[1].id);
+  game.board.set_item("build_road", 5, game.players[1].id);
 
-  // Give player 1 some points
   game.players[1].cards.victory_point_cards.library = 1;
   game.players[1].cards.victory_point_cards.market = 1;
   game.players[1].cards.victory_point_cards.chapel = 1;
   game.players[1].cards.victory_point_cards.university_of_catan = 1;
   game.players[1].cards.victory_point_cards.great_hall = 1;
-  game.players[1].cards.dev_cards.knight_played = 3;
+  game.players[1].cards.dev_cards.knight_played = 5;
+
+  game.board.nodes[0].owner = 1;
+  game.board.set_item('build_city', 0, 1);
 
   // Give player 2 some buildings
-  game.board.set_item('build_settlement', 0, 2);
   game.board.set_item('build_settlement', 1, 2);
-  game.board.set_item('build_settlement', 3, 2);
+  game.board.nodes[3].owner = 2;
+  game.board.set_item('build_city', 3, 2);
 
   // Player 3 - no points for you
-
   game.calculateScores();
 
-  t.true(game.players[0].score.total_points === 2);
-  t.true(game.players[1].score.total_points === 7);
+  t.true(game.players[0].score.total_points === 0);
+  t.true(game.players[1].score.total_points === 11);
   t.true(game.players[2].score.total_points === 3);
   t.true(game.players[3].score.total_points === 0);
+  t.true(game.haveWinner());
 });
 
 test("Winning player detected", function (t) {
@@ -665,5 +693,5 @@ test("Use knight decrements players knights cards and moves to location", functi
   t.is(state_machine.game.players[0].cards.dev_cards.knight, 0);
   t.is(state_machine.game.players[0].cards.dev_cards.knight_played, 1);
   t.is(state_machine.game.players[0].cards.resource_cards.ore, 2);
-
 });
+

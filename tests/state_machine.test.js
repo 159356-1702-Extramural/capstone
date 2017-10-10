@@ -12,27 +12,60 @@ var {Cards, TradeCards} = require('../public/data_api/cards.js');
 
 var machine;
 
+function Socket() {
+  //outgoing
+  /*
+  - messages that can be sent to the server -
+  still_connected
+  trade_with_bank
+  init_player_trade
+  init_player_trade
+  cancel_player_trade
+  buy_dev_card
+  request_knight
+  use_knight
+  year_of_plenty_used
+  road_building_used
+  monopoly_used
+  monopoly_not_used
+  turn_complete
+  */
+  this.on = (event, func) => {
+    if (event !== 'disconnect') {
+      if (typeof func === 'function') { func() }; // runs the callback
+    }
+  };
+  //incoming
+  this.event = null;
+  this.data = null;
+  this.emit = (event, data) => {
+    this.event = event;
+    this.data = data;
+    /*if (typeof data === 'function') { data() }; // runs the callback
+    if (event == "game_turn") game_data = data;
+    if (event == "game_end") game_end_data = data;
+    if (event == "invalid_move") message = data;
+    if (event == "knight_in_use") knight_in_use = true;*/
+  };
+};
+
 test.beforeEach(t => {
   machine = new sm.StateMachine(0);
-  var mockSocket = {
-    emit: function () {},
-    on: function () {}
-  };
-
-  var player1 = new Player(mockSocket, {
+  var player1 = new Player(new Socket(), {
     name: 'John'
   });
-  var player2 = new Player(mockSocket, {
+  var player2 = new Player(new Socket(), {
     name: 'Paul'
   });
-  var player3 = new Player(mockSocket, {
+  var player3 = new Player(new Socket(), {
     name: 'George'
   });
-  var player4 = new Player(mockSocket, {
+  var player4 = new Player(new Socket(), {
     name: 'Ringo'
   });
 
   machine.game.add_player(player1);
+  console.log("TESTED:", machine.game.players[0].socket.event, machine.game.players[0].socket.data);
   machine.game.add_player(player2);
   machine.game.add_player(player3);
   machine.game.add_player(player4);
