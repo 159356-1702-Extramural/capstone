@@ -341,7 +341,12 @@ $(document)
         if (data.message) {
           alert(data.message);
         }
-
+        
+        //  Toggle the trade/cancel button
+        $(".tradeplayer_button").show();
+        $(".tradecancel_button").hide();
+        current_player.trade_in_progress = false;
+                    
       } else if (data.data_type === 'cancel_player_trade') {
         $(".player" + data.player_id + "_bubble").hide();
 
