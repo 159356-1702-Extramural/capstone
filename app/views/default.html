@@ -32,8 +32,10 @@
   </div>
 
   <div class="trade_prompt">
-    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); openTrade();" style="width:140px;">Trade with Bank</div></div>
-    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); openInterTrade();" style="width:140px;">Trade with Player</div></div>
+    <div class="trade_button"><div class="btn btn-info tradebank_button" onclick="$('.trade_prompt').hide(); openTrade();" style="width:140px;">Trade with Bank</div></div>
+    <div class="trade_button"><div class="btn btn-info tradeplayer_button" onclick="$('.trade_prompt').hide(); openInterTrade();" style="width:140px;">Trade with Player</div></div>
+    <div class="trade_button"><div class="btn btn-danger tradecancel_button" onclick="$('.trade_prompt').hide(); cancelTrade();" style="width:140px;">Cancel My Trade</div></div>
+    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); buildPopup('round_no_trade', false, false);" style="width:140px;">Trade Help</div></div>
     <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide();" style="width:140px;">Nevermind</div></div>
   </div>
 

@@ -846,12 +846,21 @@ StateMachine.prototype.accept_player_trade = function (data) {
     var other_player_package = new Data_package();
     other_player_package.data_type = "returned_player_trade";
     other_player_package.player = other_player;
+
+    //  Build list of cards received
+    var card_list = "Your trade was successful! You received ";
+    card_list += (other_player.inter_trade.wants_cards.brick > 0 ? other_player.inter_trade.wants_cards.brick + " brick, " : "");
+    card_list += (other_player.inter_trade.wants_cards.ore > 0 ? other_player.inter_trade.wants_cards.ore + " ore, " : "");
+    card_list += (other_player.inter_trade.wants_cards.lumber > 0 ? other_player.inter_trade.wants_cards.lumber + " lumber, " : "");
+    card_list += (other_player.inter_trade.wants_cards.grain > 0 ? other_player.inter_trade.wants_cards.grain + " grain, " : "");
+    card_list += (other_player.inter_trade.wants_cards.sheep > 0 ? other_player.inter_trade.wants_cards.sheep + " sheep, " : "");
+    other_player_package.message = card_list.substring(0, card_list.length - 2);
     this.send_to_player('game_turn', other_player_package);
   }
   else if (!success) {
-    this.send_invalid_msg(this_player, 'invalid_move',
-      'The trade attempt failed, the other player didn\'t have enough cards');
     this.send_invalid_msg(other_player, 'invalid_move',
+      'The trade attempt failed, the other player didn\'t have enough cards');
+    this.send_invalid_msg(this_player, 'invalid_move',
       'The trade attempt failed, you didn\'t have enough cards');
   }
   // reset trade either way the status goes

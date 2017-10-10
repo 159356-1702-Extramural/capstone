@@ -35,7 +35,6 @@ function Game() {
   this.robber = 'enabled';
   this.cards = this.generate_dev_card_deck();
   this.dice_array = this.generate_dice_rolls();
-  this.dice_array_pointer = 0;
 }
 
 /**
@@ -578,7 +577,7 @@ Game.prototype.generate_dice_rolls = function () {
 
 Game.prototype.fixed_dice_rolls = function () {
   logger.log('debug', "Fixed dice rolls enabled");
-  var dice1array = [[1,4], [2,4], [3,4], [4,4], [5,4], [6,4]];
+  var dice1array = [[6,4], [5,4], [4,4], [3,4], [2,4], [1,4]];
   var temp_dice = [];
 
   for (var i = 0; i < 36; i++){
@@ -588,18 +587,10 @@ Game.prototype.fixed_dice_rolls = function () {
   return temp_dice;
 }
 Game.prototype.rollingDice = function (){
-  var shuffler = new Shuffler();
-  this.dice_roll = this.dice_array[this.dice_array_pointer];
-
-  this.dice_array_pointer++;
-  if(this.dice_array_pointer === this.dice_array.length){
-    this.dice_array_pointer = 0;
-    if(this.test_mode === 'false'){
-      this.dice_array = shuffler.shuffle(this.dice_array);
-    }
-    
+  if (this.dice_array.length == 0) {
+    this.dice_array = this.generate_dice_rolls();
   }
-
+  this.dice_roll = this.dice_array.pop();
   return this.dice_roll[0] + this.dice_roll[1];
 }
 

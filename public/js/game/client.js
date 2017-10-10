@@ -87,6 +87,12 @@ $(document)
       //  Start the game with the waiting popups
       build_popup_waiting_for_turn();
 
+      //  Update player statuses
+      for (var i = 0; i < current_game.players.length; i++) {
+        $(".other_player" + i + "_status")
+          .html("<i class='fa fa-spin fa-spinner'></i>");
+      }
+
       set_allowed_actions(false, false, false, false);
       updatePanelDisplay();
     });
@@ -94,13 +100,6 @@ $(document)
     socket.on('game_turn', function(data) {
       server_data = data;
       resolve_game_turn(data);
-
-      //  Update player statuses
-      for (var i = 0; i < current_game.players.length; i++) {
-        $(".other_player" + i + "_status")
-          .html("<i class='fa fa-spin fa-spinner'></i>");
-      }
-
     });
 
     socket.on('update_players_waiting', function(waiting) {
@@ -185,6 +184,12 @@ $(document)
       $(".hex").each(function() {
         $(this).removeClass('hex_dim');
       });
+
+      //  Update player statuses
+      for (var i = 0; i < current_game.players.length; i++) {
+        $(".other_player" + i + "_status")
+          .html("<i class='fa fa-spin fa-spinner'></i>");
+      }
     });
 
     //  During the setup phase, each player waits until their
@@ -331,6 +336,19 @@ $(document)
         // intended to work the same as for recv from bank
         current_game.player = data.player;
         updatePanelDisplay();
+
+        //  Is there a message to show?
+        if (data.message) {
+          alert(data.message);
+        }
+        
+        //  Toggle the trade/cancel button
+        $(".tradeplayer_button").show();
+        $(".tradecancel_button").hide();
+        current_player.trade_in_progress = false;
+                    
+      } else if (data.data_type === 'cancel_player_trade') {
+        $(".player" + data.player_id + "_bubble").hide();
 
       } else if (data.data_type === 'buy_dev_card') {
 
@@ -932,14 +950,6 @@ $(document)
 
     });
 
-    //  Build - Remove resources
-    $doc.on('mousedown', '.trading_offer_box', function(e) {
-      e.preventDefault();
-
-      //  Rebuild the list of selectable cards
-      $(".select_card_list").html($(".build_hidden").html());
-    });
-
     //close start window
     $doc.on('click', '.close-start', function(e) {
       e.preventDefault();
@@ -984,14 +994,22 @@ function checkTrade() {
     current_game.player.cards.resource_cards.lumber > 0 || current_game.player.cards.resource_cards.sheep > 0 || 
     current_game.player.cards.resource_cards.ore > 0 || current_game.player.cards.resource_cards.grain > 0);
   
-  if (can_trade_bank && can_trade_player) {
-    $(".trade_prompt").show();
-  } else if (can_trade_player) {
-    openInterTrade();
-  } else {
-    openTrade();
+  $(".tradebank_button").addClass("disabled");
+  if (can_trade_bank) {
+    $(".tradebank_button").removeClass("disabled");
   }
-
+  if (current_player.trade_in_progress) {
+    $(".tradeplayer_button").hide();
+    $(".tradecancel_button").show();
+  } else {
+    $(".tradeplayer_button").show();
+    $(".tradecancel_button").hide();
+    $(".tradeplayer_button").addClass("disabled");
+    if (can_trade_player) {
+      $(".tradeplayer_button").removeClass("disabled");
+    }
+  }
+  $(".trade_prompt").show();
 }
 
 // Open the trading window and make only tradable cards available
@@ -1039,6 +1057,15 @@ function openTrade() {
   } else {
     buildPopup('round_no_trade', false, false);
   }
+}
+
+function cancelTrade() {
+  var data_package = new Data_package();
+  data_package.data_type = 'cancel_player_trade';
+  data_package.player_id = current_player.id;
+  update_server('game_update', data_package);
+  current_player.trade_in_progress = false;  
+  $(".trade_prompt").hide();
 }
 
 // Open the trading window and make only tradable cards available
@@ -1125,6 +1152,7 @@ function initInterTrade() {
       wants_cards: want_cards,
     }
     data_package.actions.push(action);
+    current_player.trade_in_progress = true;
 
     update_server('game_update', data_package);
     hidePopup();
@@ -1149,6 +1177,7 @@ function accept_player_trade(player_id) {
     };
 
     data_package.actions.push(action);
+    current_player.trade_in_progress = false;
 
     update_server('game_update', data_package);
     hidePopup();
@@ -1159,6 +1188,7 @@ function decline_player_trade(player_id) {
 }
 
 function tradeFailed() {
+  current_player.trade_in_progress = false;
   build_popup_trade_failed();
 }
 
