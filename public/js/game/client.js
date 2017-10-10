@@ -388,6 +388,12 @@ $(document)
         let res = data.player.actions[0].action_data.resource;
         let msg = "You were robbed by "+player_name+" for 1x "+res;
         alert(msg);
+      } else if ('can_play_knight') {
+        if (data.player.actions[0] === 'true') {
+          build_popup_play_knight();
+        } else {
+          build_popup_restrict_dev_card_use('play');
+        }
       } else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -621,9 +627,6 @@ $(document)
 
         // Let server know we're thinking about playing the knight
         update_server('game_update', data_package);
-
-        // Show the robbing options
-        build_popup_play_knight();
       } else {
         build_popup_restrict_dev_card_use('play');
       }
@@ -774,18 +777,6 @@ $(document)
       } else {
         console.log('Monopoly button click sent wrong click information');
       }
-    });
-
-    // Play the Knight card
-    $doc.on('click', '.cardlist .knight.card', function(e) {
-      e.preventDefault();
-
-      var data_package = new Data_package();
-      data_package.data_type = "play_knight";
-      data_package.player_id = current_game.player.id;
-
-      update_server('game_update', data_package);
-
     });
 
     //  Development Card -

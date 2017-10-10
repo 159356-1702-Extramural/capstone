@@ -196,19 +196,9 @@ StateMachine.prototype.tick = function (data) {
         var recent_purchases = this.game.players[data.player_id].recent_purchases;
         switch (data.data_type) {
         case 'use_knight':
-          //  First we need to see if there is 1 or more recent knights purchased
-          var recent_knights = (recent_purchases.indexOf('knight') === -1 ? 0 : 1);
-          recent_knights += (recent_purchases.indexOf('knight', 1) === -1 ? 0 : 1)
-
-          //  Now see if any previously purchased knights are available
-          if (this.game.players[data.player_id].cards.dev_cards.knight - this.game.players[data.player_id].cards.dev_cards.knight_played - recent_knights > 0) {
-            // update the player, reposition the robber
-            this.useKnight(data);
-            // Add flag so we can notify other players knight has been played
-            this.game.knight_player_id = data.player_id;
-          } else {
-            this.log('debug', player_name + " attempted to use Knight in same round as purchase");
-          }
+          this.useKnight(data);
+          // Add flag so we can notify other players knight has been played
+          this.game.knight_player_id = data.player_id;
           break;
         case 'year_of_plenty_used':
           if (recent_purchases.indexOf('year_of_plenty') === -1) {
@@ -1121,9 +1111,37 @@ StateMachine.prototype.activate_monopoly = function (data) {
  */
 StateMachine.prototype.knightRequest = function (data) {
   if (!data) this.log("error", "func 'knightRequest()' missing data");
-  this.broadcast('knight_in_use', {
-    knight_status: (data.knight_status === 'activate') ? 'disable' : 'enable'
-  });
+
+  if (data.knight_status === 'activate') {
+    //  First we need to see if there is 1 or more recent knights purchased
+    var recent_purchases = this.game.players[data.player_id].recent_purchases;
+    var recent_knights = (recent_purchases.indexOf('knight') === -1 ? 0 : 1);
+    recent_knights += (recent_purchases.indexOf('knight', 1) === -1 ? 0 : 1)
+
+    //  Now see if any previously purchased knights are available
+    if (this.game.players[data.player_id].cards.dev_cards.knight - recent_knights > 0) {
+      let data_package = new Data_package();
+      data_package.data_type = 'can_play_knight';
+      data_package.player = this.game.players[data.player_id];
+      data_package.player.actions = [];
+      let action = 'true';
+      data_package.player.actions.push(action);
+      this.send_to_player('game_turn', data_package);
+
+      this.broadcast('knight_in_use', {
+        knight_status: (data.knight_status === 'activate') ? 'disable' : 'enable'
+      });
+    } else {
+      this.log('debug', this.game.players[data.player_id].name +
+                " requested Knight in same round as purchase");
+    }
+  } else if (data.knight_status === 'cancel') {
+    this.broadcast('knight_in_use', {
+      knight_status: 'enable'
+    });
+    this.log('debug', this.game.players[data.player_id].name +
+                " cancelled playing the Knight");
+  }
 };
 
 /**
