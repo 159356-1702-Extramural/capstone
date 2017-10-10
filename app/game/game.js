@@ -620,7 +620,11 @@ Game.prototype.do_trade_with_other = function (player_id, other_id) {
       logger.log('debug', 'TRADE: from trade acceptor ' + this.players[player_id].name + ' to ' + this.players[
         other_id].name);
       return true;
+    } else {
+      logger.log('debug', 'TRADE: failed at 2nd part');
     }
+  } else {
+    logger.log('debug', 'TRADE: failed at 1st part');
   }
   this.trade_restore_player_cards(this.players[player_id], this_backup);
   this.trade_restore_player_cards(this.players[other_id], other_backup);
@@ -637,14 +641,18 @@ Game.prototype.trade_backup_player_cards = function (player) {
     if (player.cards.count_single_card(card) > 0)
       cards.set(card, player.cards.count_single_card(card));
   }
+  logger.log('debug', 'TRADE: '+player.name+" backup cards =");
+  logger.log('debug', cards);
   return cards;
-}
+};
 
 Game.prototype.trade_restore_player_cards = function (player, backup) {
   for (let card of Object.keys(backup)) {
     if (backup.get(card) > 0)
       player.cards.set(card, backup.get(card));
   }
-}
+  logger.log('debug', 'TRADE: '+player.name+" restored cards =");
+  logger.log('debug', player.cards.resource_cards);
+};
 
 module.exports = Game;
