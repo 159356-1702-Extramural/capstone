@@ -1011,21 +1011,13 @@ function openTrade() {
         ['lumber_cards', resource_cards.lumber]
       ];
 
-      var trade_value = 4;
-      var trading = current_game.player.trading;
-
-      //if player has a settlement/city on 3:1 harbour
-      if (trading.three) {
-        trade_value = 3;
-      }
-
       $.each(resource_cards, function(card_name, num_of_cards) {
-
-        //leave trade_value alone (so loop doesn't alter it)
-        var this_trade = trade_value;
+        // recheck the value each loop to be sure JS
+        // isn't reusing a variable reference.
+        let this_trade = current_game.player.trading.three ? 3 : 4;
 
         //check whether 2:1 trade options exist
-        if (trading[card_name]) {
+        if (current_game.player.trading[card_name]) {
           this_trade = 2;
         }
 
