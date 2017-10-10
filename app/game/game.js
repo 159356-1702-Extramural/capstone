@@ -232,29 +232,41 @@ Game.prototype.robPlayers = function () {
   } while (rand_idx === -1 && this.players[rand_idx].id === this.knight_player_id);
   let victim = this.players[rand_idx];
   logger.log('info', "Robber targetted player "+victim.name);
-  let victim_cards = [];
-  for (let card of Object.keys(victim.cards.resource_cards)) {
-    if (victim.cards.count_single_card(card) >= 1)
-      victim_cards.push(card);
+
+  let tiles = [];
+  // going to assume players own at least one resource due to setup stage
+  // TODO: this list will need to change for game expansions
+  for (resource of ['sheep', 'brick', 'grain', 'ore', 'lumber']) {
+    let owned_list = this.board.get_resource_owned_by(victim.id, resource);
+    tiles = tiles.concat(owned_list);
   };
-  if (victim_cards.length >= 1) {
+
+  if (tiles.length >= 1) {
+    let tile = this.board.robberLocation;
+    do {
+      tile = tiles[Math.floor(Math.random() * tiles.length)]
+    } while (tile === this.board.robberLocation);
+
+    logger.log('info', "Robber targetted tile "+tile.type);
+    // Remove the robber from current location before switching tile
+    this.board.robberLocation.robber = false;
+    this.board.robberLocation = tile;
+    this.board.robberLocation.robber = true;
+
+    let victim_cards = [];
+    for (let card of Object.keys(victim.cards.resource_cards)) {
+      if (victim.cards.count_single_card(card) >= 1)
+        victim_cards.push(card);
+    };
     let resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
-    logger.log('info', "Robber targetted card "+resource);
-    let tiles = this.board.get_resource_owned_by(victim.id, resource);
-    if (tiles.length >= 1) {
-      let tile = tiles[Math.floor(Math.random() * tiles.length)]
-      // Remove the robber from current location before switching tile
-      this.board.robberLocation.robber = false;
-      this.board.robberLocation = tile;
-      this.board.robberLocation.robber = true;
+    if (resource) {
+      logger.log('info', "Robber stole "+resource);
       victim.cards.remove_card(resource);
       victim.round_distribution_cards.resource_cards[resource]--;
     } else {
-      logger.log('debug', "Robber targetted a resource the victim didn't own");
+      logger.log('debug', "Robber targetted a resource the victim didn't own?");
     }
-  } else {
-      logger.log('debug', "Robber targetted a player with no cards");
-    }
+  }
 
   // Work out what happens to each player
   for (i = 0; i < this.players.length; i++) {
