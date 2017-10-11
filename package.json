@@ -32,6 +32,8 @@
     "ava": "^0.21.0",
     "coveralls": "^2.13.1",
     "geckodriver": "^1.8.0",
+    "grunt": "^1.0.1",
+    "gulp-closure-compiler": "^0.4.0",
     "mock-socket": "^7.0.0",
     "nyc": "^11.0.3",
     "purify-css": "^1.2.5",

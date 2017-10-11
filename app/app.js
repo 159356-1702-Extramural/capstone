@@ -1,10 +1,28 @@
+/**
+ BEGIN_NODE_INCLUDE
+ var http = require('http');
+ var process = require('process');
+ END_NODE_INCLUDE
+ */
+
 var process = require('process');
+var http = require('http');
 
 // CAPSTONE PROJECT 2017
-process.title = process.argv[2];
+//process.title = process.argv[2];
 
 // Logging Framework
+var logger = {};
 var logger = require('winston');
+
+/**
+ * @param {*} msg
+ */
+logger.addColors = function(msg) {};
+logger.remove = function(msg) {};
+logger.add = function(msg) {};
+logger.transports = [];
+logger.transports.Console = function(options) {};
 
 logger.addColors({
     debug: 'green',
@@ -24,7 +42,6 @@ logger.add(logger.transports.Console, { level: 'error', colorize:true });
 // Web App Framework
 var express = require('express');
 var app = express();
-var http = require('http');
 var server = http.Server(app);
 
 //  WebSockets module
@@ -81,7 +98,6 @@ app.get('/', function (req, res) {
   dev_card = req.query["dev_card"];
   process.env['dev_card'] = (typeof dev_card === 'undefined') ? "disabled" : dev_card;
 
-  // TODO: Change this to display lobby page
   res.sendFile(__dirname + '/views/default.html');
 });
 

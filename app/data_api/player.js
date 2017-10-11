@@ -1,5 +1,6 @@
 let logger = require('winston');
-var {Cards, TradeCards} = require('../../public/data_api/cards.js');
+var Cards = require('../../public/data_api/cards.js').Cards;
+var TradeCards = require('../../public/data_api/cards.js').TradeCards;
 
 /**
  * Instance of a player

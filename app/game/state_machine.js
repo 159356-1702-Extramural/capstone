@@ -21,7 +21,8 @@ var Game = require('./game.js');
 var Data_package = require('../data_api/data_package.js');
 var Game_state = require('../data_api/game_state.js');
 var Action = require('../../public/data_api/action.js');
-var {Cards, TradeCards} = require('../../public/data_api/cards.js');
+var Cards = require('../../public/data_api/cards.js').Cards;
+var TradeCards = require('../../public/data_api/cards.js').TradeCards;
 
 /*
  * The state machine contains the Game and operates on it per current state logic

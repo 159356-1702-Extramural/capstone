@@ -2,7 +2,8 @@ var logger = require('winston');
 
 var board_builder = require('./board_builder.js');
 var Shuffler = require('../helpers/shuffler.js');
-var {Cards, TradeCards} = require('../../public/data_api/cards.js');
+var Cards = require('../../public/data_api/cards.js').Cards;
+var TradeCards = require('../../public/data_api/cards.js').TradeCards;
 
 function Game() {
   var standard_board = [

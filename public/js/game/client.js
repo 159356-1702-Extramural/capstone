@@ -2,7 +2,7 @@ window['player_input_on_enter'] = player_input_on_enter;
 window['show_games'] = show_games;
 window['start_new_game'] = start_new_game;
 window['join_game'] = join_game;
-current_game = null;
+//current_game = null;
 
 
 //  Our websocket

@@ -114,7 +114,7 @@ Games.prototype.assign_player = function (socket, data) {
 
 /// Removes a game instance from the active games
 Games.prototype.remove_game = function (idx) {
-  self = this;
+  let self = this;
   self.games[idx] = null;
   for (var x=0; x< this.lounging.length; x++) {
     this.send_lobby_data(this.lounging[x]);

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Settlers of Massey</title>
+
+  <link href="css/catan.css" rel="stylesheet" />
+  <link href="css/3rdparty.css" rel="stylesheet" />
+  <link href="css/jquery-ui.css" rel="stylesheet" />
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery-ui.js"></script>
+  <script src="js/dragdrop.js"></script>
+  <script src="js/jquery.ui.touch-punch.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body class="noselect" style="background-color:darkslategrey;">
+
+  <div class="log"></div>
+
+  <div class="done_prompt">
+    <div class="done_text">Are you done setting your pieces? Click <b>Finish Turn</b> to continue.</div>
+    <div class="done_arrow"><i class="fa fa-arrow-right fa-3x"></i></div>
+  </div>
+
+  <div class="trade_prompt">
+    <div class="trade_button"><div class="btn btn-info tradebank_button" onclick="$('.trade_prompt').hide(); openTrade();" style="width:140px;">Trade with Bank</div></div>
+    <div class="trade_button"><div class="btn btn-info tradeplayer_button" onclick="$('.trade_prompt').hide(); openInterTrade();" style="width:140px;">Trade with Player</div></div>
+    <div class="trade_button"><div class="btn btn-danger tradecancel_button" onclick="$('.trade_prompt').hide(); cancelTrade();" style="width:140px;">Cancel My Trade</div></div>
+    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); buildPopup('round_no_trade', false, false);" style="width:140px;">Trade Help</div></div>
+    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide();" style="width:140px;">Nevermind</div></div>
+  </div>
+
+  <div class="popup" style="display: none;">
+    <div class="popup_inner"></div>
+  </div>
+
+  <div class="other_players"></div>
+
+  <div class="board" style="top:30px; left:30px;"></div>
+  <div class="robber"></div>
+  <button class="btn-control-maximize btn-plus"></button>
+  <div class="score"></div>
+  <div class="game_chat game_chat--back">
+    <div class="messages"></div>
+    <form action="" class="">
+      <textarea name="" class="chat_input" placeholder="Send a message..."></textarea>
+    </form>
+  </div>
+
+  <script src="client.min.js"></script>
+
+</body>
+
+</html>
