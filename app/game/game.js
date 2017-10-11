@@ -584,7 +584,7 @@ Game.prototype.generate_dice_rolls = function () {
 
 Game.prototype.fixed_dice_rolls = function () {
   logger.log('debug', "Fixed dice rolls enabled");
-  var dice1array = [[6,4], [5,4], [4,4], [3,4], [2,4], [1,4]];
+  var dice1array = [[1,4], [2,4], [3,4], [4,4], [5,4], [6,4]];
   var temp_dice = [];
 
   for (var i = 0; i < 36; i++){
