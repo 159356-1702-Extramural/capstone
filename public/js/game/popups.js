@@ -266,7 +266,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    *  round_use_monopoly.html
    **************************************************/
   function build_popup_use_monopoly() {
-    buildPopup('round_use_monopoly', false, false);
+    buildPopup('round_use_monopoly', false, true);
   }
 
   function build_popup_monopoly_win(data) {
@@ -728,36 +728,87 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    *  end_results.html
    **************************************************/
   function build_popup_end_results(data) {
+    var winner_id = data.winners_id;
+    var end_game_stuff = [];
 
-    var winner_name = data.winners_name;
-    var results_html = '';
-
+    //  Determine order of winners
+    var winners = [];
+    winners.push(data.players[data.winners_id]);
     data.players.forEach(function(player) {
-      results_html += '<div class="player_row">' +
-        '<div class="player_icon"><img src="images/player' + player.id + '.png" /></div>' +
-        '<div class="player_name">' +
-        player.name + '<br>' +
-        '<span class="player_score">' + player.score.total_points + ' Victory Points!</span>' +
-        '</div>' +
-        '<div class="player_score_details">' +
-        '<div class="player_score_detail"><img src="images/settlement_' + player.colour +
-        '_small.png" /><br />x ' + player.score.settlements + '</div>' +
-        '<div class="player_score_detail"><img src="images/city_' + player.colour +
-        '_small.png" /><br />x ' + (player.score.cities * 2) + '</div>' +
-        '<div class="player_score_detail"><img src="images/score_victory.png" width="50" /><br /> x ' +
-        player.score.victory_points + '</div>' +
-        '<div class="player_score_detail"><img src="images/score_longroad.png" width="50" /><br /> x ' + (
-          player.score.longest_road ? 2 : 0) + '</div>' +
-        '<div class="player_score_detail"><img src="images/score_army.png" width="50" /><br /> x ' + (
-          player.score.largest_army ? 2 : 0) + '</div>' +
-        '</div>' +
-        '</div>';
-    }, this);
+      if (player.id != data.winners_id) {
+        winners.push(player);
+      }
+    });
+      
+    //  Collect all the details we need
+    for (var i = 0; i < winners.length; i++) {
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_id', winners[i].id]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_name', winners[i].name]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_colour', winners[i].colour]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_points', winners[i].score.total_points]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_building_points', winners[i].score.settlements + (winners[i].score.cities * 2)]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_settlement_count', winners[i].score.settlements]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_city_count', winners[i].score.cities]);
+      
+      var has_victory = 1;
+      var last_victory = 5;
+      var cards = ["chapel", "market", "library", "university_of_catan", "great_hall"];
+      for (var j = 0; j < cards.length; j++) {
+        if (winners[i].cards.victory_point_cards[cards[j]]) {
+          end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_has_victory_card_' + has_victory, "block"]);
+          end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_victory_card_' + has_victory, cards[j]]);
+          has_victory ++;
+        } else {
+          end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_has_victory_card_' + last_victory, "none"]);
+          end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_victory_card_' + last_victory, cards[j]]);
+          last_victory --;
+        }
+      }
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_victory_points', (has_victory - 1)]);
 
-    buildPopup("end_results", false, false, [
-      ['results_html', results_html],
-      ['winner_name', winner_name]
-    ]);
+      var has_bonus = 1;
+      var bonus_points = (winners[i].score.longest_road ? 2 : 0) + (winners[i].score.largest_army ? 2 : 0);
+      if (winners[i].score.longest_road) {
+        end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_has_bonus_card_' + has_bonus, 'block']);
+        end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_bonus_card_' + has_bonus, 'longest_road']);
+        has_bonus = 2;
+      } else {
+        end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_has_bonus_card_2', 'none']);
+        end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_bonus_card_2', 'longest_road']);
+      }
+      
+      if (winners[i].score.largest_army) {
+        end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_has_bonus_card_' + has_bonus, 'block']);
+      } else {
+        end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_has_bonus_card_' + has_bonus, 'none']);
+      }
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_bonus_card_' + has_bonus, 'largest_army']);
+      
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_bonus_points', bonus_points]);
+      end_game_stuff.push(['winner' + (i == 0 ? '' : i + 1) + '_non_building_points', bonus_points + has_victory - 1]);
+    }
+
+    //  Hide players when not needed
+    for (var i = winners.length; i < 4; i++) {
+      end_game_stuff.push(['winner' + (i + 1) + '_id', i]);
+      end_game_stuff.push(['winner' + (i + 1) + '_colour', "red"]);
+
+      var cards = ["chapel", "market", "library", "university_of_catan", "great_hall"];
+      for (var j = 0; j < cards.length; j++) {
+        end_game_stuff.push(['winner' + (i + 1) + '_has_victory_card_' + (j + 1), "none"]);
+        end_game_stuff.push(['winner' + (i + 1) + '_victory_card_' + (j + 1), cards[j]]);
+      }
+      end_game_stuff.push(['winner' + (i + 1) + '_has_bonus_card_1', 'none']);
+      end_game_stuff.push(['winner' + (i + 1) + '_bonus_card_1', 'longest_road']);
+      end_game_stuff.push(['winner' + (i + 1) + '_has_bonus_card_2', 'none']);
+      end_game_stuff.push(['winner' + (i + 1) + '_bonus_card_2', 'largest_army']);
+}
+
+    end_game_stuff.push(['show_two_players', (winners.length == 2 ? "block" : "none")]);
+    end_game_stuff.push(['show_three_players', (winners.length == 3 ? "block" : "none")]);
+    end_game_stuff.push(['show_four_players', (winners.length == 4 ? "block" : "none")]);
+
+    buildPopup("end_results", true, false, end_game_stuff);
   }
 
   /***************************************************

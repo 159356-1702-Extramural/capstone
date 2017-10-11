@@ -393,6 +393,7 @@ StateMachine.prototype.broadcast_gamestate = function () {
       turn_complete: false,
       points: player.score.total_points - player.score.victory_points,
       victory_points: player.score.victory_points,
+      victory_point_cards: player.cards.victory_point_cards,
       cards_count: player.cards.count_cards(),
       knight_played: player.cards.dev_cards.knight_played,
       dev_cards_count: player.cards.count_dev_cards(),
@@ -434,7 +435,7 @@ StateMachine.prototype.broadcast_end = function () {
     delete player.socket;
     end_game_data.players.push(player);
     if (player.winner) {
-      end_game_data.winners_name = player.name;
+      end_game_data.winners_id = player.id;
     }
   }
   this.broadcast('game_end', end_game_data);

@@ -88,7 +88,7 @@ $(document)
       build_popup_waiting_for_turn();
 
       //  Update player statuses
-      if (current_game.players) {
+      if (current_game) {
         for (var i = 0; i < current_game.players.length; i++) {
           $(".other_player" + i + "_status")
             .html("<i class='fa fa-spin fa-spinner'></i>");
