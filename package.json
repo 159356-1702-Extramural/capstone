@@ -10,7 +10,7 @@
     "concurrency": 4
   },
   "scripts": {
-    "start": "node app/app.js catan",
+    "start": "node app/server.min.js catan",
     "stop": "node app/server.stop.js",
     "inspect": "node --inspect app/app.js",
     "test": "nyc ava",
@@ -22,6 +22,7 @@
   "dependencies": {
     "express": "^4.15.3",
     "google-closure-compiler-js": "^20170910.0.1",
+    "google-closure-library": "^20170910.0.0",
     "gulp": "^3.9.1",
     "iedriver": "^3.4.0",
     "socket.io": "^2.0.3",

@@ -1,3 +1,10 @@
+window['player_input_on_enter'] = player_input_on_enter;
+window['show_games'] = show_games;
+window['start_new_game'] = start_new_game;
+window['join_game'] = join_game;
+current_game = null;
+
+
 //  Our websocket
 var socket = io();
 
@@ -39,7 +46,7 @@ $(document)
       build_popup_start("start_" + active_class, (active_class == "intro" ? true : false));
 
       //  Put the cursor in our name input
-      setTimeout("set_player_focus()", 250);
+      setTimeout(set_player_focus, 250);
     });
 
     //  Build lobby
@@ -2103,11 +2110,12 @@ function set_player_focus() {
   $("#player-input")
     .focus();
 }
+
 //  Submit the name when enter is used
 function player_input_on_enter(e) {
   var key = e.keyCode || e.which;
   if (key == 13) {
-    setTimeout("show_games()", 500);
+    setTimeout(show_games, 500);
     return false;
   }
   return true;

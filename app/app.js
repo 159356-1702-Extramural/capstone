@@ -1,7 +1,23 @@
+var process = require('process');
+
 // CAPSTONE PROJECT 2017
 process.title = process.argv[2];
+
 // Logging Framework
-var logger = require('./log.js');
+var logger = require('winston');
+
+logger.addColors({
+    debug: 'green',
+    info:  'cyan',
+    silly: 'magenta',
+    verbose: 'magenta',
+    warn:  'yellow',
+    error: 'red'
+});
+
+logger.remove(logger.transports.Console);
+logger.add(logger.transports.Console, { level: 'error', colorize:true });
+
 // TODO: can we set this from enviroment config?
 //logger.level = 'debug';
 

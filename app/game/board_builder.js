@@ -1,11 +1,13 @@
+var logger = require('winston');
+var process = require('process');
+
 // TODO: replate is with import as we have names exports on board js
 // ie. import { Board, Point, TileNode, RoadNode, BuildNode } from '../../public/data_api/board.js';
 // then we can avoud the statements like Board.Board()
 var Board = require('../../public/data_api/board.js');
 var Shuffler = require('../helpers/shuffler.js');
-var logger = require('winston');
 
-log = function(level, inf) {
+let log = function(level, inf) {
   if (typeof inf === "object" && level === "debug") {
     logger.log(level, 'BOARD BUILDER: object data =');
     console.log(inf);
@@ -63,7 +65,7 @@ function BoardSet(pattern, tile_stack, tokens, harbor_stack, rndTokens) {
  *
  * Numbers in grid determine the tile type
  */
-generate = function (board_set = new BoardSet()) {
+let generate = function (board_set = new BoardSet()) {
   // threshold for tile check moving a tile
   var threshold = (typeof process.env['rndThreshold'] === 'undefined')
                     ? 2 : parseInt(process.env['rndThreshold']);
@@ -155,7 +157,7 @@ generate = function (board_set = new BoardSet()) {
 };
 
 /// Count how many Points are the same in each array
-compare_point_array = function (a1, a2) {
+let compare_point_array = function (a1, a2) {
   var count = 0;
   for (var i = 0; i < a1.length; i++) {
     for (var j = 0; j < a2.length; j++) {
@@ -167,13 +169,13 @@ compare_point_array = function (a1, a2) {
   return count;
 };
 
-getRandomIntInclusive = function (min, max) {
+let getRandomIntInclusive = function (min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive
 };
 
-random_from_stack = function (stack) {
+let random_from_stack = function (stack) {
   var checked = [];
   var idx = -1;
   do {
@@ -192,7 +194,7 @@ random_from_stack = function (stack) {
   return "";
 };
 
-get_harbor_direction = function(num) {
+let get_harbor_direction = function(num) {
   switch (num) {
     case 4:
       return 'top_left';
@@ -211,7 +213,7 @@ get_harbor_direction = function(num) {
   return false;
 };
 
-set_node_harbor = function(board, tile) {
+let set_node_harbor = function(board, tile) {
   switch (tile.harbor_direction) {
     case 'top_left':
       board.nodes[tile.get_node_by_dir("top_left")].harbor = tile.harbor;
@@ -240,7 +242,7 @@ set_node_harbor = function(board, tile) {
   }
 };
 
-check_token_placement = function(board, not_allowed) {
+let check_token_placement = function(board, not_allowed) {
   // assumes that the outside tiles are always water
   var changed = false;
   for (var y = 1; y < board.tiles.length-1; y++) {
@@ -265,7 +267,7 @@ check_token_placement = function(board, not_allowed) {
   return changed; // mostly for testing
 };
 
-swap_not_allowed_token = function(board, token, not_allowed) {
+let swap_not_allowed_token = function(board, token, not_allowed) {
   // assumes that the outside tiles are always water
   for (var y = 0; y < board.tiles.length; y++) {
     for (var x = 0; x < board.tiles[y].length; x++) {
@@ -280,7 +282,7 @@ swap_not_allowed_token = function(board, token, not_allowed) {
   }
 };
 
-check_tile_placement = function(board, threshold, first_tile=null, nx=1, ny=1) {
+let check_tile_placement = function(board, threshold, first_tile=null, nx=1, ny=1) {
   for (var y=ny; y < board.tiles.length-1; y++) {
     for (var x=nx; x < board.tiles[y].length-1; x++) {
       var type = board.tiles[y][x].type.slice(0);
@@ -333,7 +335,7 @@ check_tile_placement = function(board, threshold, first_tile=null, nx=1, ny=1) {
   return -1; // end of array
 };
 
-add_tile_nodes = function(board, pattern, tile, tile_point) {
+let add_tile_nodes = function(board, pattern, tile, tile_point) {
   var add_node = true;
   var water = 0;
   // nodes from center of tile are in order;
@@ -385,7 +387,7 @@ add_tile_nodes = function(board, pattern, tile, tile_point) {
  *
  *  Pushes new nodes and their hash in to hashmap
  */
-setup_nodes = function (coords) {
+let setup_nodes = function (coords) {
   var x = coords.x;
   var y = coords.y;
   var odd_x = x;
@@ -419,7 +421,7 @@ setup_nodes = function (coords) {
  *  and adds road nodes between them
  *  Note: use only when all nodes have been added to the hashmap
  */
-fill_node_details = function (board, node, node_index) {
+let fill_node_details = function (board, node, node_index) {
   for (var n = 0; n < board.nodes.length; n++) {
     // if n_node.n_tiles contains any combo of two or more of
     // this nodes neighbouring tiles then it is a neighbour node

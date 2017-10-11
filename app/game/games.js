@@ -1,3 +1,5 @@
+var process = require('process');
+
 var logger = require('winston');
 var Player = require('../data_api/player.js');
 var sm = require("./state_machine.js");
@@ -23,7 +25,7 @@ function Games() {
 
 // TODO: Rework this function to
 Games.prototype.assign_player = function (socket, data) {
-  self = this;
+  let self = this;
   var lounger_idx = this.lounging.indexOf(socket);
   if (lounger_idx >= 0)
     this.lounging.splice(lounger_idx, 1);
@@ -122,6 +124,7 @@ Games.prototype.remove_game = function (idx) {
 
 /// Resets all the games - use for debugging
 Games.prototype.hard_reset = function () {
+  let self = this;
   this.games = [];
   logger.log('debug', 'Games have been reset.');
 };
@@ -147,6 +150,7 @@ Games.prototype.send_lobby_data = function (socket) {
 };
 
 Games.prototype.new_game = function (socket, data, game_size) {
+  let self = this;
   var this_id = this.games.length;
   // todo: reset array if all null
   for (var g=0; g< this.games.length; g++) {

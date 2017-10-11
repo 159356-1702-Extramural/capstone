@@ -1,10 +1,8 @@
 var logger = require('winston');
+
 var board_builder = require('./board_builder.js');
 var Shuffler = require('../helpers/shuffler.js');
-var {
-  Cards,
-  TradeCards
-} = require('../../public/data_api/cards.js');
+var {Cards, TradeCards} = require('../../public/data_api/cards.js');
 
 function Game() {
   var standard_board = [
@@ -77,7 +75,7 @@ Game.prototype.reset_player_turns = function () {
  * @return {String} JSON - this.board parsed to a JSON string
  */
 Game.prototype.buildBoard = function () {
-  jsonData = JSON.stringify(this.board);
+  let jsonData = JSON.stringify(this.board);
   return jsonData;
 };
 
@@ -237,7 +235,7 @@ Game.prototype.robPlayers = function () {
   let tiles = [];
   // going to assume players own at least one resource due to setup stage
   // TODO: this list will need to change for game expansions
-  for (resource of ['sheep', 'brick', 'grain', 'ore', 'lumber']) {
+  for (let resource of ['sheep', 'brick', 'grain', 'ore', 'lumber']) {
     let owned_list = this.board.get_resource_owned_by(victim.id, resource);
     tiles = tiles.concat(owned_list);
   };
@@ -270,7 +268,7 @@ Game.prototype.robPlayers = function () {
   }
 
   // Work out what happens to each player
-  for (i = 0; i < this.players.length; i++) {
+  for (let i = 0; i < this.players.length; i++) {
     if (this.players[i].id !== this.knight_player_id) {
       player = this.players[i];
       num_cards = player.cards.count_cards();
@@ -279,10 +277,10 @@ Game.prototype.robPlayers = function () {
       if (num_cards > 7) {
         player_cards = [];
 
-        for (resource in player.cards.resource_cards) {
+        for (let resource in player.cards.resource_cards) {
           if (player.cards.resource_cards.hasOwnProperty(resource)) {
             var resource_count = player.cards.resource_cards[resource];
-            for (j = 0; j < resource_count; j++) {
+            for (let j = 0; j < resource_count; j++) {
               player_cards.push(resource);
             }
           }
@@ -292,7 +290,7 @@ Game.prototype.robPlayers = function () {
         player_cards = shuffler.shuffle(player_cards);
 
         let num_to_steal = Math.floor(num_cards / 2);
-        for (j = 0; j < num_to_steal; j++) {
+        for (let j = 0; j < num_to_steal; j++) {
           player.cards.remove_card(player_cards[j]);
           player.round_distribution_cards.resource_cards[player_cards[j]]--;
         }
@@ -569,7 +567,7 @@ Game.prototype.generate_dice_rolls = function () {
   var shuffler = new Shuffler();
   var temp_dice = [];
   var robbers = 0;
-  
+
   //  Add all dice combinations to an array
   for( var i = 1; i < 7; i++ ){
     for (var j = 1; j < 7; j++ ){
@@ -579,7 +577,7 @@ Game.prototype.generate_dice_rolls = function () {
       }
     }
   }
-  return shuffler.shuffle(temp_dice); 
+  return shuffler.shuffle(temp_dice);
 }
 
 Game.prototype.fixed_dice_rolls = function () {
@@ -603,7 +601,7 @@ Game.prototype.rollingDice = function (){
     if(this.test_mode === 'false'){
       this.dice_array = shuffler.shuffle(this.dice_array);
     }
-    
+
   }
 
   return this.dice_roll[0] + this.dice_roll [1];

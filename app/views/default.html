@@ -16,6 +16,10 @@
   <script src="js/dragdrop.js"></script>
   <script src="js/jquery.ui.touch-punch.min.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="data_api/data_package.js"></script>
+  <script src="data_api/action.js"></script>
+  <script src="data_api/board.js"></script>
+  <script src="data_api/cards.js"></script>
 </head>
 
 <body class="noselect" style="background-color:darkslategrey;">
@@ -30,10 +34,8 @@
   </div>
 
   <div class="trade_prompt">
-    <div class="trade_button"><div class="btn btn-info tradebank_button" onclick="$('.trade_prompt').hide(); openTrade();" style="width:140px;">Trade with Bank</div></div>
-    <div class="trade_button"><div class="btn btn-info tradeplayer_button" onclick="$('.trade_prompt').hide(); openInterTrade();" style="width:140px;">Trade with Player</div></div>
-    <div class="trade_button"><div class="btn btn-danger tradecancel_button" onclick="$('.trade_prompt').hide(); cancelTrade();" style="width:140px;">Cancel My Trade</div></div>
-    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); buildPopup('round_no_trade', false, false);" style="width:140px;">Trade Help</div></div>
+    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); openTrade();" style="width:140px;">Trade with Bank</div></div>
+    <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide(); openInterTrade();" style="width:140px;">Trade with Player</div></div>
     <div class="trade_button"><div class="btn btn-info" onclick="$('.trade_prompt').hide();" style="width:140px;">Nevermind</div></div>
   </div>
 
@@ -42,7 +44,7 @@
   </div>
 
   <div class="other_players"></div>
-
+  
   <div class="board" style="top:30px; left:30px;"></div>
   <div class="robber"></div>
   <div class="score"></div>
@@ -81,7 +83,10 @@
     <button class="chat_menu" onclick="$('.game_chat .menu').show();"><i class="fa fa-gears"></i></button>
   </div>
 
-  <script src="client.min.js"></script>
+  <script src="js/game/game.js"></script>
+  <script src="js/game/player.js"></script>
+  <script src="js/game/client.js"></script>
+  <script src="js/game/popups.js"></script>
 
 </body>
 
