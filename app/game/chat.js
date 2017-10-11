@@ -27,7 +27,8 @@ Chat.prototype.initialise_chat = function(players) {
 
   for (var i = 0; i < players.length; i++) {
     players[i].socket.on('chat_message', function(data) {
-      _self.broadcast(data.player_id, data.message);
+      if (data)
+        _self.broadcast(data.player_id, data.message);
     });
   }
 };
