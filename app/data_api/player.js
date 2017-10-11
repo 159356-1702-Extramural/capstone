@@ -16,6 +16,9 @@ function Player(socket, data) {
   this.socket = socket;
   this.winner = false;
 
+  //If isRobot is true, then the player is a computer player.
+  this.isRobot=false;
+
   this.turn_complete = false;
   //hold on to turn data : null was causing errors with .length
   this.turn_data = [];
