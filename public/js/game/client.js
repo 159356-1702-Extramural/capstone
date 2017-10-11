@@ -34,6 +34,7 @@ $(document)
       $(".btn-control-maximize").toggleClass('btn-plus');
       $(".score").toggleClass("score--back");
       $(".game_chat").toggleClass("game_chat--back");
+      $(".trade_prompt").hide();
     });
 
     //    Show the initial menu
@@ -2212,8 +2213,12 @@ function finish_turn(){
 
   //  Hide the reminder
   $(".done_prompt").hide();
-  //  Hide the trade prompt
+
+  //  Adjust trade stuff
+  current_player.trade_in_progress = false;
   $('.trade_prompt').hide();
+  $(".tradeplayer_button").show();
+  $(".tradecancel_button").hide();
 
   data_package.player_id = current_player.id;
   data_package.actions = turn_actions;

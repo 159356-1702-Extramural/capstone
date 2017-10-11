@@ -33,8 +33,10 @@ function Game() {
   // set these variables via environment varaibles
   this.test_mode = 'false';
   this.robber = 'enabled';
+  this.robber_frequency = 6;  //  # of 7s per round of 36 dice possibilities (6 max)
   this.cards = this.generate_dev_card_deck();
   this.dice_array = this.generate_dice_rolls();
+  this.dice_array_pointer = 0;
 }
 
 /**
@@ -566,10 +568,15 @@ Game.prototype.randomise_startup_array = function () {
 Game.prototype.generate_dice_rolls = function () {
   var shuffler = new Shuffler();
   var temp_dice = [];
-
+  var robbers = 0;
+  
+  //  Add all dice combinations to an array
   for( var i = 1; i < 7; i++ ){
-    for ( j = 1; j < 7; j++ ){
-      temp_dice.push([i,j]);
+    for (var j = 1; j < 7; j++ ){
+      if (i + j != 7 || this.robber_frequency > robbers) {
+        robbers += (i + j == 7 ? 1 : 0);
+        temp_dice.push([i,j]);
+      }
     }
   }
   return shuffler.shuffle(temp_dice); 
@@ -587,11 +594,19 @@ Game.prototype.fixed_dice_rolls = function () {
   return temp_dice;
 }
 Game.prototype.rollingDice = function (){
-  if (this.dice_array.length == 0) {
-    this.dice_array = this.generate_dice_rolls();
+  var shuffler = new Shuffler();
+  this.dice_roll = this.dice_array[this.dice_array_pointer];
+
+  this.dice_array_pointer++;
+  if(this.dice_array_pointer === this.dice_array.length){
+    this.dice_array_pointer = 0;
+    if(this.test_mode === 'false'){
+      this.dice_array = shuffler.shuffle(this.dice_array);
+    }
+    
   }
-  this.dice_roll = this.dice_array.pop();
-  return this.dice_roll[0] + this.dice_roll[1];
+
+  return this.dice_roll[0] + this.dice_roll [1];
 }
 
 // swaps the cards in the tradecard list between players
