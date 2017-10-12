@@ -290,8 +290,7 @@ function set_object_on_canvas(event, ui) {
   var node = nodes[node_id];
 
   //  Make sure it is not already owned
-  if (!can_build_this || (node.owner > -1 && object_type != "city") || (object_type == "city" && node.owner !=
-      current_game.player.id)) {
+  if (!can_build_this || (node.owner > -1 && object_type != "city") || (object_type == "city" && node.owner != current_game.player.id) || (object_type == node.building)) {
     //  This piece should not be placed, return it to its pile
     return_object(object_dragged, object_dragged_id, node_id, false);
 
