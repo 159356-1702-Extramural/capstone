@@ -39,7 +39,9 @@ function StateMachine(id, game_size) {
   this.setupPointer = 0;
   this.chat = null;
   this.timer = null;
-  this.timer_length = 666; // seconds
+  this.timer_monopoly = null;
+  this.timer_length = 60; // seconds
+  this.monopoly_timer_length = 30; //seconds
 
 }
 
@@ -64,8 +66,6 @@ StateMachine.prototype.next_state = function () {
     // if (conditions to switch state)
     if (this.setupComplete === true) {
       this.log('debug', 'setup state successfully completed');
-      //start timer for first round
-      this.start_timer();
       this.state = "play";
     }
   } else if (this.state === "play") {
@@ -153,13 +153,7 @@ StateMachine.prototype.tick = function (data) {
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
-    case 'still_connected':
-      this.game.players[data.player_id].connected = true;
-      this.game.players[data.player_id].used_dev_card = false;
-      this.game.players[data.player_id].recent_purchases =[];
-      break;
-    case 'trade_with_bank':
-      if (!turn_complete)
+      case 'trade_with_bank':
         this.trade_with_bank(data);
       break;
     case 'init_player_trade':
@@ -222,6 +216,7 @@ StateMachine.prototype.tick = function (data) {
           break;
           // TODO: does monopoly block using other cards?
         }
+
         this.game.players[data.player_id].used_dev_card = true;
       } else {
         // send message saying Noooooo!
@@ -229,6 +224,7 @@ StateMachine.prototype.tick = function (data) {
       break;
     case 'monopoly_not_used':
       //ignore this if monopoly not in play
+      this.stop_timer('monopoly');
       if (this.game.monopoly === data.player_id && !turn_complete) {
         var data_package = new Data_package();
         data_package.data_type = "round_turn";
@@ -236,9 +232,12 @@ StateMachine.prototype.tick = function (data) {
         for (var i = 0; i < this.game.players.length; i++) {
           if (i !== this.game.monopoly) {
             data_package.player = this.game.players[i];
-            this.send_to_player('game_turn', data_package);
+            this.send_to_player('game_turn', data_package);        
+          }else{
+              //starts timer only once
+              this.start_timer('round');
+            }
           }
-        }
       } else {
         this.log('debug', 'monopoly ignored');
       }
@@ -296,8 +295,8 @@ StateMachine.prototype.tick = function (data) {
   return false;
 };
 
-StateMachine.prototype.finish_round_for_all = function (data) {
-  this.stop_timer();
+StateMachine.prototype.finish_round_for_all = function(data) {
+  this.stop_timer('round');
   if (!data) this.log("error", "func 'finish_round_for_all()' missing data");
   this.validate_player_builds(data);
   this.game.round_num++;
@@ -360,17 +359,18 @@ StateMachine.prototype.finish_round_for_all = function (data) {
   //  Notify players if there is no monopoly in play
   if (this.game.monopoly < 0) {
     this.broadcast('game_turn', setup_data);
+    this.start_timer('round');
   } else {
     // if there is a monopoly in play, notify only that player to start their turn
     setup_data.player = this.game.players[this.game.monopoly];
     this.send_to_player('game_turn', setup_data);
+    this.start_timer('monopoly');
     //tell the player who finished the round to wait (if they aren't the monopoly player)
     if (this.game.monopoly !== data.player_id) {
       setup_data.data_type = 'wait_others';
       this.game.players[data.player_id].socket.emit('game_turn', setup_data);
     }
   }
-  this.start_timer();
 };
 
 /*****************************************************************
@@ -989,6 +989,7 @@ StateMachine.prototype.activate_road_building = function (data) {
  */
 StateMachine.prototype.activate_monopoly = function (data) {
   if (!data) this.log("error", "func 'activate_monopoly()' missing data");
+  this.stop_timer('monopoly');
 
   var data_package = new Data_package();
   data_package.data_type = 'monopoly_used';
@@ -1061,6 +1062,7 @@ StateMachine.prototype.activate_monopoly = function (data) {
   data_package.player.actions = [];
   data_package.player.actions.push(action);
   this.send_to_player('game_turn', data_package);
+  this.start_timer('round');
   return true;
 };
 
@@ -1156,35 +1158,56 @@ StateMachine.prototype.move_knight_to = function (data) {
   this.broadcast_gamestate();
 };
 
-StateMachine.prototype.start_timer = function () {
-  logger.log('debug', "Server side timer set to :" + this.timer_length + " seconds");
-  this.timer = setTimeout(this.end_player_turns.bind(this), this.timer_length * 1000);
-}
-StateMachine.prototype.stop_timer = function () {
-  logger.log('debug', "Server side timer stopped.");
-  clearTimeout(this.timer);
-  this.timer = null;
-}
-StateMachine.prototype.end_player_turns = function () {
-  var players_left = [];
-  for (var i = 0; i < this.game.players.length; i++) {
-    if (!this.game.players[i].turn_complete) {
-      logger.log('Warning', 'Player ' + i + ' in StateMachine ' + this.id + ' never completed their turn');
-      players_left.push(i);
-    } else {
-      logger.log('debug', 'Server side end turn triggered');
-    }
-  }
-  for (var j = 0; j < players_left.length; j++) {
-    this.game.players[players_left[j]].connected = false;
-    var mock_data = {
-      data_type: 'turn_complete',
-      player_id: players_left[j],
-      actions: []
-    }
-    this.tick(mock_data);
+
+/**
+ * Timer functions
+ */
+StateMachine.prototype.start_timer = function (timer_type){
+  if(timer_type === 'round'){
+    logger.log('debug', "Server side timer set to :" + this.timer_length + " seconds");
+    this.timer = setTimeout(this.send_turn_finishing.bind(this), this.timer_length * 1000 );
+  }else if (timer_type === 'monopoly'){
+    logger.log('debug', "Server side monopoly timer set to :" + this.monopoly_timer_length + " seconds");
+    this.timer_monopoly = setTimeout(this.send_monopoly_finishing.bind(this), this.monopoly_timer_length * 1000 );
   }
 }
+
+StateMachine.prototype.stop_timer = function (timer_type){
+  if(timer_type === 'round'){
+    logger.log('debug', "Server side timer stopped.");
+    clearTimeout(this.timer);
+    this.timer = null;
+  }else if(timer_type === 'monopoly') {
+    logger.log('debug', "Server side monopoly timer stopped.");
+    clearTimeout(this.timer_monopoly);
+    this.timer_monopoly = null;
+  }
+}
+
+StateMachine.prototype.send_turn_finishing = function (){
+  logger.log('debug', 'Players havent finished their turn');
+  var data_package = new Data_package();
+  var players = this.game.players;
+  data_package.data_type = "force_finish_turn";
+  this.broadcast('game_turn',data_package);
+}
+
+StateMachine.prototype.send_monopoly_finishing = function (){
+  logger.log('debug', 'Player hasnt finished monopoly turn');
+  
+  var data_package = new Data_package();
+  data_package.data_type = "force_finish_monopoly";
+  if(this.game.monopoly === -1){
+    this.log('error', 'Monopoly timer was still running but no one has monopoly now.  Timer should have been canceled or never started');
+  }else{
+    this.broadcast('game_turn', data_package);
+  }
+
+  this.stop_timer('monopoly');
+  //start round timer
+  this.start_timer('round');
+}
+
 module.exports = {
   StateMachine
 };
