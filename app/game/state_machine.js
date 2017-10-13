@@ -445,9 +445,17 @@ StateMachine.prototype.broadcast_end = function () {
 StateMachine.prototype.broadcast = function (event_name, data) {
   if (!data) this.log("error", "func 'broadcast()' missing data");
   this.log('debug', 'Broadcasting event: ' + event_name);
-  this.game.players.forEach(function (player) {
-    player.socket.emit(event_name, data);
-  });
+  
+  for( var i = 0; i < this.game.players.length; i++){
+    var player = this.game.players[i];
+    if(player.connected){
+      player.socket.emit(event_name, data);
+    }else{
+      if(data.data_type === 'round_turn'){
+        this.run_computer_player(player.id);
+      }
+    }
+  }
 };
 
 /// Messages individual player in a game
@@ -1184,6 +1192,19 @@ StateMachine.prototype.end_player_turns = function () {
     }
     this.tick(mock_data);
   }
+}
+
+StateMachine.prototype.run_computer_player = function (computer_player_id){
+  //Cant use data_package = new Data_package(); here as we are simulation client traffic
+  var data_package = {
+    data_type: 'turn_complete',
+    player_id: computer_player_id
+  }
+
+  // Add round logic here
+
+
+  this.tick(data_package);
 }
 module.exports = {
   StateMachine

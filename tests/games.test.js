@@ -150,7 +150,8 @@ test.serial("Sending game_update request recv data", function (t) {
   t.truthy(game_data);
 });
 
-test.serial("Player disconnect received and remove socket from lounge", function (t) {
+//Craig set to failing as game no longer removed on disconnect
+test.failing("Player disconnect received and remove socket from lounge", function (t) {
   g.new_game(new Socket(), player, 2);
   t.true(g.games[0] !== null);
   let socket = new Socket();

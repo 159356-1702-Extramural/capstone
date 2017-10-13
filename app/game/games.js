@@ -86,11 +86,31 @@ Games.prototype.assign_player = function (socket, data) {
 
   player.socket.on('disconnect', function () {
     logger.log('info', 'a player has quit the game');
-    state_machine.broadcast('player_quit', {
-      message: player.name + ' has disconnected. Game Over.'
-    });
+    // state_machine.broadcast('player_quit', {
+    //   message: player.name + ' has disconnected. Game Over.'
+    // });
+    player.connected = false;
 
-    self.remove_game(player.game_id);
+    //check if all players are disconnected from the game
+    var players = state_machine.game.players;
+    var disconnected = true;
+    for(var i = 0; i < players.length; i++){
+      if(players[i].connected){
+        disconnected = false;
+        break;
+      }
+    }
+
+    if(disconnected){
+      self.remove_game(player.game_id);
+      logger.log("warning", "All players have left the game");
+    }else{
+      var data_package = {
+        data_type: "turn_complete",
+        player_id: player.id
+      }
+      state_machine.tick(data_package);
+    }
   });
 
   // Start the game if we have all the players
