@@ -1163,13 +1163,14 @@ StateMachine.prototype.move_knight_to = function (data) {
  * Timer functions
  */
 StateMachine.prototype.start_timer = function (timer_type){
+    logger.log('debug', 'Timer: '+timer_type+' timer starting');
   if(timer_type === 'round'){
-    this.broadcast('timestamp', start_timer_helper(timer_type));
+    this.broadcast('timestamp', this.start_timer_helper(timer_type));
   } else{
-    this.game.players[this.game.monopoly].socket.emit('timestamp', start_timer_helper(timer_type));
+    this.game.players[this.game.monopoly].socket.emit('timestamp', this.start_timer_helper(timer_type));
   }
-  //send monopoly timestamp to owner of monopoly only  
-  
+  //send monopoly timestamp to owner of monopoly only
+
 }
 StateMachine.prototype.start_timer_helper = function (timer_type) {
   var timerObj = {
@@ -1178,18 +1179,18 @@ StateMachine.prototype.start_timer_helper = function (timer_type) {
   }
   if(timer_type === 'round'){
     timerObj.timer_expires = Date.now() + (this.timer_length*1000);
-    logger.log('debug', "Server side timer set to :" + timerObj.timer_expires - Date.now() + " seconds");
     this.timer = setTimeout(this.send_turn_finishing.bind(this), timerObj.timer_expires - Date.now());
     //send timestamp to all players
   }else if (timer_type === 'monopoly'){
     timerObj.timer_expires = Date.now() + (this.monopoly_timer_length*1000);
-    logger.log('debug', "Server side monopoly timer set to :" + timerObj.timer_expires + " seconds");
     this.timer_monopoly = setTimeout(this.send_monopoly_finishing.bind(this), timerObj.timer_expires - Date.now() );
   }
+  logger.log('debug', "Server side " + timer_type + " timer set to :" + (timerObj.timer_expires- Date.now()) /1000+ " seconds");
   return timerObj;
 }
 
 StateMachine.prototype.stop_timer = function (timer_type){
+  logger.log('debug', 'Timer: '+timer_type+' timer stopping');
   if(timer_type === 'round'){
     logger.log('debug', "Server side timer stopped.");
     clearTimeout(this.timer);
@@ -1203,25 +1204,21 @@ StateMachine.prototype.stop_timer = function (timer_type){
 
 StateMachine.prototype.send_turn_finishing = function (){
   logger.log('debug', 'Players havent finished their turn');
-  var data_package = new Data_package();
-  var players = this.game.players;
-  data_package.data_type = "force_finish_turn";
-  this.broadcast('game_turn',data_package);
+  // var data_package = new Data_package();
+  // data_package.data_type = "force_finish_turn";
+  this.broadcast('game_turn',{data_type:"force_finish_turn"});
 }
 
 StateMachine.prototype.send_monopoly_finishing = function (){
   logger.log('debug', 'Player hasnt finished monopoly turn');
 
-  var data_package = new Data_package();
-  data_package.data_type = "force_finish_monopoly";
   if(this.game.monopoly === -1){
     this.log('error', 'Monopoly timer was still running but no one has monopoly now.  Timer should have been canceled or never started');
   }else{
-    this.broadcast('game_turn', data_package);
+    this.broadcast('game_turn', {data_type:"force_finish_monopoly"});
   }
 
   this.stop_timer('monopoly');
-  //start round timer
   this.start_timer('round');
 }
 
