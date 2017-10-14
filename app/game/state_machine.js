@@ -1197,6 +1197,7 @@ StateMachine.prototype.end_player_turns = function () {
  */
 StateMachine.prototype.store_activity = function(action) {
 
+  var _self = this;
   var connection = db.getConnection();
   if (!connection) return;
 
@@ -1204,13 +1205,13 @@ StateMachine.prototype.store_activity = function(action) {
 
     case 'end_game':
         var end_time = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-        connection.query('UPDATE games SET ? where id = ?', [end_time, this.game.db_game_id], function (error) {
+        connection.query('UPDATE games SET ? where id = ?', [end_time, _self.game.db_game_id], function (error) {
           if (error) throw error;
         });
         break;
 
       case 'new_round':
-        connection.query('UPDATE games SET rounds = ? WHERE id = ?', [this.game.round_num, this.game.db_game_id], function (error) {
+        connection.query('UPDATE games SET rounds = ? WHERE id = ?', [_self.game.round_num, _self.game.db_game_id], function (error) {
           if (error) throw error;
         });
         break;
@@ -1221,7 +1222,7 @@ StateMachine.prototype.store_activity = function(action) {
           players: this.game.players.length
         }, function (error, results) {
           if (error) throw error;
-          this.game.db_game_id = results.insertId;
+          _self.game.db_game_id = results.insertId;
         });
         break;
 
