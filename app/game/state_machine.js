@@ -153,8 +153,8 @@ StateMachine.prototype.tick = function (data) {
     //  Validate each player action
     // trading with the bank (4:1, 3:1, 2:1)
     switch (data.data_type) {
-      case 'trade_with_bank':
-        this.trade_with_bank(data);
+    case 'trade_with_bank':
+      this.trade_with_bank(data);
       break;
     case 'init_player_trade':
       if (!turn_complete)
@@ -232,7 +232,7 @@ StateMachine.prototype.tick = function (data) {
         for (var i = 0; i < this.game.players.length; i++) {
           if (i !== this.game.monopoly) {
             data_package.player = this.game.players[i];
-            this.send_to_player('game_turn', data_package);        
+            this.send_to_player('game_turn', data_package);
           }else{
               //starts timer only once
               this.start_timer('round');
@@ -1205,7 +1205,7 @@ StateMachine.prototype.send_turn_finishing = function (){
 
 StateMachine.prototype.send_monopoly_finishing = function (){
   logger.log('debug', 'Player hasnt finished monopoly turn');
-  
+
   var data_package = new Data_package();
   data_package.data_type = "force_finish_monopoly";
   if(this.game.monopoly === -1){

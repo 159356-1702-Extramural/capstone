@@ -234,11 +234,11 @@ $(document)
 
       } else if (data.data_type === 'round_turn') {
         round_turn();
-      
+
         /**
          * start monopoly timer if player has monopoly card
          * Potential point where timers are out of sync
-         */        
+         */
         // if(current_game.player.cards.dev_cards.monopoly > 0){
         //   animate_timer(monopoly_time);
         // }
@@ -315,7 +315,7 @@ $(document)
         } else {
           $(".player" + data.player_id + "_bubble").hide();
         }
-        
+
       } else if (data.data_type === 'returned_player_trade') {
         // successful trade for player
         // intended to work the same as for recv from bank
@@ -326,12 +326,12 @@ $(document)
         if (data.message) {
           alert(data.message);
         }
-        
+
         //  Toggle the trade/cancel button
         $(".tradeplayer_button").show();
         $(".tradecancel_button").hide();
         current_player.trade_in_progress = false;
-                    
+
       } else if (data.data_type === 'cancel_player_trade') {
         $(".player" + data.player_id + "_bubble").hide();
 
@@ -390,7 +390,7 @@ $(document)
       } else if (data.data_type === 'force_finish_monopoly') {
         if(current_game.player.cards.dev_cards.monopoly === 0){
           // players waiting for monopoly to finish can start turn
-          round_turn();  
+          round_turn();
         }else{
           if($('#monopolyPopup').is(':visible')||$('#useMonopoly').is(':visible')){
             hidePopup();
@@ -418,7 +418,7 @@ $(document)
       let location = $(this).attr('id');
       location = location.match(/(\d+)/g);
       console.log("Selected", location);
-      
+
       var action = new Action();
       action.action_type = 'move_knight_to';
       action.action_data = location;
@@ -871,7 +871,7 @@ $(document)
         .html($(".build_hidden")
           .html());
 
-          
+
     });
 
     //  Player Trading - Add Want Card
@@ -981,10 +981,10 @@ function checkTrade() {
       break;
     }
   }
-  var can_trade_player = anyone_still_playing && (current_game.player.cards.resource_cards.brick > 0 || 
-    current_game.player.cards.resource_cards.lumber > 0 || current_game.player.cards.resource_cards.sheep > 0 || 
+  var can_trade_player = anyone_still_playing && (current_game.player.cards.resource_cards.brick > 0 ||
+    current_game.player.cards.resource_cards.lumber > 0 || current_game.player.cards.resource_cards.sheep > 0 ||
     current_game.player.cards.resource_cards.ore > 0 || current_game.player.cards.resource_cards.grain > 0);
-  
+
   $(".tradebank_button").addClass("disabled");
   if (can_trade_bank) {
     $(".tradebank_button").removeClass("disabled");
@@ -1055,7 +1055,7 @@ function cancelTrade() {
   data_package.data_type = 'cancel_player_trade';
   data_package.player_id = current_player.id;
   update_server('game_update', data_package);
-  current_player.trade_in_progress = false;  
+  current_player.trade_in_progress = false;
   $(".trade_prompt").hide();
 }
 
@@ -1125,7 +1125,7 @@ function initInterTrade() {
     give_cards.lumber = (give_html.match(/lumber/g) || []).length;
     give_cards.grain = (give_html.match(/grain/g) || []).length;
     give_cards.brick = (give_html.match(/brick/g) || []).length;
-    
+
     var want_cards = new TradeCards();
     want_cards.sheep = (want_html.match(/sheep/g) || []).length;
     want_cards.ore = (want_html.match(/ore/g) || []).length;
@@ -1886,7 +1886,7 @@ function monopoly_check() {
     hidePopup();
     // if($('#useMonopoly').is(':visible')){
     //   animate_timer(round_time);
-    // } 
+    // }
   }
 }
 
