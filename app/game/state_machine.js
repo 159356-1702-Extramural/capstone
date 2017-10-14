@@ -1209,9 +1209,14 @@ StateMachine.prototype.stop_timer = function (timer_type){
 
 StateMachine.prototype.send_turn_finishing = function (){
   logger.log('debug', 'Players havent finished their turn');
-  // var data_package = new Data_package();
-  // data_package.data_type = "force_finish_turn";
-  this.broadcast('game_turn',{data_type:"force_finish_turn"});
+
+  var players = this.game.players;
+  for(var i = 0; i < players.length; i++){
+    if(!players[i].turn_complete){
+      this.send_to_player('game_turn',{data_type:"force_finish_turn", player: players[i]});
+    }
+  }
+  
 }
 
 StateMachine.prototype.send_monopoly_finishing = function (){
