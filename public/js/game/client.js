@@ -50,6 +50,12 @@ $(document)
     socket.on('lobby_data', function(data) {
       build_popup_lobby(data);
     });
+
+    //  Timer sync
+    socket.on('timestamp', function(data) {
+        animate_timer(data);
+    });
+
     socket.on('game_full', function() {
       $(".game_error")
         .html("The game is full, please choose another");
@@ -233,18 +239,18 @@ $(document)
          * start monopoly timer if player has monopoly card
          * Potential point where timers are out of sync
          */        
-        if(current_game.player.cards.dev_cards.monopoly > 0){
-          animate_timer(monopoly_time);
-        }
-        else{
-          animate_timer(round_time);
-        }
+        // if(current_game.player.cards.dev_cards.monopoly > 0){
+        //   animate_timer(monopoly_time);
+        // }
+        // else{
+        //   animate_timer(round_time);
+        // }
 
       } else if (data.data_type === 'monopoly_used') {
         monopoly_played = data;
         current_game.player = data.player;
         round_turn();
-        animate_timer(round_time);
+        //animate_timer(round_time);
 
       } else if (data.data_type === 'monopoly_received') {
         //  Build popup to show what was won and from who
@@ -381,12 +387,6 @@ $(document)
         let res = data.player.actions[0].action_data.resource;
         let msg = "You were robbed by "+player_name+" for 1x "+res;
         alert(msg);
-      } else if ('can_play_knight') {
-        if (data.player.actions[0] === 'true') {
-          build_popup_play_knight();
-        } else {
-          build_popup_restrict_dev_card_use('play');
-        }
       } else if (data.data_type === 'force_finish_monopoly') {
         if(current_game.player.cards.dev_cards.monopoly === 0){
           // players waiting for monopoly to finish can start turn
@@ -396,7 +396,13 @@ $(document)
             hidePopup();
           }
         }
-        animate_timer('round');
+        //animate_timer(round_time);
+      } else if ('can_play_knight') {
+        if (data.player.actions[0] === 'true') {
+          build_popup_play_knight();
+        } else {
+          build_popup_restrict_dev_card_use('play');
+        }
       }else {
         console.log('failed to direct data_type into an else if section');
       }
@@ -1878,9 +1884,10 @@ function monopoly_check() {
   } else {
     monopoly_not_used();
     hidePopup();
-    animate_timer('round');
+    // if($('#useMonopoly').is(':visible')){
+    //   animate_timer(round_time);
+    // } 
   }
-
 }
 
 function monopoly_not_used() {
@@ -2207,15 +2214,16 @@ function finish_turn(){
   updatePanelDisplay();
 }
 
-function animate_timer(anim_time){
+function animate_timer(timer_data){
     $('#timer_inner').stop();
     $('#timer_inner').animate({
       width: '100%'
     }, 300, 'linear', function(){
       $('#timer_inner').animate({
         width: '0%'
-      }, (anim_time * 1000)-300, 'linear'
+      }, (timer_data.timer_expires-Date.now()-300), 'linear'
     )});
+    console.log('timer set to: '+ timer_data.timer_expires-Date.now()-300);
 }
 
 function get_trade_message() {
