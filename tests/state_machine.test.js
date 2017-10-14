@@ -486,14 +486,12 @@ test('Game start sequence finishes', function (t) {
 test('Timers start and stop', function (t) {
   t.is(machine.timer, null);
   t.is(machine.timer_monopoly, null);
+
   var timer = machine.start_timer_helper('round');
   var mc_timer = machine.start_timer_helper('monopoly');
-// var timerObj = {
-//     timer_type: timer_type,
-//     timer_expires: 0
-//   }
   t.is(timer.timer_type, 'round');
   t.is(mc_timer.timer_type, 'monopoly');
+
   //both timers running
   t.not(machine.timer, null);
   t.not(machine.timer_monopoly, null);
@@ -506,6 +504,20 @@ test('Timers start and stop', function (t) {
   t.is(machine.timer_monopoly, null);
 });
 
+test('next_state cycles through states', function (t) {
+  t.is(machine.state, "setup");
+  machine.next_state();
+  t.is(machine.state, "setup");
+  machine.setupComplete = true;
+  machine.next_state();
+  t.is(machine.state, "play");
+  machine.next_state();
+  t.is(machine.state, "play");
+  machine.game.players[0].score.total_points = 10;
+  machine.next_state();
+  t.is(machine.state, "end_game");
+});
+
 test.todo("has_valid_path");
 test.todo("wins_conflict");
 test.todo("validate_player_builds");
@@ -516,5 +528,5 @@ test.todo("broadcast")
 test.todo("broadcast_end")
 test.todo("broadcast_game_state")
 test.todo("tick");
-test.todo('Next state');
+
 test.todo('end_player_turns')
