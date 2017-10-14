@@ -107,7 +107,12 @@ Games.prototype.assign_player = function (socket, data) {
     }else{
       var data_package = {
         data_type: "turn_complete",
-        player_id: player.id
+        player_id: player.id,
+        actions: []
+      }
+      if(state_machine.game.round_num < 3){
+        //still in setup phase
+        data_player.actions = state_machine.computer_player_setup();
       }
       state_machine.tick(data_package);
     }
