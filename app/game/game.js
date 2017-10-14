@@ -2,6 +2,11 @@ var logger = require('winston');
 var board_builder = require('./board_builder.js');
 var Shuffler = require('../helpers/shuffler.js');
 
+var {
+  Cards,
+  TradeCards
+} = require('../../public/data_api/cards.js');
+
 function Game() {
   var standard_board = [
       ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
@@ -526,12 +531,13 @@ Game.prototype.generate_dice_rolls = function () {
   var shuffler = new Shuffler();
   var temp_dice = [];
 
+  //  Add all dice combinations to an array
   for( var i = 1; i < 7; i++ ){
     for ( j = 1; j < 7; j++ ){
       temp_dice.push([i,j]);
     }
   }
-  return shuffler.shuffle(temp_dice); 
+  return shuffler.shuffle(temp_dice);
 }
 
 Game.prototype.fixed_dice_rolls = function () {
@@ -555,7 +561,7 @@ Game.prototype.rollingDice = function (){
     if(this.test_mode === 'false'){
       this.dice_array = shuffler.shuffle(this.dice_array);
     }
-    
+
   }
 
   return this.dice_roll[0] + this.dice_roll [1];

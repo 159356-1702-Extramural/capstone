@@ -22,6 +22,7 @@
   "dependencies": {
     "express": "^4.15.3",
     "iedriver": "^3.4.0",
+    "mysql": "github:mysqljs/mysql",
     "socket.io": "^2.0.3",
     "winston": "^2.3.1"
   },
