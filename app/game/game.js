@@ -37,6 +37,7 @@ function Game() {
   this.development_cards = this.generate_dev_card_deck();
   this.dice_array = this.generate_dice_rolls();
   this.dice_array_pointer = 0;
+  this.db_game_id = null;
 }
 
 /**

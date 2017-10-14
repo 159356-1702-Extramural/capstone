@@ -20,6 +20,8 @@ var Game = require('./game.js');
 var Data_package = require('../data_api/data_package.js');
 var Game_state = require('../data_api/game_state.js');
 var Action = require('../../public/data_api/action.js');
+var db = require('../helpers/db.js');
+
 var {
   Cards,
   TradeCards
@@ -281,8 +283,11 @@ StateMachine.prototype.tick = function (data) {
   else if (this.state === "end_game" && data) {
     this.log('debug', 'ticked end_game state : initiated by ' + this.game.players[data.player_id].name);
     this.broadcast_gamestate();
+    this.store_activity('end_game')
     this.broadcast_end();
     this.next_state();
+
+
     return true;
   }
   this.next_state();
@@ -296,6 +301,7 @@ StateMachine.prototype.finish_round_for_all = function (data) {
   this.validate_player_builds(data);
   this.game.round_num++;
   this.game.calculateScores();
+  this.store_activity('new_round');
 
   // Resource distribution for next round
   for (var i = 0; i < this.game.players.length; i++) {
@@ -1152,6 +1158,47 @@ StateMachine.prototype.end_player_turns = function () {
     this.tick(mock_data);
   }
 }
+
+/**
+ * Stores game activity in the Database
+ */
+StateMachine.prototype.store_activity = function(action) {
+
+  var connection = db.getConnection();
+  if (!connection) return;
+
+  switch (action) {
+
+    case 'end_game':
+        var end_time = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+        connection.query('UPDATE games SET ? where id = ?', [end_time, this.game.db_game_id], function (error) {
+          if (error) throw error;
+        });
+        break;
+
+      case 'new_round':
+        connection.query('UPDATE games SET rounds = ? WHERE id = ?', [this.game.round_num, this.game.db_game_id], function (error) {
+          if (error) throw error;
+        });
+        break;
+
+      case 'start_game':
+        connection.query('INSERT INTO games SET ?', {
+          started: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
+          players: this.game.players.length
+        }, function (error, results) {
+          if (error) throw error;
+          this.game.db_game_id = results.insertId;
+        });
+        break;
+
+      default:
+        break;
+    }
+
+};
+
+
 module.exports = {
   StateMachine
 };

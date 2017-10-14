@@ -2,7 +2,6 @@ var logger = require('winston');
 var Player = require('../data_api/player.js');
 var sm = require("./state_machine.js");
 var Chat = require('./chat.js');
-var db = require('../helpers/db.js');
 
 /********************************************************
  * Games was Lobby - renamed to suit task
@@ -97,16 +96,7 @@ Games.prototype.assign_player = function (socket, data) {
   if (state_machine.game.game_full()) {
     logger.log('info', 'Game #' + state_machine.id + " started");
     state_machine.broadcast('game_start', {});
-
-    // Log the game start time in the DB
-    var connection = db.getConnection();
-    connection.query('INSERT INTO games SET ?', {
-      started: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
-      players: state_machine.game.players.length
-    }, function(error, results) {
-      if (error) throw error;
-      state_machine.game.db_game_id = results.insertId;
-    });
+    state_machine.store_activity('start_game');
 
     //  Create the board and send it to the clients
     state_machine.broadcast('build_board', state_machine.game.buildBoard());
