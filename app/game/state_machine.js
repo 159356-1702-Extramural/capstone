@@ -1213,6 +1213,7 @@ StateMachine.prototype.run_computer_player = function (computer_player_id){
  */
 StateMachine.prototype.computer_player_setup = function(){
   //logic to add setup information
+  this.log("warning", " Player disconnected during setup phase, computer player taking over.");
   return [[/*settlement placement action*/],[/*road placement action*/]]
 }
 
