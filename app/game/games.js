@@ -2,7 +2,7 @@ var logger = require('winston');
 var Player = require('../data_api/player.js');
 var sm = require("./state_machine.js");
 var Chat = require('./chat.js');
-var db = require('./helpers/db.js');
+var db = require('../helpers/db.js');
 
 /********************************************************
  * Games was Lobby - renamed to suit task
