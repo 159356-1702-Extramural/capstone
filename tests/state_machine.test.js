@@ -483,12 +483,27 @@ test('Game start sequence finishes', function (t) {
   t.falsy(machine.game.players[1].turn_complete);
 });
 
-test('Timer starts and stops', function (t) {
+test('Timers start and stop', function (t) {
   t.is(machine.timer, null);
-  machine.start_timer();
+  t.is(machine.timer_monopoly, null);
+  var timer = machine.start_timer_helper('round');
+  var mc_timer = machine.start_timer_helper('monopoly');
+// var timerObj = {
+//     timer_type: timer_type,
+//     timer_expires: 0
+//   }
+  t.is(timer.timer_type, 'round');
+  t.is(mc_timer.timer_type, 'monopoly');
+  //both timers running
   t.not(machine.timer, null);
-  machine.stop_timer();
+  t.not(machine.timer_monopoly, null);
+  machine.stop_timer('round');
+
+  // // main timer stopped but monopoly timer running
   t.is(machine.timer, null);
+  t.not(machine.timer_monopoly, null);
+  machine.stop_timer('monopoly');
+  t.is(machine.timer_monopoly, null);
 });
 
 test.todo("has_valid_path");

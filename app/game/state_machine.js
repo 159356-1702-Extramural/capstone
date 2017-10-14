@@ -1163,24 +1163,30 @@ StateMachine.prototype.move_knight_to = function (data) {
  * Timer functions
  */
 StateMachine.prototype.start_timer = function (timer_type){
+  if(timer_type === 'round'){
+    this.broadcast('timestamp', start_timer_helper(timer_type));
+  } else{
+    this.game.players[this.game.monopoly].socket.emit('timestamp', start_timer_helper(timer_type));
+  }
+  //send monopoly timestamp to owner of monopoly only  
+  
+}
+StateMachine.prototype.start_timer_helper = function (timer_type) {
   var timerObj = {
     timer_type: timer_type,
     timer_expires: 0
   }
-  var timer_expires;
   if(timer_type === 'round'){
     timerObj.timer_expires = Date.now() + (this.timer_length*1000);
-    logger.log('debug', "Server side timer set to :" + this.timer_length + " seconds");
-    this.timer = setTimeout(this.send_turn_finishing.bind(this), this.timer_length * 1000 );
+    logger.log('debug', "Server side timer set to :" + timerObj.timer_expires - Date.now() + " seconds");
+    this.timer = setTimeout(this.send_turn_finishing.bind(this), timerObj.timer_expires - Date.now());
     //send timestamp to all players
-    this.broadcast('timestamp', timerObj);
   }else if (timer_type === 'monopoly'){
-    logger.log('debug', "Server side monopoly timer set to :" + this.monopoly_timer_length + " seconds");
-    this.timer_monopoly = setTimeout(this.send_monopoly_finishing.bind(this), this.monopoly_timer_length * 1000 );
     timerObj.timer_expires = Date.now() + (this.monopoly_timer_length*1000);
-    //send monopoly timestamp to owner of monopoly only
-    this.game.players[this.game.monopoly].socket.emit('timestamp', timerObj);
+    logger.log('debug', "Server side monopoly timer set to :" + timerObj.timer_expires + " seconds");
+    this.timer_monopoly = setTimeout(this.send_monopoly_finishing.bind(this), timerObj.timer_expires - Date.now() );
   }
+  return timerObj;
 }
 
 StateMachine.prototype.stop_timer = function (timer_type){
