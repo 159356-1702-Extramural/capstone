@@ -112,7 +112,7 @@ Games.prototype.assign_player = function (socket, data) {
       }
       if(state_machine.game.round_num < 3){
         //still in setup phase
-        data_player.actions = state_machine.computer_player_setup();
+        data_package.actions = state_machine.computer_player_setup();
       }
       state_machine.tick(data_package);
     }
