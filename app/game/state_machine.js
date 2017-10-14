@@ -1263,7 +1263,20 @@ StateMachine.prototype.run_computer_player = function (computer_player_id){
 
   this.tick(data_package);
 }
+<<<<<<< a97013337bf4bfa913316cf6d4e8152c1a976fcc
 >>>>>>> startComputerPlayer: keeps game moving
+=======
+
+/**
+ * Place a settlement and a road for computer player or disconnected player
+ * @return {Actions} [[Action][Action]] : First Action is settlement placement, second is road placement 
+ */
+StateMachine.prototype.computer_player_setup = function(){
+  //logic to add setup information
+  return [[/*settlement placement action*/],[/*road placement action*/]]
+}
+
+>>>>>>> computerPlayer: added setup
 module.exports = {
   StateMachine
 };
