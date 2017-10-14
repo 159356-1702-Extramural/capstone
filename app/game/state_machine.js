@@ -114,6 +114,7 @@ StateMachine.prototype.tick = function (data) {
     // increment round number once
     if (this.setupPointer === this.setupSequence.length / 2)
       this.game.round_num++;
+      this.log("debug", "--------------------------- Round Number "+this.game.round_num+ " ---------------------------");
 
     if (this.setupPointer === this.setupSequence.length) {
       this.log('info', "final player setup");
@@ -127,6 +128,7 @@ StateMachine.prototype.tick = function (data) {
       // Calculate the scores
       this.game.calculateScores();
       this.game.round_num++;
+      this.log("debug", "--------------------------- Round Number "+this.game.round_num+ " ---------------------------");
 
       //  Notify each player
       var setup_data = new Data_package();
@@ -305,6 +307,7 @@ StateMachine.prototype.finish_round_for_all = function(data) {
   if (!data) this.log("error", "func 'finish_round_for_all()' missing data");
   this.validate_player_builds(data);
   this.game.round_num++;
+  this.log("debug", "--------------------------- Round Number "+this.game.round_num+ " ---------------------------");
   this.game.calculateScores();
 
   // Resource distribution for next round
