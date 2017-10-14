@@ -40,7 +40,7 @@ function StateMachine(id, game_size) {
   this.chat = null;
   this.timer = null;
   this.timer_monopoly = null;
-  this.timer_length = 60; // seconds
+  this.timer_length = 80; // seconds
   this.monopoly_timer_length = 30; //seconds
 
 }
@@ -132,6 +132,11 @@ StateMachine.prototype.tick = function (data) {
       var setup_data = new Data_package();
       setup_data.data_type = 'round_turn';
       this.broadcast('game_turn', setup_data);
+
+      //start a long timer for the first turn
+      this.timer_length = this.timer_length + 180;
+      this.start_timer('round');
+      this.timer_length = this.timer_length - 180;
     }
 
     this.broadcast_gamestate();
