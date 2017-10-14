@@ -17,6 +17,14 @@ test("Board should be created with non-zero-length props", function (t) {
   t.true(board.tiles.length > 0);
 });
 
+test("Board should be created sucessfully with rndTokens", function (t) {
+  process.env['rndTokens'] = 'true';
+  var board = BoardBuilder.generate();
+  t.true(board.nodes.length > 0);
+  t.true(board.roads.length > 0);
+  t.true(board.tiles.length > 0);
+});
+
 test("Passing a test board to the creator should result in non-zero-length props", function (t) {
   var board_set = new BoardBuilder.BoardSet();
   var board = BoardBuilder.generate(board_set);

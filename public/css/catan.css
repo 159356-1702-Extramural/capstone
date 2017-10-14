@@ -623,21 +623,54 @@ body {
 .ore {
     background-image:url(../images/hex_ore.png);
 }
+.ore.hex_dim:hover, .ore.hex_highlight {
+    background-image:url(../images/hex_ore_highlight.png);
+    opacity: 1.0;
+}
 .grain {
     background-image:url(../images/hex_grain.png);
+}
+.grain.hex_dim:hover, .grain.hex_highlight {
+    background-image:url(../images/hex_grain_highlight.png);
+    opacity: 1.0;
 }
 .sheep {
     background-image:url(../images/hex_sheep.png);
 }
+.sheep.hex_dim:hover, .sheep.hex_highlight {
+    background-image:url(../images/hex_sheep_highlight.png);
+    opacity: 1.0;
+}
 .lumber {
     background-image:url(../images/hex_lumber.png);
+}
+.lumber.hex_dim:hover, .lumber.hex_highlight {
+    background-image:url(../images/hex_lumber_highlight.png);
+    opacity: 1.0;
 }
 .brick {
     background-image:url(../images/hex_brick.png);
 }
+.brick.hex_dim:hover, .brick.hex_highlight {
+    background-image:url(../images/hex_brick_highlight.png);
+    opacity: 1.0;
+}
 .desert {
     background-image:url(../images/hex_desert.png);
 }
+.desert.hex_dim:hover, .desert.hex_highlight {
+    background-image:url(../images/hex_desert_highlight.png);
+    opacity: 1.0;
+}
+
+.sheep.hex_dim:hover, .ore.hex_dim:hover, .lumber.hex_dim:hover, .brick.hex_dim:hover, .grain.hex_dim:hover, .desert.hex_dim:hover {
+    cursor: pointer;
+}
+
+.hex_dim {
+    opacity: 0.6;
+}
+
 .robber {
     position:absolute;
     background-image:url(../images/robber.png);
@@ -1240,20 +1273,68 @@ body {
   margin: 1em 0;
 }
 
+.end_winner_box {
+    width:90%;
+    padding:5px;
+    margin:0 25px;
+    border:medium solid blue;
+    border-radius: 15px;
+    box-shadow: 5px 5px 0 #aaaaaa;
+    height:180px;
+    overflow:hidden;
+    min-width:755px;
+}
+.end_winner_half_box {
+    float:left;
+    width:44%;
+    padding:5px;
+    margin-left:25px;
+    border:medium solid blue;
+    border-radius: 15px;
+    height:180px;
+    overflow:hidden;
+    min-width:365px;
+}
+.end_winner_third_box {
+    float:left;
+    width:29%;
+    padding:5px;
+    margin-left:25px;
+    border:medium solid blue;
+    border-radius: 15px;
+    height:180px;
+    overflow:hidden;
+    min-width:238px;
+}
+
+.player_trophy {
+    float:left;
+    margin-left:10px;
+    width:120px;
+}
+
 .end_row {
     clear: both;
     margin:10px;
+    text-align: center;
 }
 .end_row .player_row {
     clear: both;
-    margin:5px;
-    height:80px;
+    height:120px;
 }
 .end_row .player_icon {
     float: left;
-    width: 75px;
-    height: 75px;
+    width: 100px;
+    height: 120px;
     overflow: hidden;
+}
+.end_winner_half_box .player_icon {
+    width: 75px;
+    height: 120px;
+}
+.end_winner_third_box .player_icon {
+    width: 50px;
+    height: 120px;
 }
 .end_row .player_name {
     float: left;
@@ -1268,12 +1349,113 @@ body {
     color:blue;
 }
 
-.player_score_details {
+.end_winner_box .player_score_details {
     float:left;
+    width: calc(90% - 250px);
+    min-width:460px;
 }
+.end_winner_half_box .player_score_details {
+    float:left;
+    width: calc(100% - 90px);
+    min-width:230px;
+}
+
+.end_winner_header, .end_winner2_header, .end_winner3_header {
+    clear:both;
+    height:30px;
+    font-size:18px;
+    font-weight:bold;
+    text-align:center;
+}
+.end_winner2_header {
+    font-size:14px;
+}
+.end_winner3_header {
+    height:45px;
+    font-size:14px;
+}
+
+
+.end_winner_box .section_header {
+    height:20px;
+    text-align: center;
+    font-size:14px;
+    font-weight:bold;
+}
+.end_winner_box .build_icon {
+    margin:auto;
+    width:70px;
+}
+.end_winner_box .victory_card, .end_winner_half_box .victory_card {
+    height:100px;
+    width:100px;
+    position:relative;
+    margin:-77px auto 0 auto;
+}
+.end_winner_box .victory_card_first, .end_winner_half_box .victory_card_first {
+    margin:0px auto 0 auto !important;
+}
+
+.end_winner_half_box .section_header {
+    float:left;
+    width:32%;
+    height:65px;
+    font-size:14px;
+    font-weight:bold;
+}
+.end_winner_half_box .build_icon {
+    float:left;
+    height:60px;
+    width:30%;
+}
+.end_winner_half_box .build_icon_text {
+    font-weight:normal;
+    margin-left:15px;
+}
+.end_winner_half_box .victory_card {
+    height:100px;
+    width:100px;
+    position:relative;
+    margin:-77px auto 0 auto;
+}
+
+.end_winner_box .bonus_card, .end_winner_half_box .bonus_card {
+    height:100px;
+    width:100px;
+    position:relative;
+    margin:0px auto 0 auto;
+}
+.end_winner_box .bonus_card_second {
+    margin:-75px -30px 0 auto;
+}
+.end_winner_half_box .bonus_card_second {
+    margin:-75px -20px 0 auto;
+}
+
+.end_winner_third_box .section_header {
+    float:left;
+    width:45%;
+    height:20px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.end_winner_third_box .victory_card {
+    float:left;
+    height:50px;
+    width:50px;
+    position:relative;
+    margin:0 -20px 0 auto;
+}
+
+.end_row .section_subheader {
+    font-weight:normal;
+}
+
 .player_score_detail {
     float:left;
-    padding:5px 10px;
+    width: 32%;
+    min-width:150px;
 }
 .player_detail .player_row {
     clear: both;

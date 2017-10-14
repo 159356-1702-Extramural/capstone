@@ -1,6 +1,10 @@
 var logger = require('winston');
 var board_builder = require('./board_builder.js');
 var Shuffler = require('../helpers/shuffler.js');
+var {
+  Cards,
+  TradeCards
+} = require('../../public/data_api/cards.js');
 
 var {
   Cards,
@@ -9,13 +13,13 @@ var {
 
 function Game() {
   var standard_board = [
-      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
-      ["z0", "z0", "e11", "b12", "d9", "z0", "z0"],
-      ["z0", "z0", "a4", "c6", "a5", "b10", "z0"],
-      ["z0", "f0", "e3", "d11", "e4", "d8", "z0"],
-      ["z0", "z0", "a8", "b10", "b9", "c3", "z0"],
-      ["z0", "z0", "c5", "d2", "e6", "z0", "z0"],
-      ["z0", "z0", "z0", "z0", "z0", "z0", "z0"]
+    ["z0", "z0", "z0", "z0", "z0", "z0", "z0"],
+    ["z0", "z0", "e11", "b12", "d9", "z0", "z0"],
+    ["z0", "z0", "a4", "c6", "a5", "b10", "z0"],
+    ["z0", "f0", "e3", "d11", "e4", "d8", "z0"],
+    ["z0", "z0", "a8", "b10", "b9", "c3", "z0"],
+    ["z0", "z0", "c5", "d2", "e6", "z0", "z0"],
+    ["z0", "z0", "z0", "z0", "z0", "z0", "z0"]
   ];
   this.name = '';
   this.board = board_builder.generate();
@@ -34,7 +38,8 @@ function Game() {
   // set these variables via environment varaibles
   this.test_mode = 'false';
   this.robber = 'enabled';
-  this.development_cards = this.generate_dev_card_deck();
+  this.robber_frequency = 6;  //  # of 7s per round of 36 dice possibilities (6 max)
+  this.cards = this.generate_dev_card_deck();
   this.dice_array = this.generate_dice_rolls();
   this.dice_array_pointer = 0;
   this.db_game_id = null;
@@ -225,121 +230,159 @@ Game.prototype.robPlayers = function () {
   var num_cards;
   var player_cards;
   var num_to_steal;
-  var resource;
   var shuffler = new Shuffler();
+
+  // find us a victim
+  let rand_idx = -1;
+  do {
+    rand_idx = Math.floor(Math.random() * this.players.length);
+  } while (rand_idx === -1 && this.players[rand_idx].id === this.knight_player_id);
+  let victim = this.players[rand_idx];
+  logger.log('info', "Robber targetted player "+victim.name);
+
+  let tiles = [];
+  // going to assume players own at least one resource due to setup stage
+  // TODO: this list will need to change for game expansions
+  for (resource of ['sheep', 'brick', 'grain', 'ore', 'lumber']) {
+    let owned_list = this.board.get_resource_owned_by(victim.id, resource);
+    tiles = tiles.concat(owned_list);
+  };
+
+  if (tiles.length >= 1) {
+    let tile = this.board.robberLocation;
+    do {
+      tile = tiles[Math.floor(Math.random() * tiles.length)]
+    } while (tile === this.board.robberLocation);
+
+    logger.log('info', "Robber targetted tile "+tile.type);
+    // Remove the robber from current location before switching tile
+    this.board.robberLocation.robber = false;
+    this.board.robberLocation = tile;
+    this.board.robberLocation.robber = true;
+
+    let victim_cards = [];
+    for (let card of Object.keys(victim.cards.resource_cards)) {
+      if (victim.cards.count_single_card(card) >= 1)
+        victim_cards.push(card);
+    };
+    let resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
+    if (resource) {
+      logger.log('info', "Robber stole "+resource);
+      victim.cards.remove_card(resource);
+      victim.round_distribution_cards.resource_cards[resource]--;
+    } else {
+      logger.log('debug', "Robber targetted a resource the victim didn't own?");
+    }
+  }
 
   // Work out what happens to each player
   for (i = 0; i < this.players.length; i++) {
-    player = this.players[i];
+    if (this.players[i].id !== this.knight_player_id) {
+      player = this.players[i];
+      num_cards = player.cards.count_cards();
+      // If we're stealng some cards create an array of cards,
+      // shuffle it then do the robbing
+      if (num_cards > 7) {
+        player_cards = [];
 
-    num_cards = player.cards.count_cards();
-
-    // Work out how many cards to steal
-    if (num_cards > 7) {
-      // if players have > 7 cards steal half their cards,
-      // in players favour if odd number of cards
-      num_to_steal = Math.floor(num_cards / 2);
-    } else if (num_cards > 0) {
-      // if players have <= 7 cards steal one random resource
-      num_to_steal = 1;
-    } else {
-      // No cards for the robber to steal!. Well played Sir.
-      num_to_steal = 0;
-    }
-
-    // The probability of you losing a single card should be the same
-    // as geting picked on in the actual game
-    if (num_to_steal == 1) {
-      if (Math.random() > (1 / (this.players.length - 1))) {
-        num_to_steal = 0;
-      }
-    }
-
-    // If we're stealng some cards create an array of cards,
-    // shuffle it then do the robbing
-    if (num_to_steal > 0) {
-      player_cards = [];
-
-      for (resource in player.cards.resource_cards) {
-        if (player.cards.resource_cards.hasOwnProperty(resource)) {
-          var resource_count = player.cards.resource_cards[resource];
-          for (j = 0; j < resource_count; j++) {
-            player_cards.push(resource);
+        for (resource in player.cards.resource_cards) {
+          if (player.cards.resource_cards.hasOwnProperty(resource)) {
+            var resource_count = player.cards.resource_cards[resource];
+            for (j = 0; j < resource_count; j++) {
+              player_cards.push(resource);
+            }
           }
         }
-      }
 
-      // Randomise the cards then start robbing...
-      player_cards = shuffler.shuffle(player_cards);
+        // Randomise the cards then start robbing...
+        player_cards = shuffler.shuffle(player_cards);
 
-      for (j = 0; j < num_to_steal; j++) {
-        player.cards.remove_card(player_cards[j]);
-        player.round_distribution_cards.resource_cards[player_cards[j]]--;
+        let num_to_steal = Math.floor(num_cards / 2);
+        for (j = 0; j < num_to_steal; j++) {
+          player.cards.remove_card(player_cards[j]);
+          player.round_distribution_cards.resource_cards[player_cards[j]]--;
+        }
       }
     }
   }
-};
-
-/**
- * Moves the robber to a new location
- * @return void
- */
-Game.prototype.moveRobber = function () {
-  var new_robber_tile;
-  // Remove the robber from current location
-  this.board.robberLocation.robber = false;
-  // Find a random resource tile for the robber, make sure the robber
-  // goes to a new location
-  do {
-    new_robber_tile = this.board.resourceTiles[Math.floor(Math.random() * this.board.resourceTiles.length)];
-  } while (new_robber_tile == this.board.robberLocation);
-  new_robber_tile.robber = true;
-
-  // Store reference to the new home of the robber
-  this.board.robberLocation = new_robber_tile;
 };
 
 /**
  * Moves the robber after the knight card has been played
  * @param {Number} player_id : id of the player playing the knight
  */
-Game.prototype.knightMoveRobber = function (player_id) {
+Game.prototype.knightValidLocations = function (player_id) {
   var can_use;
-  var new_robber_tile;
   var possibleLocations = [];
-  var resourceTiles = this.board.resourceTiles;
 
-  // Remove the robber from current location
-  this.board.robberLocation.robber = false;
-
-  // Find possible locations that we could move the robber to
-  for (var i = 0; i < resourceTiles.length; i++) {
-    can_use = true;
-    for (var j = 0; j < resourceTiles[i].associated_nodes.length; j++) {
-
-      // We can't block the player that played the knight
-      var node = this.board.nodes[resourceTiles[i].associated_nodes[j]];
-      if (node.owner === player_id) {
+  //  Iterate through all tiles
+  for (var y = 0; y < this.board.tiles.length; y++) {
+    for (var x = 0; x < this.board.tiles[y].length; x++) {
+      can_use = true;
+      if (this.board.tiles[y][x].type === 'water') {
         can_use = false;
-        break;
+      } else {
+        // Find possible locations that we could move the robber to
+        for (var j = 0; j < this.board.tiles[y][x].associated_nodes.length; j++) {
+          // We can't block the player that played the knight
+          var node = this.board.tiles[y][x].associated_nodes[j];
+          if (node.owner === player_id) {
+            can_use = false;
+            break;
+          }
+        }
+      }
+      // Robber can't stay in the same place so exclude that location
+      // If this is a tile we can rob add to array to pick from
+      if (can_use && !this.board.tiles[y][x].robber) {
+        possibleLocations.push([x,y]);
       }
     }
-    // Robber can't stay in the same place
-    if (resourceTiles[i].robber) {
-      can_use = false;
-    }
-    // If this is a tile we can rob add to array to pick from
-    if (can_use) {
-      possibleLocations.push(resourceTiles[i]);
-    }
   }
+  return possibleLocations;
+};
 
-  // Randomly pick a new home for the robber
-  new_robber_tile = possibleLocations[Math.floor(Math.random() * possibleLocations.length)];
-  new_robber_tile.robber = true;
+Game.prototype.knight_rob_tile = function (player_id, loc) {
+  let tile = this.board.tiles[loc[1]][loc[0]];
+  // find a random player on the tile and nick off with a random card
+  let player_ids = this.board.get_player_ids_on_tile(tile)
+  let victim_id = -1;
+  let resource = -1;
+  if (player_ids.length >= 1) {
+    let rand_idx = -1;
+    do {
+      rand_idx = Math.floor(Math.random() * player_ids.length);
+    } while (rand_idx === -1 && player_ids[rand_idx] === player_id);
+    let victim = this.players[player_ids[rand_idx]];
+    victim_id = victim.id;
 
-  // Store reference to the new home of the robber
-  this.board.robberLocation = new_robber_tile;
+    let victim_cards = [];
+    for (let card of Object.keys(victim.cards.resource_cards)) {
+      if (victim.cards.count_single_card(card) >= 1)
+        victim_cards.push(card);
+    };
+    if (victim_cards.length >= 1) {
+      resource = victim_cards[Math.floor(Math.random() * victim_cards.length)];
+
+      victim.cards.remove_multiple_cards(resource, 1); // TODO: use result?
+      this.players[player_id].cards.add_cards(resource, 1);
+      logger.log('info', 'player stole '+resource);
+    } else {
+      logger.log('info', 'victim had no cards to rob from');
+    }
+  } else {
+    logger.log('info', 'player moved knight to a tile with no owners');
+  }
+  // Update player card details to reflect they have played a knight
+  this.players[player_id].cards.dev_cards.knight_played++;
+  this.players[player_id].cards.dev_cards.knight--;
+  // Remove the robber from current location before switching tile
+  this.board.robberLocation.robber = false;
+  this.board.robberLocation = tile;
+  this.board.robberLocation.robber = true;
+  if (victim_id !== -1 && resource !== -1)
+    return ({robbed:victim_id, resource:resource});
+  return false;
 };
 
 Game.prototype.modifyPlayerWithRoadBonus = function () {
@@ -505,7 +548,7 @@ Game.prototype.haveWinner = function () {
  * @param {String} card : knight, monopoly, road_building, year_of_plenty
  */
 Game.prototype.return_dev_card = function (card) {
-  this.development_cards.push(card);
+  this.cards.push(card);
 }
 
 /**
@@ -532,10 +575,15 @@ Game.prototype.generate_dice_rolls = function () {
   var shuffler = new Shuffler();
   var temp_dice = [];
 
+  var robbers = 0;
+
   //  Add all dice combinations to an array
   for( var i = 1; i < 7; i++ ){
-    for ( j = 1; j < 7; j++ ){
-      temp_dice.push([i,j]);
+    for (var j = 1; j < 7; j++ ){
+      if (i + j != 7 || this.robber_frequency > robbers) {
+        robbers += (i + j == 7 ? 1 : 0);
+        temp_dice.push([i,j]);
+      }
     }
   }
   return shuffler.shuffle(temp_dice);
@@ -567,4 +615,67 @@ Game.prototype.rollingDice = function (){
 
   return this.dice_roll[0] + this.dice_roll [1];
 }
+
+// swaps the cards in the tradecard list between players
+Game.prototype.do_trade_with_other = function (player_id, other_id) {
+  if (!this.players[other_id].inter_trade.wants_trade)
+    return false;
+  var swapsies = function (player, other, cards) {
+    player.round_distribution_cards = new Cards();
+    for (let card of Object.keys(cards)) {
+      if (cards.get(card) > 0) {
+        // take cards from the player wanting to trade, and give
+        if (!other.cards.remove_multiple_cards(card, cards.get(card)))
+          return false;
+        player.cards.add_cards(card, cards.get(card));
+        player.round_distribution_cards.add_cards(card, cards.get(card));
+      }
+    }
+    return true;
+  }
+  let this_backup = this.trade_backup_player_cards(this.players[player_id]);
+  let other_backup = this.trade_backup_player_cards(this.players[other_id]);
+
+  if (swapsies(this.players[player_id], this.players[other_id],
+      this.players[other_id].inter_trade.trade_cards)) {
+    logger.log('debug', 'TRADE: from trade initiator ' + this.players[other_id].name + ' to ' + this.players[
+      player_id].name);
+    if (swapsies(this.players[other_id], this.players[player_id],
+      this.players[other_id].inter_trade.wants_cards)) {
+      logger.log('debug', 'TRADE: from trade acceptor ' + this.players[player_id].name + ' to ' + this.players[
+        other_id].name);
+      return true;
+    } else {
+      logger.log('debug', 'TRADE: failed at 2nd part');
+    }
+  } else {
+    logger.log('debug', 'TRADE: failed at 1st part');
+  }
+  this.trade_restore_player_cards(this.players[player_id], this_backup);
+  this.trade_restore_player_cards(this.players[other_id], other_backup);
+  this.players[player_id].round_distribution_cards = new Cards();
+  this.players[other_id].round_distribution_cards = new Cards();
+  logger.log('info', 'TRADE: between ' + this.players[player_id].name + ' and ' +
+                                          this.players[other_id].name + ' failed');
+  return false;
+};
+
+Game.prototype.trade_backup_player_cards = function (player) {
+  let cards = new TradeCards();
+  for (let card of Object.keys(player.cards.resource_cards)) {
+      cards.set(card, player.cards.resource_cards[card]);
+  }
+  logger.log('debug', 'TRADE: '+player.name+" backup cards =");
+  logger.log('debug', cards);
+  return cards;
+};
+
+Game.prototype.trade_restore_player_cards = function (player, backup) {
+  for (let card of Object.keys(backup)) {
+    player.cards.set(card, backup.get(card));
+  }
+  logger.log('debug', 'TRADE: '+player.name+" restored cards =");
+  logger.log('debug', player.cards.resource_cards);
+};
+
 module.exports = Game;

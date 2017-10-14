@@ -140,6 +140,16 @@ Board.prototype.get_tiles_with_resource = function(resource) {
   return array;
 };
 
+Board.prototype.get_player_ids_on_tile = function(tile) {
+  let player_ids = [];
+  for (let n of tile.associated_nodes) {
+    if (this.nodes[n].owner !== -1) {
+        player_ids.push(this.nodes[n].owner);
+      }
+  }
+  return player_ids;
+};
+
 /**
  * Returns an array of player names
  * @param {String} resource
@@ -157,6 +167,22 @@ Board.prototype.get_players_with_resource = function(resource) {
     }
   }
   return players;
+};
+
+Board.prototype.get_resource_owned_by = function(player_id, resource) {
+  let tiles = this.get_tiles_with_resource(resource);
+  let owned = [];
+  for (var t = 0; t < tiles.length; t++) {
+    for (var n = 0; n < tiles[t].associated_nodes.length; n++) {
+      var index = tiles[t].associated_nodes[n];
+      var owner = this.nodes[index].owner;
+      if (owner !== -1 && owner === player_id) {
+        owned.push(tiles[t]);
+        break;
+      }
+    }
+  }
+  return owned;
 };
 
 /**

@@ -28,9 +28,9 @@ Games.prototype.assign_player = function (socket, data) {
   if (lounger_idx >= 0)
     this.lounging.splice(lounger_idx, 1);
 
-  if (this.games[data.game_id] === null) {
+  if (!this.games[data.game_id]) {
     logger.log('info', 'Player tried to join a non-existant game');
-    // TODO: send something over socket
+    // TODO: send new message over socket for nil game
     this.send_lobby_data(socket);
     socket.emit('game_full');
     return false;
@@ -79,17 +79,18 @@ Games.prototype.assign_player = function (socket, data) {
   /*    Create listeners on sockets for messages    */
   /**************************************************/
   player.socket.on('game_update', function (data) {
-    logger.log('debug', "SM#"+state_machine.id+": "+player.name+" invoked game_update");
+    logger.log('info', "SM#"+state_machine.id+": "+player.name+" invoked game_update");
     // state_machine function to be called
     state_machine.tick(data);
   });
 
   player.socket.on('disconnect', function () {
+    logger.log('info', 'a player has quit the game');
     state_machine.broadcast('player_quit', {
       message: player.name + ' has disconnected. Game Over.'
     });
 
-    self.remove_game(state_machine);
+    self.remove_game(player.game_id);
   });
 
   // Start the game if we have all the players
@@ -108,15 +109,17 @@ Games.prototype.assign_player = function (socket, data) {
   for (var x=0; x< this.lounging.length; x++) {
     this.send_lobby_data(this.lounging[x]);
   }
+  return true;
 };
 
 /// Removes a game instance from the active games
-Games.prototype.remove_game = function (state_machine) {
-  var idx = this.games.indexOf(state_machine);
-  this.games[idx] = null;
+Games.prototype.remove_game = function (idx) {
+  self = this;
+  self.games[idx] = null;
   for (var x=0; x< this.lounging.length; x++) {
     this.send_lobby_data(this.lounging[x]);
   }
+  logger.log('info', "game "+idx+" is now "+this.games[idx]);
 };
 
 /// Resets all the games - use for debugging
@@ -126,7 +129,6 @@ Games.prototype.hard_reset = function () {
 };
 
 Games.prototype.send_lobby_data = function (socket) {
-  logger.log('info', "Lobby data requested");
   var games = [];
   for (var i = 0; i < this.games.length; i++) {
     if (this.games[i] !== null) {
@@ -172,7 +174,7 @@ Games.prototype.new_game = function (socket, data, game_size) {
   if(state_machine.game.test_mode === 'true'){
     state_machine.game.dice_array = state_machine.game.fixed_dice_rolls();
   }
-  this.assign_player(socket, player);
+  return this.assign_player(socket, player);
 };
 
 Games.prototype.parse_env = function (state_machine) {
@@ -214,9 +216,9 @@ Games.prototype.parse_env = function (state_machine) {
   }
 
   if (process.env['dev_card'] !== 'disabled') {
-    state_machine.game.development_cards = [];
+    state_machine.game.cards = [];
     for (var i = 0; i < 30; i++) {
-      state_machine.game.development_cards.push(process.env['dev_card']);
+      state_machine.game.cards.push(process.env['dev_card']);
     }
   }
 };
