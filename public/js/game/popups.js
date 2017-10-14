@@ -266,7 +266,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
    *  round_use_monopoly.html
    **************************************************/
   function build_popup_use_monopoly() {
-    buildPopup('round_use_monopoly', false, false,);
+    buildPopup('round_use_monopoly', false, true,);
   }
 
   function build_popup_monopoly_win(data) {
