@@ -313,17 +313,19 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       // road building set here to stop victory point cards interfering with the test.
       await driver.get(
         'http://capstone-settlers.herokuapp.com/?startWithCards=3&setup=skip&fixedDice=true&dev_card=road_building'
-      );
+      );  
       await driver.findElement(webdriver.By.id('play')).click();
       await driver.findElement(webdriver.By.id('player-input')).sendKeys(os + "|" + browser + "|" + version);
       await driver.findElement(webdriver.By.id('start-game')).click();
       
       if(testNum % 2 === 0){
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.id('start-2-players')),20000);
         await driver.findElement(webdriver.By.id('start-2-players')).click();
         //player 1 sets up game and waits for player 2 to join
         console.log(testNum + " :: " + "waiting...");
       }else{
         //wait until game_title visible
+        
         console.log(testNum + " :: " + "find game title...");
         await driver.wait(webdriver.until.elementLocated(webdriver.By.className('game_list_row_title')),20000);
         console.log(testNum + " :: " + "... game_list_row_title found...");
@@ -335,20 +337,21 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       if( testNum % 2 === 0 ){
         await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
         console.log(testNum + " :: " + "... begin-round found ...");
-        //second round placement resources
         await driver.findElement(webdriver.By.id('begin-round')).click();
         console.log(testNum + " :: " + "... begin-round clicked ...");
-        //firs dice roll resources
+        
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round-btn')),20000);
+        console.log(testNum + " :: " + "... begin-round-btn found ...");
         await driver.findElement(webdriver.By.id('begin-round-btn')).click();
         console.log(testNum + " :: " + "... begin-round-btn clicked ...");
       }
       await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
       console.log(testNum + " :: " + "... begin-round found ...");
-      //second round placement resources
       await driver.findElement(webdriver.By.id('begin-round')).click();
       console.log(testNum + " :: " + "... begin-round clicked ...");
-      //firs dice roll resources
 
+      await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round-btn')),20000);
+      console.log(testNum + " :: " + "... begin-round-btn found ...");
       await driver.findElement(webdriver.By.id('begin-round-btn')).click();
       console.log(testNum + " :: " + "... begin-round-btn clicked ...");
 
@@ -389,6 +392,7 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       console.log(testNum + " :: " + "... development card returned ...");
 
       // check in game popup works
+      await driver.wait(webdriver.until.elementLocated(webdriver.By.className('road_building')),20000);
       await driver.findElement(webdriver.By.className('road_building'))
         .click();
       t.is(await driver.findElement(webdriver.By.className('popup_title'))
