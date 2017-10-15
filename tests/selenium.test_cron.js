@@ -321,34 +321,36 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       if(testNum % 2 === 0){
         await driver.findElement(webdriver.By.id('start-2-players')).click();
         //player 1 sets up game and waits for player 2 to join
-        console.log("waiting...");
+        console.log(testNum + " :: " + "waiting...");
       }else{
         //wait until game_title visible
-        console.log("find game title...");
-        await driver.wait(webdriver.until.elementLocated(webdriver.By.className('game_title')),20000);
-        console.log("... game title found...");
-        await driver.findElement(webdriver.By.className('game_list_row')).click();
-        console.log("... joined game ...");
+        console.log(testNum + " :: " + "find game title...");
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.className('game_list_row_title')),20000);
+        console.log(testNum + " :: " + "... game_list_row_title found...");
+        await driver.findElement(webdriver.By.id('game_id_0')).click();
+        console.log(testNum + " :: " + "... joined game ...");
         //await driver.findElement(webdriver.By.className('game_list_row')).click();
       }
       console.log("exited if-else ...");
       if( testNum % 2 === 0 ){
         await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
-        console.log("... begin-round found ...");
+        console.log(testNum + " :: " + "... begin-round found ...");
         //second round placement resources
         await driver.findElement(webdriver.By.id('begin-round')).click();
-        console.log("... begin-round clicked ...");
+        console.log(testNum + " :: " + "... begin-round clicked ...");
         //firs dice roll resources
+        await driver.findElement(webdriver.By.id('begin-round-btn')).click();
+        console.log(testNum + " :: " + "... begin-round-btn clicked ...");
       }
       await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
-      console.log("... begin-round found ...");
+      console.log(testNum + " :: " + "... begin-round found ...");
       //second round placement resources
       await driver.findElement(webdriver.By.id('begin-round')).click();
-      console.log("... begin-round clicked ...");
+      console.log(testNum + " :: " + "... begin-round clicked ...");
       //firs dice roll resources
 
-      await driver.findElement(webdriver.By.id('begin-round')).click();
-      console.log("... begin-round clicked ...");
+      await driver.findElement(webdriver.By.id('begin-round-btn')).click();
+      console.log(testNum + " :: " + "... begin-round-btn clicked ...");
 
       //get initial values to test against (they will be different based on resources distributed)
       var startOre = await driver.findElement(webdriver.By.className('orecount'))
@@ -358,7 +360,7 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       var startGrain = await driver.findElement(webdriver.By.className('graincount'))
         .getText();
       
-      console.log("... set variables with initial cards ...");
+      console.log(testNum + " :: " + "... set variables with initial cards ...");
       // click "Buy Development Card" button
       await driver.findElement(webdriver.By.className('buybutton')).click();
 
@@ -371,9 +373,11 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
         .getText();
 
       // test cards removed when Buy Dev Card clicked
-      // t.is(parseInt(finishSheep), parseInt(startSheep)-1);
-      // t.is(parseInt(finishGrain), parseInt(startGrain)-1);
-      // t.is(parseInt(finishOre), parseInt(startOre)-1);
+      t.is(parseInt(finishSheep), parseInt(startSheep)-1);
+      t.is(parseInt(finishGrain), parseInt(startGrain)-1);
+      t.is(parseInt(finishOre), parseInt(startOre)-1);
+
+      console.log(testNum + " :: " + "... resource cards were removed ...");
 
       // check card returned
       t.is(await driver.findElement(webdriver.By.className('cardlist'))
@@ -382,16 +386,22 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
           return elements.length;
         }), 1);
 
+      console.log(testNum + " :: " + "... development card returned ...");
+
       // check in game popup works
       await driver.findElement(webdriver.By.className('road_building'))
         .click();
       t.is(await driver.findElement(webdriver.By.className('popup_title'))
-        .getText(), "Road Building");
+        .getText(), "Catan Ministry of the Interior");
+
+      console.log(testNum + " :: " + "... tried playing a fresh development card ...");
 
       // check can we close the popup window
-      await driver.findElement(webdriver.By.className('road_building_button'))
+      await driver.findElement(webdriver.By.className('btn-right'))
         .click();
       //t.is(await driver.findElement(webdriver.By.className('popup')).getCSSvalue('display'), 'none');
+
+      console.log(testNum + " :: " + "... closed info popup ...");
 
       saucelabs.updateJob(driver.sessionID, {
         name: title + " | " + os + " | " + browser + " | " + version,
@@ -399,8 +409,9 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       });
 
       driver.quit();
+
     } catch (err) {
-      console.log("FAILED " + title + " - " + os + " | " + browser + " | " + version);
+      console.log(testNum + " :: " + "FAILED " + title + " - " + os + " | " + browser + " | " + version);
       passedBool = false;
       saucelabs.updateJob(driver.sessionID, {
         name: title + " | " + os + " | " + browser + " | " + version,
