@@ -372,39 +372,46 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       if(testNum % 2 === 0){
         await driver.findElement(webdriver.By.id('start-2-players')).click();
         //player 1 sets up game and waits for player 2 to join
-        console.log("waiting...");
+        console.log(testNum + " :: " + "waiting...");
       }else{
         //wait until game_title visible
-        console.log("find game title...");
-        await driver.wait(webdriver.until.elementLocated(webdriver.By.className('game_title')),20000);
-        console.log("... game title found...");
-        await driver.findElement(webdriver.By.className('game_list_row')).click();
-        console.log("... joined game ...");
+        console.log(testNum + " :: " + "find game title...");
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.className('game_list_row_title')),20000);
+        console.log(testNum + " :: " + "... game_list_row_title found...");
+        await driver.findElement(webdriver.By.id('game_id_0')).click();
+        console.log(testNum + " :: " + "... joined game ...");
         //await driver.findElement(webdriver.By.className('game_list_row')).click();
       }
       console.log("exited if-else ...");
       if( testNum % 2 === 0 ){
         await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
-        console.log("... begin-round found ...");
+        console.log(testNum + " :: " + "... begin-round found ...");
         //second round placement resources
         await driver.findElement(webdriver.By.id('begin-round')).click();
-        console.log("... begin-round clicked ...");
+        console.log(testNum + " :: " + "... begin-round clicked ...");
         //firs dice roll resources
+        await driver.findElement(webdriver.By.id('begin-round-btn')).click();
+        console.log(testNum + " :: " + "... begin-round-btn clicked ...");
       }
       await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
-      console.log("... begin-round found ...");
+      console.log(testNum + " :: " + "... begin-round found ...");
       //second round placement resources
       await driver.findElement(webdriver.By.id('begin-round')).click();
-      console.log("... begin-round clicked ...");
+      console.log(testNum + " :: " + "... begin-round clicked ...");
       //firs dice roll resources
 <<<<<<< 89683ccf391f197c1c3da76c78448a7c9ce031e5
       await driver.findElement(webdriver.By.id('begin-round'));
 >>>>>>> testsWeek10: half  rewritten
 =======
 
+<<<<<<< 868b7e4d006347709d1e325787970c42b4176408
       await driver.findElement(webdriver.By.id('begin-round')).click();
       console.log("... begin-round clicked ...");
 >>>>>>> testsWeek10: halfway there
+=======
+      await driver.findElement(webdriver.By.id('begin-round-btn')).click();
+      console.log(testNum + " :: " + "... begin-round-btn clicked ...");
+>>>>>>> testsWeek10:  tests run to completion mostly
 
       //get initial values to test against (they will be different based on resources distributed)
       var startOre = await driver.findElement(webdriver.By.className('orecount'))
@@ -427,7 +434,7 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
       console.log(testNum + " :: " + "... buybutton clicked ...");
 =======
       
-      console.log("... set variables with initial cards ...");
+      console.log(testNum + " :: " + "... set variables with initial cards ...");
       // click "Buy Development Card" button
       await driver.findElement(webdriver.By.className('buybutton')).click();
 >>>>>>> testsWeek10: halfway there
@@ -475,8 +482,18 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
 
       console.log(testNum + " :: " + "... closed info popup ...");
 
+<<<<<<< 868b7e4d006347709d1e325787970c42b4176408
       passedBool = true;
 
+=======
+      saucelabs.updateJob(driver.sessionID, {
+        name: title + " | " + os + " | " + browser + " | " + version,
+        passed: passedBool,
+      });
+
+      driver.quit();
+
+>>>>>>> testsWeek10:  tests run to completion mostly
     } catch (err) {
       console.log(testNum + " :: " + "FAILED " + title + " - " + os + " | " + browser + " | " + version);
       passedBool = false;
