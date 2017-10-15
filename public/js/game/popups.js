@@ -78,7 +78,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
 
     for (var g = 0; g < game_list.length; g++) {
       var name_list = game_list[g].player_names.join(", ");
-      game_list_html += "<div class='game_list_row' onclick='join_game(" + game_list[g].game_id + ");'>";
+      game_list_html += "<div id='game_id_"+g+"' class='game_list_row' onclick='join_game(" + game_list[g].game_id + ");'>";
       game_list_html += "    <div class='game_list_row_title'>" + game_list[g].game_name + "</div>";
       game_list_html += "    <div class='game_list_row_spots'>" + game_list[g].player_names.length + " of " +
         game_list[g].max_players + "</div>";
