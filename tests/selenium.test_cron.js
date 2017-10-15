@@ -312,7 +312,7 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
 
       // road building set here to stop victory point cards interfering with the test.
       await driver.get(
-        'http://capstone-settlers.herokuapp.com/?startWithCards=5&setup=skip&fixedDice=true&dev_card=road_building'
+        'http://capstone-settlers.herokuapp.com/?startWithCards=3&setup=skip&fixedDice=true&dev_card=road_building'
       );
       await driver.findElement(webdriver.By.id('play')).click();
       await driver.findElement(webdriver.By.id('player-input')).sendKeys(os + "|" + browser + "|" + version);
@@ -332,6 +332,14 @@ async function popups_display_and_close(title, driver, os, browser, version, tes
         //await driver.findElement(webdriver.By.className('game_list_row')).click();
       }
       console.log("exited if-else ...");
+      if( testNum % 2 === 0 ){
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
+        console.log("... begin-round found ...");
+        //second round placement resources
+        await driver.findElement(webdriver.By.id('begin-round')).click();
+        console.log("... begin-round clicked ...");
+        //firs dice roll resources
+      }
       await driver.wait(webdriver.until.elementLocated(webdriver.By.id('begin-round')),20000);
       console.log("... begin-round found ...");
       //second round placement resources
