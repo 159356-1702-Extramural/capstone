@@ -436,7 +436,7 @@ body {
 
 .game_chat .menu {
     position: absolute;
-    visibility: visible;
+    visibility: hidden;
     width: calc(100% - 5px);
     height: calc(100% - 7px);
     z-index: 2;
