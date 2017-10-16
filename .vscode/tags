@@ -1,0 +1,31 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ACCESS_KEY	../tests/seleniumPythonTest/test_case/popups.py	/^ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"$/;"	kind:variable	line:482
+ACCESS_KEY	../tests/seleniumPythonTest/test_case/setup_tests.py	/^ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"$/;"	kind:variable	line:18
+USERNAME	../tests/seleniumPythonTest/test_case/popups.py	/^USERNAME = "sumnerfit"$/;"	kind:variable	line:481
+USERNAME	../tests/seleniumPythonTest/test_case/setup_tests.py	/^USERNAME = "sumnerfit"$/;"	kind:variable	line:17
+__author__	../tests/seleniumPythonTest/test_case/popups.py	/^__author__ = 'Craig Walker'$/;"	kind:variable	line:465
+__author__	../tests/seleniumPythonTest/test_case/setup_tests.py	/^__author__ = 'Craig Walker'$/;"	kind:variable	line:1
+async_result	../tests/seleniumPythonTest/test_case/popups.py	/^async_result = p.map_async(buy_dev_card, desired_caps)$/;"	kind:variable	line:878
+async_result	../tests/seleniumPythonTest/test_case/setup_tests.py	/^async_result = p.map_async(buy_dev_card, desired_caps)$/;"	kind:variable	line:415
+buy_dev_card	../tests/seleniumPythonTest/test_case/setup_tests.py	/^def buy_dev_card(desired_cap):$/;"	kind:function	line:235
+desired_caps	../tests/seleniumPythonTest/test_case/popups.py	/^desired_caps = [$/;"	kind:variable	line:484
+desired_caps	../tests/seleniumPythonTest/test_case/setup_tests.py	/^desired_caps = [$/;"	kind:variable	line:20
+finish_testing	../tests/seleniumPythonTest/test_case/popups.py	/^def finish_testing(success, driver):$/;"	kind:function	line:841
+finish_testing	../tests/seleniumPythonTest/test_case/setup_tests.py	/^def finish_testing(success, driver):$/;"	kind:function	line:378
+get_desired_cap	../tests/seleniumPythonTest/test_case/popups.py	/^def get_desired_cap(desired_cap):$/;"	kind:function	line:691
+get_desired_cap	../tests/seleniumPythonTest/test_case/setup_tests.py	/^def get_desired_cap(desired_cap):$/;"	kind:function	line:227
+p	../tests/seleniumPythonTest/test_case/popups.py	/^p = Pool()$/;"	kind:variable	line:877
+p	../tests/seleniumPythonTest/test_case/setup_tests.py	/^p = Pool()$/;"	kind:variable	line:414
+place_item	../tests/seleniumPythonTest/test_case/setup_tests.py	/^def place_item(driver, item, offsetX, offsetY):$/;"	kind:function	line:373
+popups	../tests/seleniumPythonTest/test_case/popups.py	/^def popups(desired_cap, os, browser, version, testNum):$/;"	kind:function	line:699
+popups.py	../tests/seleniumPythonTest/test_case/popups.py	1;"	kind:file	line:1
+sauce	../tests/seleniumPythonTest/test_case/popups.py	/^sauce = SauceClient(USERNAME, ACCESS_KEY)$/;"	kind:variable	line:483
+sauce	../tests/seleniumPythonTest/test_case/setup_tests.py	/^sauce = SauceClient(USERNAME, ACCESS_KEY)$/;"	kind:variable	line:19
+setup_tests.py	../tests/seleniumPythonTest/test_case/setup_tests.py	1;"	kind:file	line:1
+test_results	../tests/seleniumPythonTest/test_case/popups.py	/^test_results = []$/;"	kind:variable	line:480
+test_results	../tests/seleniumPythonTest/test_case/setup_tests.py	/^test_results = []$/;"	kind:variable	line:16
