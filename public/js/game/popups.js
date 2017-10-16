@@ -38,12 +38,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     allowed_actions.can_finish = (current_game.round_num > 2 || turn_actions.length === 2);
     updatePanelDisplay();
     $(".game_chat").removeClass('game_chat_top_z');
-    $(".btn-control-maximize").removeClass('btn-hide');
-    $(".score").removeClass("score--back");
-    $(".game_chat").addClass("game_chat--back");
-
-    $('.popup')
-      .hide();
+    $('.popup').hide();
   }
 
   /***************************************************
@@ -112,9 +107,6 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   function build_popup_waiting_for_turn() {
     buildPopup("waiting_for_turn", false, true);
     $(".game_chat").addClass('game_chat_top_z');
-    $(".btn-control-maximize").addClass('btn-hide');
-    $(".score").addClass("score--back");
-    $(".game_chat").removeClass("game_chat--back");
   }
 
   /***************************************************
@@ -929,4 +921,35 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     dev_cards.push(['dev_card_content', content]);
     dev_cards.push(['other_dev_cards', other_dev_cards+other_vp_cards]);
     buildPopup("round_restrict_dev_card_use", false, false, dev_cards);
+  }
+
+
+  function chat_set(area, setting) {
+    $(".menu_" + area + "_choice").removeClass("selected");
+    $(".menu_" + area + "_choice." + setting).addClass("selected");
+    if (area == "font") {
+      $(".game_chat .messages").removeClass("small");
+      $(".game_chat .messages").removeClass("medium");
+      $(".game_chat .messages").removeClass("large");
+      $(".game_chat .messages").addClass(setting);
+    } else {
+      $(".game_chat").removeClass("small");
+      $(".game_chat").removeClass("medium");
+      $(".game_chat").removeClass("large");
+      $(".game_chat").addClass(setting);
+    }
+  }
+  function chat_tips() {
+    show_tips = !show_tips;
+    $(".menu_tips .fa").removeClass("fa-toggle-" + (show_tips ? "off" : "on"));
+    $(".menu_tips .fa").addClass("fa-toggle-" + (show_tips ? "on" : "off"));
+    $(".menu_tip_text").html("Tips currently " + (show_tips ? "on" : "off"));
+  }
+  function chat_reset() {
+    chat_set("size", "small");
+    chat_set("font", "medium");
+    
+    show_tips = false;
+    chat_tips();
+    $(".game_chat").css("top", "").css("left", "");
   }

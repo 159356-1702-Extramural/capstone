@@ -126,6 +126,14 @@ function setupDragDrop() {
       }
     });
 
+    $(".game_chat").draggable({
+
+    });
+
+    $(window).resize(function() {
+      $(".game_chat").css("top", "").css("left", "");
+    });
+
 }
 
 //  Method to show the ghost images for any valid nodes that this object
