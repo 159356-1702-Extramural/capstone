@@ -40,9 +40,12 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
           console.log(testsRun + " : moved into else statement");
           await client.waitForVisible('#game_id_0',10000)
           .click('#game_id_0')
+          .waitForVisible('#begin-round',10000)
           .click("#begin-round")
+          .waitForVisible('#begin-round-btn',10000)
           .click("#begin-round-btn")
-          .click('#buybutton');
+          .waitForVisible('.buybutton',10000)
+          .click('.buybutton');
         }
        
       });
