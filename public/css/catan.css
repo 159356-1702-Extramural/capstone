@@ -1945,12 +1945,12 @@ body {
     display: inline;
     margin-left: 10px;
 }
-@media screen and (min-height: 770px){
+@media screen and (min-height: 802px){
     .score .resources {
         height:205px !important;
     }
 }
-@media screen and (max-height: 769px){
+@media screen and (max-height: 801px){
     .score {
         position:fixed;
         float: right;
@@ -1982,6 +1982,9 @@ body {
     }
     .resources{
         height: 170px !important;
+    }
+    .resources .trade{
+        top: -16px !important;
     }
     .btn-control-maximize{
         right: -10px !important;

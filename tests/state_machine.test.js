@@ -483,12 +483,39 @@ test('Game start sequence finishes', function (t) {
   t.falsy(machine.game.players[1].turn_complete);
 });
 
-test('Timer starts and stops', function (t) {
+test('Timers start and stop', function (t) {
   t.is(machine.timer, null);
-  machine.start_timer();
+  t.is(machine.timer_monopoly, null);
+
+  var timer = machine.start_timer_helper('round');
+  var mc_timer = machine.start_timer_helper('monopoly');
+  t.is(timer.timer_type, 'round');
+  t.is(mc_timer.timer_type, 'monopoly');
+
+  //both timers running
   t.not(machine.timer, null);
-  machine.stop_timer();
+  t.not(machine.timer_monopoly, null);
+  machine.stop_timer('round');
+
+  // // main timer stopped but monopoly timer running
   t.is(machine.timer, null);
+  t.not(machine.timer_monopoly, null);
+  machine.stop_timer('monopoly');
+  t.is(machine.timer_monopoly, null);
+});
+
+test('next_state cycles through states', function (t) {
+  t.is(machine.state, "setup");
+  machine.next_state();
+  t.is(machine.state, "setup");
+  machine.setupComplete = true;
+  machine.next_state();
+  t.is(machine.state, "play");
+  machine.next_state();
+  t.is(machine.state, "play");
+  machine.game.players[0].score.total_points = 10;
+  machine.next_state();
+  t.is(machine.state, "end_game");
 });
 
 test.todo("has_valid_path");
@@ -501,5 +528,5 @@ test.todo("broadcast")
 test.todo("broadcast_end")
 test.todo("broadcast_game_state")
 test.todo("tick");
-test.todo('Next state');
+
 test.todo('end_player_turns')
