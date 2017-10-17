@@ -9,6 +9,7 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
             platform: os,
             tags: ['examples'],
             name: testTitle,
+            screenResolution: "1280x768",
 
             // If using Open Sauce (https://saucelabs.com/opensauce/),
             // capabilities must be tagged as "public" for the jobs's status
@@ -30,17 +31,32 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
             .url('http://capstone-settlers.herokuapp.com/?startWithCards=3&setup=skip&fixedDice=true&dev_card=road_building')
             .click('#play')
             .setValue('#player-input', 'Test Player')
-            .click('#start-game')
-    });
+            .click('#start-game');
+        if(testsRun % 2 === 0){
+          console.log(testsRun + " : moved into if statement");
+          await client.click('#start-2-players');
+
+        }else{
+          console.log(testsRun + " : moved into else statement");
+          await client.waitForVisible('#game_id_0',10000)
+          .click('#game_id_0')
+          .click("#begin-round")
+          .click("#begin-round-btn")
+          .click('#buybutton');
+        }
+       
+      });
     test.after.always(async t => {
         await client.end();
     });
 
-    test('Has correct title', t => {
+    test('Has correct title', async t => {
+      
         return client.getTitle().then(result => {
             t.is(result, "Settlers of Massey");
         });
 });
+      return true;
 }
 var superQuickTests = {
     'Windows 10': {
@@ -76,6 +92,7 @@ for (var j = 0; j < testTitles.length; j++) {
           // initialise driver inside for loop otherwise can be created too early and time out
           var driver = "";
           //var driver = buildDriver(os + "", browser + "", version + "", testTitles[j] + " - ");
+          popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
           popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
           testsRun++;
         }
