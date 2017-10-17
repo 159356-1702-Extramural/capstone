@@ -1183,7 +1183,8 @@ StateMachine.prototype.start_timer = function (timer_type){
 StateMachine.prototype.start_timer_helper = function (timer_type) {
   var timerObj = {
     timer_type: timer_type,
-    timer_expires: 0
+    timer_expires: 0,
+    round_num: this.game.round_num
   }
   if(timer_type === 'round'){
     timerObj.timer_expires = Date.now() + (this.timer_length*1000);
@@ -1191,7 +1192,7 @@ StateMachine.prototype.start_timer_helper = function (timer_type) {
     //send timestamp to all players
   }else if (timer_type === 'monopoly'){
     timerObj.timer_expires = Date.now() + (this.monopoly_timer_length*1000);
-    this.timer_monopoly = setTimeout(this.send_monopoly_finishing.bind(this), timerObj.timer_expires - Date.now() );
+    this.timer_monopoly = setTimeout(this.send_monopoly_finishing.bind(this), timerObj.timer_expires - Date.now());
   }
   logger.log('debug', "Server side " + timer_type + " timer set to :" + (timerObj.timer_expires- Date.now()) /1000+ " seconds");
   return timerObj;
@@ -1214,9 +1215,14 @@ StateMachine.prototype.send_turn_finishing = function (){
   logger.log('debug', 'Players havent finished their turn');
 
   var players = this.game.players;
+  var data_package = new Data_package();
+  data_package.data_type = "force_finish_turn";
+  
   for(var i = 0; i < players.length; i++){
     if(!players[i].turn_complete){
-      this.send_to_player('game_turn',{data_type:"force_finish_turn", player: players[i]});
+      data_package.player = players[i];
+      data_package.player.actions = [[{roundNum: this.game.round_num}]];
+      this.send_to_player('game_turn', data_package);
     }
   }
   

@@ -235,22 +235,10 @@ $(document)
       } else if (data.data_type === 'round_turn') {
         round_turn();
 
-        /**
-         * start monopoly timer if player has monopoly card
-         * Potential point where timers are out of sync
-         */
-        // if(current_game.player.cards.dev_cards.monopoly > 0){
-        //   animate_timer(monopoly_time);
-        // }
-        // else{
-        //   animate_timer(round_time);
-        // }
-
       } else if (data.data_type === 'monopoly_used') {
         monopoly_played = data;
         current_game.player = data.player;
         round_turn();
-        //animate_timer(round_time);
 
       } else if (data.data_type === 'monopoly_received') {
         //  Build popup to show what was won and from who
@@ -358,7 +346,8 @@ $(document)
         // wipe current turn data
         setupTurnFinished();
       } else if (data.data_type === 'force_finish_turn') {
-        finish_turn();
+          finish_turn();
+        
       } else if (data.data_type === 'move_knight_choice') {
         // Allowed to use knight after requesting and got a list of
         // locations that are valid moves
@@ -396,7 +385,6 @@ $(document)
             hidePopup();
           }
         }
-        //animate_timer(round_time);
       } else if ('can_play_knight') {
         if (data.player.actions[0] === 'true') {
           build_popup_play_knight();
@@ -782,6 +770,8 @@ $(document)
         update_server('game_update', data_package);
 
       } else if (this.innerHTML === 'Save for Later') {
+        monopoly_not_used();
+        animate_timer('round');
         hidePopup();
       } else {
         console.log('Monopoly button click sent wrong click information');
@@ -1882,11 +1872,12 @@ function monopoly_check() {
     updatePanelDisplay();
     monopoly_played = null;
   } else {
-    monopoly_not_used();
+    if($('#useMonopoly').is(':visible')){
+      console.log("monopoly button visible");
+      monopoly_not_used();
+      animate_timer('round');
+    }
     hidePopup();
-    // if($('#useMonopoly').is(':visible')){
-    //   animate_timer(round_time);
-    // }
   }
 }
 
@@ -2223,7 +2214,9 @@ function animate_timer(timer_data){
         width: '0%'
       }, (timer_data.timer_expires-Date.now()-300), 'linear'
     )});
-    console.log('timer set to: '+ timer_data.timer_expires-Date.now()-300);
+    console.log(timer_data.timer_expires);
+    console.log(Date.now());
+    console.log('timer set to: '+ (timer_data.timer_expires - Date.now() - 300));
 }
 
 function get_trade_message() {
