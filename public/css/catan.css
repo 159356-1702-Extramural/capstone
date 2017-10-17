@@ -421,9 +421,6 @@ body {
   overflow-y: auto;
   background-color: whitesmoke;
 }
-.game_chat .menu {
-    visibility: hidden;
-}
 .game_chat .messages.small {
     font-size: 12px;
 }
@@ -436,12 +433,12 @@ body {
 
 .game_chat .menu {
     position: absolute;
-    visibility: hidden;
     width: calc(100% - 5px);
     height: calc(100% - 7px);
     z-index: 2;
     top:0px;
     justify-content: normal;
+    display:none;
 }
 
 .game_chat .menu .menu_button {
