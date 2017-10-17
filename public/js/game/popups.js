@@ -923,6 +923,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     buildPopup("round_restrict_dev_card_use", false, false, dev_cards);
   }
 
+  function start_setup_round() {
+    do_tip("To get started, pick up a settlement and drag it towards the board.", [["top", 380],["right", 210]], "right");
+    hidePopup();
+  }
 
   function chat_set(area, setting) {
     $(".menu_" + area + "_choice").removeClass("selected");
@@ -952,4 +956,34 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     show_tips = false;
     chat_tips();
     $(".game_chat").css("top", "").css("left", "");
+    $('.game_chat .menu').hide();
+  }
+  function chat_tip(message) {
+    var message_html = "<div class='chat_message'><span class='chat_message_name chat_player_catan'>Catan: </span>" + message + "</div>";
+    $('.messages').append(message_html);
+}
+
+  function do_tip(message, position, arrow) {
+    if (show_tips) {
+      $(".tip_prompt .tip_text").html(message);
+
+      $(".tip_prompt").css("top", "");
+      $(".tip_prompt").css("left", "");
+      $(".tip_prompt").css("right", "");
+      $(".tip_prompt").css("bottom", "");
+      for (var i = 0; i < position.length; i++) {
+        $(".tip_prompt").css(position[i][0], position[i][1] + "px");
+      }
+
+      $(".tip_arrow_left").hide();
+      $(".tip_arrow_right").hide();
+      if (arrow) {
+        $(".tip_arrow_" + arrow).show();
+      }
+
+      $(".tip_prompt").show();
+    }
+  }
+  function hide_tip() {
+    $(".tip_prompt").hide();
   }

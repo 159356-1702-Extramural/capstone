@@ -348,7 +348,7 @@ body {
     top:20px;
     right:260px;
     width:215px;
-    z-index:80000;
+    z-index:90000;
     border: thick inset black;
     display:none;
 }
@@ -439,6 +439,7 @@ body {
     top:0px;
     justify-content: normal;
     display:none;
+    overflow: hidden;
 }
 
 .game_chat .menu .menu_button {
@@ -496,6 +497,9 @@ body {
   font-weight: bold;
 }
 
+.game_chat .messages .chat_message_name.chat_player_catan {
+  color: #FC06C6;
+}
 .game_chat .messages .chat_message_name.chat_player0 {
   color: #7168CA;
 }
@@ -1826,7 +1830,7 @@ body {
   float: right;
 }
 
-.done_prompt, .trade_prompt {
+.tip_prompt, .trade_prompt {
     position: fixed;
     float: right;
     top:40px;
@@ -1849,13 +1853,26 @@ body {
 
 }
 
-.done_text {
+.tip_text {
     float:left;
     width:70%;
 }
-.done_arrow {
+.tip_arrow_right {
     float:right;
     padding:10px;
+}
+.tip_arrow_left {
+    float:left;
+    padding:10px;
+}
+.tip_hide {
+    clear:both;
+    text-align: center;
+    font-size:11px;
+}
+.tip_hide:hover {
+    color:blue;
+    cursor: pointer;
 }
 
 .timer_box {

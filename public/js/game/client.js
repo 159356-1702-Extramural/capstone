@@ -2208,7 +2208,7 @@ function finish_turn(){
   build_popup_round_waiting_for_others();
 
   //  Hide the reminder
-  $(".done_prompt").hide();
+  hide_tip();
 
   //  Adjust trade stuff
   current_player.trade_in_progress = false;

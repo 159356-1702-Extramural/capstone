@@ -26,9 +26,11 @@
 
   <div class="log"></div>
 
-  <div class="done_prompt">
-    <div class="done_text">Are you done setting your pieces? Click <b>Finish Turn</b> to continue.</div>
-    <div class="done_arrow"><i class="fa fa-arrow-right fa-3x"></i></div>
+  <div class="tip_prompt">
+    <div class="tip_arrow_left"><i class="fa fa-arrow-left fa-3x"></i></div>
+    <div class="tip_text"></div>
+    <div class="tip_arrow_right"><i class="fa fa-arrow-right fa-3x"></i></div>
+    <div class="tip_hide" onclick='show_tips=false; hide_tip();'>Hide tips</div>
   </div>
 
   <div class="trade_prompt">
@@ -64,7 +66,7 @@
         <div class="menu_font_choice medium selected" onclick="chat_set('font', 'medium');"><i class="fa fa-font fa-2x"></i></div>
         <div class="menu_font_choice large" onclick="chat_set('font', 'large');"><i class="fa fa-font fa-3x"></i></div>
       </div>
-      <div class="menu_tip" style="height:85px;">
+      <div class="menu_tip" style="height:60px;">
         <div class="menu_title">Tips:</div>
         <div class="menu_tips" onclick="chat_tips();"><i class="fa fa-toggle-on fa-2x"></i> <span class="menu_tip_text">Tips currently on</span></div>
       </div>
