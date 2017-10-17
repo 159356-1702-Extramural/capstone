@@ -64,7 +64,7 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
 var superQuickTests = {
     'Windows 10': {
       'firefox': {
-        startVersion: 54,
+        startVersion: 55,
         endVersion: 55
       },
       'screenResolution' : '1280x1024'
@@ -96,6 +96,7 @@ for (var j = 0; j < testTitles.length; j++) {
           var driver = "";
           //var driver = buildDriver(os + "", browser + "", version + "", testTitles[j] + " - ");
           popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
+          testsRun++;
           popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
           testsRun++;
         }

@@ -837,7 +837,6 @@ $(document)
             current_game.player.cards.resource_cards.ore--;
             current_game.player.cards.resource_cards.sheep--;
 
-            //current_game.player.cards.remove_cards("dev_card");
             updatePanelDisplay();
             var data_package = new Data_package();
             data_package.data_type = "buy_dev_card";
