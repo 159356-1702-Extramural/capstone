@@ -112,7 +112,7 @@ $(document)
         $(".other_player" + i + "_status")
           .html("<i class='fa " + (waiting[i][1] ? "fa-check" : "fa-spin fa-spinner") + "'></i>");
       }
-      $(".game_chat").css("right", "18px");
+      $(".game_chat").css("right", "260px");
       $(".game_chat").show();
     });
 
