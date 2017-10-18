@@ -2076,4 +2076,18 @@ body {
         right: -10px !important;
         top: -10px !important;
     }
+    .player_score_detail {
+        width: 10% ! important;
+        min-width:120px;
+    }
+    .building_card_div {
+        text-align: center;
+    }
+    .building_card {
+        width: 70%; 
+    }
+    .building_card_cont + div {
+        margin-top: 20px;
+        margin-bottom: -20px;
+    }
 }
