@@ -1252,6 +1252,7 @@ var update_server = function(data_type, data) {
 
   //data_type is a string, usually "game_update" , data is a data_package object
   socket.emit(data_type, data);
+  console.log(data.toString())
 }
 
 //  Method used to create the individual tiles when the board is first drawn

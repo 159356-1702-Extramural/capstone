@@ -432,6 +432,7 @@ function create_player_action(object_type, node, boost_cards) {
   action.action_type = (object_type == "road" ? "build_road" : (object_type == "city" ? "build_city" :
     "build_settlement"));
   action.action_data = node;
+  console.log("settlement data is:",node);
   action.boost_cards = boost_cards;
   turn_actions.push(action);
 }

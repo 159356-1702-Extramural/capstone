@@ -533,7 +533,11 @@ StateMachine.prototype.validate_player_builds = function (data) {
     for (var i = 0; i < data.actions.length; i++) {
       var player_id = data.player_id;
       var item = data.actions[i].action_type; //settlement or road
+        this.log('debug', '----actions:'+item)
+
+
       var index = data.actions[i].action_data.id;
+      this.log('debug','-------------actions:'+item+'---data:'+data.actions[i].action_data.id)
       this.game.board.set_item(item, index, player_id);
       data.actions[i].action_result = 0;
 
@@ -1214,7 +1218,17 @@ StateMachine.prototype.run_computer_player = function (computer_player_id){
 StateMachine.prototype.computer_player_setup = function(){
   //logic to add setup information
   this.log("warning", " Player disconnected during setup phase, computer player taking over.");
-  return [[/*settlement placement action*/],[/*road placement action*/]]
+  var action=new Action();
+  action.set_action_type('build_settlement');
+  action.set_action_data([13,22,24])
+  var action1=new Action();
+  action1.set_action_type('build_road');
+  action1.set_action_data([21,31,32])
+
+
+
+  // return [[/*settlement placement action*/],[/*road placement action*/]]
+  return [[action],[action1]]
 }
 
 module.exports = {
