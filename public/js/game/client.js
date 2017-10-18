@@ -13,13 +13,8 @@ var allowed_actions = {
 //  Default width/height of settlement/city
 var building_dimension = 50;
 
-// timer variables
-var timer_running = true;
 var monopoly_time = 30; //seconds
-var round_time = 666;  //seconds
-var remaining_time = -1;
-var timer = null;
-var force_complete = false;
+var round_time = 60;  //seconds
 
 // records whether player has had monopoly played on them
 var monopoly_played = null;
@@ -51,6 +46,12 @@ $(document)
     socket.on('lobby_data', function(data) {
       build_popup_lobby(data);
     });
+
+    //  Timer sync
+    socket.on('timestamp', function(data) {
+        animate_timer(data);
+    });
+
     socket.on('game_full', function() {
       $(".game_error")
         .html("The game is full, please choose another");
@@ -202,12 +203,8 @@ $(document)
     var resolve_game_turn = function(data) {
       if (data.data_type === "setup_complete") {
         setup_phase = false;
-        if(timer_running){
-          timer = setInterval(function(){
-            update_time();
-          }, 1000);
-        }
-        animate_timer('standard');
+        test = data;
+
         build_popup_setup_complete();
 
       } else if (data.data_type === 'setup_phase') {
@@ -238,52 +235,23 @@ $(document)
         build_popup_round_waiting_for_others();
 
       } else if (data.data_type === 'round_turn') {
-        $(".game_chat").removeClass('game_chat_top_z');
-        if (current_game.round_num === 2) {
-          //  On the first round, we need to show the setup phase results
-          //build_popup_setup_complete();
-          setup_phase = false;
-        } else {
-          //  First, check to see if any previous builds failed
-          var has_failed = !check_failed_builds();
-          if (has_failed) {
-            //  Show the details of the failed builds
-            build_popup_failed_moves();
-
-          } else {
-            //  Otherwise, we start with the dice popup
-            build_popup_round_roll_results();
-          }
-          // allow players to purchase and play dev cards this round
-          reset_dev_cards_per_round()
-
-          set_allowed_actions(true, false, false, true);
-          updatePanelDisplay();
-
-          // start timer
-          if(current_game.player.cards.dev_cards.monopoly > 0){
-            animate_timer("monopoly");
-          }else{
-            animate_timer("standard");
-          }
-
-        }
+        round_turn();
 
       } else if (data.data_type === 'monopoly_used') {
         monopoly_played = data;
         current_game.player = data.player;
-        build_popup_round_roll_results();
-        animate_timer("standard");
+        round_turn();
 
       } else if (data.data_type === 'monopoly_received') {
         //  Build popup to show what was won and from who
         current_game.player = data.player;
 
         build_popup_monopoly_win(data);
-        animate_timer("standard");
+
         //  Update cards
         updatePanelDisplay();
         update_dev_cards(data);
+        animate_timer(round_time);
 
       } else if (data.data_type === 'returned_trade_card') {
         // card received from bank trade
@@ -337,7 +305,7 @@ $(document)
         } else {
           $(".player" + data.player_id + "_bubble").hide();
         }
-        
+
       } else if (data.data_type === 'returned_player_trade') {
         // successful trade for player
         // intended to work the same as for recv from bank
@@ -348,12 +316,12 @@ $(document)
         if (data.message) {
           alert(data.message);
         }
-        
+
         //  Toggle the trade/cancel button
         $(".tradeplayer_button").show();
         $(".tradecancel_button").hide();
         current_player.trade_in_progress = false;
-                    
+
       } else if (data.data_type === 'cancel_player_trade') {
         $(".player" + data.player_id + "_bubble").hide();
 
@@ -377,14 +345,11 @@ $(document)
         updatePanelDisplay();
 
       } else if (data.data_type === 'successful_turn') {
-
         // wipe current turn data
         setupTurnFinished();
-      } else if (data.data_type === 'force_complete') {
-
-        // Server has called end turn because client didn't respond
-        force_complete = true;
-        finish_turn();
+      } else if (data.data_type === 'force_finish_turn') {
+          finish_turn();
+        
       } else if (data.data_type === 'move_knight_choice') {
         // Allowed to use knight after requesting and got a list of
         // locations that are valid moves
@@ -413,13 +378,22 @@ $(document)
         let res = data.player.actions[0].action_data.resource;
         let msg = "You were robbed by "+player_name+" for 1x "+res;
         alert(msg);
+      } else if (data.data_type === 'force_finish_monopoly') {
+        if(current_game.player.cards.dev_cards.monopoly === 0){
+          // players waiting for monopoly to finish can start turn
+          round_turn();
+        }else{
+          if($('#monopolyPopup').is(':visible')||$('#useMonopoly').is(':visible')){
+            hidePopup();
+          }
+        }
       } else if ('can_play_knight') {
         if (data.player.actions[0] === 'true') {
           build_popup_play_knight();
         } else {
           build_popup_restrict_dev_card_use('play');
         }
-      } else {
+      }else {
         console.log('failed to direct data_type into an else if section');
       }
     }
@@ -434,7 +408,7 @@ $(document)
       let location = $(this).attr('id');
       location = location.match(/(\d+)/g);
       console.log("Selected", location);
-      
+
       var action = new Action();
       action.action_type = 'move_knight_to';
       action.action_data = location;
@@ -793,6 +767,8 @@ $(document)
         update_server('game_update', data_package);
 
       } else if (this.innerHTML === 'Save for Later') {
+        monopoly_not_used();
+        animate_timer('round');
         hidePopup();
       } else {
         console.log('Monopoly button click sent wrong click information');
@@ -882,7 +858,7 @@ $(document)
         .html($(".build_hidden")
           .html());
 
-          
+
     });
 
     //  Player Trading - Add Want Card
@@ -992,10 +968,10 @@ function checkTrade() {
       break;
     }
   }
-  var can_trade_player = anyone_still_playing && (current_game.player.cards.resource_cards.brick > 0 || 
-    current_game.player.cards.resource_cards.lumber > 0 || current_game.player.cards.resource_cards.sheep > 0 || 
+  var can_trade_player = anyone_still_playing && (current_game.player.cards.resource_cards.brick > 0 ||
+    current_game.player.cards.resource_cards.lumber > 0 || current_game.player.cards.resource_cards.sheep > 0 ||
     current_game.player.cards.resource_cards.ore > 0 || current_game.player.cards.resource_cards.grain > 0);
-  
+
   $(".tradebank_button").addClass("disabled");
   if (can_trade_bank) {
     $(".tradebank_button").removeClass("disabled");
@@ -1066,7 +1042,7 @@ function cancelTrade() {
   data_package.data_type = 'cancel_player_trade';
   data_package.player_id = current_player.id;
   update_server('game_update', data_package);
-  current_player.trade_in_progress = false;  
+  current_player.trade_in_progress = false;
   $(".trade_prompt").hide();
 }
 
@@ -1136,7 +1112,7 @@ function initInterTrade() {
     give_cards.lumber = (give_html.match(/lumber/g) || []).length;
     give_cards.grain = (give_html.match(/grain/g) || []).length;
     give_cards.brick = (give_html.match(/brick/g) || []).length;
-    
+
     var want_cards = new TradeCards();
     want_cards.sheep = (want_html.match(/sheep/g) || []).length;
     want_cards.ore = (want_html.match(/ore/g) || []).length;
@@ -1893,10 +1869,13 @@ function monopoly_check() {
     updatePanelDisplay();
     monopoly_played = null;
   } else {
-    monopoly_not_used();
+    if($('#useMonopoly').is(':visible')){
+      console.log("monopoly button visible");
+      monopoly_not_used();
+      animate_timer('round');
+    }
     hidePopup();
   }
-
 }
 
 function monopoly_not_used() {
@@ -2197,8 +2176,6 @@ function finish_turn(){
       alert("Please place both your free roads.");
       return false;
     }
-  } else if(force_complete){
-    data_package.data_type = "still_connected";
   } else {
     data_package.data_type = "turn_complete";
   }
@@ -2223,46 +2200,21 @@ function finish_turn(){
   update_server("game_update", data_package);
 
   set_allowed_actions(false, false, false, false);
-  //turn complete, stop timer from having any effect
-  remaining_time = -1;
   updatePanelDisplay();
 }
 
-function update_time(){
-  if(timer_running){
-    if(remaining_time > 0){
-      if(remaining_time === (round_time + 1)){
-        //monopoly time ending.
-        hidePopup();
-        monopoly_check();
-        animate_timer("standard");
-      }
-      remaining_time--;
-    }else if(remaining_time === 0){
-      hidePopup();
-      finish_turn();
-      remaining_time--;
-    }
-  }
-}
-
-function animate_timer(timer_type){
-  if(timer_running){
+function animate_timer(timer_data){
     $('#timer_inner').stop();
-    remaining_time = round_time;
-    var anim_time = round_time *1000;
-    if(timer_type === "monopoly"){
-      anim_time = monopoly_time *1000;
-      remaining_time += monopoly_time;
-    }
     $('#timer_inner').animate({
-      width: '0%'
+      width: '100%'
     }, 300, 'linear', function(){
       $('#timer_inner').animate({
-        width: '100%'
-      }, anim_time-300, 'linear'
+        width: '0%'
+      }, (timer_data.timer_expires-Date.now()-300), 'linear'
     )});
-  }
+    console.log(timer_data.timer_expires);
+    console.log(Date.now());
+    console.log('timer set to: '+ (timer_data.timer_expires - Date.now() - 300));
 }
 
 function get_trade_message() {
@@ -2282,6 +2234,30 @@ function get_trade_message() {
 }
 
 
+function round_turn(){
+  $(".game_chat").removeClass('game_chat_top_z');
+  if (current_game.round_num === 2) {
+    //  On the first round, we need to show the setup phase results
+    //build_popup_setup_complete();
+    setup_phase = false;
+  } else {
+    //  First, check to see if any previous builds failed
+    var has_failed = !check_failed_builds();
+    if (has_failed) {
+      //  Show the details of the failed builds
+      build_popup_failed_moves();
+
+    } else {
+      //  Otherwise, we start with the dice popup
+      build_popup_round_roll_results();
+    }
+    // allow players to purchase and play dev cards this round
+    reset_dev_cards_per_round()
+
+    set_allowed_actions(true, false, false, true);
+    updatePanelDisplay();
+  }
+}
 function doLog(m) {
   $(".log")
     .append(m + "<br />");
