@@ -32,28 +32,6 @@ body {
   margin: 1px;
 }
 
-.btn-control-maximize {
-  position: fixed;
-  float: right;
-  right: 10px;
-  top: 30px;
-  margin: 1px;
-  width: 48px;
-  height: 48px;
-  border:none;
-  z-index:999998;
-  background: url(../images/control_center.png) no-repeat;
-  background-size: 48px 48px;
-}
-.btn-plus {
-  background: url(../images/chat_icon.png) no-repeat;
-  background-size: 48px 48px;
-}
-.btn-msg {
-  background: url(../images/chat_icon_msg.png) no-repeat !important;
-  background-size: 48px 48px !important;
-}
-
 .btn-hide {
   background: none !important;
   background-size: 0px 0px !important;
@@ -367,20 +345,51 @@ body {
     position:fixed;
     float: right;
     display:inline-block;
-    top:5%;
-    right:18px;
-    height:820px;
-    width:235px;
-    z-index:80000;
+    top:20px;
+    right:260px;
+    width:215px;
+    z-index:90000;
     border: thick inset black;
-    transition: transform .4s;
-    backface-visibility: hidden;
-    transform-style: preserve3d;
+    display:none;
+}
+.game_chat.small {
+    height:250px;
+}
+.game_chat.medium {
+    height:450px;
+}
+.game_chat.large {
+    height:750px;
 }
 
-.game_chat--back {
-    transform: rotateY(180deg);
+
+.game_chat_header {
+    height:22px;
+    border:thin solid black;
+    background:black;
+    color:white;
 }
+.game_chat_header:hover {
+    cursor: move;
+}
+.game_chat_header_subtext {
+    font-size:11px;
+}
+.game_chat .chat_menu {
+    position: absolute;
+    right: -5px;
+    top: 15px;
+    height: 40px;
+    width:40px;
+    border:none;
+    background-color: transparent;
+}
+.game_chat .chat_menu:hover {
+    cursor: pointer;
+    background-color: silver;
+    border-radius: 15px;
+}
+    
 
 .game_chat_top_z {
     z-index: 999999;
@@ -392,7 +401,7 @@ body {
   background-color: silver;
   height: 60px;
   padding: 6px;
-  width: 223px;
+  width: 203px;
 }
 
 .game_chat textarea {
@@ -402,16 +411,82 @@ body {
   height: 54px;
 }
 
-.game_chat .messages {
+.game_chat .messages, .game_chat .menu {
   padding: 4px;
-  font-size: 14px;
   position: relative;
   display: flex;
   justify-content: flex-end;
   flex-direction: column;
-  height: 740px;
+  height: calc(100% - 100px);
   overflow-y: auto;
   background-color: whitesmoke;
+}
+.game_chat .messages.small {
+    font-size: 12px;
+}
+.game_chat .messages.medium {
+    font-size: 14px;
+}
+.game_chat .messages.large {
+    font-size: 18px;
+}
+
+.game_chat .menu {
+    position: absolute;
+    width: calc(100% - 5px);
+    height: calc(100% - 7px);
+    z-index: 2;
+    top:0px;
+    justify-content: normal;
+    display:none;
+    overflow: hidden;
+}
+
+.game_chat .menu .menu_button {
+    float:left;
+    width:45%;
+    padding:3px;
+    text-align: center;
+}
+
+.menu_font_choice:hover, .menu_size_choice:hover, .menu_tips:hover {
+    color:green !important;
+    cursor: pointer;
+}
+.menu_size, .menu_font, .menu_tip {
+    height:70px;
+    margin-left:10px;
+}
+.menu_size .small, .menu_size .medium, .menu_size .large, .menu_font .small, .menu_font .medium, .menu_font .large {
+    position: relative;
+    float:left;
+    width:30%;
+}
+.menu_size .small:hover, .menu_size .medium:hover, .menu_size .large:hover, .menu_font .small:hover, .menu_font .medium:hover, .menu_font .large:hover {
+    cursor: pointer;
+}
+.menu_size .small, .menu_font .small {
+    top:10px;
+}
+.menu_size .medium, .menu_font .medium {
+    top:5px;
+}
+.menu_size .menu_title, .menu_font .menu_title {
+    clear:both;
+    height:18px;
+    margin-bottom:5px;
+    border-bottom: thin solid black;
+}
+.menu_size .selected, .menu_font .selected {
+    color: blue;
+}
+
+.menu .menu_tips {
+    height:20px;
+}
+.menu_tip_text {
+    position: relative;
+    top:-5px;
 }
 
 .game_chat .messages .chat_message {
@@ -422,6 +497,9 @@ body {
   font-weight: bold;
 }
 
+.game_chat .messages .chat_message_name.chat_player_catan {
+  color: #FC06C6;
+}
 .game_chat .messages .chat_message_name.chat_player0 {
   color: #7168CA;
 }
@@ -465,20 +543,14 @@ body {
     position:fixed;
     float: right;
     display:inline-block;
-    top:5%;
+    top:20px;
     right:20px;
     height:auto;
     width:232px;
     z-index:90000;
     border: thick inset black;
     background-color: silver;
-    backface-visibility: hidden;
-    transform-style: preserve3d;
-    transition: transform .4s;
-}
-
-.score--back {
-    transform: rotateY(-180deg);
+    visibility: hidden;
 }
 
 .score .row {
@@ -1758,7 +1830,7 @@ body {
   float: right;
 }
 
-.done_prompt, .trade_prompt {
+.tip_prompt, .trade_prompt {
     position: fixed;
     float: right;
     top:40px;
@@ -1781,13 +1853,26 @@ body {
 
 }
 
-.done_text {
+.tip_text {
     float:left;
     width:70%;
 }
-.done_arrow {
+.tip_arrow_right {
     float:right;
     padding:10px;
+}
+.tip_arrow_left {
+    float:left;
+    padding:10px;
+}
+.tip_hide {
+    clear:both;
+    text-align: center;
+    font-size:11px;
+}
+.tip_hide:hover {
+    color:blue;
+    cursor: pointer;
 }
 
 .timer_box {
@@ -1983,6 +2068,7 @@ body {
     .resources{
         height: 170px !important;
     }
+
     .resources .trade{
         top: -16px !important;
     }

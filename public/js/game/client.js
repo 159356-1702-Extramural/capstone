@@ -19,18 +19,14 @@ var round_time = 60;  //seconds
 // records whether player has had monopoly played on them
 var monopoly_played = null;
 
+//  Player tips
+var show_tips = true;
+var completed_tips = "";
+
 $(document)
   .ready(function() {
 
     var $doc = $(document);
-
-    $(".btn-control-maximize").click(function(){
-      $(".btn-control-maximize").removeClass('btn-msg');
-      $(".btn-control-maximize").toggleClass('btn-plus');
-      $(".score").toggleClass("score--back");
-      $(".game_chat").toggleClass("game_chat--back");
-      $(".trade_prompt").hide();
-    });
 
     //    Show the initial menu
     build_popup_start_menu();
@@ -99,6 +95,10 @@ $(document)
 
       set_allowed_actions(false, false, false, false);
       updatePanelDisplay();
+
+      $(".score").css("visibility", "visible");
+      $(".game_chat").css("right", "260px");
+      $(".game_chat").show();
     });
 
     socket.on('game_turn', function(data) {
@@ -113,6 +113,8 @@ $(document)
         $(".other_player" + i + "_status")
           .html("<i class='fa " + (waiting[i][1] ? "fa-check" : "fa-spin fa-spinner") + "'></i>");
       }
+      $(".game_chat").css("right", "260px");
+      $(".game_chat").show();
     });
 
     // Detect the game end and load up the final modal with the
@@ -447,13 +449,8 @@ $(document)
     // Listen for incoming chat messages
     socket.on('chat_message', function(data) {
       var $message_panel = $('.messages');
-      if (data.player_id != current_player.id)
-        $(".btn-control-maximize").addClass('btn-msg');
-
       var message_html = "<div class=\"chat_message\"><span class=\"chat_message_name chat_player"+data.player_id+"\">"+data.name+" </span>"+data.message+"</div>";
-
       $message_panel.append(message_html);
-
     });
 
     /*
@@ -2187,9 +2184,10 @@ function finish_turn(){
     return false;
   }
   build_popup_round_waiting_for_others();
+  $(".game_chat").addClass('game_chat_top_z');
 
   //  Hide the reminder
-  $(".done_prompt").hide();
+  hide_tip();
 
   //  Adjust trade stuff
   current_player.trade_in_progress = false;
