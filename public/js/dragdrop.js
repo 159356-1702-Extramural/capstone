@@ -53,8 +53,8 @@ function setupDragDrop() {
         if (allowed_actions["can_build"]) {
           show_open_spots("settlement", event.target.id);
           if (current_game.round_num < 3) {
-            do_tip("Now drop your settlement onto one of the ghost images.", [["top", 230],["left", 790]], "left");
-            chat_tip("Want to learn more about how to pick a good spot to build? <a href='#' onclick=''>Click Here</a>");
+            do_tip(2, "Now drop your settlement onto one of the ghost images.", "#x6y2", "right", "left");
+            chat_tip(5, "Want to learn more about how to pick a good spot to build? <a href='#' onclick='build_help_popup(0);'>Click Here</a>");
           }
         }
       },
@@ -403,9 +403,9 @@ function set_object_on_canvas(event, ui) {
     if (current_game.round_num < 3) {
       if (turn_actions.length == 2) {
         allowed_actions.can_finish = true;
-        do_tip("Are you done setting your pieces? Click <b>Finish Turn</b> to continue.", [["top", 40],["right", 160]], "right");
+        do_tip(4, "Are you done setting your pieces? Click <b>Finish Turn</b> to continue.", ".playerbutton", "", "right");
       } else if (turn_actions.length == 1) {
-        do_tip("Now select a road and drag it towards the board.", [["top", 410],["right", 210]], "right");
+        do_tip(3, "Now select a road and drag it towards the board.", ".roadbox", "", "right");
       }
     } else {
       allowed_actions.can_finish = true;

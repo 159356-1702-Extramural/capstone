@@ -923,8 +923,18 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     buildPopup("round_restrict_dev_card_use", false, false, dev_cards);
   }
 
+  function build_help_popup(id) {
+    var title = "";
+    var body = "";
+    if (id == 0) {
+      title = "Choosing build spots";
+      body = "";
+    }
+    buildPopup("help_popup", false, false, [["title", title], ["body", body]]);
+  }
+
   function start_setup_round() {
-    do_tip("To get started, pick up a settlement and drag it towards the board.", [["top", 380],["right", 210]], "right");
+    do_tip(1, "To get started, pick up a settlement and drag it towards the board.", ".settlementbox", "", "right");
     hidePopup();
   }
 
@@ -958,22 +968,24 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     $(".game_chat").css("top", "").css("left", "");
     $('.game_chat .menu').hide();
   }
-  function chat_tip(message) {
-    var message_html = "<div class='chat_message'><span class='chat_message_name chat_player_catan'>Catan: </span>" + message + "</div>";
-    $('.messages').append(message_html);
-}
+  function chat_tip(id, message) {
+    if (show_tips && completed_tips.indexOf(id + ",") == -1) {
+      var message_html = "<div class='chat_message'><span class='chat_message_name chat_player_catan'>Catan: </span>" + message + "</div>";
+      $('.messages').append(message_html);
+      completed_tips += id + ",";
+    }
+  }
 
-  function do_tip(message, position, arrow) {
-    if (show_tips) {
+  function do_tip(id, message, object, anchor, arrow) {
+    if (show_tips && completed_tips.indexOf(id + ",") == -1) {
       $(".tip_prompt .tip_text").html(message);
 
-      $(".tip_prompt").css("top", "");
-      $(".tip_prompt").css("left", "");
-      $(".tip_prompt").css("right", "");
-      $(".tip_prompt").css("bottom", "");
-      for (var i = 0; i < position.length; i++) {
-        $(".tip_prompt").css(position[i][0], position[i][1] + "px");
-      }
+      var object_position = $(object).offset();
+      var left_offset = (anchor == "right" ? 0 : $(".tip_prompt").width() + 30);
+      var top_offset = $(".tip_prompt").height() / 2;
+      
+      $(".tip_prompt").css("top", object_position.top - top_offset + "px");
+      $(".tip_prompt").css("left", object_position.left - left_offset + "px");
 
       $(".tip_arrow_left").hide();
       $(".tip_arrow_right").hide();
@@ -982,6 +994,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       }
 
       $(".tip_prompt").show();
+      completed_tips += id + ",";
     }
   }
   function hide_tip() {

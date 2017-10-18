@@ -26,6 +26,7 @@ var monopoly_played = null;
 
 //  Player tips
 var show_tips = true;
+var completed_tips = "";
 
 $(document)
   .ready(function() {
@@ -2206,6 +2207,7 @@ function finish_turn(){
     return false;
   }
   build_popup_round_waiting_for_others();
+  $(".game_chat").addClass('game_chat_top_z');
 
   //  Hide the reminder
   hide_tip();
