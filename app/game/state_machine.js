@@ -1224,6 +1224,7 @@ StateMachine.prototype.computer_player_setup = function(){
   var action1=new Action();
   action1.set_action_type('build_road');
   action1.set_action_data([21,31,32])
+    
 
 
 
