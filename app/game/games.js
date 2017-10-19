@@ -2,6 +2,7 @@ var logger = require('winston');
 var Player = require('../data_api/player.js');
 var sm = require("./state_machine.js");
 var Chat = require('./chat.js');
+var Data_package = require('../../public/data_api/data_package.js');
 
 /********************************************************
  * Games was Lobby - renamed to suit task
@@ -105,14 +106,19 @@ Games.prototype.assign_player = function (socket, data) {
       self.remove_game(player.game_id);
       logger.log("warning", "All players have left the game");
     }else{
-      var data_package = {
-        data_type: "turn_complete",
-        player_id: player.id,
-        actions: []
-      }
+      var data_package = new Data_package();
+      data_package.data_type = "turn_complete";
+      console.log("player id = "+player.id + "<-----------------------");
+      data_package.player_id = player.id;
+      data_package.actions = [];
+      
       if(state_machine.game.round_num < 3){
         //still in setup phase
-        data_package.actions = state_machine.computer_player_setup();
+        var getActions = state_machine.computer_player_setup(player.id);
+        for(var i = 0; i < getActions.length; i++){
+          data_package.actions.push(getActions[i][0]);
+        }
+        console.log(data_package);
       }
       state_machine.tick(data_package);
     }

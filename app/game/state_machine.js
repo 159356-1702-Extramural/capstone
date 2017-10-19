@@ -535,7 +535,10 @@ StateMachine.prototype.validate_player_builds = function (data) {
       var item = data.actions[i].action_type; //settlement or road
         this.log('debug', '----actions:'+item)
 
-
+      //   console.log("---------------------------------");
+      // console.log(data.actions[i].action_data.n_tiles[0]);
+      // console.log(data.actions[i].action_data.n_tiles[1]);
+      // console.log(data.actions[i].action_data.n_tiles[2]);
       var index = data.actions[i].action_data.id;
       this.log('debug','-------------actions:'+item+'---data:'+data.actions[i].action_data.id)
       this.game.board.set_item(item, index, player_id);
@@ -1215,16 +1218,21 @@ StateMachine.prototype.run_computer_player = function (computer_player_id){
  * Place a settlement and a road for computer player or disconnected player
  * @return {Actions} [[Action][Action]] : First Action is settlement placement, second is road placement 
  */
-StateMachine.prototype.computer_player_setup = function(){
+StateMachine.prototype.computer_player_setup = function(player_id){
   //logic to add setup information
   this.log("warning", " Player disconnected during setup phase, computer player taking over.");
   var action=new Action();
-  action.set_action_type('build_settlement');
-  action.set_action_data([13,22,24])
+  action.action_type = 'build_settlement';
+  action.action_result = 2;
+  var nTiles = [];
+  nTiles.push({x : 4, y: 2});
+  nTiles.push({x : 5, y: 2});
+  nTiles.push({x : 4, y: 3});
+  action.action_data = {id:21, n_tiles: nTiles ,n_nodes:[13,22,24], n_roads:[21,31,32], building:'', owner:player_id, status:'pending',harbour:''};
   var action1=new Action();
-  action1.set_action_type('build_road');
-  action1.set_action_data([21,31,32])
-    
+  action1.action_type = 'build_road';
+  action1.action_result = 2;
+  action1.action_data = {id:31, connects: [22,21], owner: player_id, status: 'pending'};
 
 
 
