@@ -1220,16 +1220,26 @@ StateMachine.prototype.computer_player_setup = function(){
   this.log("warning", " Player disconnected during setup phase, computer player taking over.");
   var action=new Action();
   action.set_action_type('build_settlement');
-  action.set_action_data([13,22,24])
-  var action1=new Action();
-  action1.set_action_type('build_road');
-  action1.set_action_data([21,31,32])
+  var action1_data={
+    id:21,
+      n_tile:[{x:4,y:2},{x:5,y:2},{x:4,y:3}],
+      n_nodes:[13,22,24],
+      n_roads:[21,31,32],
+      building:'',
+      owner:2,
+      status:'pending',
+      harbor:''
+  }
+  action.set_action_data(action1_data)
+  // var action1=new Action();
+  // action1.set_action_type('build_road');
+  // action1.set_action_data([21,31,32])
     
 
 
 
   // return [[/*settlement placement action*/],[/*road placement action*/]]
-  return [[action],[action1]]
+  return [[action]]
 }
 
 module.exports = {
