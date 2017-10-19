@@ -181,6 +181,7 @@ Games.prototype.parse_env = function (state_machine) {
     state_machine.setupComplete = true;
     state_machine.setupPointer = 8;
     state_machine.game.round_num = 3;
+    state_machine.next_state();
 
     var node_road_pairs = [
       [7, 9],
