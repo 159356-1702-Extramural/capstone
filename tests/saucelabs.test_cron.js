@@ -45,7 +45,7 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
           .waitForVisible('#begin-round-btn',10000)
           .click("#begin-round-btn")
           .waitForVisible('.buybutton',10000)
-          .click('.buybutton');
+          .click('.buybutton')
         }
        
       });
