@@ -56,7 +56,12 @@ $(document)
       $(".game_error")
         .html("The game is full, please choose another");
     });
-
+     
+    socket.on('player_quit', function(data) {
+      console.log('Player disconnected in setup phase: '+data.message);
+      $(".game_error")
+        .html(data.message);
+    });
     //  Create local player after join
     socket.on('player_id', function(data) {
       current_player = new currentPlayer(data.name, data.id, data.colour);

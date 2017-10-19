@@ -86,9 +86,7 @@ Games.prototype.assign_player = function (socket, data) {
 
   player.socket.on('disconnect', function () {
     logger.log('info', 'a player has quit the game');
-    // state_machine.broadcast('player_quit', {
-    //   message: player.name + ' has disconnected. Game Over.'
-    // });
+
     player.connected = false;
 
     //check if all players are disconnected from the game
@@ -111,8 +109,11 @@ Games.prototype.assign_player = function (socket, data) {
         actions: []
       }
       if(state_machine.game.round_num < 3){
-        //still in setup phase
-        data_package.actions = state_machine.computer_player_setup();
+        self.remove_game(player.game_id);
+        logger.log("warning", "Player left the game during setup");
+        state_machine.broadcast('player_quit', {
+          message: player.name + ' has disconnected. Game Over.'
+        });
       }
       state_machine.tick(data_package);
     }
