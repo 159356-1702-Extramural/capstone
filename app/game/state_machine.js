@@ -1236,7 +1236,6 @@ StateMachine.prototype.send_turn_finishing = function (){
   
 }
 
-<<<<<<< da00e00ff3ebbf1643dac9cd59cd7decbdd3c2c3
 StateMachine.prototype.send_monopoly_finishing = function (){
   logger.log('debug', 'Player hasnt finished monopoly turn');
 
@@ -1250,7 +1249,6 @@ StateMachine.prototype.send_monopoly_finishing = function (){
   this.start_timer('round');
 }
 
-=======
 StateMachine.prototype.run_computer_player = function (computer_player_id){
   //Cant use data_package = new Data_package(); here as we are simulation client traffic
   var data_package = {
@@ -1260,24 +1258,9 @@ StateMachine.prototype.run_computer_player = function (computer_player_id){
 
   // Add round logic here
 
-
   this.tick(data_package);
 }
-<<<<<<< a97013337bf4bfa913316cf6d4e8152c1a976fcc
->>>>>>> startComputerPlayer: keeps game moving
-=======
 
-/**
- * Place a settlement and a road for computer player or disconnected player
- * @return {Actions} [[Action][Action]] : First Action is settlement placement, second is road placement 
- */
-StateMachine.prototype.computer_player_setup = function(){
-  //logic to add setup information
-  this.log("warning", " Player disconnected during setup phase, computer player taking over.");
-  return [[/*settlement placement action*/],[/*road placement action*/]]
-}
-
->>>>>>> computerPlayer: added setup
 module.exports = {
   StateMachine
 };
