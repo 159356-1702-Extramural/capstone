@@ -46,6 +46,10 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
           .click("#begin-round-btn")
           .waitForVisible('.buybutton',10000)
           .click('.buybutton')
+          .waitForVisible('#begin-round',10000)
+          .click("#begin-round")
+          .waitForVisible('#begin-round-btn',10000)
+          .click("#begin-round-btn")
         }
        
       });
@@ -54,11 +58,22 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
     });
 
     test('Has correct title', async t => {
-      
+      if(testsRun %2 !== 0){
+        console.log('inside 1=0');
+        return client.click('.buybutton')
+          .elements('.cardlist').then(function (cardlist) {
+            t.is(cardlist.value.length, 1);
+        });
+      }else{
         return client.getTitle().then(result => {
             t.is(result, "Settlers of Massey");
         });
-});
+      }   
+    });
+        // return client.getTitle().then(result => {
+        //     t.is(result, "Settlers of Massey");
+        // });
+
       return true;
 }
 var superQuickTests = {
