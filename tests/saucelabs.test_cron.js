@@ -1,7 +1,18 @@
 import test from 'ava';
 var webdriverio = require('webdriverio');
+var SauceLabs = require("saucelabs");
+var username = "sumnerfit";
+var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4";
+var saucelabs = new SauceLabs({
+  username: username,
+  password: accessKey
+});
 
 function popups_display_and_close(testTitle, driver, os, browser, version, testsRun){
+  var player_name = browser + " " +version+"-"+testsRun%2
+  var other_player= browser + " " +version+"-"+(testsRun+1)%2
+  testTitle = player_name + "|"+testTitle
+  var passedBool = false;
     var client = webdriverio.remote({
         desiredCapabilities: {
             browserName: browser,
@@ -23,23 +34,23 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
         port: 80,
         user: "sumnerfit",
         key: "e8a11001-6685-43c4-901b-042e862a93f4",
-        logLevel: 'verbose'
+        logLevel: 'silent'
     });
 
     test.before(async t => {
         await client.init()
             .url('http://capstone-settlers.herokuapp.com/?startWithCards=3&setup=skip&fixedDice=true&dev_card=road_building')
             .click('#play')
-            .setValue('#player-input', 'Test Player')
+            .setValue('#player-input', player_name )
             .click('#start-game');
         if(testsRun % 2 === 0){
-          console.log(testsRun + " : moved into if statement");
+          console.log(player_name + " : moved into if statement");
           await client.click('#start-2-players');
 
         }else{
-          console.log(testsRun + " : moved into else statement");
+          console.log(player_name + " : moved into else statement");
           await client.waitForVisible('#game_id_0',10000)
-          .click('#game_id_0')
+          .click('.game_list_row_title='+other_player+'\'s Game' )
           .waitForVisible('#begin-round',10000)
           .click("#begin-round")
           .waitForVisible('#begin-round-btn',10000)
@@ -54,39 +65,117 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
        
       });
     test.after.always(async t => {
-        await client.end();
+      await client.end();
+      saucelabs.updateJob(client.sessionID, {
+        name: testTitle,
+        passed: passedBool,
+      });
     });
 
-    test('Has correct title', async t => {
+    test('Game elements work', async t => {
       if(testsRun %2 !== 0){
-        console.log('inside 1=0');
         return client.click('.buybutton')
           .elements('.cardlist').then(function (cardlist) {
             t.is(cardlist.value.length, 1);
-        });
+        }).click('.road_building')
+          .waitForVisible('.btn-large',10000)
+          .getText('.popup_subtitle')
+          .then(function (elements){
+            console.log(elements);
+            t.is(elements, "Card cannot be played.");
+          })
+          .click(".btn-large")
+          .click(".other_player0_cell")
+          .getText('.player_score')
+          .then(function (elements){
+            console.log(elements);
+            t.is(elements, "0 Victory Points!");
+          })
+          
+          .click(".btn-large")
+          .setValue('.chat_input', "Testing chat\uE007")
+          .getText('.chat_message')
+          .then(function (elements){
+            console.log(elements);
+            t.is(elements, player_name + " Testing chat");
+          })
+          passedBool = true;
+          console.log('end of test if statement (all requests completed)');
       }else{
         return client.getTitle().then(result => {
             t.is(result, "Settlers of Massey");
         });
       }   
     });
-        // return client.getTitle().then(result => {
-        //     t.is(result, "Settlers of Massey");
-        // });
 
       return true;
 }
 var superQuickTests = {
     'Windows 10': {
       'firefox': {
-        startVersion: 55,
+        startVersion: 54,
         endVersion: 55
       },
       'screenResolution' : '1280x1024'
     }
   }
 
-var testCapabilities = superQuickTests;
+var quickTests = {
+  'Windows 10': {
+    'firefox': {
+      startVersion: 55,
+      endVersion: 55
+    },
+    'chrome': {
+      startVersion: 60,
+      endVersion: 60
+    },
+    'internet explorer': {
+      startVersion: 11,
+      endVersion: 11
+    },
+    'MicrosoftEdge': { //testing two versions here
+      startVersion: 14,
+      endVersion: 15
+    },
+  },
+  'Windows 8.1': {
+    'firefox': {
+      startVersion: 55,
+      endVersion: 55
+    },
+    'internet explorer': {
+      startVersion: 11,
+      endVersion: 11
+    }
+  },
+  'Linux': {
+    'firefox': {
+      startVersion: 45,
+      endVersion: 45
+    },
+    'chrome': {
+      startVersion: 48,
+      endVersion: 48
+    }
+  },
+  'Mac 10.12': {
+    'firefox': {
+      startVersion: 45,
+      endVersion: 45
+    },
+    'chrome': {
+      startVersion: 60,
+      endVersion: 60
+    },
+    'safari': {
+      startVersion: 10,
+      endVersion: 10
+    }
+  }
+}
+
+var testCapabilities = quickTests;
 
 // add descriptive string here and the test to the if-else statements below
 var testTitles = ['Popups display and close'];
@@ -110,10 +199,10 @@ for (var j = 0; j < testTitles.length; j++) {
           // initialise driver inside for loop otherwise can be created too early and time out
           var driver = "";
           //var driver = buildDriver(os + "", browser + "", version + "", testTitles[j] + " - ");
+
           popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
-          testsRun++;
-          popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
-          testsRun++;
+          popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun+1);
+          testsRun+=2;
         }
       }
     }
