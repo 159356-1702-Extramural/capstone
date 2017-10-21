@@ -8,8 +8,9 @@ var saucelabs = new SauceLabs({
   password: accessKey
 });
 
-function popups_display_and_close(testTitle, driver, os, browser, version, testsRun){
-  var player_name = browser + " " +version+"-"+testsRun%2
+function popups_display_and_close(testTitle, os, browser, version, testsRun){
+
+  var player_name = browser + " " +version+"-"+testsRun
   var other_player= browser + " " +version+"-"+(testsRun+1)%2
   testTitle = player_name + "|"+testTitle
   var passedBool = false;
@@ -20,7 +21,7 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
             platform: os,
             tags: ['examples'],
             name: testTitle,
-            screenResolution: "1280x768",
+            screenResolution: "1024x768",
 
             // If using Open Sauce (https://saucelabs.com/opensauce/),
             // capabilities must be tagged as "public" for the jobs's status
@@ -32,8 +33,8 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
         },
         host: 'ondemand.saucelabs.com',
         port: 80,
-        user: "sumnerfit",
-        key: "e8a11001-6685-43c4-901b-042e862a93f4",
+        user: username,
+        key: accessKey,
         logLevel: 'silent'
     });
 
@@ -49,18 +50,18 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
 
         }else{
           console.log(player_name + " : moved into else statement");
-          await client.waitForVisible('#game_id_0',10000)
+          await client.waitForVisible('.game_list_row_title='+other_player+'\'s Game',10000)
           .click('.game_list_row_title='+other_player+'\'s Game' )
           .waitForVisible('#begin-round',10000)
           .click("#begin-round")
           .waitForVisible('#begin-round-btn',10000)
           .click("#begin-round-btn")
           .waitForVisible('.buybutton',10000)
-          .click('.buybutton')
-          .waitForVisible('#begin-round',10000)
-          .click("#begin-round")
-          .waitForVisible('#begin-round-btn',10000)
-          .click("#begin-round-btn")
+          // .click('.buybutton')
+          // .waitForVisible('#begin-round',10000)
+          // .click("#begin-round")
+          // .waitForVisible('#begin-round-btn',10000)
+          // .click("#begin-round-btn")
         }
        
       });
@@ -74,41 +75,48 @@ function popups_display_and_close(testTitle, driver, os, browser, version, tests
 
     test('Game elements work', async t => {
       if(testsRun %2 !== 0){
-        return client.click('.buybutton')
-          .elements('.cardlist').then(function (cardlist) {
-            t.is(cardlist.value.length, 1);
-        }).click('.road_building')
-          .waitForVisible('.btn-large',10000)
-          .getText('.popup_subtitle')
-          .then(function (elements){
-            console.log(elements);
-            t.is(elements, "Card cannot be played.");
-          })
-          .click(".btn-large")
-          .click(".other_player0_cell")
-          .getText('.player_score')
-          .then(function (elements){
-            console.log(elements);
-            t.is(elements, "0 Victory Points!");
-          })
-          
-          .click(".btn-large")
-          .setValue('.chat_input', "Testing chat\uE007")
-          .getText('.chat_message')
-          .then(function (elements){
-            console.log(elements);
-            t.is(elements, player_name + " Testing chat");
-          })
-          passedBool = true;
-          console.log('end of test if statement (all requests completed)');
+        try{
+          return client.click('.buybutton')
+            .elements('.cardlist').then(function (cardlist) {
+              t.is(cardlist.value.length, 1);
+          }).click('.road_building')
+            .waitForVisible('.btn-large',10000)
+            .getText('.popup_subtitle')
+            .then(function (elements){
+              console.log(elements);
+              t.is(elements, "Card cannot be played.");
+            })
+            .click(".btn-large")
+            .click(".other_player0_cell")
+            .getText('.player_score')
+            .then(function (elements){
+              console.log(elements);
+              t.is(elements, "0 Victory Points!");
+            })
+            
+            .click(".btn-large")
+            .setValue('.chat_input', "Testing chat\uE007")
+            .getText('.chat_message')
+            .then(function (elements){
+              console.log(elements);
+              t.is(elements, player_name + " Testing chat");
+            }).then(function(){
+              console.log("this gets called but the next one doesn't");
+            });
+
+            console.log('end of test if statement (all requests completed)');
+            
+        }catch(err){ 
+          console.log('tests failed');
+        }
       }else{
         return client.getTitle().then(result => {
             t.is(result, "Settlers of Massey");
         });
       }   
     });
-
-      return true;
+    
+    return true;
 }
 var superQuickTests = {
     'Windows 10': {
@@ -177,34 +185,31 @@ var quickTests = {
 
 var testCapabilities = quickTests;
 
-// add descriptive string here and the test to the if-else statements below
-var testTitles = ['Popups display and close'];
-var testsRun = 0;
-// Loop through test names
-for (var j = 0; j < testTitles.length; j++) {
+var browserArray = [];
+var arrayPointer = 0;
 
-  // Loop each Operating System
-  for (var os in testCapabilities) {
+// Loop each Operating System
+for (var os in testCapabilities) {
 
-    //Loop through each Browser on that Operating System
-    for (var browser in testCapabilities[os]) {
+  //Loop through each Browser on that Operating System
+  for (var browser in testCapabilities[os]) {
 
-      // Loop through each version specified for that Browser
-      for (var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(
-          testCapabilities[os][browser].endVersion); version++) {
+    // Loop through each version specified for that Browser
+    for (var version = parseInt(testCapabilities[os][browser].startVersion); version <= parseInt(
+        testCapabilities[os][browser].endVersion); version++) {
 
-        //Find the correct test
-        if (testTitles[j] === 'Popups display and close') {
-
-          // initialise driver inside for loop otherwise can be created too early and time out
-          var driver = "";
-          //var driver = buildDriver(os + "", browser + "", version + "", testTitles[j] + " - ");
-
-          popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun);
-          popups_display_and_close(testTitles[j], driver, os, browser, version, testsRun+1);
-          testsRun+=2;
-        }
-      }
+        browserArray.push({os:os, browser:browser, version:version})
     }
   }
 }
+
+async function runTests(){
+    //first test starts the game so second test can get past lobby and continue testing.
+    await popups_display_and_close("test", browserArray[arrayPointer].os, browserArray[arrayPointer].browser, browserArray[arrayPointer].version, 0);
+    await popups_display_and_close("test", browserArray[arrayPointer].os, browserArray[arrayPointer].browser, browserArray[arrayPointer].version, 1);
+    arrayPointer++;
+    console.log('incremented arraypointer');
+}
+
+runTests();
+
