@@ -540,12 +540,12 @@ test('set harbor',function (t) {
     // trade_cards: new TradeCards({'sheep':3}),
     harbor:'sheep'
   };
-  var data=new Data_package();
+  var data=new Client_Data_package();
   data.data_type = 'road_building_used';
   data.player_id=0;
   data.actions.push(action);
   machine.set_harbor(index,data);
-  t.truthy(machine.game.players[0].trading['sheep'])
+  t.truthy(machine.game.players[0].trading['sheep']);
 })
 
 test.todo("has_valid_path");
