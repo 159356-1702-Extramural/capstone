@@ -65,6 +65,8 @@ body {
     top: 30px !important;
     width:85% !important;
     max-width:1000px !important;
+    min-width:850px;
+    min-height: 440px;
 }
 .popup_inner_right {
     width:209px !important;
@@ -1389,6 +1391,7 @@ body {
     clear: both;
     margin:10px;
     text-align: center;
+    min-width:800px;
 }
 .end_row .player_row {
     clear: both;
@@ -2078,7 +2081,6 @@ body {
     }
     .player_score_detail {
         width: 10% ! important;
-        min-width:120px;
     }
     .building_card_div {
         text-align: center;
