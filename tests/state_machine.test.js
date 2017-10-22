@@ -518,6 +518,36 @@ test('next_state cycles through states', function (t) {
   t.is(machine.state, "end_game");
 });
 
+// test('validate players buids in three round',function (t) {
+//   game.round_num=2;
+//   var data=new Data_package();
+//   var actions=[];
+//   var action1=new Action();
+//   var action2=new Action();
+//   action.action_type='build_settlement';
+//   action.action_result=true;
+//   action.action_data=[3];
+//   action.action_message='Settlement build complete';
+//   actions.push(action);
+// })
+
+test('set harbor',function (t) {
+  var index=0;
+  var action=new Action();
+  action.action_type='build_settlement';
+  // var action = new Action();
+  action.action_data = {
+    // trade_cards: new TradeCards({'sheep':3}),
+    harbor:'sheep'
+  };
+  var data=new Data_package();
+  data.data_type = 'road_building_used';
+  data.player_id=0;
+  data.actions.push(action);
+  machine.set_harbor(index,data);
+  t.truthy(machine.game.players[0].trading['sheep'])
+})
+
 test.todo("has_valid_path");
 test.todo("wins_conflict");
 test.todo("validate_player_builds");
