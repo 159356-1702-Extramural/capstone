@@ -283,7 +283,7 @@ Board.prototype.is_road_valid_build = function(player, index) {
  * @param  {Array} players - array of players
  * @return {Map}   - A map of player.id paired with their longest road
  */
-Board.prototype.longest_roads = function(players) {
+Board.prototype.longest_roads = function(players) {0
   // setup the map at the start so there is no risk of undefined
   var player_map = new Map();
   for (var i = 0; i < players.length; i++) {
@@ -293,7 +293,9 @@ Board.prototype.longest_roads = function(players) {
   for (var r = 0; r < this.roads.length; r++) {
     if (this.roads[r].owner !== -1) {
       var player_id = this.roads[r].owner;
-      var start_node = this.nodes[this.roads[r].connects[0]];
+
+      //  If one of the nodes only has a single road owned by this player, use it
+      var start_node = this.nodes[this.node_with_least_roads(player_id, this.roads[r].connects[0], this.roads[r].connects[1])];
       var tmp = this.longest_road_for_player(start_node, player_id);
       // get players last longest road
       var longest_road = player_map.get(player_id);
@@ -303,6 +305,20 @@ Board.prototype.longest_roads = function(players) {
     }
   }
   return player_map;
+}
+//  This helper method selects the node that has the least connections for a given player
+//  This is the best starting point for determining the longest road (it helps avoid the 
+//  skipping of a road when the node and road are both owned by the player in question)
+Board.prototype.node_with_least_roads = function(player_id, node_id1, node_id2) {
+  var node_1_matches = 0;
+  for (var r = 0; r < this.nodes[node_id1].n_roads.length; r++) {
+    node_1_matches += (this.roads[this.nodes[node_id1].n_roads[r]].owner == player_id);
+  }
+  var node_2_matches = 0;
+  for (var r = 0; r < this.nodes[node_id2].n_roads.length; r++) {
+    node_2_matches += (this.roads[this.nodes[node_id2].n_roads[r]].owner == player_id);
+  }
+  return (node_1_matches > node_2_matches ? node_id2 : node_id1);
 }
 
 /**
