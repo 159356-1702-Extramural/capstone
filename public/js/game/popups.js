@@ -657,7 +657,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     this.current_game.nodes.forEach(function(node) {
       if (node.owner > -1 && node.owner == id) {
         settlements += (node.building === 'settlement') ? 1 : 0;
-        cities += (node.building === 'settlement') ? 0 : 2;
+        cities += (node.building === 'settlement') ? 0 : 1;
       }
     }, this);
 
