@@ -10,6 +10,10 @@ var Action = require('../public/data_api/action.js');
 var Client_Data_package = require('../public/data_api/data_package.js');
 var {Cards, TradeCards} = require('../public/data_api/cards.js');
 
+var board=require('../public/data_api/board.js');
+var board_builder=require('../app/game/board_builder.js');
+var _board;
+
 var machine;
 
 function Socket() {
@@ -69,6 +73,8 @@ test.beforeEach(t => {
   machine.game.add_player(player2);
   machine.game.add_player(player3);
   machine.game.add_player(player4);
+
+  _board=board_builder.generate();
 
 });
 test("A statemachine when created also creates an empty game", function (t) {
@@ -548,10 +554,41 @@ test('set harbor',function (t) {
   t.truthy(machine.game.players[0].trading['sheep']);
 })
 
-test.todo("has_valid_path");
+test("has_valid_path when already checked",function (t) {
+  var object_type='road';
+  var node=_board.nodes[40];
+  node.id=40;
+  var original_node=1;
+  var checked=["road:40"];
+  var expected=machine.has_valid_path(machine.game.players[0],object_type,node,original_node,checked);
+  t.falsy(expected);
+});
+
+test("has_valid_path when holds a locked node",function (t) {
+  var object_type='road';
+  var node=_board.nodes[40];
+  node.owner=0;
+  node.id=40;
+  var original_node=1;
+  var checked=[];
+  var expected=machine.has_valid_path(machine.game.players[0],object_type,node,original_node,checked);
+  t.truthy(expected);
+});
+
+test("has_valid_path when a road without owner",function (t) {
+  var object_type='road';
+  var node=_board.nodes[40];
+  node.owner=-1;
+  node.id=40;
+  var original_node=1;
+  var checked=[];
+  var expected=machine.has_valid_path(machine.game.players[0],object_type,node,original_node,checked);
+  t.falsy(expected);
+});
+
+
 test.todo("wins_conflict");
 test.todo("validate_player_builds");
-
 test.todo("Game start sequence ... test socket data going out???");
 test.todo("send_to_player");
 test.todo("broadcast")
