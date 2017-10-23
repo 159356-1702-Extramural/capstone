@@ -8,116 +8,6 @@ var saucelabs = new SauceLabs({
   password: accessKey
 });
 
-function popups_display_and_close(testTitle, os, browser, version, testsRun){
-
-  var player_name = browser + " " +version+"-"+testsRun
-  var other_player= browser + " " +version+"-"+(testsRun+1)%2
-  testTitle = player_name + "|"+testTitle
-  var passedBool = false;
-    var client = webdriverio.remote({
-        desiredCapabilities: {
-            browserName: browser,
-            version: version,
-            platform: os,
-            tags: ['examples'],
-            name: testTitle,
-            screenResolution: "1024x768",
-
-            // If using Open Sauce (https://saucelabs.com/opensauce/),
-            // capabilities must be tagged as "public" for the jobs's status
-            // to update (failed/passed). If omitted on Open Sauce, the job's
-            // status will only be marked "Finished." This property can be
-            // be omitted for commerical (private) Sauce Labs accounts.
-            // Also see https://support.saucelabs.com/customer/portal/articles/2005331-why-do-my-tests-say-%22finished%22-instead-of-%22passed%22-or-%22failed%22-how-do-i-set-the-status-
-            'public': true
-        },
-        host: 'ondemand.saucelabs.com',
-        port: 80,
-        user: username,
-        key: accessKey,
-        logLevel: 'silent'
-    });
-
-    test.before(async t => {
-        await client.init()
-            .url('http://capstone-settlers.herokuapp.com/?startWithCards=3&setup=skip&fixedDice=true&dev_card=road_building')
-            .click('#play')
-            .setValue('#player-input', player_name )
-            .click('#start-game');
-        if(testsRun % 2 === 0){
-          console.log(player_name + " : moved into if statement");
-          await client.click('#start-2-players');
-
-        }else{
-          console.log(player_name + " : moved into else statement");
-          await client.waitForVisible('.game_list_row_title='+other_player+'\'s Game',10000)
-          .click('.game_list_row_title='+other_player+'\'s Game' )
-          .waitForVisible('#begin-round',10000)
-          .click("#begin-round")
-          .waitForVisible('#begin-round-btn',10000)
-          .click("#begin-round-btn")
-          .waitForVisible('.buybutton',10000)
-          // .click('.buybutton')
-          // .waitForVisible('#begin-round',10000)
-          // .click("#begin-round")
-          // .waitForVisible('#begin-round-btn',10000)
-          // .click("#begin-round-btn")
-        }
-       
-      });
-    test.after.always(async t => {
-      await client.end();
-      saucelabs.updateJob(client.sessionID, {
-        name: testTitle,
-        passed: passedBool,
-      });
-    });
-
-    test('Game elements work', async t => {
-      if(testsRun %2 !== 0){
-        try{
-          return client.click('.buybutton')
-            .elements('.cardlist').then(function (cardlist) {
-              t.is(cardlist.value.length, 1);
-          }).click('.road_building')
-            .waitForVisible('.btn-large',10000)
-            .getText('.popup_subtitle')
-            .then(function (elements){
-              console.log(elements);
-              t.is(elements, "Card cannot be played.");
-            })
-            .click(".btn-large")
-            .click(".other_player0_cell")
-            .getText('.player_score')
-            .then(function (elements){
-              console.log(elements);
-              t.is(elements, "0 Victory Points!");
-            })
-            
-            .click(".btn-large")
-            .setValue('.chat_input', "Testing chat\uE007")
-            .getText('.chat_message')
-            .then(function (elements){
-              console.log(elements);
-              t.is(elements, player_name + " Testing chat");
-            }).then(function(){
-              console.log("this gets called but the next one doesn't");
-            });
-
-            console.log('end of test if statement (all requests completed)');
-            
-        }catch(err){ 
-          console.log('tests failed');
-        }
-      }else{
-        return client.getTitle().then(result => {
-            t.is(result, "Settlers of Massey");
-        });
-      }   
-    });
-    
-    return true;
-}
 var superQuickTests = {
     'Windows 10': {
       'firefox': {
@@ -202,13 +92,103 @@ for (var os in testCapabilities) {
     }
   }
 }
+var counter = 0;
+function popups_display_and_close(){
+  var browser = browserArray[arrayPointer].browser;
+  var os = browserArray[arrayPointer].os;
+  var version = browserArray[arrayPointer].version;
+  var testsRun = counter;
+  if (counter % 2 !== 0){
+    arrayPointer++;
+  }
+  counter++;
+  
+  var player_name = browser + " " +version+"-"+(testsRun % 2);
+  var other_player= browser + " " +version+"-"+(testsRun+1) % 2;
+  var testTitle = player_name + "|"+browser+"|"+os+"|"+version
+  var passedBool = false;
+
+  var client = webdriverio.remote({
+    desiredCapabilities: {
+      browserName: browser,
+      version: version,
+      platform: os,
+      tags: ['examples'],
+      name: testTitle,
+      screenResolution: "1024x768",
+
+      // If using Open Sauce (https://saucelabs.com/opensauce/),
+      // capabilities must be tagged as "public" for the jobs's status
+      // to update (failed/passed). If omitted on Open Sauce, the job's
+      // status will only be marked "Finished." This property can be
+      // be omitted for commerical (private) Sauce Labs accounts.
+      // Also see https://support.saucelabs.com/customer/portal/articles/2005331-why-do-my-tests-say-%22finished%22-instead-of-%22passed%22-or-%22failed%22-how-do-i-set-the-status-
+      'public': true
+    },
+    host: 'ondemand.saucelabs.com',
+    port: 80,
+    user: username,
+    key: accessKey,
+    logLevel: 'silent'
+  });
+
+  test('Game tests', async t => {
+    await client.init()
+      .url('http://capstone-settlers.herokuapp.com/?startWithCards=3&setup=skip&fixedDice=true&dev_card=road_building')
+      .click('#play')
+      .setValue('#player-input', player_name )
+      .click('#start-game').then(function(){
+        if(testsRun % 2 === 0){
+          return client.click('#start-2-players')
+            .getTitle()
+            .then(result => {
+              t.is(result, "Settlers of Massey");
+            }).end();
+        }else{
+          return client.waitForVisible('.game_list_row_title='+other_player+'\'s Game',10000)
+            .click('.game_list_row_title='+other_player+'\'s Game' )
+            .waitForVisible('#begin-round',10000)
+            .click("#begin-round")
+            .waitForVisible('#begin-round-btn',10000)
+            .click("#begin-round-btn")
+            .waitForVisible('.buybutton',10000)
+            .click('.buybutton')
+            .elements('.cardlist').then(function (cardlist) {
+              t.is(cardlist.value.length, 1);
+            })
+            .click('.road_building')
+            .waitForVisible('.btn-large',10000)
+            .getText('.popup_subtitle')
+            .then(function (elements){
+              console.log(elements);
+              t.is(elements, "Card cannot be played.");
+            })
+            .click(".btn-large")
+            .click(".other_player0_cell")
+            .getText('.player_score')
+            .then(function (elements){
+              console.log(elements);
+              t.is(elements, "0 Victory Points!");
+            })
+            .click(".btn-large")
+            .setValue('.chat_input', "Testing chat\uE007")
+            .getText('.chat_message')
+            .then(function (elements){
+              console.log(elements);
+              t.is(elements, player_name + " Testing chat");
+            }).then(function(){
+              console.log("this gets called but the next one doesn't");
+            })
+            .end();
+      }
+    })
+  })
+}
 
 async function runTests(){
-    //first test starts the game so second test can get past lobby and continue testing.
-    await popups_display_and_close("test", browserArray[arrayPointer].os, browserArray[arrayPointer].browser, browserArray[arrayPointer].version, 0);
-    await popups_display_and_close("test", browserArray[arrayPointer].os, browserArray[arrayPointer].browser, browserArray[arrayPointer].version, 1);
-    arrayPointer++;
-    console.log('incremented arraypointer');
+    await popups_display_and_close();
+    popups_display_and_close();
+    console.log('2 tests run');
 }
 
 runTests();
