@@ -766,9 +766,12 @@ StateMachine.prototype.trade_with_bank = function (data) {
     this.game.players[data.player_id].cards.add_card(cards_from_bank[1]);
     this.game.players[data.player_id].round_distribution_cards = new Cards();
     this.game.players[data.player_id].round_distribution_cards.add_card(cards_from_bank[1]);
+
     //send card back to player
-    data_package.data_type = "returned_trade_card";
     data_package.player = this.game.players[data.player_id];
+    data_package.data_type = "returned_trade_card";
+    data_package.player.actions = [];
+    data_package.player.actions.push([cards_for_trade, cards_for_bank[1], 1, cards_from_bank[1]]);
     this.send_to_player('game_turn', data_package);
   } else {
     //trade failed server side
@@ -845,11 +848,17 @@ StateMachine.prototype.accept_player_trade = function (data) {
   var success = this.game.do_trade_with_other(this_player.id, other_player.id);
 
   if (success) {
+    //  Adjust this_player so the cards being traded are known to the client
+    this_player.inter_trade.wants_cards = other_player.inter_trade.trade_cards;
+    this_player.inter_trade.trade_cards = other_player.inter_trade.wants_cards;
+    this_player.inter_trade.wants_trade = true;
+
     // send cards back to player
     var this_player_package = new Data_package();
     this_player_package.data_type = "returned_player_trade";
     this_player_package.player = this_player;
     this.send_to_player('game_turn', this_player_package);
+
     // and back to other player
     var other_player_package = new Data_package();
     other_player_package.data_type = "returned_player_trade";

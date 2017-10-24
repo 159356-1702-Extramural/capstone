@@ -203,7 +203,6 @@ $(document)
     var resolve_game_turn = function(data) {
       if (data.data_type === "setup_complete") {
         setup_phase = false;
-        test = data;
 
         build_popup_setup_complete();
 
@@ -249,13 +248,13 @@ $(document)
         build_popup_monopoly_win(data);
 
         //  Update cards
-        updatePanelDisplay();
         update_dev_cards(data);
+        updatePanelDisplay();
         animate_timer(round_time);
 
       } else if (data.data_type === 'returned_trade_card') {
         // card received from bank trade
-        current_game.player = data.player;
+        update_trade_cards(data);
         updatePanelDisplay();
 
       } else if (data.data_type === 'player_trade') {
@@ -309,7 +308,7 @@ $(document)
       } else if (data.data_type === 'returned_player_trade') {
         // successful trade for player
         // intended to work the same as for recv from bank
-        current_game.player = data.player;
+        update_intertrade_cards(data);
         updatePanelDisplay();
 
         //  Is there a message to show?
@@ -330,17 +329,14 @@ $(document)
         // keep track of how many cards are purchased
         current_player.dev_cards.purchased++;
         current_player.dev_cards.recent_purchases = data.player.recent_purchases;
-        current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
 
       } else if (data.data_type === 'return_year_of_plenty') {
-        current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
 
       } else if (data.data_type === 'return_road_building') {
-        current_game.player = data.player;
         update_dev_cards(data);
         updatePanelDisplay();
 
@@ -1990,6 +1986,37 @@ function setup_player_scores() {
     .html(scores);
   $('.other_players')
     .show();
+}
+
+var test = null;
+function update_trade_cards(data) {
+  var card_qty_lost = data.player.actions[0][0];
+  var card_type_lost = data.player.actions[0][1];
+  var card_qty_gain = data.player.actions[0][2];
+  var card_type_gain = data.player.actions[0][3];
+  
+  var my_cards = new Cards();
+  my_cards.resource_cards = current_game.player.cards.resource_cards;
+  my_cards.remove_multiple_cards(card_type_lost, card_qty_lost);
+  my_cards.add_cards(card_type_gain, card_qty_gain);
+}
+function update_intertrade_cards(data) {
+  test = data;
+  if (data.player.inter_trade.wants_trade) {
+    var my_cards = new Cards();
+    my_cards.resource_cards = current_game.player.cards.resource_cards;
+    my_cards.remove_multiple_cards("brick", data.player.inter_trade.trade_cards["brick"]);
+    my_cards.remove_multiple_cards("lumber", data.player.inter_trade.trade_cards["lumber"]);
+    my_cards.remove_multiple_cards("ore", data.player.inter_trade.trade_cards["ore"]);
+    my_cards.remove_multiple_cards("sheep", data.player.inter_trade.trade_cards["sheep"]);
+    my_cards.remove_multiple_cards("grain", data.player.inter_trade.trade_cards["grain"]);
+
+    my_cards.add_cards("brick", data.player.inter_trade.wants_cards["brick"]);
+    my_cards.add_cards("lumber", data.player.inter_trade.wants_cards["lumber"]);
+    my_cards.add_cards("ore", data.player.inter_trade.wants_cards["ore"]);
+    my_cards.add_cards("sheep", data.player.inter_trade.wants_cards["sheep"]);
+    my_cards.add_cards("grain", data.player.inter_trade.wants_cards["grain"]);
+  }
 }
 
 function update_dev_cards(data) {
