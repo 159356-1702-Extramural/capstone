@@ -67,6 +67,7 @@ body {
     max-width:1000px !important;
     min-width:850px;
     min-height: 440px;
+    height:600px !important;
 }
 .popup_inner_right {
     width:209px !important;
@@ -97,6 +98,7 @@ body {
   overflow-x: hidden;
   margin-bottom: 1em;
   padding:10px;
+  height:85%;
 }
 
 .rules_inner h3,
