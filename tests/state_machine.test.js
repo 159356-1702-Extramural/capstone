@@ -513,9 +513,6 @@ test('next_state cycles through states', function (t) {
   t.is(machine.state, "play");
   machine.next_state();
   t.is(machine.state, "play");
-  machine.game.players[0].score.total_points = 10;
-  machine.next_state();
-  t.is(machine.state, "end_game");
 });
 
 test.todo("has_valid_path");
