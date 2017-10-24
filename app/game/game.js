@@ -19,7 +19,7 @@ function Game() {
   this.name = '';
   this.board = board_builder.generate();
   this.max_players = 4;
-  this.WIN_SCORE = 3;
+  this.WIN_SCORE = 10;
   this.players = [];
   this.round_num = 1;
   this.longest_road = 0;

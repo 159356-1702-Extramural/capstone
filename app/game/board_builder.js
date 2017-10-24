@@ -48,11 +48,14 @@ function BoardSet(pattern, tile_stack, tokens, harbor_stack, rndTokens) {
   this.harbor_stack = harbor_stack;
   if (!this.harbor_stack)
     this.harbor_stack = [
-      ['three', 4],
+      ['three', 1],
       ['brick', 1],
       ['sheep', 1],
+      ['three', 1],
+      ['three', 1],
       ['ore',   1],
       ['grain', 1],
+      ['three', 1],
       ['lumber',1]
     ];
   this.rnd_tokens = rndTokens;
@@ -104,7 +107,7 @@ generate = function (board_set = new BoardSet()) {
       // choose harbor type if tile is a harbor
       if (board_set.pattern[y][x] >= 4 && board_set.pattern[y][x] <= 9) {
         log('debug', 'choosing random harbor');
-        tile.harbor = random_from_stack(board_set.harbor_stack);
+        tile.harbor = board_set.harbor_stack.pop()[0];
         tile.harbor_direction = get_harbor_direction(board_set.pattern[y][x]);
         log('debug', 'harbor direction is '+tile.harbor_direction);
         if (tile.harbor === "" || !tile.harbor)
