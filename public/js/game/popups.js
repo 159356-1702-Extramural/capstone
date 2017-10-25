@@ -705,11 +705,11 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
 
     // largest army (face up)
     if (current_game.players[id].vp_cards[0]){
-      cards_html += '<div class="player_detail_vp_cards"><img src="images/largest_army.jpg" width="60" /></div>';
+      cards_html += '<div class="player_detail_vp_cards"><img src="images/largest_army.jpg" width="60" onclick="build_popup_show_dev_card(\'largest_army\');" /></div>';
     }
     // longest road (face up)
     if (current_game.players[id].vp_cards[1]){
-      cards_html += '<div class="player_detail_vp_cards"><img src="images/longest_road.jpg" width="60" /></div>';
+      cards_html += '<div class="player_detail_vp_cards"><img src="images/longest_road.jpg" width="60" onclick="build_popup_show_dev_card(\'longest_road\');" /></div>';
     }
     popup_data.push(["cards", cards_html]);
   
@@ -811,6 +811,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img style="border-radius:28px;" class="dev_' + card +
       ' set_large_image_width" src="images/dev_' + card + '_large.jpg"></div>';
 
+    if(card === "longest_road" || card === "largest_army"){
+      dev_card = '<div class="build_card  main_card" style="z-index:' + (500) + ';"><img style="border-radius:28px;" class="' + card +
+      ' set_large_image_width" src="images/' + card + '.jpg"></div>';
+    }
     var dev_cards_rules = "";
     var other_dev_cards = "";
     if (card === "knight") {
@@ -824,6 +828,12 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     } else if (card === "road_building") {
       dev_cards_rules =
         "Click this card to play it.  You are given the resources to build two additional roads in the turn.  They will automatically win any road conflicts with other players so you don't need to boost the success with cards.";
+    } else if (card === "longest_road") {
+      dev_cards_rules =
+        "(Worth 2 Victory Points) This card is awarded to the player with the longest continuous stretch of road (larger than 4). You can build along your road, but if someone else builds at one of your road junctions, they'll break it.";
+    } else if (card === "largest_army") {
+      dev_cards_rules =
+        "(Worth 2 Victory Points) You can obtain the largest army by collecting knight development cards.  Once you have 3 knights, you can collect the largest army (until someone builds a bigger one).";
     }
   
     //use this to show all cards
@@ -835,6 +845,10 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
       ';"><img class="dev_rules dev_monopoly" src="images/dev_monopoly.jpg"></div>';
     other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
       ';"><img class="dev_rules dev_road_building" src="images/dev_road_building.jpg"></div>';
+    other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
+      ';"><img class="dev_rules longest_road_card" src="images/longest_road.jpg"></div>';
+    other_dev_cards += '<div class="inline_cards" style="z-index:' + (500) +
+      ';"><img class="dev_rules largest_army_card" src="images/largest_army.jpg"></div>';
 
     var dev_cards = [
       ['dev_card', dev_card]

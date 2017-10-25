@@ -2030,6 +2030,10 @@ body {
     display: inline;
     margin-left: 10px;
 }
+
+.longest_road_card, .largest_army_card{
+    height: 100px;
+}
 @media screen and (min-height: 802px){
     .score .resources {
         height:205px !important;
