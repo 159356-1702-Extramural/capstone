@@ -59,7 +59,6 @@ body {
     border:medium solid #000000;
     border-radius:25px;
     padding-bottom: 50px;
-    max-height: 70%;
 }
 .popup_inner_large {
     top: 30px !important;

@@ -333,6 +333,7 @@ $(document)
         updatePanelDisplay();
 
       } else if (data.data_type === 'return_year_of_plenty') {
+        test = data;
         update_dev_cards(data);
         updatePanelDisplay();
 
@@ -345,6 +346,9 @@ $(document)
         setupTurnFinished();
       } else if (data.data_type === 'force_finish_turn') {
           finish_turn();
+        
+      } else if (data.data_type === 'move_knight_fail') {
+        alert(data.player.actions[0].action_data);
         
       } else if (data.data_type === 'move_knight_choice') {
         // Allowed to use knight after requesting and got a list of

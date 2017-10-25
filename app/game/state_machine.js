@@ -1149,7 +1149,7 @@ StateMachine.prototype.move_knight_to = function (data) {
   if (!result) {
     this.log("debug", "func 'move_knight_to()' failed to move knight");
     this.send_invalid_msg(this.game.players[data.player_id],
-                        'invalid_move',
+                        'move_knight_fail',
                         'The player you tried to rob had no cards');
   } else {
     var data_package = new Data_package();
@@ -1171,7 +1171,6 @@ StateMachine.prototype.move_knight_to = function (data) {
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
   }
-  //this.broadcast_gamestate();
 };
 
 
