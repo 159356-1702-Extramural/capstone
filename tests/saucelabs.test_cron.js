@@ -32,46 +32,48 @@ var quickTests = {
       startVersion: 11,
       endVersion: 11
     },
-    'MicrosoftEdge': { //testing two versions here
-      startVersion: 14,
+    'MicrosoftEdge': {
+      startVersion: 15,
       endVersion: 15
-    },
-  },
-  'Windows 8.1': {
-    'firefox': {
-      startVersion: 55,
-      endVersion: 55
-    },
-    'internet explorer': {
-      startVersion: 11,
-      endVersion: 11
-    }
-  },
-  'Linux': {
-    'firefox': {
-      startVersion: 45,
-      endVersion: 45
-    },
-    'chrome': {
-      startVersion: 48,
-      endVersion: 48
-    }
-  },
-  'Mac 10.12': {
-    'firefox': {
-      startVersion: 45,
-      endVersion: 45
-    },
-    'chrome': {
-      startVersion: 60,
-      endVersion: 60
-    },
-    'safari': {
-      startVersion: 10,
-      endVersion: 10
     }
   }
 }
+//   },
+//   'Windows 8.1': {
+//     'firefox': {
+//       startVersion: 55,
+//       endVersion: 55
+//     },
+//     'internet explorer': {
+//       startVersion: 11,
+//       endVersion: 11
+//     }
+//   },
+//   'Linux': {
+//     'firefox': {
+//       startVersion: 45,
+//       endVersion: 45
+//     },
+//     'chrome': {
+//       startVersion: 48,
+//       endVersion: 48
+//     }
+//   },
+//   'Mac 10.12': {
+//     'firefox': {
+//       startVersion: 45,
+//       endVersion: 45
+//     },
+//     'chrome': {
+//       startVersion: 60,
+//       endVersion: 60
+//     },
+//     'safari': {
+//       startVersion: 10,
+//       endVersion: 10
+//     }
+//   }
+// }
 
 var testCapabilities = quickTests;
 
@@ -93,20 +95,22 @@ for (var os in testCapabilities) {
   }
 }
 var counter = 0;
-function popups_display_and_close(){
+async function popups_display_and_close(){
+  
   var browser = browserArray[arrayPointer].browser;
   var os = browserArray[arrayPointer].os;
   var version = browserArray[arrayPointer].version;
-  var testsRun = counter;
-  if (counter % 2 !== 0){
-    arrayPointer++;
+  var testsRun = arrayPointer;
+  var other_player = 'Player 2';
+  if(arrayPointer % 2 !== 0){
+    var other_player = browserArray[(arrayPointer-1)%4].browser + " " + browserArray[(arrayPointer-1)%4].version+"-"+(testsRun+1) % 2;
   }
-  counter++;
-  
-  var player_name = browser + " " +version+"-"+(testsRun % 2);
-  var other_player= browser + " " +version+"-"+(testsRun+1) % 2;
-  var testTitle = player_name + "|"+browser+"|"+os+"|"+version
+  var player_name = browser + " " + version + "-" + (testsRun % 2);
+
+  console.log(player_name + " -----> " + other_player);
+  var testTitle = player_name + " | "+os
   var passedBool = false;
+  arrayPointer++;
 
   var client = webdriverio.remote({
     desiredCapabilities: {
@@ -176,8 +180,6 @@ function popups_display_and_close(){
             .then(function (elements){
               console.log(elements);
               t.is(elements, player_name + " Testing chat");
-            }).then(function(){
-              console.log("this gets called but the next one doesn't");
             })
             .end();
       }
@@ -186,9 +188,10 @@ function popups_display_and_close(){
 }
 
 async function runTests(){
-    await popups_display_and_close();
     popups_display_and_close();
-    console.log('2 tests run');
+    popups_display_and_close();
+    popups_display_and_close();
+    popups_display_and_close();
 }
 
 runTests();
