@@ -814,7 +814,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
     var dev_cards_rules = "";
     var other_dev_cards = "";
     if (card === "knight") {
-      dev_cards_rules = "Rules coming soon";
+      dev_cards_rules = "Playing the knight card allows you to choose a hex with another player on it.  You (randomly) steal one of their cards and block them from getting any resources from that hex until the robber is moved on.";
     } else if (card === "year_of_plenty") {
       dev_cards_rules =
         "Year of Plenty is played by clicking the 'Year of Plenty' card at any time during your turn.  You can choose any two resource cards to add to your hand.";
