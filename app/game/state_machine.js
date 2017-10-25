@@ -963,6 +963,7 @@ StateMachine.prototype.activate_year_of_plenty = function (data) {
     var data_package = new Data_package();
     data_package.data_type = 'return_year_of_plenty';
     data_package.player = this.game.players[data.player_id];
+    data_package.actions = requested_cards;
 
     this.send_to_player('game_turn', data_package);
   } else {

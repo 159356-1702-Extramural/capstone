@@ -335,6 +335,14 @@ $(document)
       } else if (data.data_type === 'return_year_of_plenty') {
         test = data;
         update_dev_cards(data);
+
+        if (data.actions) {
+          var my_cards = new Cards();
+          my_cards.resource_cards = current_game.player.cards.resource_cards;
+          for (var i = 0; i < data.actions.length; i++) {
+            my_cards.add_cards(data.actions[i], 1);
+          }
+        }
         updatePanelDisplay();
 
       } else if (data.data_type === 'return_road_building') {
