@@ -50,7 +50,7 @@ body {
 }
 .start_inner, .turn_inner, .popup_inner {
     position: relative;
-    top: 20%;
+    top: 30px;
     margin:auto;
     height:auto;
     width:720px !important;
@@ -59,12 +59,14 @@ body {
     border:medium solid #000000;
     border-radius:25px;
     padding-bottom: 50px;
-    max-height: 70%;
 }
 .popup_inner_large {
     top: 30px !important;
     width:85% !important;
     max-width:1000px !important;
+    min-width:850px;
+    min-height: 440px;
+    height:600px !important;
 }
 .popup_inner_right {
     width:209px !important;
@@ -95,6 +97,7 @@ body {
   overflow-x: hidden;
   margin-bottom: 1em;
   padding:10px;
+  height:85%;
 }
 
 .rules_inner h3,
@@ -1389,6 +1392,7 @@ body {
     clear: both;
     margin:10px;
     text-align: center;
+    min-width:800px;
 }
 .end_row .player_row {
     clear: both;
@@ -2078,7 +2082,6 @@ body {
     }
     .player_score_detail {
         width: 10% ! important;
-        min-width:120px;
     }
     .building_card_div {
         text-align: center;

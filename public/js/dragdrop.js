@@ -145,6 +145,8 @@ function setupDragDrop() {
 //  Method to show the ghost images for any valid nodes that this object
 //  can be built on
 function show_open_spots(object_type, ignore_id) {
+  var spots_shown = false;
+
   //  The very first task is to see if we have the resources
   if (has_resources(object_type, ignore_id)) {
     //  Local reference to nodes object
@@ -194,8 +196,8 @@ function show_open_spots(object_type, ignore_id) {
             //  Now check to see if we can build here (if not the node we are already on)
             if (node_id != ignore_index) {
               if (can_build(nodes[node_id], node_to_ignore)) {
-                $(this)
-                  .show();
+                $(this).show();
+                spots_shown = true;
               }
             }
           });
@@ -227,8 +229,8 @@ function show_open_spots(object_type, ignore_id) {
             .replace("road_", ""));
           if (road_id != ignore_index) {
             if (can_build_road(nodes[road_id], node_to_ignore, node_to_enforce)) {
-              $(this)
-                .show();
+              $(this).show();
+              spots_shown = true;
             }
           }
         });
@@ -239,17 +241,18 @@ function show_open_spots(object_type, ignore_id) {
       if (current_game.round_num > 2) {
         $(".node.settlement.locked." + current_player.colour)
           .each(function() {
-            $(this)
-              .addClass("expand");
+            $(this).addClass("expand");
+            spots_shown = true;
           });
 
         if (ignore_index > -1 && is_pending) {
-          $("#node_" + ignore_index)
-            .show();
+          $("#node_" + ignore_index).show();
         }
       }
     }
-  } else {
+  }
+
+  if (!spots_shown) {
     build_popup_no_resources(object_type);
   }
 }
