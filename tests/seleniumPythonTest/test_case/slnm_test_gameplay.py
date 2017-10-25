@@ -235,7 +235,7 @@ desired_caps = []
 def build_desired_caps():
   global desired_caps
   for cap in browserVariations:
-    for i in reversed(range(cap['startVersion'], cap['endVersion'])):
+    for i in (range(cap['startVersion'], cap['endVersion'])):
       desired_caps.append({'browserName':cap['browserName'],'platform':cap['platform'],'name': "Game items test | " + cap['platform'] + ' - ' + cap['browserName'] + ' - ' + str(i),'version': i})
 
 def get_desired_cap(desired_cap):

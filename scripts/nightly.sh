@@ -8,10 +8,8 @@ set -ev
 #    + returns 'cron' when called by the travis cron job trigger
 
 if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
-        npm test;
-        echo "running selenium headless browser tests";
-        pip install selenium && pip install sauceclient
-        python3 tests/seleniumPythonTest/run_all_tests.py;
+
+        python tests/seleniumPythonTest/test_case/slnm_test_gameplay.py;
         
     else      
         npm test;
