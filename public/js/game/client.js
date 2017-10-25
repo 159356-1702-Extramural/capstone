@@ -496,6 +496,12 @@ $(document)
       } else if ($(this)
         .hasClass('dev_road_building')) {
         build_popup_show_dev_card("road_building");
+      } else if ($(this)
+        .hasClass('longest_road_card')) {
+        build_popup_show_dev_card("longest_road");
+      } else if ($(this)
+        .hasClass('largest_army_card')) {
+        build_popup_show_dev_card("largest_army");
       }
 
     });
