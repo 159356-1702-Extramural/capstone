@@ -50,7 +50,7 @@ body {
 }
 .start_inner, .turn_inner, .popup_inner {
     position: relative;
-    top: 20%;
+    top: 30px;
     margin:auto;
     height:auto;
     width:720px !important;

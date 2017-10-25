@@ -366,6 +366,12 @@ $(document)
         let res = data.player.actions[0].action_data.resource;
         let msg = "You robbed "+player_name+" for 1x "+res;
         alert(msg);
+
+        var my_cards = new Cards();
+        my_cards.resource_cards = current_game.player.cards.resource_cards;
+        my_cards.add_cards(res, 1);
+        updatePanelDisplay();
+        
       } else if (data.data_type === 'robbed_by_player') {
         // {player_id: of the robber, resource: resource lost}
         console.log("robbed_by_player", data);
@@ -374,6 +380,12 @@ $(document)
         let res = data.player.actions[0].action_data.resource;
         let msg = "You were robbed by "+player_name+" for 1x "+res;
         alert(msg);
+
+        var my_cards = new Cards();
+        my_cards.resource_cards = current_game.player.cards.resource_cards;
+        my_cards.remove_multiple_cards(res, 1);
+        updatePanelDisplay();
+        
       } else if (data.data_type === 'force_finish_monopoly') {
         if(current_game.player.cards.dev_cards.monopoly === 0){
           // players waiting for monopoly to finish can start turn
@@ -2001,7 +2013,6 @@ function update_trade_cards(data) {
   my_cards.add_cards(card_type_gain, card_qty_gain);
 }
 function update_intertrade_cards(data) {
-  test = data;
   if (data.player.inter_trade.wants_trade) {
     var my_cards = new Cards();
     my_cards.resource_cards = current_game.player.cards.resource_cards;

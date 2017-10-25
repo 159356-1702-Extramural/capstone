@@ -1171,7 +1171,7 @@ StateMachine.prototype.move_knight_to = function (data) {
     data_package.player.actions.push(action);
     this.send_to_player('game_turn', data_package);
   }
-  this.broadcast_gamestate();
+  //this.broadcast_gamestate();
 };
 
 
