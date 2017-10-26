@@ -345,7 +345,7 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
 
       buildPopup("round_build_no_resources", false, false, [
         ["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],
-        ["general_help_display", (general ? "block" : "none")],
+        ["general_help_display", (general && current_game.round_num > 2 ? "block" : "none")],
         ["settlement_display", (object_type == "settlement" ? "block" : "none")],
         ["road_display", (object_type == "road" ? "block" : "none")],
         ["city_display", (object_type == "city" ? "block" : "none")],
