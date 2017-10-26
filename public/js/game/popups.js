@@ -341,8 +341,11 @@ function buildPopup(popupClass, useLarge, useRight, customData) {
   //      Shows information on what it takes to build an object when you do not have enough
   function build_popup_no_resources(object_type) {
     if (!action_in_progress) {
+      var general = (object_type ? false : true);
+
       buildPopup("round_build_no_resources", false, false, [
         ["setup_round_display", (current_game.round_num < 3 ? "block" : "none")],
+        ["general_help_display", (general && current_game.round_num > 2 ? "block" : "none")],
         ["settlement_display", (object_type == "settlement" ? "block" : "none")],
         ["road_display", (object_type == "road" ? "block" : "none")],
         ["city_display", (object_type == "city" ? "block" : "none")],

@@ -54,7 +54,7 @@ function setupDragDrop() {
           show_open_spots("settlement", event.target.id);
           if (current_game.round_num < 3) {
             do_tip(2, "Now drop your settlement onto one of the ghost images.", "#x6y2", "right", "left");
-            chat_tip(5, "Want to learn more about how to pick a good spot to build? <a href='#' onclick='build_help_popup(0);'>Click Here</a>");
+            //chat_tip(5, "Want to learn more about how to pick a good spot to build? <a href='#' onclick='build_help_popup(0);'>Click Here</a>");
           }
         }
       },
