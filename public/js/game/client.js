@@ -607,6 +607,11 @@ $(document)
       action.action_data.push("lumber");
       action.action_data.push("lumber");
 
+      current_game.player.cards.resource_cards.brick++;
+      current_game.player.cards.resource_cards.brick++;
+      current_game.player.cards.resource_cards.lumber++;
+      current_game.player.cards.resource_cards.lumber++;
+
       var data_package = new Data_package();
       data_package.data_type = 'road_building_used';
       data_package.player_id = current_game.player.id;
