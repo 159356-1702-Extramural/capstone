@@ -1,0 +1,63 @@
+
+FAILED:  - Windows 10 - firefox - 43
+     -Test results here:  https://saucelabs.com/jobs/53cc1cc73056441eaeb324331dd24f53
+     -Test results here:  https://saucelabs.com/jobs/1b31ab4adcc74d2792c67a43efca2c63
+FAILED:  - Windows 10 - firefox - 46
+     -Test results here:  https://saucelabs.com/jobs/31be683acedd4ac9b0d9df884927464d
+     -Test results here:  https://saucelabs.com/jobs/05b8da1d2ba54803baa29bf738e3fee3
+FAILED:  - Windows 10 - microsoftedge - 13
+     -Test results here:  https://saucelabs.com/jobs/a63536ee262f4b6b8c612c066bae25ae
+     -Test results here:  https://saucelabs.com/jobs/1237d58668f14ebd9c22e925f217fb6d
+FAILED:  - Windows 10 - microsoftedge - 14
+     -Test results here:  https://saucelabs.com/jobs/6bbd6081a64d4743b1f3991c79a67dbe
+     -Test results here:  https://saucelabs.com/jobs/6c51a28aa6ad424eaea35392bcf6019c
+FAILED:  - Windows 10 - firefox - 43
+     -Test results here:  https://saucelabs.com/jobs/cdefdf981add424b8cff858f92fa21b6
+     -Test results here:  https://saucelabs.com/jobs/179a678bdfb9471dbf8e62cb14081afa
+FAILED:  - Windows 10 - firefox - 44
+     -Test results here:  https://saucelabs.com/jobs/1486bbdcd2234b01af6c6139ff48ea29
+     -Test results here:  https://saucelabs.com/jobs/02730e04c5e54060abb5e2f709ec2751
+FAILED:  - Windows 10 - firefox - 45
+     -Test results here:  https://saucelabs.com/jobs/4b8db45677264df2bed83c775069cb8e
+     -Test results here:  https://saucelabs.com/jobs/319066bac0f544c882e443cbbf8dc7f1
+FAILED:  - Windows 10 - firefox - 46
+     -Test results here:  https://saucelabs.com/jobs/e75a85b3162b467e9c787e78eda5738c
+     -Test results here:  https://saucelabs.com/jobs/d8b0fb65020743baaf97cda196ca81b5
+FAILED:  - Windows 10 - firefox - 47
+FAILED:  - Windows 10 - microsoftedge - 13
+     -Test results here:  https://saucelabs.com/jobs/5fb02bf7ef2e4ebab281b77be9c034c7
+     -Test results here:  https://saucelabs.com/jobs/acac7cbb2d6e4fadb0be542146a4acdf
+FAILED:  - Windows 10 - microsoftedge - 14
+FAILED:  - Windows 10 - firefox - 43
+     -Test results here:  https://saucelabs.com/jobs/634a0eac19164bad9bf0bd6235110e6d
+     -Test results here:  https://saucelabs.com/jobs/d703c63dba4c443992c74dc3e2d5fcce
+FAILED:  - Windows 10 - chrome - 46
+     -Test results here:  https://saucelabs.com/jobs/7dc08787021a4e968b45de36dd00ccf7
+     -Test results here:  https://saucelabs.com/jobs/20b2a481369b40f2b6aefcd5c72bb6ab
+FAILED:  - Windows 10 - chrome - 47
+     -Test results here:  https://saucelabs.com/jobs/e27073228b464cd19f8852fcde9f4394
+     -Test results here:  https://saucelabs.com/jobs/a1a132036df148bda0cd8fc8f0621bf0
+FAILED:  - Windows 10 - chrome - 48
+     -Test results here:  https://saucelabs.com/jobs/8ccf4c9209eb452f89d04184d995fa3e
+     -Test results here:  https://saucelabs.com/jobs/39d6ea297dbe4e3ea995722d969458f1
+FAILED:  - Windows 8.1 - firefox - 4
+     -Test results here:  https://saucelabs.com/jobs/b950ff3af2df4d1488208646a09bce96
+     -Test results here:  https://saucelabs.com/jobs/619e8596f0484e0dafe5c200eaf89208
+FAILED:  - Windows 8.1 - firefox - 5
+     -Test results here:  https://saucelabs.com/jobs/c897acd2ee0b42b8b724499eac98fdc5
+     -Test results here:  https://saucelabs.com/jobs/e011f527aabd4543b4e8ab73d9211cad
+FAILED:  - Windows 8.1 - firefox - 6
+     -Test results here:  https://saucelabs.com/jobs/fb3bd3af880b4de383cd69f7b9f8ea8f
+     -Test results here:  https://saucelabs.com/jobs/bbf945e23e1f47658bafae8d1f46cd76
+FAILED:  - Windows 8.1 - firefox - 7
+     -Test results here:  https://saucelabs.com/jobs/8d74706ccd2541db87cf23a85ad5c541
+     -Test results here:  https://saucelabs.com/jobs/96286ae057b545ef8b725a8f47ec5d90
+FAILED:  - Windows 8.1 - firefox - 8
+     -Test results here:  https://saucelabs.com/jobs/10fa03636ddc4cdd977f37194fa97e2c
+     -Test results here:  https://saucelabs.com/jobs/62c571321ab5421e97be8c3b47f4c1cd
+FAILED:  - Windows 8.1 - firefox - 9
+     -Test results here:  https://saucelabs.com/jobs/08fb7085f46e4622abcb71a3c1fba332
+     -Test results here:  https://saucelabs.com/jobs/5cef23511f874ef48b8d19670d7f1c50
+FAILED:  - Windows 8.1 - firefox - 10
+     -Test results here:  https://saucelabs.com/jobs/2234ac0ee3684b40b9b654968e4b3332
+     -Test results here:  https://saucelabs.com/jobs/d75d5f8e8d6947f394df91f7a1ab44c9

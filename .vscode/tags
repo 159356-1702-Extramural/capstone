@@ -1,0 +1,71 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ACCESS_KEY	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"$/;"	kind:variable	line:13
+ACCESS_KEY	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"$/;"	kind:variable	line:13
+ACCESS_KEY	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"$/;"	kind:variable	line:15
+ACCESS_KEY	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"$/;"	kind:variable	line:15
+SauceSampleTest	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^class SauceSampleTest(unittest.TestCase):$/;"	kind:class	line:33
+SauceSampleTest	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^class SauceSampleTest(unittest.TestCase):$/;"	kind:class	line:33
+TestAdd	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^class TestAdd(unittest.TestCase):$/;"	kind:class	line:48
+USERNAME	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^USERNAME = "sumnerfit"$/;"	kind:variable	line:12
+USERNAME	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^USERNAME = "sumnerfit"$/;"	kind:variable	line:12
+USERNAME	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^USERNAME = "sumnerfit"$/;"	kind:variable	line:14
+USERNAME	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^USERNAME = "sumnerfit"$/;"	kind:variable	line:14
+__author__	../tests/seleniumPythonTest/__init__.py	/^__author__ = 'QSG'$/;"	kind:variable	line:1
+__author__	../tests/seleniumPythonTest/run_all_tests.py	/^__author__ = 'QSG'$/;"	kind:variable	line:1
+__author__	../tests/seleniumPythonTest/test_case/__init__.py	/^__author__ = 'QSG'$/;"	kind:variable	line:1
+__author__	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^__author__ = 'QSG'$/;"	kind:variable	line:1
+__author__	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^__author__ = 'QSG'$/;"	kind:variable	line:1
+__author__	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^__author__ = 'Craig Walker'$/;"	kind:variable	line:1
+__author__	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^__author__ = 'Craig Walker'$/;"	kind:variable	line:1
+__init__.py	../tests/seleniumPythonTest/__init__.py	1;"	kind:file	line:1
+__init__.py	../tests/seleniumPythonTest/test_case/__init__.py	1;"	kind:file	line:1
+alltestnames	../tests/seleniumPythonTest/run_all_tests.py	/^alltestnames = creatsuite()$/;"	kind:variable	line:24
+arrayPointer	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^arrayPointer = 0$/;"	kind:variable	line:17
+browserVariations	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^browserVariations = [{'platform': 'Windows 10',$/;"	kind:variable	line:51
+browsers	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^browsers = [{"platform": "Mac OS X 10.9",$/;"	kind:variable	line:15
+browsers	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^browsers = [{"platform": "Mac OS X 10.9",$/;"	kind:variable	line:15
+build_desired_caps	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^def build_desired_caps():$/;"	kind:function	line:235
+buy_dev_card	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^def buy_dev_card():$/;"	kind:function	line:249
+creatsuite	../tests/seleniumPythonTest/run_all_tests.py	/^def creatsuite():$/;"	kind:function	line:10
+decorator	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^    def decorator(base_class):$/;"	kind:function	line:23
+decorator	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^    def decorator(base_class):$/;"	kind:function	line:23
+description	../tests/seleniumPythonTest/run_all_tests.py	/^    description=u'Results of the tests:')$/;"	kind:variable	line:35
+desired_caps	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^desired_caps = []$/;"	kind:variable	line:233
+desired_caps	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^desired_caps = [$/;"	kind:variable	line:17
+filename	../tests/seleniumPythonTest/run_all_tests.py	/^filename = os.path.join(test_reports_dir,now+'_result.html')$/;"	kind:variable	line:30
+finish_testing	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^def finish_testing(driver):$/;"	kind:function	line:350
+finish_testing	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^  def finish_testing(driver):$/;"	kind:member	line:198
+fp	../tests/seleniumPythonTest/run_all_tests.py	/^fp = file(filename, 'wb')$/;"	kind:variable	line:31
+get_desired_cap	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^def get_desired_cap(desired_cap):$/;"	kind:function	line:241
+get_desired_cap	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^  def get_desired_cap(desired_cap):$/;"	kind:member	line:185
+now	../tests/seleniumPythonTest/run_all_tests.py	/^now = time.strftime('%m-%d-%Y-%H_%M_%S',time.localtime(time.time()))$/;"	kind:variable	line:25
+on_platforms	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^def on_platforms(platforms):$/;"	kind:function	line:22
+on_platforms	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^def on_platforms(platforms):$/;"	kind:function	line:22
+place_item	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^  def place_item(driver, item, offsetX, offsetY):$/;"	kind:member	line:192
+run_all_tests.py	../tests/seleniumPythonTest/run_all_tests.py	1;"	kind:file	line:1
+runner	../tests/seleniumPythonTest/run_all_tests.py	/^runner =HTMLTestRunner.HTMLTestRunner($/;"	kind:variable	line:32
+sauce	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^sauce = SauceClient(USERNAME, ACCESS_KEY)$/;"	kind:variable	line:14
+sauce	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^sauce = SauceClient(USERNAME, ACCESS_KEY)$/;"	kind:variable	line:14
+sauce	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	/^sauce = SauceClient(USERNAME, ACCESS_KEY)$/;"	kind:variable	line:16
+sauce	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^sauce = SauceClient(USERNAME, ACCESS_KEY)$/;"	kind:variable	line:16
+setUp	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^    def setUp(self):$/;"	kind:member	line:34
+setUp	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^    def setUp(self):$/;"	kind:member	line:34
+slnm_test_check_title.py	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	1;"	kind:file	line:1
+slnm_test_click_tutorial.py	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	1;"	kind:file	line:1
+slnm_test_gameplay.py	../tests/seleniumPythonTest/test_case/slnm_test_gameplay.py	1;"	kind:file	line:1
+slnm_test_start_and_setup.py	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	1;"	kind:file	line:1
+stream	../tests/seleniumPythonTest/run_all_tests.py	/^    stream=fp,$/;"	kind:variable	line:33
+tearDown	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^    def tearDown(self):$/;"	kind:member	line:49
+tearDown	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^    def tearDown(self):$/;"	kind:member	line:53
+test_buy_dev_card	../tests/seleniumPythonTest/test_case/slnm_test_start_and_setup.py	/^  def test_buy_dev_card(desired_cap):$/;"	kind:member	line:49
+test_case_dir	../tests/seleniumPythonTest/run_all_tests.py	/^test_case_dir= os.path.join(test_dir ,'test_case')$/;"	kind:variable	line:7
+test_dir	../tests/seleniumPythonTest/run_all_tests.py	/^test_dir=os.path.split(os.path.realpath(sys.argv[0]))[0]$/;"	kind:variable	line:6
+test_reports_dir	../tests/seleniumPythonTest/run_all_tests.py	/^test_reports_dir= os.path.join(test_dir, 'selenium_test_reports')$/;"	kind:variable	line:8
+test_tutorial	../tests/seleniumPythonTest/test_case/slnm_test_check_title.py	/^    def test_tutorial(self):$/;"	kind:member	line:43
+test_tutorial	../tests/seleniumPythonTest/test_case/slnm_test_click_tutorial.py	/^    def test_tutorial(self):$/;"	kind:member	line:43
+title	../tests/seleniumPythonTest/run_all_tests.py	/^    title=u'Settler of Massey Selenium Test Report',$/;"	kind:variable	line:34

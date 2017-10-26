@@ -48,25 +48,26 @@ arrayPointer = 0
 #         'platform':'Mac 10.12',
 #         'version': '54.0',}]
 
-browserVariations = [{'platform': 'Windows 10',
+browserVariations = [
+{'platform': 'Windows 10',
+'browserName':'internet explorer',
+'startVersion': 11,
+'endVersion': 11
+},
+{'platform': 'Windows 10',
+'browserName':'microsoftedge',
+'startVersion': 13,
+'endVersion': 15
+},
+{'platform': 'Windows 10',
 'browserName':'firefox',
 'startVersion': 43,
 'endVersion': 55
 },
 {'platform': 'Windows 10',
 'browserName':'chrome',
-'startVersion': 26,
+'startVersion': 46,
 'endVersion': 60
-},
-{'platform': 'Windows 10',
-'browserName':'ie',
-'startVersion': 11,
-'endVersion': 11
-},
-{'platform': 'Windows 10',
-'browserName':'edge',
-'startVersion': 13,
-'endVersion': 15
 },
 {'platform':'Windows 8.1',
 'browserName':'firefox',
@@ -79,7 +80,7 @@ browserVariations = [{'platform': 'Windows 10',
 'endVersion': 60
 },
 {'platform':'Windows 8.1',
-'browserName':'ie',
+'browserName':'internet explorer',
 'startVersion': 11,
 'endVersion': 11
 },
@@ -94,7 +95,7 @@ browserVariations = [{'platform': 'Windows 10',
 'endVersion': 60
 },
 {'platform':'Windows 8',
-'browserName':'ie',
+'browserName':'internet explorer',
 'startVersion': 10,
 'endVersion': 10
 },
@@ -110,7 +111,7 @@ browserVariations = [{'platform': 'Windows 10',
 'endVersion': 60
 },
 {'platform':'Windows 8',
-'browserName':'ie',
+'browserName':'internet explorer',
 'startVersion': 8,
 'endVersion': 11
 },
@@ -135,7 +136,7 @@ browserVariations = [{'platform': 'Windows 10',
 'endVersion': 49
 },
 {'platform':'Windows XP',
-'browserName':'ie',
+'browserName':'internet explorer',
 'startVersion': 6,
 'endVersion': 8
 },
@@ -253,7 +254,7 @@ def buy_dev_card():
     print "set driver"
     driverA = get_desired_cap(desired_caps[arrayPointer])
     driverB = get_desired_cap(desired_caps[arrayPointer])
-
+    print "driver set" + desired_caps[arrayPointer]["browserName"]+ "-" + str(desired_caps[arrayPointer]["version"])
     # wait=WebDriverWait(driver,10)
 
     # load website
@@ -343,7 +344,7 @@ def buy_dev_card():
       sauce.jobs.update_job(driverB.session_id, passed=False)
       print "Test failed, sessionId: %s" %driverB.session_id
       driverB.quit()
-    
+
     arrayPointer = arrayPointer + 1
     buy_dev_card()
 
