@@ -10,6 +10,7 @@ from sauceclient import SauceClient
 from multiprocessing import Pool
 from selenium.webdriver.common.action_chains import ActionChains
 import unittest
+from compatability_report import Report
 
 USERNAME = "sumnerfit"
 ACCESS_KEY = "e8a11001-6685-43c4-901b-042e862a93f4"
@@ -230,13 +231,13 @@ browserVariations = [
 'startVersion': 12,
 'endVersion': 12
 }]
-
+report = None
 desired_caps = []
 
 def build_desired_caps():
   global desired_caps
   for cap in browserVariations:
-    for i in (range(cap['startVersion'], cap['endVersion'])):
+    for i in (range(cap['startVersion'], cap['endVersion']+1)):
       desired_caps.append({'browserName':cap['browserName'],'platform':cap['platform'],'name': "Game items test | " + cap['platform'] + ' - ' + cap['browserName'] + ' - ' + str(i),'version': i})
 
 def get_desired_cap(desired_cap):
@@ -326,25 +327,34 @@ def buy_dev_card():
     chat_message_B =  driverA.find_elements_by_class_name('chat_message')
 
     print 'finished tests'
+    report.addEntry(desired_caps[arrayPointer]['platform'], desired_caps[arrayPointer]['browserName'] + "-" + str(desired_caps[arrayPointer]['version']) + "|" + desired_caps[arrayPointer]['platform'], "https://saucelabs.com/jobs/%s" % driverA.session_id, True)
     finish_testing(driverA)
     finish_testing(driverB)
     arrayPointer = arrayPointer + 1
 
   except:
-    with open("tests/seleniumPythonTest/test_case/headless_results.txt", "a") as myfile:
-      myfile.write("\nFAILED:  - " + desired_caps[arrayPointer]['platform'] + " - " + desired_caps[arrayPointer]['browserName'] + " - " + str(desired_caps[arrayPointer]['version']))
-      myfile.write("\n     -Test results here:  https://saucelabs.com/jobs/%s" % driverA.session_id  )
-      myfile.write("\n     -Test results here:  https://saucelabs.com/jobs/%s" % driverB.session_id  )
-      myfile.close()
+    failureDocumented = False
+    myfile = open("tests/seleniumPythonTest/test_case/headless_results.txt", "a")
+    myfile.write("\nFAILED:  - " + desired_caps[arrayPointer]['platform'] + " - " + desired_caps[arrayPointer]['browserName'] + " - " + str(desired_caps[arrayPointer]['version']))
+
     if driverA:
+      if not failureDocumented:
+        report.addEntry(desired_caps[arrayPointer]['platform'], desired_caps[arrayPointer]['browserName'] + "-" + str(desired_caps[arrayPointer]['version']) + "|" + desired_caps[arrayPointer]['platform'], "https://saucelabs.com/jobs/%s" % driverA.session_id, False)
+      failureDocumented = True
       sauce.jobs.update_job(driverA.session_id, passed=False)
       print "Test failed, sessionId: %s" %driverA.session_id
+      myfile.write("\n     -Test results here:  https://saucelabs.com/jobs/%s" % driverA.session_id  )
       driverA.quit()
     if driverB:
+      if not failureDocumented:
+        report.addEntry(desired_caps[arrayPointer]['platform'], desired_caps[arrayPointer]['browserName'] + "-" + str(desired_caps[arrayPointer]['version']) + "|" + desired_caps[arrayPointer]['platform'], "https://saucelabs.com/jobs/%s" % driverB.session_id, False)
+      failureDocumented = True
       sauce.jobs.update_job(driverB.session_id, passed=False)
+      myfile.write("\n     -Test results here:  https://saucelabs.com/jobs/%s" % driverB.session_id  )
       print "Test failed, sessionId: %s" %driverB.session_id
       driverB.quit()
 
+    myfile.close()
     arrayPointer = arrayPointer + 1
     buy_dev_card()
 
@@ -360,6 +370,12 @@ def finish_testing(driver):
   finally:
     driver.quit()
 
+report = Report()
+report.startReport()
+
 build_desired_caps()
 for cap in desired_caps:
   buy_dev_card()
+
+report.endReport()
+print "---- test complete ---"
