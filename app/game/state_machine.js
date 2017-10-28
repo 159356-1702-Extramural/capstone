@@ -20,6 +20,7 @@ var Game = require('./game.js');
 var Data_package = require('../data_api/data_package.js');
 var Game_state = require('../data_api/game_state.js');
 var Action = require('../../public/data_api/action.js');
+var log_data=require('./log_data.js');
 var {
   Cards,
   TradeCards
@@ -526,6 +527,8 @@ StateMachine.prototype.game_start_sequence = function (initiatingGame) {
  ***************************************************************/
 StateMachine.prototype.validate_player_builds = function (data) {
   this.log('debug', 'validate_player_builds function called.');
+  log_data(data);
+
   if (!data) this.log("error", "func 'validate_player_builds()' missing data");
   if (this.game.round_num < 3) {
     //  During the seutp, just set the piece
