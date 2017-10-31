@@ -1,6 +1,7 @@
 import test from 'ava';
 var webdriverio = require('webdriverio');
 var SauceLabs = require("saucelabs");
+var Shuffler = require("../app/helpers/shuffler")
 var username = "sumnerfit";
 var accessKey = "e8a11001-6685-43c4-901b-042e862a93f4";
 var saucelabs = new SauceLabs({
@@ -188,10 +189,14 @@ async function popups_display_and_close(){
 }
 
 async function runTests(){
-    popups_display_and_close();
-    popups_display_and_close();
-    popups_display_and_close();
-    popups_display_and_close();
+  var shuffler = new Shuffler();
+  browserArray = shuffler.shuffle(browserArray);
+  
+  // using a loop here or map causes tests to stop interacting
+  popups_display_and_close();
+  popups_display_and_close();
+  popups_display_and_close();
+  popups_display_and_close();
 }
 
 runTests();
