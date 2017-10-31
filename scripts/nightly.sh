@@ -1,5 +1,5 @@
 #!/bin/bash
-
+import datetime
 set -ev
 
 # echo ${TRAVIS_EVENT_TYPE};
@@ -8,7 +8,11 @@ set -ev
 #    + returns 'cron' when called by the travis cron job trigger
 
 if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
-        python tests/seleniumPythonTest/test_case/setup_tests.py
+        
+        # run once a week
+        if (datetime.datetime.now().timetuple().tm_yday % 7 == 0):
+            python tests/seleniumPythonTest/test_case/slnm_test_compatability.py
+
         wait
         npm test "tests/selenium.test_cron.js"
         wait
