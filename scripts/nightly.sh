@@ -11,7 +11,7 @@ if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
         
         # run once a week
         if (datetime.datetime.now().timetuple().tm_yday % 7 == 0):
-            python tests/seleniumPythonTest/test_case/slnm_test_compatability.py
+            python tests/seleniumPythonTest/test_case/slnm_tests_compatability.py
 
         wait
         npm test "tests/saucelabs.test_cron.js"
