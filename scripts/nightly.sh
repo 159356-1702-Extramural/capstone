@@ -8,9 +8,8 @@ set -ev
 #    + returns 'cron' when called by the travis cron job trigger
 
 if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
+
         npm test "tests/saucelabs.test_cron.js"
-        #wait
-        #python tests/seleniumPythonTest/test_case/setup_tests.py
 
     else
         npm test

@@ -108,7 +108,6 @@ async function popups_display_and_close(){
   }
   var player_name = browser + " " + version + "-" + (testsRun % 2);
 
-  console.log(player_name + " -----> " + other_player);
   var testTitle = player_name + " | "+os
   var passedBool = false;
   arrayPointer++;
