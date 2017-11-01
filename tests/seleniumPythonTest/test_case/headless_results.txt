@@ -1,0 +1,7 @@
+
+FAILED:  - Windows 10 - internet explorer - 11
+     -Test results here:  https://saucelabs.com/jobs/126f307152b74d9cbaaf213095bdbe87
+     -Test results here:  https://saucelabs.com/jobs/dd96c5c0a504480fa885d027f88e5a3c
+FAILED:  - Windows 10 - firefox - 43
+     -Test results here:  https://saucelabs.com/jobs/7b6f82883de948d2bc6feaedd62d0653
+     -Test results here:  https://saucelabs.com/jobs/93ee6f7dc66d495db3c7d406ad3ab56c

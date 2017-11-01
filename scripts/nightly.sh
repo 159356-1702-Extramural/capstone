@@ -14,9 +14,7 @@ if [ "${TRAVIS_EVENT_TYPE}" = "cron" ]; then
             python tests/seleniumPythonTest/test_case/slnm_test_compatability.py
 
         wait
-        npm test "tests/selenium.test_cron.js"
-        wait
-        npm test "tests/gamelogic.test_cron.js"
+        npm test "tests/saucelabs.test_cron.js"
 
     else
         npm test
